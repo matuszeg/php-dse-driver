@@ -156,6 +156,10 @@ if test "$PHP_DSE" != "no"; then
     src/Dse/DefaultCluster.c \
     src/Dse/DefaultSession.c \
     src/Dse/FutureSession.c \
+    src/Dse/GraphResult.c \
+    src/Dse/GraphResultSet.c \
+    src/Dse/GraphSimpleStatement.c \
+    src/Dse/GraphStatement.c \
     src/Dse/Session.c
   ";
 
@@ -301,12 +305,12 @@ if test "$PHP_DSE" != "no"; then
     ac_extra=-L$CPP_DRIVER_DIR/$PHP_LIBDIR
   fi
 
-  PHP_CHECK_LIBRARY(cassandra, cass_cluster_new,
+  PHP_CHECK_LIBRARY(dse, cass_cluster_new_dse,
     [
-      AC_DEFINE(HAVE_CASSANDRALIB,1,[ ])
+      AC_DEFINE(HAVE_DSELIB,1,[ ])
     ],
     [
-      AC_MSG_ERROR([Unable to load libcassandra])
+      AC_MSG_ERROR([Unable to load libdse])
     ],
     [
       $ac_extra
@@ -318,7 +322,7 @@ if test "$PHP_DSE" != "no"; then
     PHP_ADD_INCLUDE($CPP_DRIVER_DIR/include)
   fi
 
-  PHP_ADD_LIBRARY(cassandra,, DSE_SHARED_LIBADD)
+  PHP_ADD_LIBRARY(dse,, DSE_SHARED_LIBADD)
 
   DSE_SHARED_LIBADD="$DSE_SHARED_LIBADD $LIBS"
 fi

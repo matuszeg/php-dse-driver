@@ -2,14 +2,14 @@
 
 zend_class_entry *dse_session_ce = NULL;
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_execute, 0, ZEND_RETURN_VALUE, 1)
-  ZEND_ARG_OBJ_INFO(0, statement, Cassandra\\Statement, 0)
-  ZEND_ARG_OBJ_INFO(0, options, Cassandra\\ExecutionOptions, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_execute_graph, 0, ZEND_RETURN_VALUE, 1)
+  ZEND_ARG_OBJ_INFO(0, statement, Dse\\GraphStatement, 0)
+  ZEND_ARG_ARRAY_INFO(0, options, 1)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry dse_session_methods[] = {
-  PHP_ABSTRACT_ME(DseSession, executeGraph, arginfo_execute)
-  PHP_ABSTRACT_ME(DseSession, executeGraphAsync, arginfo_execute)
+  PHP_ABSTRACT_ME(DseSession, executeGraph, arginfo_execute_graph)
+  PHP_ABSTRACT_ME(DseSession, executeGraphAsync, arginfo_execute_graph)
   PHP_FE_END
 };
 
