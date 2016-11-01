@@ -311,6 +311,30 @@ PHP_METHOD(DseDefaultClusterBuilder, withGssapiAuthenticator)
   RETURN_ZVAL(getThis(), 1, 0);
 }
 
+PHP_METHOD(DseDefaultClusterBuilder, withGraphLanguage)
+{
+}
+
+PHP_METHOD(DseDefaultClusterBuilder, withGraphSource)
+{
+}
+
+PHP_METHOD(DseDefaultClusterBuilder, withGraphName)
+{
+}
+
+PHP_METHOD(DseDefaultClusterBuilder, withGraphReadConsistency)
+{
+}
+
+PHP_METHOD(DseDefaultClusterBuilder, withGraphWriteConsistency)
+{
+}
+
+PHP_METHOD(DseDefaultClusterBuilder, withGraphRequestTimeout)
+{
+}
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -408,6 +432,26 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_gssapi_authenticator, 0, ZEND_RETURN_VALUE, 2)
   ZEND_ARG_INFO(0, principal)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_language, 0, ZEND_RETURN_VALUE, 1)
+  ZEND_ARG_INFO(0, language)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_source, 0, ZEND_RETURN_VALUE, 1)
+  ZEND_ARG_INFO(0, source)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_name, 0, ZEND_RETURN_VALUE, 1)
+  ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_consistency, 0, ZEND_RETURN_VALUE, 1)
+  ZEND_ARG_INFO(0, consistency)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_request_timeout, 0, ZEND_RETURN_VALUE, 1)
+  ZEND_ARG_INFO(0, request_timeout)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry dse_default_cluster_builder_methods[] = {
   PHP_ME(DseDefaultClusterBuilder, build, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DseDefaultClusterBuilder, withDefaultConsistency, arginfo_consistency, ZEND_ACC_PUBLIC)
@@ -439,6 +483,12 @@ static zend_function_entry dse_default_cluster_builder_methods[] = {
   PHP_ME(DseDefaultClusterBuilder, withSchemaMetadata, arginfo_enabled, ZEND_ACC_PUBLIC)
   PHP_ME(DseDefaultClusterBuilder, withPlaintextAuthenticator, arginfo_plaintext_authenticator, ZEND_ACC_PUBLIC)
   PHP_ME(DseDefaultClusterBuilder, withGssapiAuthenticator, arginfo_gssapi_authenticator, ZEND_ACC_PUBLIC)
+  PHP_ME(DseDefaultClusterBuilder, withGraphLanguage, arginfo_graph_language, ZEND_ACC_PUBLIC)
+  PHP_ME(DseDefaultClusterBuilder, withGraphSource, arginfo_graph_source, ZEND_ACC_PUBLIC)
+  PHP_ME(DseDefaultClusterBuilder, withGraphName, arginfo_graph_name, ZEND_ACC_PUBLIC)
+  PHP_ME(DseDefaultClusterBuilder, withGraphReadConsistency, arginfo_graph_consistency, ZEND_ACC_PUBLIC)
+  PHP_ME(DseDefaultClusterBuilder, withGraphWriteConsistency, arginfo_graph_consistency, ZEND_ACC_PUBLIC)
+  PHP_ME(DseDefaultClusterBuilder, withGraphRequestTimeout, arginfo_graph_request_timeout, ZEND_ACC_PUBLIC)
   PHP_FE_END
 };
 

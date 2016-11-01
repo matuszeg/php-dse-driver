@@ -125,6 +125,12 @@ static int graph_array_from_tuple(cassandra_tuple *tuple,
 static int graph_object_from_user_type_value(cassandra_user_type_value *user_type_value,
                                              DseGraphObject **result TSRMLS_DC);
 
+static int graph_build_array(zval *value,
+                             DseGraphArray **result TSRMLS_DC);
+
+static int graph_build_object(zval *value,
+                              DseGraphObject **result TSRMLS_DC);
+
 static int graph_object_add_uuid(DseGraphObject *object,
                                  const char *name,
                                  cassandra_uuid *uuid)
@@ -250,10 +256,10 @@ static int graph_array_add_blob(DseGraphArray *array,
   CHECK_RESULT(rc);
 }
 
-static int graph_object_add(DseGraphObject *object,
-                            const char *name,
-                            zval *value,
-                            CassValueType type TSRMLS_DC)
+static int graph_object_add_with_value_type(DseGraphObject *object,
+                                            const char *name,
+                                            zval *value,
+                                            CassValueType type TSRMLS_DC)
 {
   cassandra_blob       *blob;
   cassandra_numeric    *numeric;
@@ -398,9 +404,9 @@ static int graph_object_add(DseGraphObject *object,
   return FAILURE;
 }
 
-static int graph_array_add(DseGraphArray *array,
-                           zval *value,
-                           CassValueType type TSRMLS_DC)
+static int graph_array_add_with_value_type(DseGraphArray *array,
+                                           zval *value,
+                                           CassValueType type TSRMLS_DC)
 {
   cassandra_blob       *blob;
   cassandra_numeric    *numeric;
@@ -557,7 +563,9 @@ static int graph_array_from_set(cassandra_set *set,
   array = dse_graph_array_new();
 
   HASH_ITER(hh, set->entries, curr, temp) {
-    if (graph_array_add(array, PHP5TO7_ZVAL_MAYBE_P(curr->value), value_type->type) == FAILURE) {
+    if (graph_array_add_with_value_type(array,
+                                        PHP5TO7_ZVAL_MAYBE_P(curr->value),
+                                        value_type->type) == FAILURE) {
       rc = FAILURE;
       break;
     }
@@ -585,7 +593,9 @@ static int graph_array_from_collection(cassandra_collection *coll,
   array = dse_graph_array_new();
 
   PHP5TO7_ZEND_HASH_FOREACH_VAL(&coll->values, curr) {
-    if (graph_array_add(array, PHP5TO7_ZVAL_MAYBE_DEREF(curr), value_type->type) == FAILURE) {
+    if (graph_array_add_with_value_type(array,
+                                        PHP5TO7_ZVAL_MAYBE_DEREF(curr),
+                                        value_type->type) == FAILURE) {
       rc = FAILURE;
       break;
     }
@@ -616,10 +626,10 @@ static int graph_object_from_map(cassandra_map *map,
   object = dse_graph_object_new();
 
   HASH_ITER(hh, map->entries, curr, temp) {
-    if (graph_object_add(object,
-                         PHP5TO7_Z_STRVAL_MAYBE_P(curr->key), // TODO: Fix this? Should this do a string conversion?
-                         PHP5TO7_ZVAL_MAYBE_P(curr->value),
-                         value_type->type) == FAILURE) {
+    if (graph_object_add_with_value_type(object,
+                                         PHP5TO7_Z_STRVAL_MAYBE_P(curr->key), // TODO: Fix this? Should this do a string conversion?
+                                         PHP5TO7_ZVAL_MAYBE_P(curr->value),
+                                         value_type->type) == FAILURE) {
       rc = FAILURE;
       break;
     }
@@ -655,9 +665,9 @@ static int graph_array_from_tuple(cassandra_tuple *tuple,
       break;
     }
     sub_type = PHP_CASSANDRA_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(zsub_type));
-    if (graph_array_add(array,
-                        PHP5TO7_ZVAL_MAYBE_DEREF(current),
-                        sub_type->type) == FAILURE) {
+    if (graph_array_add_with_value_type(array,
+                                        PHP5TO7_ZVAL_MAYBE_DEREF(current),
+                                        sub_type->type) == FAILURE) {
       rc = FAILURE;
       break;
     }
@@ -693,9 +703,9 @@ static int graph_object_from_user_type_value(cassandra_user_type_value *user_typ
       break;
     }
     sub_type = PHP_CASSANDRA_GET_TYPE(PHP5TO7_ZVAL_MAYBE_DEREF(zsub_type));
-    if (graph_object_add(object, name,
-                         PHP5TO7_ZVAL_MAYBE_DEREF(current),
-                         sub_type->type TSRMLS_CC) == FAILURE) {
+    if (graph_object_add_with_value_type(object, name,
+                                         PHP5TO7_ZVAL_MAYBE_DEREF(current),
+                                         sub_type->type TSRMLS_CC) == FAILURE) {
       rc = FAILURE;
       break;
     }
@@ -709,92 +719,136 @@ static int graph_object_from_user_type_value(cassandra_user_type_value *user_typ
   return rc;
 }
 
-static int graph_arguments_add(DseGraphObject *arguments,
-                               const char *name,
-                               zval *value TSRMLS_DC)
+#define GRAPH_OUTPUT_ARRAY  0
+#define GRAPH_OUTPUT_OBJECT 1
+
+static int graph_determine_array_type(zval *value) {
+  HashTable *ht = Z_ARRVAL_P(value);
+
+  if (ht && zend_hash_num_elements(ht) > 0) {
+    php5to7_zval *current;
+    ulong num_key, index = 0;
+
+#if PHP_MAJOR_VERSION >= 7
+    zend_string *key;
+    ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, key, current) {
+      if (key) {
+#else
+    char *str_key;
+    uint str_len;
+    PHP5TO7_ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, str_key, str_len, current) {
+      if (str_key) {
+#endif
+        return GRAPH_OUTPUT_OBJECT;
+      } else if (index != num_key) {
+        return GRAPH_OUTPUT_OBJECT;
+      }
+      index++;
+    } PHP5TO7_ZEND_HASH_FOREACH_END(ht);
+
+  }
+
+  return GRAPH_OUTPUT_ARRAY;
+}
+
+static int graph_array_add(DseGraphArray *array,
+                           zval *value TSRMLS_DC)
 {
   if (Z_TYPE_P(value) == IS_NULL) {
-    CHECK_RESULT(dse_graph_object_add_null(arguments, name));
+    CHECK_RESULT(dse_graph_array_add_null(array));
   }
 
   if (Z_TYPE_P(value) == IS_STRING) {
-    CHECK_RESULT(dse_graph_object_add_string(arguments, name, Z_STRVAL_P(value)));
+    CHECK_RESULT(dse_graph_array_add_string(array, Z_STRVAL_P(value)));
   }
 
   if (Z_TYPE_P(value) == IS_DOUBLE)
-    CHECK_RESULT(dse_graph_object_add_double(arguments, name, Z_DVAL_P(value)));
+    CHECK_RESULT(dse_graph_array_add_double(array, Z_DVAL_P(value)));
 
   if (Z_TYPE_P(value) == IS_LONG)
-    CHECK_RESULT(dse_graph_object_add_int32(arguments, name, Z_LVAL_P(value)));
+    CHECK_RESULT(dse_graph_array_add_int32(array, Z_LVAL_P(value)));
 
   if (PHP5TO7_ZVAL_IS_TRUE_P(value))
-    CHECK_RESULT(dse_graph_object_add_bool(arguments, name, cass_true));
+    CHECK_RESULT(dse_graph_array_add_bool(array, cass_true));
 
   if (PHP5TO7_ZVAL_IS_FALSE_P(value))
-    CHECK_RESULT(dse_graph_object_add_bool(arguments, name, cass_false));
+    CHECK_RESULT(dse_graph_array_add_bool(array, cass_false));
 
   if (Z_TYPE_P(value) == IS_ARRAY) {
+    if (graph_determine_array_type(value) == GRAPH_OUTPUT_ARRAY) {
+      DseGraphArray *sub_array;
+      if (graph_build_array(value, &sub_array) == FAILURE) {
+        return FAILURE;
+      }
+      CHECK_RESULT(dse_graph_array_add_array(array, sub_array));
+    } else {
+      DseGraphObject *sub_object;
+      if (graph_build_object(value, &sub_object) == FAILURE) {
+        return FAILURE;
+      }
+      CHECK_RESULT(dse_graph_array_add_object(array, sub_object));
+    }
   }
 
   if (Z_TYPE_P(value) == IS_OBJECT) {
     if (instanceof_function(Z_OBJCE_P(value), cassandra_float_ce TSRMLS_CC)) {
       cassandra_numeric *float_number = PHP_CASSANDRA_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_object_add_double(arguments, name, float_number->float_value));
+      CHECK_RESULT(dse_graph_array_add_double(array, float_number->float_value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_bigint_ce TSRMLS_CC)) {
       cassandra_numeric *bigint = PHP_CASSANDRA_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_object_add_int64(arguments, name, bigint->bigint_value));
+      CHECK_RESULT(dse_graph_array_add_int64(array, bigint->bigint_value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_smallint_ce TSRMLS_CC)) {
       cassandra_numeric *smallint = PHP_CASSANDRA_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_object_add_int32(arguments, name, smallint->smallint_value));
+      CHECK_RESULT(dse_graph_array_add_int32(array, smallint->smallint_value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_tinyint_ce TSRMLS_CC)) {
       cassandra_numeric *tinyint = PHP_CASSANDRA_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_object_add_int32(arguments, name, tinyint->tinyint_value));
+      CHECK_RESULT(dse_graph_array_add_int32(array, tinyint->tinyint_value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_timestamp_ce TSRMLS_CC)) {
       cassandra_timestamp *timestamp = PHP_CASSANDRA_GET_TIMESTAMP(value);
-      CHECK_RESULT(dse_graph_object_add_int64(arguments, name, timestamp->timestamp));
+      CHECK_RESULT(dse_graph_array_add_int64(array, timestamp->timestamp));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_date_ce TSRMLS_CC)) {
       cassandra_date *date = PHP_CASSANDRA_GET_DATE(value);
-      CHECK_RESULT(dse_graph_object_add_int64(arguments, name, date->date));
+      CHECK_RESULT(dse_graph_array_add_int64(array, date->date));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_time_ce TSRMLS_CC)) {
       cassandra_time *time = PHP_CASSANDRA_GET_TIME(value);
-      CHECK_RESULT(dse_graph_object_add_int64(arguments, name, time->time));
+      CHECK_RESULT(dse_graph_array_add_int64(array, time->time));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_blob_ce TSRMLS_CC)) {
       cassandra_blob *blob = PHP_CASSANDRA_GET_BLOB(value);
-      return graph_object_add_blob(arguments, name, blob);
+      return graph_array_add_blob(array, blob);
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_varint_ce TSRMLS_CC)) {
       cassandra_numeric *varint = PHP_CASSANDRA_GET_NUMERIC(value);
-      return graph_object_add_varint(arguments, name, varint);
+      return graph_array_add_varint(array, varint);
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_decimal_ce TSRMLS_CC)) {
       cassandra_numeric *decimal = PHP_CASSANDRA_GET_NUMERIC(value);
-      return graph_object_add_decimal(arguments, name, decimal);
+      return graph_array_add_decimal(array, decimal);
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_uuid_interface_ce TSRMLS_CC)) {
       cassandra_uuid *uuid = PHP_CASSANDRA_GET_UUID(value);
-      return graph_object_add_uuid(arguments, name, uuid);
+      return graph_array_add_uuid(array, uuid);
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_inet_ce TSRMLS_CC)) {
       cassandra_inet *inet = PHP_CASSANDRA_GET_INET(value);
-      return graph_object_add_inet(arguments, name, inet);
+      return graph_array_add_inet(array, inet);
     }
 
     if (instanceof_function(Z_OBJCE_P(value), cassandra_set_ce TSRMLS_CC)) {
@@ -803,7 +857,7 @@ static int graph_arguments_add(DseGraphObject *arguments,
       if (graph_array_from_set(set, &array) == FAILURE) {
         return FAILURE;
       }
-      dse_graph_object_add_array(arguments, name, array);
+      dse_graph_array_add_array(array, array);
       dse_graph_array_free(array);
       return SUCCESS;
     }
@@ -814,7 +868,7 @@ static int graph_arguments_add(DseGraphObject *arguments,
       if (graph_object_from_map(map, &object) == FAILURE) {
         return FAILURE;
       }
-      dse_graph_object_add_object(arguments, name, object);
+      dse_graph_array_add_object(array, object);
       dse_graph_object_free(object);
       return SUCCESS;
     }
@@ -825,7 +879,7 @@ static int graph_arguments_add(DseGraphObject *arguments,
       if (graph_array_from_collection(coll, &array) == FAILURE) {
         return FAILURE;
       }
-      dse_graph_object_add_array(arguments, name, array);
+      dse_graph_array_add_array(array, array);
       dse_graph_array_free(array);
       return SUCCESS;
     }
@@ -836,7 +890,7 @@ static int graph_arguments_add(DseGraphObject *arguments,
       if (graph_array_from_tuple(tuple, &array) == FAILURE) {
         return FAILURE;
       }
-      dse_graph_object_add_array(arguments, name, array);
+      dse_graph_array_add_array(array, array);
       dse_graph_array_free(array);
       return SUCCESS;
     }
@@ -847,13 +901,241 @@ static int graph_arguments_add(DseGraphObject *arguments,
       if (graph_object_from_user_type_value(user_type_value, &object) == FAILURE) {
         return FAILURE;
       }
-      dse_graph_object_add_object(arguments, name, object);
+      dse_graph_array_add_object(array, object);
       dse_graph_object_free(object);
       return SUCCESS;
     }
   }
 
   return FAILURE;
+}
+
+static int graph_object_add(DseGraphObject *object,
+                            const char *name,
+                            zval *value TSRMLS_DC)
+{
+  if (Z_TYPE_P(value) == IS_NULL) {
+    CHECK_RESULT(dse_graph_object_add_null(object, name));
+  }
+
+  if (Z_TYPE_P(value) == IS_STRING) {
+    CHECK_RESULT(dse_graph_object_add_string(object, name, Z_STRVAL_P(value)));
+  }
+
+  if (Z_TYPE_P(value) == IS_DOUBLE)
+    CHECK_RESULT(dse_graph_object_add_double(object, name, Z_DVAL_P(value)));
+
+  if (Z_TYPE_P(value) == IS_LONG)
+    CHECK_RESULT(dse_graph_object_add_int32(object, name, Z_LVAL_P(value)));
+
+  if (PHP5TO7_ZVAL_IS_TRUE_P(value))
+    CHECK_RESULT(dse_graph_object_add_bool(object, name, cass_true));
+
+  if (PHP5TO7_ZVAL_IS_FALSE_P(value))
+    CHECK_RESULT(dse_graph_object_add_bool(object, name, cass_false));
+
+  if (Z_TYPE_P(value) == IS_ARRAY) {
+    if (graph_determine_array_type(value) == GRAPH_OUTPUT_ARRAY) {
+      DseGraphArray *sub_array;
+      if (graph_build_array(value, &sub_array) == FAILURE) {
+        return FAILURE;
+      }
+      CHECK_RESULT(dse_graph_object_add_array(object, name, sub_array));
+    } else {
+      DseGraphObject *sub_object;
+      if (graph_build_object(value, &sub_object) == FAILURE) {
+        return FAILURE;
+      }
+      CHECK_RESULT(dse_graph_object_add_object(object, name, sub_object));
+    }
+  }
+
+  if (Z_TYPE_P(value) == IS_OBJECT) {
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_float_ce TSRMLS_CC)) {
+      cassandra_numeric *float_number = PHP_CASSANDRA_GET_NUMERIC(value);
+      CHECK_RESULT(dse_graph_object_add_double(object, name, float_number->float_value));
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_bigint_ce TSRMLS_CC)) {
+      cassandra_numeric *bigint = PHP_CASSANDRA_GET_NUMERIC(value);
+      CHECK_RESULT(dse_graph_object_add_int64(object, name, bigint->bigint_value));
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_smallint_ce TSRMLS_CC)) {
+      cassandra_numeric *smallint = PHP_CASSANDRA_GET_NUMERIC(value);
+      CHECK_RESULT(dse_graph_object_add_int32(object, name, smallint->smallint_value));
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_tinyint_ce TSRMLS_CC)) {
+      cassandra_numeric *tinyint = PHP_CASSANDRA_GET_NUMERIC(value);
+      CHECK_RESULT(dse_graph_object_add_int32(object, name, tinyint->tinyint_value));
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_timestamp_ce TSRMLS_CC)) {
+      cassandra_timestamp *timestamp = PHP_CASSANDRA_GET_TIMESTAMP(value);
+      CHECK_RESULT(dse_graph_object_add_int64(object, name, timestamp->timestamp));
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_date_ce TSRMLS_CC)) {
+      cassandra_date *date = PHP_CASSANDRA_GET_DATE(value);
+      CHECK_RESULT(dse_graph_object_add_int64(object, name, date->date));
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_time_ce TSRMLS_CC)) {
+      cassandra_time *time = PHP_CASSANDRA_GET_TIME(value);
+      CHECK_RESULT(dse_graph_object_add_int64(object, name, time->time));
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_blob_ce TSRMLS_CC)) {
+      cassandra_blob *blob = PHP_CASSANDRA_GET_BLOB(value);
+      return graph_object_add_blob(object, name, blob);
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_varint_ce TSRMLS_CC)) {
+      cassandra_numeric *varint = PHP_CASSANDRA_GET_NUMERIC(value);
+      return graph_object_add_varint(object, name, varint);
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_decimal_ce TSRMLS_CC)) {
+      cassandra_numeric *decimal = PHP_CASSANDRA_GET_NUMERIC(value);
+      return graph_object_add_decimal(object, name, decimal);
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_uuid_interface_ce TSRMLS_CC)) {
+      cassandra_uuid *uuid = PHP_CASSANDRA_GET_UUID(value);
+      return graph_object_add_uuid(object, name, uuid);
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_inet_ce TSRMLS_CC)) {
+      cassandra_inet *inet = PHP_CASSANDRA_GET_INET(value);
+      return graph_object_add_inet(object, name, inet);
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_set_ce TSRMLS_CC)) {
+      DseGraphArray *array;
+      cassandra_set *set = PHP_CASSANDRA_GET_SET(value);
+      if (graph_array_from_set(set, &array) == FAILURE) {
+        return FAILURE;
+      }
+      dse_graph_object_add_array(object, name, array);
+      dse_graph_array_free(array);
+      return SUCCESS;
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_map_ce TSRMLS_CC)) {
+      DseGraphObject *object;
+      cassandra_map *map = PHP_CASSANDRA_GET_MAP(value);
+      if (graph_object_from_map(map, &object) == FAILURE) {
+        return FAILURE;
+      }
+      dse_graph_object_add_object(object, name, object);
+      dse_graph_object_free(object);
+      return SUCCESS;
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_collection_ce TSRMLS_CC)) {
+      DseGraphArray *array;
+      cassandra_collection *coll = PHP_CASSANDRA_GET_COLLECTION(value);
+      if (graph_array_from_collection(coll, &array) == FAILURE) {
+        return FAILURE;
+      }
+      dse_graph_object_add_array(object, name, array);
+      dse_graph_array_free(array);
+      return SUCCESS;
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_tuple_ce TSRMLS_CC)) {
+      DseGraphArray *array;
+      cassandra_tuple *tuple = PHP_CASSANDRA_GET_TUPLE(value);
+      if (graph_array_from_tuple(tuple, &array) == FAILURE) {
+        return FAILURE;
+      }
+      dse_graph_object_add_array(object, name, array);
+      dse_graph_array_free(array);
+      return SUCCESS;
+    }
+
+    if (instanceof_function(Z_OBJCE_P(value), cassandra_user_type_value_ce TSRMLS_CC)) {
+      DseGraphObject *object;
+      cassandra_user_type_value *user_type_value = PHP_CASSANDRA_GET_USER_TYPE_VALUE(value);
+      if (graph_object_from_user_type_value(user_type_value, &object) == FAILURE) {
+        return FAILURE;
+      }
+      dse_graph_object_add_object(object, name, object);
+      dse_graph_object_free(object);
+      return SUCCESS;
+    }
+  }
+
+  return FAILURE;
+}
+
+static int graph_build_array(zval *value,
+                             DseGraphArray **result TSRMLS_DC)
+{
+  int rc = SUCCESS;
+
+  HashTable *ht = Z_ARRVAL_P(value);
+  DseGraphArray *array = dse_graph_array_new();
+
+  php5to7_ulong num_key;
+  php5to7_zval *current;
+  PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(ht, num_key, current) {
+    CassError r = graph_array_add(array, PHP5TO7_ZVAL_MAYBE_DEREF(current) TSRMLS_CC);
+    ASSERT_SUCCESS_BLOCK(r, rc = FAILURE; break;);
+  } PHP5TO7_ZEND_HASH_FOREACH_END(ht);
+
+  if (rc == SUCCESS) {
+    *result = array;
+  } else {
+    dse_graph_array_free(array);
+  }
+
+  return rc;
+}
+
+static int graph_build_object(zval *value,
+                              DseGraphObject **result TSRMLS_DC)
+{
+  int rc = SUCCESS;
+
+  HashTable *ht = Z_ARRVAL_P(value);
+  DseGraphObject *object = dse_graph_object_new();
+
+  if (ht && zend_hash_num_elements(ht) > 0) {
+    php5to7_zval *current;
+    ulong num_key;
+    CassError r = CASS_OK;
+
+#if PHP_MAJOR_VERSION >= 7
+    zend_string *key;
+    ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, key, current) {
+      if (key) {
+        r = graph_object_add(object, key->val, PHP5TO7_ZVAL_MAYBE_DEREF(current) TSRMLS_CC);
+#else
+    char *str_key;
+    uint str_len;
+    PHP5TO7_ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, str_key, str_len, current) {
+      if (str_key) {
+        r = graph_object_add(object, str_key, PHP5TO7_ZVAL_MAYBE_DEREF(current) TSRMLS_CC);
+#endif
+      } else {
+        char num_key_str[64];
+        sprintf(num_key_str, "%lu", num_key);
+        r = graph_object_add(object, num_key_str, PHP5TO7_ZVAL_MAYBE_DEREF(current) TSRMLS_CC);
+      }
+
+      ASSERT_SUCCESS_BLOCK(r, rc = FAILURE; break;)
+    } PHP5TO7_ZEND_HASH_FOREACH_END(ht);
+  }
+
+  if (rc == SUCCESS) {
+    *result = object;
+  } else {
+    dse_graph_object_free(object);
+  }
+
+  return rc;
 }
 
 int build_graph_arguments(php5to7_zval *arguments, DseGraphObject **result) {
@@ -869,7 +1151,7 @@ int build_graph_arguments(php5to7_zval *arguments, DseGraphObject **result) {
       graph_arguments = dse_graph_object_new();
     }
 
-    if (graph_arguments_add(*result, name, PHP5TO7_ZVAL_MAYBE_DEREF(current)) == FAILURE) {
+    if (graph_object_add(*result, name, PHP5TO7_ZVAL_MAYBE_DEREF(current)) == FAILURE) {
       dse_graph_object_free(graph_arguments);
       return FAILURE;
     }
@@ -878,11 +1160,44 @@ int build_graph_arguments(php5to7_zval *arguments, DseGraphObject **result) {
   return SUCCESS;
 }
 
+int create_simple(zval *options, DseGraphStatement **result) {
+  int rc = SUCCESS;
+  php5to7_zval *arguments;
+  DseGraphOptions *graph_options = NULL;
+  DseGraphObject *graph_arguments = NULL;
+  DseGraphStatement *graph_statement = dse_graph_statement_new("query", graph_options);
+
+  // Handle options arguments w/ error handling
+  // Handle graph options and default graph options
+  // Convert named array to DseGraphObject
+  if (PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "arguments", sizeof("arguments"), arguments)) {
+    if (Z_TYPE_P(PHP5TO7_ZVAL_MAYBE_DEREF(arguments)) != IS_ARRAY) {
+      throw_invalid_argument(PHP5TO7_ZVAL_MAYBE_DEREF(arguments), "arguments", "an array" TSRMLS_CC);
+      goto error;
+    }
+
+    if (build_graph_arguments(PHP5TO7_ZVAL_MAYBE_DEREF(arguments), &graph_arguments) == FAILURE) {
+      goto error;
+    }
+
+    if (graph_arguments) {
+      dse_graph_statement_bind_values(graph_statement, graph_arguments);
+    }
+  }
+
+error:
+  if (graph_options) dse_graph_options_free(graph_options);
+  if (graph_arguments) dse_graph_object_free(graph_arguments);
+  if (graph_statement) dse_graph_statement_free(graph_statement);
+
+  return rc;
+}
+
 PHP_METHOD(DseDefaultSession, executeGraph)
 {
   zval *statement = NULL;
   zval *options = NULL;
-  php5to7_zval *arguments;
+  DseGraphStatement *graph_statement = NULL;
   dse_session *self = NULL;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &statement, &options) == FAILURE) {
@@ -891,26 +1206,9 @@ PHP_METHOD(DseDefaultSession, executeGraph)
 
   self = PHP_DSE_GET_SESSION(getThis());
 
-  //DseGraphOptions* graph_options = NULL;
-
-  //DseGraphStatement* graph_statement = dse_graph_statement_new("query", graph_options);
-
-  DseGraphObject* graph_arguments = NULL;
-
-  if (PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "arguments", sizeof("arguments"), arguments)) {
-    if (Z_TYPE_P(PHP5TO7_ZVAL_MAYBE_DEREF(arguments)) != IS_ARRAY) {
-      throw_invalid_argument(PHP5TO7_ZVAL_MAYBE_DEREF(arguments), "arguments", "an array" TSRMLS_CC);
-      return;
-    }
-    //PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(self->arguments), PHP5TO7_ZVAL_MAYBE_DEREF(arguments));
-  }
-
-  //CassFuture* future = cass_session_execute_dse_graph((CassSession *)self->base.session->data, graph_statement);
-
-  // Handle options arguments w/ error handling
-  // Handle graph options and default graph options
-  // Convert named array to DseGraphObject
   // Call execute
+  CassFuture *future = cass_session_execute_dse_graph((CassSession *)self->base.session->data, graph_statement);
+
   // Constuct result set
 }
 

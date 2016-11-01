@@ -89,6 +89,7 @@ PHP_MINIT_FUNCTION(dse)
   dse_define_Dse(TSRMLS_C);
   dse_define_Session(TSRMLS_C);
   dse_define_FutureSession(TSRMLS_C);
+  dse_define_FutureGraphResultSet(TSRMLS_C);
   dse_define_DefaultSession(TSRMLS_C);
   dse_define_Cluster(TSRMLS_C);
   dse_define_DefaultCluster(TSRMLS_C);

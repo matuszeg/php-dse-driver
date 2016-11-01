@@ -155,6 +155,7 @@ if test "$PHP_DSE" != "no"; then
     src/Dse/Cluster/DefaultBuilder.c \
     src/Dse/DefaultCluster.c \
     src/Dse/DefaultSession.c \
+    src/Dse/FutureGraphResultSet.c \
     src/Dse/FutureSession.c \
     src/Dse/GraphResult.c \
     src/Dse/GraphResultSet.c \
