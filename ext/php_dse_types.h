@@ -28,10 +28,10 @@
   #define PHP_DSE_GET_CLUSTER(obj) php_dse_cluster_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_CLUSTER_BUILDER(obj) php_dse_cluster_builder_object_fetch(Z_OBJ_P(obj))
 #else
-  #define PHP_DSE_GET_SESSION(obj) (dse_session *)zend_object_store_get_object((obj) TSRMLS_CC)
-  #define PHP_DSE_GET_FUTURE_SESSION(obj) (dse_future_session *)zend_object_store_get_object((obj) TSRMLS_CC)
-  #define PHP_DSE_GET_CLUSTER(obj) (dse_cluster *)zend_object_store_get_object((obj) TSRMLS_CC)
-  #define PHP_DSE_GET_CLUSTER_BUILDER(obj) (dse_cluster_builder *)zend_object_store_get_object((obj) TSRMLS_CC)
+  #define PHP_DSE_GET_SESSION(obj) ((dse_session *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_FUTURE_SESSION(obj) ((dse_future_session *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_CLUSTER(obj) ((dse_cluster *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_CLUSTER_BUILDER(obj) ((dse_cluster_builder *)zend_object_store_get_object((obj) TSRMLS_CC))
 #endif
 
 typedef struct {

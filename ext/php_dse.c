@@ -16,9 +16,14 @@
 
 #include "php_dse.h"
 #include "php_dse_types.h"
+#include "version.h"
 
 #include <php_ini.h>
 #include <ext/standard/info.h>
+
+#if CURRENT_CPP_DSE_DRIVER_VERSION < CPP_DSE_DRIVER_VERSION(1, 0, 0)
+#error C/C++ DSE driver version 1.0.0 or greater required
+#endif
 
 ZEND_DECLARE_MODULE_GLOBALS(dse)
 
@@ -64,8 +69,8 @@ ZEND_GET_MODULE(dse)
 #endif
 
 PHP_INI_BEGIN()
-  PHP_CASSANDRA_INI_ENTRY_LOG
-  PHP_CASSANDRA_INI_ENTRY_LOG_LEVEL
+  PHP_DSE_INI_ENTRY_LOG
+  PHP_DSE_INI_ENTRY_LOG_LEVEL
 PHP_INI_END()
 
 static PHP_GINIT_FUNCTION(dse)
@@ -123,9 +128,14 @@ PHP_MINFO_FUNCTION(dse)
   php_info_print_table_header(2, "DSE support", "enabled");
 
   snprintf(buf, sizeof(buf), "%d.%d.%d%s",
-           CASS_VERSION_MAJOR, CASS_VERSION_MINOR, CASS_VERSION_PATCH,
-           strlen(CASS_VERSION_SUFFIX) > 0 ? "-" CASS_VERSION_SUFFIX : "");
-  php_info_print_table_row(2, "C/C++ driver version", buf);
+           DSE_VERSION_MAJOR, DSE_VERSION_MINOR, DSE_VERSION_PATCH,
+           strlen(DSE_VERSION_SUFFIX) > 0 ? "-" DSE_VERSION_SUFFIX : "");
+  php_info_print_table_row(2, "C/C++ DSE driver version", buf);
+
+  snprintf(buf, sizeof(buf), "%d.%d.%d%s",
+           PHP_CASSANDRA_MAJOR, PHP_CASSANDRA_MINOR, PHP_CASSANDRA_RELEASE,
+           strcmp("stable", PHP_CASSANDRA_STABILITY) != 0 ? "-" PHP_CASSANDRA_STABILITY : "");
+  php_info_print_table_row(2, "PHP driver version", buf);
 
   snprintf(buf, sizeof(buf), "%d", CASSANDRA_G(persistent_clusters));
   php_info_print_table_row(2, "Persistent Clusters", buf);

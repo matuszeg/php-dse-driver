@@ -1,3 +1,21 @@
-.libs
+# Directories to ignore
+build/
+autom4te.cache/
+.libs/
+
+# Files to ignore
+*.in
 *.lo
 *.log
+Makefile*
+ext/Makefile.global
+ext/acinclude.m4
+ext/aclocal.m4
+ext/config.guess
+ext/config.sub
+ext/configure
+ext/install-sh
+ext/ltmain.sh
+ext/missing
+ext/mkinstalldirs
+ext/run-tests.php

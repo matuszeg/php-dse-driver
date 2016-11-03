@@ -1,5 +1,6 @@
 #ifndef PHP_DSE_VERSION_H
 #define PHP_DSE_VERSION_H
+#include "php-driver/ext/version.h"
 
 /* Define Extension and Version Properties */
 #define PHP_DSE_NAME         "dse"

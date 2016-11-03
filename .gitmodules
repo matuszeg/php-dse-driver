@@ -1,3 +1,6 @@
 [submodule "ext/php-driver"]
 	path = ext/php-driver
 	url = https://github.com/datastax/php-driver.git
+[submodule "lib/cpp-driver-dse"]
+	path = lib/cpp-driver-dse
+	url = https://github.com/datastax/cpp-driver-dse.git

@@ -6,7 +6,7 @@
 #include "util/math.h"
 #include "Cassandra/Session.h"
 
-#include <php/ext/standard/base64.h>
+#include <ext/standard/base64.h>
 
 zend_class_entry *dse_default_session_ce = NULL;
 
