@@ -171,10 +171,11 @@ static int graph_object_add_varint(DseGraphObject *object,
 {
   char *str;
   int len;
+  CassError rc;
   php_cassandra_format_integer(varint->varint_value, &str, &len);
-  CassError rc = dse_graph_object_add_string_n(object,
-                                               name, strlen(name),
-                                               str, len);
+  rc = dse_graph_object_add_string_n(object,
+                                     name, strlen(name),
+                                     str, len);
   efree(str);
   CHECK_RESULT(rc);
 }
@@ -184,8 +185,9 @@ static int graph_array_add_varint(DseGraphArray *array,
 {
   char *str;
   int len;
+  CassError rc;
   php_cassandra_format_integer(varint->varint_value, &str, &len);
-  CassError rc = dse_graph_array_add_string_n(array, str, len);
+  rc = dse_graph_array_add_string_n(array, str, len);
   efree(str);
   CHECK_RESULT(rc);
 }
@@ -196,11 +198,12 @@ static int graph_object_add_decimal(DseGraphObject *object,
 {
   char *str;
   int len;
+  CassError rc;
   php_cassandra_format_decimal(decimal->decimal_value, decimal->decimal_scale,
                                &str, &len);
-  CassError rc = dse_graph_object_add_string_n(object,
-                                               name, strlen(name),
-                                               str, len);
+  rc = dse_graph_object_add_string_n(object,
+                                     name, strlen(name),
+                                     str, len);
   efree(str);
   CHECK_RESULT(rc);
 }
@@ -210,9 +213,10 @@ static int graph_array_add_decimal(DseGraphArray *array,
 {
   char *str;
   int len;
+  CassError rc;
   php_cassandra_format_decimal(decimal->decimal_value, decimal->decimal_scale,
                                &str, &len);
-  CassError rc = dse_graph_array_add_string_n(array, str, len);
+  rc = dse_graph_array_add_string_n(array, str, len);
   efree(str);
   CHECK_RESULT(rc);
 }
@@ -1199,6 +1203,7 @@ PHP_METHOD(DseDefaultSession, executeGraph)
   zval *options = NULL;
   DseGraphStatement *graph_statement = NULL;
   dse_session *self = NULL;
+  CassFuture *future = NULL;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &statement, &options) == FAILURE) {
     return;
@@ -1207,7 +1212,7 @@ PHP_METHOD(DseDefaultSession, executeGraph)
   self = PHP_DSE_GET_SESSION(getThis());
 
   // Call execute
-  CassFuture *future = cass_session_execute_dse_graph((CassSession *)self->base.session->data, graph_statement);
+  future = cass_session_execute_dse_graph((CassSession *)self->base.session->data, graph_statement);
 
   // Constuct result set
 }

@@ -1,7 +1,8 @@
 # Directories to ignore
-build/
-autom4te.cache/
 .libs/
+autom4te.cache/
+bin/
+build/
 
 # Files to ignore
 *.in

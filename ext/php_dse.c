@@ -86,9 +86,10 @@ static PHP_GSHUTDOWN_FUNCTION(php_driver)
 
 PHP_MINIT_FUNCTION(dse)
 {
+  int result;
   REGISTER_INI_ENTRIES();
 
-  int result = php_cassandra_minit(INIT_FUNC_ARGS_PASSTHRU);
+  result = php_cassandra_minit(INIT_FUNC_ARGS_PASSTHRU);
 
   if (result == FAILURE) return result;
 
