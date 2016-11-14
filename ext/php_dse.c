@@ -15,6 +15,7 @@
  */
 
 #include "php_dse.h"
+#include "php_dse_globals.h"
 #include "php_dse_types.h"
 #include "version.h"
 
@@ -25,10 +26,10 @@
 #error C/C++ DSE driver version 1.0.0 or greater required
 #endif
 
-ZEND_DECLARE_MODULE_GLOBALS(dse)
+ZEND_DECLARE_MODULE_GLOBALS(php_driver)
 
-static PHP_GINIT_FUNCTION(dse);
-static PHP_GSHUTDOWN_FUNCTION(dse);
+static PHP_GINIT_FUNCTION(php_driver);
+static PHP_GSHUTDOWN_FUNCTION(php_driver);
 
 const zend_function_entry dse_functions[] = {
   PHP_FE_END /* Must be the last line in dse_functions[] */
@@ -57,9 +58,9 @@ zend_module_entry dse_module_entry = {
 #if ZEND_MODULE_API_NO >= 20010901
   PHP_DSE_VERSION,
 #endif
-  PHP_MODULE_GLOBALS(dse),
-  PHP_GINIT(dse),
-  PHP_GSHUTDOWN(dse),
+  PHP_MODULE_GLOBALS(php_driver),
+  PHP_GINIT(php_driver),
+  PHP_GSHUTDOWN(php_driver),
   NULL,
   STANDARD_MODULE_PROPERTIES_EX
 };
@@ -73,14 +74,14 @@ PHP_INI_BEGIN()
   PHP_DSE_INI_ENTRY_LOG_LEVEL
 PHP_INI_END()
 
-static PHP_GINIT_FUNCTION(dse)
+static PHP_GINIT_FUNCTION(php_driver)
 {
-  php_cassandra_ginit();
+  php_cassandra_ginit(TSRMLS_C);
 }
 
-static PHP_GSHUTDOWN_FUNCTION(dse)
+static PHP_GSHUTDOWN_FUNCTION(php_driver)
 {
-  php_cassandra_gshutdown();
+  php_cassandra_gshutdown(TSRMLS_C);
 }
 
 PHP_MINIT_FUNCTION(dse)
@@ -137,10 +138,10 @@ PHP_MINFO_FUNCTION(dse)
            strcmp("stable", PHP_CASSANDRA_STABILITY) != 0 ? "-" PHP_CASSANDRA_STABILITY : "");
   php_info_print_table_row(2, "PHP driver version", buf);
 
-  snprintf(buf, sizeof(buf), "%d", CASSANDRA_G(persistent_clusters));
+  snprintf(buf, sizeof(buf), "%d", DSE_G(persistent_clusters));
   php_info_print_table_row(2, "Persistent Clusters", buf);
 
-  snprintf(buf, sizeof(buf), "%d", CASSANDRA_G(persistent_sessions));
+  snprintf(buf, sizeof(buf), "%d", DSE_G(persistent_sessions));
   php_info_print_table_row(2, "Persistent Sessions", buf);
 
   php_info_print_table_end();

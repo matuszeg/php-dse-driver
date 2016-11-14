@@ -35,12 +35,12 @@ PHP_METHOD(DseDefaultClusterBuilder, build)
 
   cluster->cluster = php_cassandra_cluster_builder_get_cache(builder,
                                                              cluster->hash_key,
-                                                             cluster->hash_key_len);
+                                                             cluster->hash_key_len TSRMLS_CC);
 
   if (!cluster->cluster) {
     cluster->cluster = cass_cluster_new_dse();
     php_cassandra_cluster_builder_build(builder,
-                                        cluster->cluster);
+                                        cluster->cluster TSRMLS_CC);
 
     if (self->plaintext_username) {
       cass_cluster_set_dse_plaintext_authenticator(cluster->cluster,
@@ -57,7 +57,7 @@ PHP_METHOD(DseDefaultClusterBuilder, build)
     php_cassandra_cluster_builder_add_cache(builder,
                                             cluster->hash_key,
                                             cluster->hash_key_len,
-                                            cluster->cluster);
+                                            cluster->cluster TSRMLS_CC);
   }
 }
 

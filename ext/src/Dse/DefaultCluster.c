@@ -35,7 +35,7 @@ PHP_METHOD(DseDefaultCluster, connect)
   php_cassandra_cluster_connect(cluster,
                                 keyspace, keyspace_len,
                                 timeout,
-                                session);
+                                session TSRMLS_CC);
 
 }
 
@@ -59,7 +59,7 @@ PHP_METHOD(DseDefaultCluster, connectAsync)
 
   php_cassandra_cluster_connect_async(cluster,
                                       keyspace, keyspace_len,
-                                      future);
+                                      future TSRMLS_CC);
 
 }
 

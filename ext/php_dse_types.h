@@ -71,14 +71,14 @@ PHP_DSE_BEGIN_OBJECT_TYPE(cluster_builder)
   dse_graph_options graph_options;
 PHP_DSE_END_OBJECT_TYPE(cluster_builder)
 
-extern PHP_DSE_API zend_class_entry *dse_session_ce;
-extern PHP_DSE_API zend_class_entry *dse_default_session_ce;
-extern PHP_DSE_API zend_class_entry *dse_future_session_ce;
-extern PHP_DSE_API zend_class_entry *dse_future_graph_future_result_set_ce;
-extern PHP_DSE_API zend_class_entry *dse_cluster_ce;
-extern PHP_DSE_API zend_class_entry *dse_default_cluster_ce;
-extern PHP_DSE_API zend_class_entry *dse_cluster_builder_ce;
-extern PHP_DSE_API zend_class_entry *dse_default_cluster_builder_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_session_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_default_session_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_future_session_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_future_graph_future_result_set_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_cluster_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_default_cluster_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_cluster_builder_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_default_cluster_builder_ce;
 
 void dse_define_Dse(TSRMLS_D);
 void dse_define_Session(TSRMLS_D);

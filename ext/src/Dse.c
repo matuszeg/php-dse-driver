@@ -22,7 +22,7 @@ void dse_define_Dse(TSRMLS_D)
   char buf[64];
 
   INIT_CLASS_ENTRY(ce, "Dse", Dse_methods);
-  dse_ce = php5to7_zend_register_internal_class_ex(&ce, cassandra_ce TSRMLS_CC);
+  dse_ce = php5to7_zend_register_internal_class_ex(&ce, cassandra_ce);
 
   zend_declare_class_constant_string(dse_ce, ZEND_STRL("VERSION"), PHP_DSE_VERSION_FULL TSRMLS_CC);
 

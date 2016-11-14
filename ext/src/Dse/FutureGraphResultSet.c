@@ -3,6 +3,8 @@
 #include "util/future.h"
 #include "util/ref.h"
 
+#include "Cassandra/FutureSession.h"
+
 zend_class_entry *dse_future_graph_result_set_ce = NULL;
 
 PHP_METHOD(DseFutureGraphResultSet, get)
@@ -24,7 +26,7 @@ PHP_METHOD(DseFutureGraphResultSet, get)
   object_init_ex(return_value, dse_default_session_ce);
   session = &PHP_DSE_GET_SESSION(return_value)->base;
 
-  php_cassandra_future_session_get(future, timeout, session);
+  php_cassandra_future_session_get(future, timeout, session TSRMLS_CC);
 
   PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(future->default_session), return_value);
 }
