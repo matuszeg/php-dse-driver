@@ -24,7 +24,7 @@ php_dse_graph_result_set_build(CassFuture *future, zval *return_value TSRMLS_DC)
 
   count = dse_graph_resultset_count(graph_result_set);
   for (size_t i = 0; i < count; ++i) {
-    zval *result;
+    php5to7_zval result;
     const DseGraphResult *graph_result = dse_graph_resultset_next(graph_result_set);
 
     if (!graph_result) {
@@ -34,14 +34,14 @@ php_dse_graph_result_set_build(CassFuture *future, zval *return_value TSRMLS_DC)
     }
 
     PHP5TO7_ZVAL_MAYBE_MAKE(result);
-    if (php_dse_graph_result_build(graph_result, result TSRMLS_CC) == FAILURE) {
+    if (php_dse_graph_result_build(graph_result,
+                                   PHP5TO7_ZVAL_MAYBE_P(result) TSRMLS_CC) == FAILURE) {
       PHP5TO7_ZVAL_MAYBE_DESTROY(result);
       return FAILURE;
     }
 
-    if (PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(&result_set->results, result, sizeof(zval *))) {
-      Z_TRY_ADDREF_P(result);
-    } else {
+    if (!PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(&result_set->results,
+                                            PHP5TO7_ZVAL_MAYBE_P(result), sizeof(zval *))) {
       PHP5TO7_ZVAL_MAYBE_DESTROY(result);
     }
   }
@@ -287,7 +287,7 @@ php_dse_graph_result_set_new(zend_class_entry *ce TSRMLS_DC)
   PHP5TO7_ZEND_OBJECT_INIT(dse_graph_result_set, self, ce);
 }
 
-void cassandra_define_DseGraphResultSet(TSRMLS_D)
+void dse_define_GraphResultSet(TSRMLS_D)
 {
   zend_class_entry ce;
 

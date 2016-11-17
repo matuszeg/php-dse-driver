@@ -11,7 +11,7 @@ php_dse_graph_result_build(const DseGraphResult *graph_result,
 {
   dse_graph_result *result;
   size_t i, count;
-  zval *value;
+  php5to7_zval value;
   DseGraphResultType type = dse_graph_result_type(graph_result);
 
   object_init_ex(return_value, dse_graph_result_ce);
@@ -55,13 +55,13 @@ php_dse_graph_result_build(const DseGraphResult *graph_result,
     for (i = 0; i < count; ++i) {
       PHP5TO7_ZVAL_MAYBE_MAKE(value);
       if (php_dse_graph_result_build(dse_graph_result_member_value(graph_result, i),
-                                     value TSRMLS_CC) == FAILURE) {
+                                     PHP5TO7_ZVAL_MAYBE_P(value) TSRMLS_CC) == FAILURE) {
         PHP5TO7_ZVAL_MAYBE_DESTROY(value);
         return FAILURE;
       }
       add_assoc_zval(PHP5TO7_ZVAL_MAYBE_P(result->value),
                      dse_graph_result_member_key(graph_result, i, NULL),
-                     value);
+                     PHP5TO7_ZVAL_MAYBE_P(value));
     }
     break;
 
@@ -71,11 +71,12 @@ php_dse_graph_result_build(const DseGraphResult *graph_result,
     for (i = 0; i < count; ++i) {
       PHP5TO7_ZVAL_MAYBE_MAKE(value);
       if (php_dse_graph_result_build(dse_graph_result_element(graph_result, i),
-                                     value TSRMLS_CC) == FAILURE) {
+                                     PHP5TO7_ZVAL_MAYBE_P(value) TSRMLS_CC) == FAILURE) {
         PHP5TO7_ZVAL_MAYBE_DESTROY(value);
         return FAILURE;
       }
-      add_next_index_zval(PHP5TO7_ZVAL_MAYBE_P(result->value), value);
+      add_next_index_zval(PHP5TO7_ZVAL_MAYBE_P(result->value),
+                          PHP5TO7_ZVAL_MAYBE_P(value));
     }
     break;
 
@@ -213,7 +214,7 @@ PHP_METHOD(DseGraphResult, offsetExists)
   if (Z_TYPE_P(offset) == IS_LONG || Z_LVAL_P(offset) >= 0) {
     RETURN_BOOL(zend_hash_index_exists(arr, (php5to7_ulong) Z_LVAL_P(offset)));
   } else if (Z_TYPE_P(offset) == IS_STRING) {
-    RETURN_BOOL(zend_hash_exists(arr, Z_STRVAL_P(offset), Z_STRLEN_P(offset)));
+    RETURN_BOOL(PHP5TO7_ZEND_HASH_EXISTS(arr, Z_STRVAL_P(offset), Z_STRLEN_P(offset)));
   } else {
     INVALID_ARGUMENT(offset, "a positive integer or a string key");
   }
@@ -562,7 +563,7 @@ php_dse_graph_result_new(zend_class_entry *ce TSRMLS_DC)
   PHP5TO7_ZEND_OBJECT_INIT(dse_graph_result, self, ce);
 }
 
-void cassandra_define_DseGraphResult(TSRMLS_D)
+void dse_define_GraphResult(TSRMLS_D)
 {
   zend_class_entry ce;
 

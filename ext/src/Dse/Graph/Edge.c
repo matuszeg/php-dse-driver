@@ -56,7 +56,7 @@ php_dse_graph_edge_new(zend_class_entry *ce TSRMLS_DC)
   PHP5TO7_ZEND_OBJECT_INIT(dse_graph_edge, self, ce);
 }
 
-void cassandra_define_DseGraphEdge(TSRMLS_D)
+void dse_define_GraphEdge(TSRMLS_D)
 {
   zend_class_entry ce;
 

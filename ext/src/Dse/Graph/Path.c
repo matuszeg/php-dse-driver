@@ -56,7 +56,7 @@ php_dse_graph_path_new(zend_class_entry *ce TSRMLS_DC)
   PHP5TO7_ZEND_OBJECT_INIT(dse_graph_path, self, ce);
 }
 
-void cassandra_define_DseGraphPath(TSRMLS_D)
+void dse_define_GraphPath(TSRMLS_D)
 {
   zend_class_entry ce;
 
