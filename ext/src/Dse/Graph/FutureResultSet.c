@@ -2,7 +2,7 @@
 #include "php_dse_types.h"
 #include "util/future.h"
 #include "util/ref.h"
-#include "GraphResultSet.h"
+#include "ResultSet.h"
 
 zend_class_entry *dse_future_graph_result_set_ce = NULL;
 
@@ -92,7 +92,7 @@ void dse_define_FutureGraphResultSet(TSRMLS_D)
 {
   zend_class_entry ce;
 
-  INIT_CLASS_ENTRY(ce, "Dse\\FutureGraphResultSet", dse_future_graph_result_set_methods);
+  INIT_CLASS_ENTRY(ce, "Dse\\Graph\\FutureResultSet", dse_future_graph_result_set_methods);
   dse_future_graph_result_set_ce = zend_register_internal_class(&ce TSRMLS_CC);
   zend_class_implements(dse_future_graph_result_set_ce TSRMLS_CC, 1, cassandra_future_ce);
   dse_future_graph_result_set_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;

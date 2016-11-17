@@ -224,13 +224,14 @@ if (PHP_DSE != "no") {
                 "Cluster.c " +
                 "DefaultCluster.c " +
                 "DefaultSession.c " +
-                "FutureGraphResultSet.c " +
                 "FutureSession.c " +
-                "GraphResult.c " +
-                "GraphResultSet.c " +
-                "GraphSimpleStatement.c " +
-                "GraphStatement.c " +
                 "Session.c", "dse");
+            ADD_SOURCES(configure_module_dirname + "/src/Dse/Graph",
+                "FutureResultSet.c " +
+                "Result.c " +
+                "ResultSet.c " +
+                "SimpleStatement.c " +
+                "Statement.c ", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Dse/Cluster",
                 "Builder.c " +
                 "DefaultBuilder.c", "dse");

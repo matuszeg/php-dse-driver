@@ -91,7 +91,7 @@ php_dse_graph_result_build(const DseGraphResult *graph_result,
 PHP_METHOD(DseGraphResult, __construct)
 {
   zend_throw_exception_ex(cassandra_logic_exception_ce, 0 TSRMLS_CC,
-                          "Instantiation of a Dse\\GraphResult objects directly is not supported.");
+                          "Instantiation of a Dse\\Graph\\Result objects directly is not supported.");
   return;
 }
 
@@ -542,7 +542,7 @@ void cassandra_define_DseGraphResult(TSRMLS_D)
 {
   zend_class_entry ce;
 
-  INIT_CLASS_ENTRY(ce, "Dse\\GraphResult", dse_graph_result_methods);
+  INIT_CLASS_ENTRY(ce, "Dse\\Graph\\Result", dse_graph_result_methods);
   dse_graph_result_ce = zend_register_internal_class(&ce TSRMLS_CC);
   zend_class_implements(dse_graph_result_ce TSRMLS_CC, 2, zend_ce_iterator, zend_ce_arrayaccess);
   dse_graph_result_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;

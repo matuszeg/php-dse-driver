@@ -2,8 +2,8 @@
 #include "php_dse_types.h"
 #include "util/ref.h"
 
-#include "GraphResult.h"
-#include "GraphResultSet.h"
+#include "Result.h"
+#include "ResultSet.h"
 
 zend_class_entry *dse_graph_result_set_ce = NULL;
 
@@ -58,7 +58,7 @@ php_dse_graph_result_set_build(CassFuture *future, zval *return_value TSRMLS_DC)
 PHP_METHOD(DseGraphResultSet, __construct)
 {
   zend_throw_exception_ex(cassandra_logic_exception_ce, 0 TSRMLS_CC,
-    "Instantiation of a Dse\\GraphResultSet objects directly is not supported."
+    "Instantiation of a Dse\\Graph\\ResultSet objects directly is not supported."
   );
   return;
 }
@@ -297,7 +297,7 @@ void cassandra_define_DseGraphResultSet(TSRMLS_D)
 {
   zend_class_entry ce;
 
-  INIT_CLASS_ENTRY(ce, "Dse\\GraphResultSet", dse_graph_result_set_methods);
+  INIT_CLASS_ENTRY(ce, "Dse\\Graph\\ResultSet", dse_graph_result_set_methods);
   dse_graph_result_set_ce = zend_register_internal_class(&ce TSRMLS_CC);
   zend_class_implements(dse_graph_result_set_ce TSRMLS_CC, 2, zend_ce_iterator, zend_ce_arrayaccess);
   dse_graph_result_set_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;

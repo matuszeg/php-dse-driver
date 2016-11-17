@@ -10,7 +10,7 @@ void dse_define_GraphSimpleStatement(TSRMLS_D)
 {
   zend_class_entry ce;
 
-  INIT_CLASS_ENTRY(ce, "Dse\\GraphSimpleStatement", dse_graph_simple_statement_methods);
+  INIT_CLASS_ENTRY(ce, "Dse\\Graph\\SimpleStatement", dse_graph_simple_statement_methods);
   dse_graph_simple_statement_ce = zend_register_internal_class(&ce TSRMLS_CC);
   //dse_graph_simple_statement_ce->ce_flags |= ZEND_ACC_INTERFACE;
 }

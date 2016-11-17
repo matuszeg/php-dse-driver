@@ -7,7 +7,7 @@
 #include "util/hash.h"
 #include "util/math.h"
 #include "Cassandra/Session.h"
-#include "GraphResultSet.h"
+#include "Graph/ResultSet.h"
 
 #include <ext/standard/base64.h>
 
