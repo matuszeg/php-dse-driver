@@ -4,18 +4,18 @@
 #include "util/ref.h"
 #include "ResultSet.h"
 
-zend_class_entry *dse_future_graph_result_set_ce = NULL;
+zend_class_entry *dse_graph_future_result_set_ce = NULL;
 
-PHP_METHOD(DseFutureGraphResultSet, get)
+PHP_METHOD(DseGraphFutureResultSet, get)
 {
   zval *timeout = NULL;
-  dse_future_graph_result_set *self = NULL;
+  dse_graph_future_result_set *self = NULL;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|z", &timeout) == FAILURE) {
     return;
   }
 
-  self = PHP_DSE_GET_FUTURE_GRAPH_RESULT_SET(getThis());
+  self = PHP_DSE_GET_GRAPH_FUTURE_RESULT_SET(getThis());
 
   if (PHP5TO7_ZVAL_IS_UNDEF(self->result_set)) { /* If not set then wait for the result */
     if (php_cassandra_future_wait_timed(self->future, timeout TSRMLS_CC) == FAILURE ||
@@ -35,15 +35,15 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_timeout, 0, ZEND_RETURN_VALUE, 0)
   ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
 
-static zend_function_entry dse_future_graph_result_set_methods[] = {
-  PHP_ME(DseFutureGraphResultSet, get, arginfo_timeout, ZEND_ACC_PUBLIC)
+static zend_function_entry dse_graph_future_result_set_methods[] = {
+  PHP_ME(DseGraphFutureResultSet, get, arginfo_timeout, ZEND_ACC_PUBLIC)
   PHP_FE_END
 };
 
-static zend_object_handlers dse_future_graph_result_set_handlers;
+static zend_object_handlers dse_graph_future_result_set_handlers;
 
 static HashTable *
-php_dse_future_graph_result_set_properties(zval *object TSRMLS_DC)
+php_dse_graph_future_result_set_properties(zval *object TSRMLS_DC)
 {
   HashTable *props = zend_std_get_properties(object TSRMLS_CC);
 
@@ -51,7 +51,7 @@ php_dse_future_graph_result_set_properties(zval *object TSRMLS_DC)
 }
 
 static int
-php_dse_future_graph_result_set_compare(zval *obj1, zval *obj2 TSRMLS_DC)
+php_dse_graph_future_result_set_compare(zval *obj1, zval *obj2 TSRMLS_DC)
 {
   if (Z_OBJCE_P(obj1) != Z_OBJCE_P(obj2))
     return 1; /* different classes */
@@ -60,10 +60,10 @@ php_dse_future_graph_result_set_compare(zval *obj1, zval *obj2 TSRMLS_DC)
 }
 
 static void
-php_dse_future_graph_result_set_free(php5to7_zend_object_free *object TSRMLS_DC)
+php_dse_graph_future_result_set_free(php5to7_zend_object_free *object TSRMLS_DC)
 {
-  dse_future_graph_result_set *self =
-      PHP5TO7_ZEND_OBJECT_GET(dse_future_graph_result_set, object);
+  dse_graph_future_result_set *self =
+      PHP5TO7_ZEND_OBJECT_GET(dse_graph_future_result_set, object);
 
   if (self->future) {
     cass_future_free(self->future);
@@ -76,30 +76,30 @@ php_dse_future_graph_result_set_free(php5to7_zend_object_free *object TSRMLS_DC)
 }
 
 static php5to7_zend_object
-php_dse_future_graph_result_set_new(zend_class_entry *ce TSRMLS_DC)
+php_dse_graph_future_result_set_new(zend_class_entry *ce TSRMLS_DC)
 {
-  dse_future_graph_result_set *self
-      = PHP5TO7_ZEND_OBJECT_ECALLOC(dse_future_graph_result_set, ce);
+  dse_graph_future_result_set *self
+      = PHP5TO7_ZEND_OBJECT_ECALLOC(dse_graph_future_result_set, ce);
 
   self->future = NULL;
 
   PHP5TO7_ZVAL_UNDEF(self->result_set);
 
-  PHP5TO7_ZEND_OBJECT_INIT(dse_future_graph_result_set, self, ce);
+  PHP5TO7_ZEND_OBJECT_INIT(dse_graph_future_result_set, self, ce);
 }
 
-void dse_define_FutureGraphResultSet(TSRMLS_D)
+void dse_define_GraphFutureResultSet(TSRMLS_D)
 {
   zend_class_entry ce;
 
-  INIT_CLASS_ENTRY(ce, "Dse\\Graph\\FutureResultSet", dse_future_graph_result_set_methods);
-  dse_future_graph_result_set_ce = zend_register_internal_class(&ce TSRMLS_CC);
-  zend_class_implements(dse_future_graph_result_set_ce TSRMLS_CC, 1, cassandra_future_ce);
-  dse_future_graph_result_set_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
-  dse_future_graph_result_set_ce->create_object = php_dse_future_graph_result_set_new;
+  INIT_CLASS_ENTRY(ce, "Dse\\Graph\\FutureResultSet", dse_graph_future_result_set_methods);
+  dse_graph_future_result_set_ce = zend_register_internal_class(&ce TSRMLS_CC);
+  zend_class_implements(dse_graph_future_result_set_ce TSRMLS_CC, 1, cassandra_future_ce);
+  dse_graph_future_result_set_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
+  dse_graph_future_result_set_ce->create_object = php_dse_graph_future_result_set_new;
 
-  memcpy(&dse_future_graph_result_set_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-  dse_future_graph_result_set_handlers.get_properties  = php_dse_future_graph_result_set_properties;
-  dse_future_graph_result_set_handlers.compare_objects = php_dse_future_graph_result_set_compare;
-  dse_future_graph_result_set_handlers.clone_obj = NULL;
+  memcpy(&dse_graph_future_result_set_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+  dse_graph_future_result_set_handlers.get_properties  = php_dse_graph_future_result_set_properties;
+  dse_graph_future_result_set_handlers.compare_objects = php_dse_graph_future_result_set_compare;
+  dse_graph_future_result_set_handlers.clone_obj = NULL;
 }

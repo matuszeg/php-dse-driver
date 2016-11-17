@@ -1352,7 +1352,7 @@ PHP_METHOD(DseDefaultSession, executeGraphAsync)
   zval *options = NULL;
   dse_session *self = NULL;
   DseGraphStatement *graph_statement = NULL;
-  dse_future_graph_result_set *future_result_set = NULL;
+  dse_graph_future_result_set *future_result_set = NULL;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &statement, &options) == FAILURE) {
     return;
@@ -1363,8 +1363,8 @@ PHP_METHOD(DseDefaultSession, executeGraphAsync)
   graph_statement = create_graph(self, PHP_DSE_GET_GRAPH_STATEMENT(statement), options TSRMLS_CC);
 
   if (graph_statement) {
-    object_init_ex(return_value, dse_future_graph_future_result_set_ce);
-    future_result_set = PHP_DSE_GET_FUTURE_GRAPH_RESULT_SET(return_value);
+    object_init_ex(return_value, dse_graph_future_result_set_ce);
+    future_result_set = PHP_DSE_GET_GRAPH_FUTURE_RESULT_SET(return_value);
     future_result_set->future = cass_session_execute_dse_graph((CassSession *)self->base.session->data, graph_statement);
   }
 }

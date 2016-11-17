@@ -1,16 +1,10 @@
 #include "php_dse.h"
 #include "php_dse_types.h"
-#include "util/ref.h"
 
 #include "Result.h"
 #include "ResultSet.h"
 
 zend_class_entry *dse_graph_result_set_ce = NULL;
-
-void
-free_graph_result_set(void *graph_result_set) {
-  dse_graph_resultset_free((DseGraphResultSet *)graph_result_set);
-}
 
 int
 php_dse_graph_result_set_build(CassFuture *future, zval *return_value TSRMLS_DC)

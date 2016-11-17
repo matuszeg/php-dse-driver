@@ -425,28 +425,52 @@ PHP_METHOD(DseGraphResult, asArray)
   RETVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
 }
 
-PHP_METHOD(DseGraphResult, asPoint)
-{
-}
-
-PHP_METHOD(DseGraphResult, asLineString)
-{
-}
-
-PHP_METHOD(DseGraphResult, asPolygon)
-{
-}
-
-PHP_METHOD(DseGraphResult, asVertex)
-{
-}
-
 PHP_METHOD(DseGraphResult, asEdge)
 {
+  dse_graph_edge *edge;
+  object_init_ex(return_value, dse_graph_edge_ce);
+  edge = PHP_DSE_GET_GRAPH_EDGE(return_value);
+
+  /* TODO: Implement */
+  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
 }
 
 PHP_METHOD(DseGraphResult, asPath)
 {
+  dse_graph_path *path;
+  object_init_ex(return_value, dse_graph_path_ce);
+  path = PHP_DSE_GET_GRAPH_PATH(return_value);
+
+  /* TODO: Implement */
+  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+}
+
+PHP_METHOD(DseGraphResult, asVertex)
+{
+  dse_graph_vertex *vertex;
+  object_init_ex(return_value, dse_graph_vertex_ce);
+  vertex = PHP_DSE_GET_GRAPH_VERTEX(return_value);
+
+  /* TODO: Implement */
+  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+}
+
+PHP_METHOD(DseGraphResult, asPoint)
+{
+  /* TODO: Implement */
+  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+}
+
+PHP_METHOD(DseGraphResult, asLineString)
+{
+  /* TODO: Implement */
+  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+}
+
+PHP_METHOD(DseGraphResult, asPolygon)
+{
+  /* TODO: Implement */
+  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
@@ -486,14 +510,14 @@ static zend_function_entry dse_graph_result_methods[] = {
   PHP_ME(DseGraphResult, asDouble,     arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(DseGraphResult, asString,     arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(DseGraphResult, asArray,      arginfo_none,   ZEND_ACC_PUBLIC)
+  /* Graph types */
+  PHP_ME(DseGraphResult, asEdge,       arginfo_none,   ZEND_ACC_PUBLIC)
+  PHP_ME(DseGraphResult, asPath,       arginfo_none,   ZEND_ACC_PUBLIC)
+  PHP_ME(DseGraphResult, asVertex,     arginfo_none,   ZEND_ACC_PUBLIC)
   /* Geometric types */
   PHP_ME(DseGraphResult, asPoint,      arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(DseGraphResult, asLineString, arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(DseGraphResult, asPolygon,    arginfo_none,   ZEND_ACC_PUBLIC)
-  /* Graph types */
-  PHP_ME(DseGraphResult, asVertex,     arginfo_none,   ZEND_ACC_PUBLIC)
-  PHP_ME(DseGraphResult, asEdge,       arginfo_none,   ZEND_ACC_PUBLIC)
-  PHP_ME(DseGraphResult, asPath,       arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_FE_END
 };
 

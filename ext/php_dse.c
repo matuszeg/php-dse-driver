@@ -96,12 +96,19 @@ PHP_MINIT_FUNCTION(dse)
   dse_define_Dse(TSRMLS_C);
   dse_define_Session(TSRMLS_C);
   dse_define_FutureSession(TSRMLS_C);
-  dse_define_FutureGraphResultSet(TSRMLS_C);
   dse_define_DefaultSession(TSRMLS_C);
   dse_define_Cluster(TSRMLS_C);
   dse_define_DefaultCluster(TSRMLS_C);
   dse_define_ClusterBuilder(TSRMLS_C);
   dse_define_DefaultClusterBuilder(TSRMLS_C);
+  dse_define_GraphStatement(TSRMLS_C);
+  dse_define_GraphSimpleStatement(TSRMLS_C);
+  dse_define_GraphResult(TSRMLS_C);
+  dse_define_GraphResultSet(TSRMLS_C);
+  dse_define_GraphFutureResultSet(TSRMLS_C);
+  dse_define_GraphEdge(TSRMLS_C);
+  dse_define_GraphPath(TSRMLS_C);
+  dse_define_GraphVertex(TSRMLS_C);
 
   return SUCCESS;
 }
