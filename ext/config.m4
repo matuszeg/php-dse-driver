@@ -156,14 +156,24 @@ if test "$PHP_DSE" != "no"; then
     src/Dse/DefaultCluster.c \
     src/Dse/DefaultSession.c \
     src/Dse/FutureSession.c \
+    src/Dse/Graph/DefaultEdge.c \
+    src/Dse/Graph/DefaultElement.c \
+    src/Dse/Graph/DefaultPath.c \
+    src/Dse/Graph/DefaultProperty.c \
+    src/Dse/Graph/DefaultVertex.c \
+    src/Dse/Graph/DefaultVertexProperty.c \
     src/Dse/Graph/Edge.c \
+    src/Dse/Graph/Element.c \
     src/Dse/Graph/FutureResultSet.c \
+    src/Dse/Graph/Options.c \
     src/Dse/Graph/Path.c \
+    src/Dse/Graph/Property.c \
     src/Dse/Graph/Result.c \
     src/Dse/Graph/ResultSet.c \
     src/Dse/Graph/SimpleStatement.c \
     src/Dse/Graph/Statement.c \
     src/Dse/Graph/Vertex.c \
+    src/Dse/Graph/VertexProperty.c \
     src/Dse/Session.c
   ";
 

@@ -8,6 +8,7 @@
 #include "util/math.h"
 #include "Cassandra/Session.h"
 #include "Graph/ResultSet.h"
+#include "Graph/Options.h"
 
 #include <ext/standard/base64.h>
 
@@ -1093,6 +1094,7 @@ static int graph_build_array(zval *value,
   } PHP5TO7_ZEND_HASH_FOREACH_END(ht);
 
   if (rc == SUCCESS) {
+    dse_graph_array_finish(array);
     *result = array;
   } else {
     dse_graph_array_free(array);
@@ -1137,6 +1139,7 @@ static int graph_build_object(zval *value,
   }
 
   if (rc == SUCCESS) {
+    dse_graph_object_finish(object);
     *result = object;
   } else {
     dse_graph_object_free(object);
@@ -1148,20 +1151,18 @@ static int graph_build_object(zval *value,
 DseGraphObject *build_graph_arguments(php5to7_zval *arguments TSRMLS_DC) {
   char *name;
   php5to7_zval *current;
-  DseGraphObject *result = NULL;
+  DseGraphObject *result = dse_graph_object_new();
 
   HashTable *array = PHP5TO7_Z_ARRVAL_MAYBE_P(*arguments);
 
   PHP5TO7_ZEND_HASH_FOREACH_STR_KEY_VAL(array, name, current) {
-    if (!result) {
-      result = dse_graph_object_new();
-    }
-
     if (graph_object_add(result, name, PHP5TO7_ZVAL_MAYBE_DEREF(current) TSRMLS_CC) == FAILURE) {
       dse_graph_object_free(result);
       return NULL;
     }
   } PHP5TO7_ZEND_HASH_FOREACH_END(array);
+
+  dse_graph_object_finish(result);
 
   return result;
 }
@@ -1180,7 +1181,7 @@ DseGraphOptions *build_graph_options(dse_session *session,
     dse_graph_options_set_graph_language_n(graph_options,
                                            PHP5TO7_Z_STRVAL_MAYBE_P(*value),
                                            PHP5TO7_Z_STRLEN_MAYBE_P(*value));
-  } else {
+  } else if (session->graph_options.graph_language) {
     dse_graph_options_set_graph_language(graph_options,
                                          session->graph_options.graph_language);
   }
@@ -1194,7 +1195,7 @@ DseGraphOptions *build_graph_options(dse_session *session,
     dse_graph_options_set_graph_source_n(graph_options,
                                          PHP5TO7_Z_STRVAL_MAYBE_P(*value),
                                          PHP5TO7_Z_STRLEN_MAYBE_P(*value));
-  } else {
+  } else if (session->graph_options.graph_source) {
     dse_graph_options_set_graph_source(graph_options,
                                        session->graph_options.graph_source);
   }
@@ -1208,7 +1209,7 @@ DseGraphOptions *build_graph_options(dse_session *session,
     dse_graph_options_set_graph_name_n(graph_options,
                                        PHP5TO7_Z_STRVAL_MAYBE_P(*value),
                                        PHP5TO7_Z_STRLEN_MAYBE_P(*value));
-  } else {
+  } else if (session->graph_options.graph_name) {
     dse_graph_options_set_graph_name(graph_options,
                                      session->graph_options.graph_name);
   }
@@ -1221,7 +1222,7 @@ DseGraphOptions *build_graph_options(dse_session *session,
     }
 
     dse_graph_options_set_read_consistency(graph_options, consistency);
-  } else {
+  } else if (session->graph_options.read_consistency != CASS_CONSISTENCY_UNKNOWN) {
     dse_graph_options_set_read_consistency(graph_options,
                                            session->graph_options.read_consistency);
   }
@@ -1234,7 +1235,7 @@ DseGraphOptions *build_graph_options(dse_session *session,
     }
 
     dse_graph_options_set_write_consistency(graph_options, consistency);
-  } else {
+  } else if (session->graph_options.write_consistency != CASS_CONSISTENCY_UNKNOWN) {
     dse_graph_options_set_write_consistency(graph_options,
                                             session->graph_options.write_consistency);
   }
@@ -1261,7 +1262,7 @@ DseGraphOptions *build_graph_options(dse_session *session,
     }
 
     dse_graph_options_set_request_timeout(graph_options, timeout);
-  } else {
+  } else if (session->graph_options.request_timeout > 0) {
     dse_graph_options_set_request_timeout(graph_options,
                                           session->graph_options.request_timeout);
   }
@@ -1270,14 +1271,14 @@ DseGraphOptions *build_graph_options(dse_session *session,
 }
 
 DseGraphStatement *create_graph(dse_session *session,
-                                dse_graph_statement *statement,
+                                const char *query,
                                 zval *options TSRMLS_DC) {
   php5to7_zval *value;
   DseGraphObject *graph_arguments = NULL;
   DseGraphStatement *graph_statement = NULL;
   DseGraphOptions *graph_options = NULL;
 
-  if (PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "arguments", sizeof("arguments"), value)) {
+  if (options && PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "arguments", sizeof("arguments"), value)) {
     if (Z_TYPE_P(PHP5TO7_ZVAL_MAYBE_DEREF(value)) != IS_ARRAY) {
       throw_invalid_argument(PHP5TO7_ZVAL_MAYBE_DEREF(value), "arguments", "an array" TSRMLS_CC);
       return NULL;
@@ -1295,10 +1296,12 @@ DseGraphStatement *create_graph(dse_session *session,
     return NULL;
   }
 
-  graph_statement = dse_graph_statement_new(statement->query, graph_options);
+  graph_statement = dse_graph_statement_new(query, graph_options);
 
   if (graph_arguments) {
-    dse_graph_statement_bind_values(graph_statement, graph_arguments);
+    ASSERT_SUCCESS_VALUE(dse_graph_statement_bind_values(graph_statement,
+                                                         graph_arguments),
+                         NULL);
   }
 
   if (!graph_options) dse_graph_options_free(graph_options);
@@ -1312,6 +1315,7 @@ PHP_METHOD(DseDefaultSession, executeGraph)
   zval *timeout = NULL;
   zval *statement = NULL;
   zval *options = NULL;
+  const char *query = NULL;
   DseGraphStatement *graph_statement = NULL;
   dse_session *self = NULL;
 
@@ -1319,9 +1323,18 @@ PHP_METHOD(DseDefaultSession, executeGraph)
     return;
   }
 
+  if (Z_TYPE_P(statement) == IS_STRING) {
+    query = Z_STRVAL_P(statement);
+  } else if (Z_TYPE_P(statement) == IS_OBJECT &&
+      instanceof_function(Z_OBJCE_P(statement), dse_graph_simple_statement_ce TSRMLS_CC)) {
+    query = PHP_DSE_GET_GRAPH_STATEMENT(statement)->query;
+  } else {
+    INVALID_ARGUMENT(statement, "a string or an instance of Dse\\Graph\\SimpleStatement");
+  }
+
   self = PHP_DSE_GET_SESSION(getThis());
 
-  graph_statement = create_graph(self, PHP_DSE_GET_GRAPH_STATEMENT(statement), options TSRMLS_CC);
+  graph_statement = create_graph(self, query, options TSRMLS_CC);
 
   if (graph_statement) {
     CassFuture *future = cass_session_execute_dse_graph((CassSession *)self->base.session->data, graph_statement);
@@ -1350,6 +1363,7 @@ PHP_METHOD(DseDefaultSession, executeGraphAsync)
 {
   zval *statement = NULL;
   zval *options = NULL;
+  const char *query;
   dse_session *self = NULL;
   DseGraphStatement *graph_statement = NULL;
   dse_graph_future_result_set *future_result_set = NULL;
@@ -1358,9 +1372,18 @@ PHP_METHOD(DseDefaultSession, executeGraphAsync)
     return;
   }
 
+  if (Z_TYPE_P(statement) == IS_STRING) {
+    query = Z_STRVAL_P(statement);
+  } else if (Z_TYPE_P(statement) == IS_OBJECT &&
+      instanceof_function(Z_OBJCE_P(statement), dse_graph_simple_statement_ce TSRMLS_CC)) {
+    query = PHP_DSE_GET_GRAPH_STATEMENT(statement)->query;
+  } else {
+    INVALID_ARGUMENT(statement, "a string or an instance of Dse\\Graph\\SimpleStatement");
+  }
+
   self = PHP_DSE_GET_SESSION(getThis());
 
-  graph_statement = create_graph(self, PHP_DSE_GET_GRAPH_STATEMENT(statement), options TSRMLS_CC);
+  graph_statement = create_graph(self, query, options TSRMLS_CC);
 
   if (graph_statement) {
     object_init_ex(return_value, dse_graph_future_result_set_ce);
@@ -1375,7 +1398,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_execute, 0, ZEND_RETURN_VALUE, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_execute_graph, 0, ZEND_RETURN_VALUE, 1)
-  ZEND_ARG_OBJ_INFO(0, statement, Dse\\GraphStatement, 0)
+  ZEND_ARG_INFO(0, statement)
   ZEND_ARG_ARRAY_INFO(0, options, 1)
 ZEND_END_ARG_INFO()
 
@@ -1429,6 +1452,7 @@ php_dse_default_session_free(php5to7_zend_object_free *object TSRMLS_DC)
   dse_session *self = PHP5TO7_ZEND_OBJECT_GET(dse_session, object);
 
   php_cassandra_session_destroy(&self->base);
+  php_dse_graph_options_destroy(&self->graph_options);
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
@@ -1441,6 +1465,7 @@ php_dse_default_session_new(zend_class_entry *ce TSRMLS_DC)
       PHP5TO7_ZEND_OBJECT_ECALLOC(dse_session, ce);
 
   php_cassandra_session_init(&self->base);
+  php_dse_graph_options_init(&self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(dse_session, dse_default_session, self, ce);
 }

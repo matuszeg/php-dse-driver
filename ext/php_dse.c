@@ -106,9 +106,18 @@ PHP_MINIT_FUNCTION(dse)
   dse_define_GraphResult(TSRMLS_C);
   dse_define_GraphResultSet(TSRMLS_C);
   dse_define_GraphFutureResultSet(TSRMLS_C);
+  dse_define_GraphElement(TSRMLS_C);
+  dse_define_GraphProperty(TSRMLS_C);
   dse_define_GraphEdge(TSRMLS_C);
   dse_define_GraphPath(TSRMLS_C);
   dse_define_GraphVertex(TSRMLS_C);
+  dse_define_GraphVertexProperty(TSRMLS_C);
+  dse_define_GraphDefaultElement(TSRMLS_C);
+  dse_define_GraphDefaultProperty(TSRMLS_C);
+  dse_define_GraphDefaultEdge(TSRMLS_C);
+  dse_define_GraphDefaultPath(TSRMLS_C);
+  dse_define_GraphDefaultVertex(TSRMLS_C);
+  dse_define_GraphDefaultVertexProperty(TSRMLS_C);
 
   return SUCCESS;
 }

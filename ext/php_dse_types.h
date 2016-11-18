@@ -99,18 +99,47 @@ PHP_DSE_BEGIN_OBJECT_TYPE(graph_future_result_set)
   CassFuture *future;
 PHP_DSE_END_OBJECT_TYPE(graph_future_result_set)
 
+typedef struct {
+  php5to7_zval id;
+  char *label;
+  HashTable properties;
+} dse_element_base;
+
+PHP_DSE_BEGIN_OBJECT_TYPE(graph_element)
+  dse_element_base base;
+PHP_DSE_END_OBJECT_TYPE(graph_element)
+
+typedef struct {
+  char *name;
+  php5to7_zval value;
+  php5to7_zval parent;
+} dse_property_base;
+
+PHP_DSE_BEGIN_OBJECT_TYPE(graph_property)
+  dse_property_base base;
+PHP_DSE_END_OBJECT_TYPE(graph_property)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_edge)
-  int unused;
+  dse_element_base element_base;
+  php5to7_zval in_v;
+  char *in_v_label;
+  php5to7_zval out_v;
+  char *out_v_label;
 PHP_DSE_END_OBJECT_TYPE(graph_edge)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_path)
-  int unused;
+  HashTable labels;
+  HashTable objects;
 PHP_DSE_END_OBJECT_TYPE(graph_path)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_vertex)
-  int unused;
+  dse_element_base element_base;
 PHP_DSE_END_OBJECT_TYPE(graph_vertex)
+
+PHP_DSE_BEGIN_OBJECT_TYPE(graph_vertex_property)
+  dse_element_base element_base;
+  dse_property_base property_base;
+PHP_DSE_END_OBJECT_TYPE(graph_vertex_property)
 
 extern PHP_DRIVER_API zend_class_entry *dse_session_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_default_session_ce;
@@ -124,9 +153,18 @@ extern PHP_DRIVER_API zend_class_entry *dse_graph_simple_statement_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_result_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_result_set_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_future_result_set_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_element_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_property_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_edge_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_path_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_vertex_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_vertex_property_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_default_element_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_default_property_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_default_edge_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_default_path_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_default_vertex_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_default_vertex_property_ce;
 
 void dse_define_Dse(TSRMLS_D);
 void dse_define_Session(TSRMLS_D);
@@ -141,8 +179,17 @@ void dse_define_GraphSimpleStatement(TSRMLS_D);
 void dse_define_GraphResult(TSRMLS_D);
 void dse_define_GraphResultSet(TSRMLS_D);
 void dse_define_GraphFutureResultSet(TSRMLS_D);
+void dse_define_GraphElement(TSRMLS_D);
+void dse_define_GraphProperty(TSRMLS_D);
 void dse_define_GraphEdge(TSRMLS_D);
 void dse_define_GraphPath(TSRMLS_D);
 void dse_define_GraphVertex(TSRMLS_D);
+void dse_define_GraphVertexProperty(TSRMLS_D);
+void dse_define_GraphDefaultElement(TSRMLS_D);
+void dse_define_GraphDefaultProperty(TSRMLS_D);
+void dse_define_GraphDefaultEdge(TSRMLS_D);
+void dse_define_GraphDefaultPath(TSRMLS_D);
+void dse_define_GraphDefaultVertex(TSRMLS_D);
+void dse_define_GraphDefaultVertexProperty(TSRMLS_D);
 
 #endif /* PHP_DSE_TYPES_H */

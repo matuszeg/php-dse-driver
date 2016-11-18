@@ -9,7 +9,7 @@ zend_class_entry *dse_graph_result_set_ce = NULL;
 int
 php_dse_graph_result_set_build(CassFuture *future, zval *return_value TSRMLS_DC)
 {
-  size_t count;
+  size_t i, count;
   dse_graph_result_set *result_set = NULL;
 
   DseGraphResultSet *graph_result_set = cass_future_get_dse_graph_resultset(future);
@@ -23,7 +23,7 @@ php_dse_graph_result_set_build(CassFuture *future, zval *return_value TSRMLS_DC)
   result_set = PHP_DSE_GET_GRAPH_RESULT_SET(return_value);
 
   count = dse_graph_resultset_count(graph_result_set);
-  for (size_t i = 0; i < count; ++i) {
+  for (i = 0; i < count; ++i) {
     php5to7_zval result;
     const DseGraphResult *graph_result = dse_graph_resultset_next(graph_result_set);
 
@@ -250,7 +250,26 @@ static zend_object_handlers dse_graph_result_set_handlers;
 static HashTable *
 php_dse_graph_result_set_properties(zval *object TSRMLS_DC)
 {
-  HashTable *props = zend_std_get_properties(object TSRMLS_CC);
+  php5to7_zval *current;
+  php5to7_zval results;
+  dse_graph_result_set *self  = PHP_DSE_GET_GRAPH_RESULT_SET(object);
+  HashTable            *props = zend_std_get_properties(object TSRMLS_CC);
+
+  PHP5TO7_ZVAL_MAYBE_MAKE(results);
+  array_init(PHP5TO7_ZVAL_MAYBE_P(results));
+
+  PHP5TO7_ZEND_HASH_FOREACH_VAL(&self->results, current) {
+    if (add_next_index_zval(PHP5TO7_ZVAL_MAYBE_P(results), PHP5TO7_ZVAL_MAYBE_DEREF(current)) == SUCCESS)
+      Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_DEREF(current));
+    else
+      break;
+  } PHP5TO7_ZEND_HASH_FOREACH_END(&self->results);
+
+  if (!PHP5TO7_ZEND_HASH_UPDATE(props,
+                                "results", sizeof("results"),
+                                PHP5TO7_ZVAL_MAYBE_P(results), sizeof(zval))) {
+    PHP5TO7_ZVAL_MAYBE_DESTROY(results);
+  }
 
   return props;
 }

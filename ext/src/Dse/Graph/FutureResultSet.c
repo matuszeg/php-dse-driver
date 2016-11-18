@@ -23,6 +23,7 @@ PHP_METHOD(DseGraphFutureResultSet, get)
       return;
     }
 
+    PHP5TO7_ZVAL_MAYBE_MAKE(PHP5TO7_ZVAL_MAYBE_P(self->result_set));
     if (php_dse_graph_result_set_build(self->future, PHP5TO7_ZVAL_MAYBE_P(self->result_set) TSRMLS_CC) == FAILURE) {
       return;
     }

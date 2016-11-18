@@ -227,11 +227,23 @@ if (PHP_DSE != "no") {
                 "FutureSession.c " +
                 "Session.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Dse/Graph",
+                "DefaultElement.c " +
+                "DefaultEdge.c " +
+                "DefaultPath.c " +
+                "DefaultProperty.c " +
+                "DefaultVertex.c " +
+                "DefaultVertexProperty.c " +
+                "Element.c " +
+                "Edge.c " +
                 "FutureResultSet.c " +
+                "Path.c " +
+                "Property.c " +
                 "Result.c " +
                 "ResultSet.c " +
                 "SimpleStatement.c " +
-                "Statement.c ", "dse");
+                "Statement.c " +
+                "Vertex.c" +
+                "VertexProperty.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Dse/Cluster",
                 "Builder.c " +
                 "DefaultBuilder.c", "dse");

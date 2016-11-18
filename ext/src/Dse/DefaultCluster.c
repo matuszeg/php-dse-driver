@@ -3,6 +3,7 @@
 #include "util/future.h"
 
 #include "Cassandra/Cluster.h"
+#include "Graph/Options.h"
 
 zend_class_entry *dse_default_cluster_ce = NULL;
 
@@ -11,31 +12,37 @@ PHP_METHOD(DseDefaultCluster, connect)
   char *keyspace = NULL;
   php5to7_size keyspace_len;
   zval *timeout = NULL;
-  cassandra_cluster_base *cluster = NULL;
-  cassandra_session_base *session = NULL;
+  dse_cluster *self;
+  dse_session *session;
+  cassandra_cluster_base *cluster_base = NULL;
+  cassandra_session_base *session_base = NULL;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|sz", &keyspace, &keyspace_len, &timeout) == FAILURE) {
     return;
   }
 
-  cluster = &PHP_DSE_GET_CLUSTER(getThis())->base;
+  self = PHP_DSE_GET_CLUSTER(getThis());
+  cluster_base = &self->base;
 
   object_init_ex(return_value, dse_default_session_ce);
-  session = &PHP_DSE_GET_SESSION(return_value)->base;
+  session = PHP_DSE_GET_SESSION(return_value);
+  session_base = &session->base;
 
-  session->default_consistency = cluster->default_consistency;
-  session->default_page_size   = cluster->default_page_size;
-  session->persist             = cluster->persist;
+  session_base->default_consistency = cluster_base->default_consistency;
+  session_base->default_page_size   = cluster_base->default_page_size;
+  session_base->persist             = cluster_base->persist;
 
-  if (!PHP5TO7_ZVAL_IS_UNDEF(session->default_timeout)) {
-    PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(session->default_timeout),
-                      PHP5TO7_ZVAL_MAYBE_P(cluster->default_timeout));
+  php_dse_graph_options_clone(&session->graph_options, &self->graph_options);
+
+  if (!PHP5TO7_ZVAL_IS_UNDEF(session_base->default_timeout)) {
+    PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(session_base->default_timeout),
+                      PHP5TO7_ZVAL_MAYBE_P(cluster_base->default_timeout));
   }
 
-  php_cassandra_cluster_connect(cluster,
+  php_cassandra_cluster_connect(cluster_base,
                                 keyspace, keyspace_len,
                                 timeout,
-                                session TSRMLS_CC);
+                                session_base TSRMLS_CC);
 
 }
 
@@ -103,6 +110,7 @@ php_dse_default_cluster_free(php5to7_zend_object_free *object TSRMLS_DC)
   dse_cluster *self = PHP5TO7_ZEND_OBJECT_GET(dse_cluster, object);
 
   php_cassandra_cluster_destroy(&self->base);
+  php_dse_graph_options_destroy(&self->graph_options);
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
@@ -115,6 +123,7 @@ php_dse_default_cluster_new(zend_class_entry *ce TSRMLS_DC)
       PHP5TO7_ZEND_OBJECT_ECALLOC(dse_cluster, ce);
 
   php_cassandra_cluster_init(&self->base);
+  php_dse_graph_options_init(&self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(dse_cluster, dse_default_cluster, self, ce);
 }

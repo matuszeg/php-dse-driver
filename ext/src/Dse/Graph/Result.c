@@ -103,8 +103,8 @@ get_arrval(INTERNAL_FUNCTION_PARAMETERS)
 
   self = PHP_DSE_GET_GRAPH_RESULT(getThis());
 
-  if (self->type != DSE_GRAPH_RESULT_TYPE_ARRAY ||
-      self->type != DSE_GRAPH_RESULT_TYPE_OBJECT ||
+  if ((self->type != DSE_GRAPH_RESULT_TYPE_ARRAY &&
+       self->type != DSE_GRAPH_RESULT_TYPE_OBJECT) ||
       PHP5TO7_Z_TYPE_MAYBE_P(self->value) != IS_ARRAY) {
     zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
                             "Graph result isn't an array or object");
@@ -367,7 +367,7 @@ PHP_METHOD(DseGraphResult, asInt)
   convert_to_long(return_value);
 }
 
-PHP_METHOD(DseGraphResult, asBoolean)
+PHP_METHOD(DseGraphResult, asBool)
 {
   dse_graph_result *self = NULL;
 
@@ -404,26 +404,6 @@ PHP_METHOD(DseGraphResult, asString)
 
   RETVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
   convert_to_string(return_value);
-}
-
-PHP_METHOD(DseGraphResult, asArray)
-{
-  dse_graph_result *self = NULL;
-
-  if (zend_parse_parameters_none() == FAILURE)
-    return;
-
-  self = PHP_DSE_GET_GRAPH_RESULT(getThis());
-
-  if (self->type != DSE_GRAPH_RESULT_TYPE_ARRAY ||
-      self->type != DSE_GRAPH_RESULT_TYPE_OBJECT ||
-      PHP5TO7_Z_TYPE_MAYBE_P(self->value) != IS_ARRAY) {
-    zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
-                            "Graph result isn't an array or object");
-    return;
-  }
-
-  RETVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
 }
 
 PHP_METHOD(DseGraphResult, asEdge)
@@ -507,10 +487,9 @@ static zend_function_entry dse_graph_result_methods[] = {
   PHP_ME(DseGraphResult, isObject,     arginfo_none,   ZEND_ACC_PUBLIC)
   /* Basic types */
   PHP_ME(DseGraphResult, asInt,        arginfo_none,   ZEND_ACC_PUBLIC)
-  PHP_ME(DseGraphResult, asBoolean,    arginfo_none,   ZEND_ACC_PUBLIC)
+  PHP_ME(DseGraphResult, asBool,       arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(DseGraphResult, asDouble,     arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(DseGraphResult, asString,     arginfo_none,   ZEND_ACC_PUBLIC)
-  PHP_ME(DseGraphResult, asArray,      arginfo_none,   ZEND_ACC_PUBLIC)
   /* Graph types */
   PHP_ME(DseGraphResult, asEdge,       arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(DseGraphResult, asPath,       arginfo_none,   ZEND_ACC_PUBLIC)
@@ -527,7 +506,49 @@ static zend_object_handlers dse_graph_result_handlers;
 static HashTable *
 php_dse_graph_result_properties(zval *object TSRMLS_DC)
 {
-  HashTable *props = zend_std_get_properties(object TSRMLS_CC);
+  const char *typestr = "unknown";
+  php5to7_zval type;
+  php5to7_zval value;
+  dse_graph_result *self  = PHP_DSE_GET_GRAPH_RESULT(object);
+  HashTable        *props = zend_std_get_properties(object TSRMLS_CC);
+
+  switch(self->type) {
+  case DSE_GRAPH_RESULT_TYPE_NULL:
+    typestr = "null";
+    break;
+  case DSE_GRAPH_RESULT_TYPE_BOOL:
+    typestr = "bool";
+    break;
+  case DSE_GRAPH_RESULT_TYPE_NUMBER:
+    typestr = "number";
+    break;
+  case DSE_GRAPH_RESULT_TYPE_STRING:
+    typestr = "string";
+    break;
+  case DSE_GRAPH_RESULT_TYPE_OBJECT:
+    typestr = "object";
+    break;
+  case DSE_GRAPH_RESULT_TYPE_ARRAY:
+    typestr = "array";
+    break;
+  }
+
+  PHP5TO7_ZVAL_MAYBE_MAKE(type);
+  PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(type), typestr);
+  if (!PHP5TO7_ZEND_HASH_UPDATE(props,
+                           "type", sizeof("type"),
+                           PHP5TO7_ZVAL_MAYBE_P(type), sizeof(zval))) {
+    PHP5TO7_ZVAL_MAYBE_DESTROY(type);
+  }
+
+  PHP5TO7_ZVAL_MAYBE_MAKE(value);
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(value),
+                    PHP5TO7_ZVAL_MAYBE_P(self->value));
+  if (!PHP5TO7_ZEND_HASH_UPDATE(props,
+                                "value", sizeof("value"),
+                                PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval))) {
+    PHP5TO7_ZVAL_MAYBE_DESTROY(value);
+  }
 
   return props;
 }

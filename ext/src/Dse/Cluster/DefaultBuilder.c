@@ -3,6 +3,7 @@
 #include "util/consistency.h"
 
 #include "Cassandra/Cluster/Builder.h"
+#include "../Graph/Options.h"
 
 #if PHP_MAJOR_VERSION >= 7
 #include <zend_smart_str.h>
@@ -14,50 +15,54 @@ zend_class_entry *dse_default_cluster_builder_ce = NULL;
 
 PHP_METHOD(DseDefaultClusterBuilder, build)
 {
-  cassandra_cluster_base *cluster = NULL;
+  dse_cluster *cluster;
+  cassandra_cluster_base *cluster_base = NULL;
 
   dse_cluster_builder *self = PHP_DSE_GET_CLUSTER_BUILDER(getThis());
-  cassandra_cluster_builder_base *builder = &self->base;
+  cassandra_cluster_builder_base *builder_base = &self->base;
 
-  object_init_ex(return_value, cassandra_default_cluster_ce);
-  cluster = &PHP_CASSANDRA_GET_CLUSTER(return_value)->base;
+  object_init_ex(return_value, dse_default_cluster_ce);
+  cluster = PHP_DSE_GET_CLUSTER(return_value);
+  cluster_base = &cluster->base;
 
-  cluster->persist             = builder->persist;
-  cluster->default_consistency = builder->default_consistency;
-  cluster->default_page_size   = builder->default_page_size;
+  cluster_base->persist             = builder_base->persist;
+  cluster_base->default_consistency = builder_base->default_consistency;
+  cluster_base->default_page_size   = builder_base->default_page_size;
 
-  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(cluster->default_timeout),
-                    PHP5TO7_ZVAL_MAYBE_P(builder->default_timeout));
+  php_dse_graph_options_clone(&cluster->graph_options, &self->graph_options);
 
-  php_cassandra_cluster_builder_generate_hash_key(builder,
-                                                  &cluster->hash_key,
-                                                  &cluster->hash_key_len);
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(cluster_base->default_timeout),
+                    PHP5TO7_ZVAL_MAYBE_P(builder_base->default_timeout));
 
-  cluster->cluster = php_cassandra_cluster_builder_get_cache(builder,
-                                                             cluster->hash_key,
-                                                             cluster->hash_key_len TSRMLS_CC);
+  php_cassandra_cluster_builder_generate_hash_key(builder_base,
+                                                  &cluster_base->hash_key,
+                                                  &cluster_base->hash_key_len);
 
-  if (!cluster->cluster) {
-    cluster->cluster = cass_cluster_new_dse();
-    php_cassandra_cluster_builder_build(builder,
-                                        cluster->cluster TSRMLS_CC);
+  cluster_base->cluster = php_cassandra_cluster_builder_get_cache(builder_base,
+                                                             cluster_base->hash_key,
+                                                             cluster_base->hash_key_len TSRMLS_CC);
+
+  if (!cluster_base->cluster) {
+    cluster_base->cluster = cass_cluster_new_dse();
+    php_cassandra_cluster_builder_build(builder_base,
+                                        cluster_base->cluster TSRMLS_CC);
 
     if (self->plaintext_username) {
-      cass_cluster_set_dse_plaintext_authenticator(cluster->cluster,
+      cass_cluster_set_dse_plaintext_authenticator(cluster_base->cluster,
                                                    self->plaintext_username,
                                                    self->plaintext_password);
     }
 
     if (self->gssapi_service) {
-      cass_cluster_set_dse_gssapi_authenticator(cluster->cluster,
+      cass_cluster_set_dse_gssapi_authenticator(cluster_base->cluster,
                                                 self->gssapi_service,
                                                 self->gssapi_principal);
     }
 
-    php_cassandra_cluster_builder_add_cache(builder,
-                                            cluster->hash_key,
-                                            cluster->hash_key_len,
-                                            cluster->cluster TSRMLS_CC);
+    php_cassandra_cluster_builder_add_cache(builder_base,
+                                            cluster_base->hash_key,
+                                            cluster_base->hash_key_len,
+                                            cluster_base->cluster TSRMLS_CC);
   }
 }
 
@@ -550,6 +555,8 @@ php_dse_default_cluster_builder_free(php5to7_zend_object_free *object TSRMLS_DC)
     self->gssapi_principal = NULL;
   }
 
+  php_dse_graph_options_destroy(&self->graph_options);
+
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
 }
@@ -566,6 +573,8 @@ php_dse_default_cluster_builder_new(zend_class_entry *ce TSRMLS_DC)
   self->plaintext_password = NULL;
   self->gssapi_service = NULL;
   self->gssapi_principal = NULL;
+
+  php_dse_graph_options_init(&self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(dse_cluster_builder, dse_default_cluster_builder, self, ce);
 }
