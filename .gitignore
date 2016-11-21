@@ -3,11 +3,14 @@
 autom4te.cache/
 bin/
 build/
+vendor/
 
 # Files to ignore
 *.in
 *.lo
 *.log
+composer.lock
+composer.phar
 Makefile*
 ext/Makefile.global
 ext/acinclude.m4

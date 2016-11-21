@@ -1,0 +1,19 @@
+default:
+    formatters:
+        pretty: true
+    suites:
+        authentication:
+            paths: [ %paths.base%/features/authentication ]
+            contexts:
+                - AuthenticationContext:
+                    dse_version: 5.0.4
+
+dse-version-4.8:
+    gherkin:
+        filters:
+            tags: "~@dse-version-5.0"
+    suites:
+        authentication:
+            contexts:
+                - AuthenticationContext:
+                    dse_version: 4.8.11

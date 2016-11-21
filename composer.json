@@ -1,0 +1,59 @@
+{
+  "name": "datastax/php-driver-dse",
+  "type": "library",
+  "description": "DataStax PHP Driver for DataStax Enterprise",
+  "keywords": [
+    "dse",
+    "cassandra",
+    "nosql",
+    "database",
+    "driver",
+    "datastax",
+    "enterprise"
+  ],
+  "homepage": "http://datastax.github.io/php-driver-dse/",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Michael Penick",
+      "email": "michael.penick@datastax.com",
+      "homepage": "https://github.com/mpenick",
+      "role": "Lead Developer"
+    }
+  ],
+  "support": {
+    "docs": "http://docs.datastax.com/en/developer/php-driver-dse/latest",
+    "forum": "https://groups.google.com/a/lists.datastax.com/forum/#!forum/php-driver-user",
+    "irc": "irc://irc.freenode.org/#datastax-drivers",
+    "issues": "https://datastax-oss.atlassian.net/projects/PHP",
+    "source": "https://github.com/datastax/php-driver-dse"
+  },
+  "require-dev": {
+    "php": ">=5.6",
+    "ext-dse": ">=1.0.0",
+    "behat/behat": "~3.2",
+    "phpunit/php-code-coverage": "~4.0",
+    "phpunit/phpunit": "~5.6",
+    "symfony/process": "~3.1"
+  },
+  "config": {
+    "bin-dir": "bin/"
+  },
+  "scripts": {
+    "test": "phpunit && behat"
+  },
+  "autoload-dev": {
+    "files": [
+      "support/ccm.php",
+      "support/configuration.php",
+      "support/embedded_ads.php",
+      "support/version.php"
+    ],
+    "psr-4": {
+      "Dse\\": [
+        "tests/unit/Dse/",
+        "tests/integration/Dse/"
+      ]
+    }
+  }
+}
