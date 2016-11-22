@@ -34,31 +34,36 @@ PHP_METHOD(DseDefaultClusterBuilder, build)
   PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(cluster_base->default_timeout),
                     PHP5TO7_ZVAL_MAYBE_P(builder_base->default_timeout));
 
-  php_cassandra_cluster_builder_generate_hash_key(builder_base,
-                                                  &cluster_base->hash_key,
-                                                  &cluster_base->hash_key_len);
+  if (builder_base->persist) {
+    php_cassandra_cluster_builder_generate_hash_key(builder_base,
+                                                    &cluster_base->hash_key,
+                                                    &cluster_base->hash_key_len);
 
-  cluster_base->cluster = php_cassandra_cluster_builder_get_cache(builder_base,
-                                                             cluster_base->hash_key,
-                                                             cluster_base->hash_key_len TSRMLS_CC);
-
-  if (!cluster_base->cluster) {
-    cluster_base->cluster = cass_cluster_new_dse();
-    php_cassandra_cluster_builder_build(builder_base,
-                                        cluster_base->cluster TSRMLS_CC);
-
-    if (self->plaintext_username) {
-      cass_cluster_set_dse_plaintext_authenticator(cluster_base->cluster,
-                                                   self->plaintext_username,
-                                                   self->plaintext_password);
+    cluster_base->cluster = php_cassandra_cluster_builder_get_cache(builder_base,
+                                                                    cluster_base->hash_key,
+                                                                    cluster_base->hash_key_len TSRMLS_CC);
+    if (cluster_base->cluster) {
+      return;
     }
+  }
 
-    if (self->gssapi_service) {
-      cass_cluster_set_dse_gssapi_authenticator(cluster_base->cluster,
-                                                self->gssapi_service,
-                                                self->gssapi_principal);
-    }
+  cluster_base->cluster = cass_cluster_new_dse();
+  php_cassandra_cluster_builder_build(builder_base,
+                                      cluster_base->cluster TSRMLS_CC);
 
+  if (self->plaintext_username) {
+    cass_cluster_set_dse_plaintext_authenticator(cluster_base->cluster,
+                                                 self->plaintext_username,
+                                                 self->plaintext_password);
+  }
+
+  if (self->gssapi_service) {
+    cass_cluster_set_dse_gssapi_authenticator(cluster_base->cluster,
+                                              self->gssapi_service,
+                                              self->gssapi_principal);
+  }
+
+  if (builder_base->persist) {
     php_cassandra_cluster_builder_add_cache(builder_base,
                                             cluster_base->hash_key,
                                             cluster_base->hash_key_len,

@@ -227,7 +227,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_set, 0, ZEND_RETURN_VALUE, 2)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry dse_graph_result_set_methods[] = {
-  PHP_ME(DseGraphResultSet, __construct,  arginfo_none,    ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+  PHP_ME(DseGraphResultSet, __construct,  arginfo_none,    ZEND_ACC_PRIVATE | ZEND_ACC_CTOR | PHP5TO7_ZEND_ACC_FINAL)
   /* Iterator */
   PHP_ME(DseGraphResultSet, count,        arginfo_none,    ZEND_ACC_PUBLIC)
   PHP_ME(DseGraphResultSet, rewind,       arginfo_none,    ZEND_ACC_PUBLIC)
@@ -250,26 +250,17 @@ static zend_object_handlers dse_graph_result_set_handlers;
 static HashTable *
 php_dse_graph_result_set_properties(zval *object TSRMLS_DC)
 {
-  php5to7_zval *current;
-  php5to7_zval results;
+  php5to7_zval value;
   dse_graph_result_set *self  = PHP_DSE_GET_GRAPH_RESULT_SET(object);
   HashTable            *props = zend_std_get_properties(object TSRMLS_CC);
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(results);
-  array_init(PHP5TO7_ZVAL_MAYBE_P(results));
+  PHP5TO7_ZVAL_MAYBE_MAKE(value);
+  array_init(PHP5TO7_ZVAL_MAYBE_P(value));
+  PHP5TO7_ZEND_HASH_ZVAL_COPY(PHP5TO7_Z_ARRVAL_MAYBE_P(value), &self->results);
 
-  PHP5TO7_ZEND_HASH_FOREACH_VAL(&self->results, current) {
-    if (add_next_index_zval(PHP5TO7_ZVAL_MAYBE_P(results), PHP5TO7_ZVAL_MAYBE_DEREF(current)) == SUCCESS)
-      Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_DEREF(current));
-    else
-      break;
-  } PHP5TO7_ZEND_HASH_FOREACH_END(&self->results);
-
-  if (!PHP5TO7_ZEND_HASH_UPDATE(props,
-                                "results", sizeof("results"),
-                                PHP5TO7_ZVAL_MAYBE_P(results), sizeof(zval))) {
-    PHP5TO7_ZVAL_MAYBE_DESTROY(results);
-  }
+  PHP5TO7_ZEND_HASH_UPDATE(props,
+                           "results", sizeof("results"),
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
 
   return props;
 }
@@ -299,7 +290,6 @@ php_dse_graph_result_set_new(zend_class_entry *ce TSRMLS_DC)
 {
   dse_graph_result_set *self =
       PHP5TO7_ZEND_OBJECT_ECALLOC(dse_graph_result_set, ce);
-
 
   zend_hash_init(&self->results, 0, NULL, ZVAL_PTR_DTOR, 0);
 

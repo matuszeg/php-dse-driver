@@ -1,7 +1,11 @@
 #include "php_dse.h"
 #include "php_dse_types.h"
 
-#include "Zend/zend_operators.h"
+#include <Zend/zend_operators.h>
+
+#include "DefaultEdge.h"
+#include "DefaultPath.h"
+#include "DefaultVertex.h"
 
 zend_class_entry *dse_graph_result_ce = NULL;
 
@@ -11,7 +15,6 @@ php_dse_graph_result_build(const DseGraphResult *graph_result,
 {
   dse_graph_result *result;
   size_t i, count;
-  php5to7_zval value;
   DseGraphResultType type = dse_graph_result_type(graph_result);
 
   object_init_ex(return_value, dse_graph_result_ce);
@@ -53,6 +56,7 @@ php_dse_graph_result_build(const DseGraphResult *graph_result,
     array_init(PHP5TO7_ZVAL_MAYBE_P(result->value));
     count = dse_graph_result_member_count(graph_result);
     for (i = 0; i < count; ++i) {
+      php5to7_zval value;
       PHP5TO7_ZVAL_MAYBE_MAKE(value);
       if (php_dse_graph_result_build(dse_graph_result_member_value(graph_result, i),
                                      PHP5TO7_ZVAL_MAYBE_P(value) TSRMLS_CC) == FAILURE) {
@@ -69,6 +73,7 @@ php_dse_graph_result_build(const DseGraphResult *graph_result,
     array_init(PHP5TO7_ZVAL_MAYBE_P(result->value));
     count = dse_graph_result_element_count(graph_result);
     for (i = 0; i < count; ++i) {
+      php5to7_zval value;
       PHP5TO7_ZVAL_MAYBE_MAKE(value);
       if (php_dse_graph_result_build(dse_graph_result_element(graph_result, i),
                                      PHP5TO7_ZVAL_MAYBE_P(value) TSRMLS_CC) == FAILURE) {
@@ -96,6 +101,17 @@ PHP_METHOD(DseGraphResult, __construct)
   return;
 }
 
+static int
+check_array(dse_graph_result *result, const char* message TSRMLS_DC) {
+  if ((result->type != DSE_GRAPH_RESULT_TYPE_ARRAY &&
+       result->type != DSE_GRAPH_RESULT_TYPE_OBJECT) ||
+      PHP5TO7_Z_TYPE_MAYBE_P(result->value) != IS_ARRAY) {
+    zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC, message);
+    return FAILURE;
+  }
+  return SUCCESS;
+}
+
 static HashTable *
 get_arrval(INTERNAL_FUNCTION_PARAMETERS)
 {
@@ -103,11 +119,7 @@ get_arrval(INTERNAL_FUNCTION_PARAMETERS)
 
   self = PHP_DSE_GET_GRAPH_RESULT(getThis());
 
-  if ((self->type != DSE_GRAPH_RESULT_TYPE_ARRAY &&
-       self->type != DSE_GRAPH_RESULT_TYPE_OBJECT) ||
-      PHP5TO7_Z_TYPE_MAYBE_P(self->value) != IS_ARRAY) {
-    zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
-                            "Graph result isn't an array or object");
+  if (check_array(self, "Graph result isn't an array or object" TSRMLS_CC) == FAILURE) {
     return NULL;
   }
 
@@ -408,32 +420,62 @@ PHP_METHOD(DseGraphResult, asString)
 
 PHP_METHOD(DseGraphResult, asEdge)
 {
-  dse_graph_edge *edge;
-  object_init_ex(return_value, dse_graph_edge_ce);
-  edge = PHP_DSE_GET_GRAPH_EDGE(return_value);
+  dse_graph_result *self = NULL;
 
-  /* TODO: Implement */
-  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+  if (zend_parse_parameters_none() == FAILURE)
+    return;
+
+  self = PHP_DSE_GET_GRAPH_RESULT(getThis());
+  if (check_array(self, "Graph result isn't an edge" TSRMLS_CC) == FAILURE) {
+    return;
+  }
+
+  if (php_dse_graph_default_edge_construct(PHP5TO7_Z_ARRVAL_MAYBE_P(self->value),
+                                           return_value TSRMLS_CC) == FAILURE) {
+    zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
+                            "Graph result isn't an edge");
+    return;
+  }
 }
 
 PHP_METHOD(DseGraphResult, asPath)
 {
-  dse_graph_path *path;
-  object_init_ex(return_value, dse_graph_path_ce);
-  path = PHP_DSE_GET_GRAPH_PATH(return_value);
+  dse_graph_result *self = NULL;
 
-  /* TODO: Implement */
-  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+  if (zend_parse_parameters_none() == FAILURE)
+    return;
+
+  self = PHP_DSE_GET_GRAPH_RESULT(getThis());
+  if (check_array(self, "Graph result isn't an path" TSRMLS_CC) == FAILURE) {
+    return;
+  }
+
+  if (php_dse_graph_default_path_construct(PHP5TO7_Z_ARRVAL_MAYBE_P(self->value),
+                                           return_value TSRMLS_CC) == FAILURE) {
+    zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
+                            "Graph result isn't an path");
+    return;
+  }
 }
 
 PHP_METHOD(DseGraphResult, asVertex)
 {
-  dse_graph_vertex *vertex;
-  object_init_ex(return_value, dse_graph_vertex_ce);
-  vertex = PHP_DSE_GET_GRAPH_VERTEX(return_value);
+  dse_graph_result *self = NULL;
 
-  /* TODO: Implement */
-  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+  if (zend_parse_parameters_none() == FAILURE)
+    return;
+
+  self = PHP_DSE_GET_GRAPH_RESULT(getThis());
+  if (check_array(self, "Graph result isn't an vertex" TSRMLS_CC) == FAILURE) {
+    return;
+  }
+
+  if (php_dse_graph_default_vertex_construct(PHP5TO7_Z_ARRVAL_MAYBE_P(self->value),
+                                             return_value TSRMLS_CC) == FAILURE) {
+    zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
+                            "Graph result isn't an vertex");
+    return;
+  }
 }
 
 PHP_METHOD(DseGraphResult, asPoint)
@@ -467,7 +509,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_set, 0, ZEND_RETURN_VALUE, 2)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry dse_graph_result_methods[] = {
-  PHP_ME(DseGraphResult, __construct,  arginfo_none,    ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+  PHP_ME(DseGraphResult, __construct,  arginfo_none,   ZEND_ACC_PRIVATE | ZEND_ACC_CTOR | PHP5TO7_ZEND_ACC_FINAL)
   /* Iterator */
   PHP_ME(DseGraphResult, count,        arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(DseGraphResult, rewind,       arginfo_none,   ZEND_ACC_PUBLIC)
@@ -507,7 +549,6 @@ static HashTable *
 php_dse_graph_result_properties(zval *object TSRMLS_DC)
 {
   const char *typestr = "unknown";
-  php5to7_zval type;
   php5to7_zval value;
   dse_graph_result *self  = PHP_DSE_GET_GRAPH_RESULT(object);
   HashTable        *props = zend_std_get_properties(object TSRMLS_CC);
@@ -533,22 +574,18 @@ php_dse_graph_result_properties(zval *object TSRMLS_DC)
     break;
   }
 
-  PHP5TO7_ZVAL_MAYBE_MAKE(type);
-  PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(type), typestr);
-  if (!PHP5TO7_ZEND_HASH_UPDATE(props,
+  PHP5TO7_ZVAL_MAYBE_MAKE(value);
+  PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(value), typestr);
+  PHP5TO7_ZEND_HASH_UPDATE(props,
                            "type", sizeof("type"),
-                           PHP5TO7_ZVAL_MAYBE_P(type), sizeof(zval))) {
-    PHP5TO7_ZVAL_MAYBE_DESTROY(type);
-  }
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
   PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(value),
                     PHP5TO7_ZVAL_MAYBE_P(self->value));
-  if (!PHP5TO7_ZEND_HASH_UPDATE(props,
-                                "value", sizeof("value"),
-                                PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval))) {
-    PHP5TO7_ZVAL_MAYBE_DESTROY(value);
-  }
+  PHP5TO7_ZEND_HASH_UPDATE(props,
+                           "value", sizeof("value"),
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
 
   return props;
 }

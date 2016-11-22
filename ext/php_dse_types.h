@@ -31,9 +31,12 @@
   #define PHP_DSE_GET_GRAPH_RESULT(obj) php_dse_graph_result_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_RESULT_SET(obj) php_dse_graph_result_set_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_FUTURE_RESULT_SET(obj) php_dse_graph_future_result_set_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DSE_GET_GRAPH_ELEMENT(obj) php_dse_graph_element_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DSE_GET_GRAPH_PROPERTY(obj) php_dse_graph_property_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_EDGE(obj) php_dse_graph_edge_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_PATH(obj) php_dse_graph_path_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_VERTEX(obj) php_dse_graph_vertex_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DSE_GET_GRAPH_VERTEX_PROPERTY(obj) php_dse_graph_vertex_property_object_fetch(Z_OBJ_P(obj))
 #else
   #define PHP_DSE_GET_SESSION(obj) ((dse_session *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_FUTURE_SESSION(obj) ((dse_future_session *)zend_object_store_get_object((obj) TSRMLS_CC))
@@ -43,9 +46,12 @@
   #define PHP_DSE_GET_GRAPH_RESULT(obj) ((dse_graph_result *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_GRAPH_RESULT_SET(obj) ((dse_graph_result_set *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_GRAPH_FUTURE_RESULT_SET(obj) ((dse_graph_future_result_set *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_GRAPH_ELEMENT(obj) ((dse_graph_element *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_GRAPH_PROPERTY(obj) ((dse_graph_property *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_GRAPH_EDGE(obj) ((dse_graph_edge *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_GRAPH_PATH(obj) ((dse_graph_path *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_GRAPH_VERTEX(obj) ((dse_graph_vertex *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_GRAPH_VERTEX_PROPERTY(obj) ((dse_graph_vertex_property *)zend_object_store_get_object((obj) TSRMLS_CC))
 #endif
 
 typedef struct {
@@ -103,24 +109,24 @@ typedef struct {
   php5to7_zval id;
   char *label;
   HashTable properties;
-} dse_element_base;
-
-PHP_DSE_BEGIN_OBJECT_TYPE(graph_element)
-  dse_element_base base;
-PHP_DSE_END_OBJECT_TYPE(graph_element)
+} dse_graph_element_base;
 
 typedef struct {
   char *name;
   php5to7_zval value;
   php5to7_zval parent;
-} dse_property_base;
+} dse_graph_property_base;
+
+PHP_DSE_BEGIN_OBJECT_TYPE(graph_element)
+  dse_graph_element_base base;
+PHP_DSE_END_OBJECT_TYPE(graph_element)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_property)
-  dse_property_base base;
+  dse_graph_property_base base;
 PHP_DSE_END_OBJECT_TYPE(graph_property)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_edge)
-  dse_element_base element_base;
+  dse_graph_element_base element;
   php5to7_zval in_v;
   char *in_v_label;
   php5to7_zval out_v;
@@ -133,12 +139,12 @@ PHP_DSE_BEGIN_OBJECT_TYPE(graph_path)
 PHP_DSE_END_OBJECT_TYPE(graph_path)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_vertex)
-  dse_element_base element_base;
+  dse_graph_element_base element;
 PHP_DSE_END_OBJECT_TYPE(graph_vertex)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_vertex_property)
-  dse_element_base element_base;
-  dse_property_base property_base;
+  dse_graph_element_base element;
+  dse_graph_property_base property;
 PHP_DSE_END_OBJECT_TYPE(graph_vertex_property)
 
 extern PHP_DRIVER_API zend_class_entry *dse_session_ce;
