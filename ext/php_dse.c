@@ -119,6 +119,11 @@ PHP_MINIT_FUNCTION(dse)
   dse_define_GraphDefaultVertex(TSRMLS_C);
   dse_define_GraphDefaultVertexProperty(TSRMLS_C);
 
+  /* Geotypes */
+  dse_define_Point(TSRMLS_C);
+  dse_define_LineString(TSRMLS_C);
+  dse_define_Polygon(TSRMLS_C);
+
   return SUCCESS;
 }
 

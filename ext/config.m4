@@ -174,6 +174,9 @@ if test "$PHP_DSE" != "no"; then
     src/Dse/Graph/Statement.c \
     src/Dse/Graph/Vertex.c \
     src/Dse/Graph/VertexProperty.c \
+    src/Dse/LineString.c \
+    src/Dse/Point.c \
+    src/Dse/Polygon.c \
     src/Dse/Session.c
   ";
 

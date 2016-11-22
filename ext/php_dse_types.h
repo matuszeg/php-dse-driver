@@ -37,6 +37,10 @@
   #define PHP_DSE_GET_GRAPH_PATH(obj) php_dse_graph_path_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_VERTEX(obj) php_dse_graph_vertex_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_VERTEX_PROPERTY(obj) php_dse_graph_vertex_property_object_fetch(Z_OBJ_P(obj))
+
+  #define PHP_DSE_GET_POINT(obj) php_dse_point_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DSE_GET_LINE_STRING(obj) php_dse_line_string_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DSE_GET_POLYGON(obj) php_dse_polygon_object_fetch(Z_OBJ_P(obj))
 #else
   #define PHP_DSE_GET_SESSION(obj) ((dse_session *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_FUTURE_SESSION(obj) ((dse_future_session *)zend_object_store_get_object((obj) TSRMLS_CC))
@@ -52,6 +56,9 @@
   #define PHP_DSE_GET_GRAPH_PATH(obj) ((dse_graph_path *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_GRAPH_VERTEX(obj) ((dse_graph_vertex *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_GRAPH_VERTEX_PROPERTY(obj) ((dse_graph_vertex_property *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_POINT(obj) ((dse_point *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_LINE_STRING(obj) ((dse_line_string *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_POLYGON(obj) ((dse_polygon *)zend_object_store_get_object((obj) TSRMLS_CC))
 #endif
 
 typedef struct {
@@ -147,6 +154,26 @@ PHP_DSE_BEGIN_OBJECT_TYPE(graph_vertex_property)
   dse_graph_property_base property;
 PHP_DSE_END_OBJECT_TYPE(graph_vertex_property)
 
+PHP_DSE_BEGIN_OBJECT_TYPE(point)
+  double x;
+  double y;
+  php5to7_zval wkt;
+  php5to7_zval string;
+PHP_DSE_END_OBJECT_TYPE(point)
+
+PHP_DSE_BEGIN_OBJECT_TYPE(line_string)
+  HashTable points;
+  php5to7_zval wkt;
+  php5to7_zval string;
+PHP_DSE_END_OBJECT_TYPE(line_string)
+
+PHP_DSE_BEGIN_OBJECT_TYPE(polygon)
+  php5to7_zval exteriorRing;
+  HashTable interiorRings;
+  php5to7_zval wkt;
+  php5to7_zval string;
+PHP_DSE_END_OBJECT_TYPE(polygon)
+
 extern PHP_DRIVER_API zend_class_entry *dse_session_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_default_session_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_future_session_ce;
@@ -171,6 +198,9 @@ extern PHP_DRIVER_API zend_class_entry *dse_graph_default_edge_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_default_path_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_default_vertex_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_default_vertex_property_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_point_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_line_string_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_polygon_ce;
 
 void dse_define_Dse(TSRMLS_D);
 void dse_define_Session(TSRMLS_D);
@@ -197,5 +227,8 @@ void dse_define_GraphDefaultEdge(TSRMLS_D);
 void dse_define_GraphDefaultPath(TSRMLS_D);
 void dse_define_GraphDefaultVertex(TSRMLS_D);
 void dse_define_GraphDefaultVertexProperty(TSRMLS_D);
+void dse_define_Point(TSRMLS_D);
+void dse_define_LineString(TSRMLS_D);
+void dse_define_Polygon(TSRMLS_D);
 
 #endif /* PHP_DSE_TYPES_H */
