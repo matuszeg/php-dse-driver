@@ -8,7 +8,9 @@ php_dse_graph_element_init(dse_graph_element_base * element)
 {
   PHP5TO7_ZVAL_UNDEF(element->id);
   element->label = NULL;
-  zend_hash_init(&element->properties, 0, NULL, ZVAL_PTR_DTOR, 0);
+
+  PHP5TO7_ZVAL_MAYBE_MAKE(element->properties);
+  array_init(PHP5TO7_ZVAL_MAYBE_P(element->properties));
 }
 
 void
@@ -18,7 +20,7 @@ php_dse_graph_element_destroy(dse_graph_element_base * element)
   if (element->label) {
     efree(element->label);
   }
-  zend_hash_destroy(&element->properties);
+  PHP5TO7_ZVAL_MAYBE_DESTROY(element->properties);
 }
 
 int
@@ -53,22 +55,22 @@ php_dse_graph_element_properties(dse_graph_element_base* element,
   php5to7_zval value;
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(value),
-                    PHP5TO7_ZVAL_MAYBE_P(element->id));
+  ZVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value),
+            PHP5TO7_ZVAL_MAYBE_P(element->id), 1, 0);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "id", sizeof("id"),
                            PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(value), element->label);
+  PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(value),
+                      element->label);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "label", sizeof("label"),
                            PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  array_init(PHP5TO7_ZVAL_MAYBE_P(value));
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(PHP5TO7_Z_ARRVAL_MAYBE_P(value),
-                              &element->properties);
+  ZVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value),
+            PHP5TO7_ZVAL_MAYBE_P(element->properties), 1, 0);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "properties", sizeof("properties"),
                            PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));

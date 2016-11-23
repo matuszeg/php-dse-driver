@@ -244,18 +244,19 @@ PHP_METHOD(DseGraphResult, offsetGet)
   arr = get_arrval(INTERNAL_FUNCTION_PARAM_PASSTHRU);
   if (!arr) return;
 
-  if (Z_TYPE_P(offset) == IS_LONG || Z_LVAL_P(offset) >= 0) {
+  if (Z_TYPE_P(offset) == IS_LONG && Z_LVAL_P(offset) >= 0) {
     if (PHP5TO7_ZEND_HASH_INDEX_FIND(arr, Z_LVAL_P(offset), value)) {
       RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(value), 1, 0);
     }
   } else if (Z_TYPE_P(offset) == IS_STRING) {
-    if (PHP5TO7_ZEND_HASH_FIND(arr, Z_STRVAL_P(offset), Z_STRLEN_P(offset), value)) {
+    if (PHP5TO7_ZEND_HASH_FIND(arr, Z_STRVAL_P(offset), Z_STRLEN_P(offset) + 1, value)) {
       RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(value), 1, 0);
     }
   } else {
     INVALID_ARGUMENT(offset, "a positive integer or a string key");
   }
 
+  RETURN_FALSE;
 }
 
 PHP_METHOD(DseGraphResult, offsetSet)
@@ -446,14 +447,14 @@ PHP_METHOD(DseGraphResult, asPath)
     return;
 
   self = PHP_DSE_GET_GRAPH_RESULT(getThis());
-  if (check_array(self, "Graph result isn't an path" TSRMLS_CC) == FAILURE) {
+  if (check_array(self, "Graph result isn't a path" TSRMLS_CC) == FAILURE) {
     return;
   }
 
   if (php_dse_graph_default_path_construct(PHP5TO7_Z_ARRVAL_MAYBE_P(self->value),
                                            return_value TSRMLS_CC) == FAILURE) {
     zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
-                            "Graph result isn't an path");
+                            "Graph result isn't a path");
     return;
   }
 }
@@ -466,14 +467,14 @@ PHP_METHOD(DseGraphResult, asVertex)
     return;
 
   self = PHP_DSE_GET_GRAPH_RESULT(getThis());
-  if (check_array(self, "Graph result isn't an vertex" TSRMLS_CC) == FAILURE) {
+  if (check_array(self, "Graph result isn't a vertex" TSRMLS_CC) == FAILURE) {
     return;
   }
 
   if (php_dse_graph_default_vertex_construct(PHP5TO7_Z_ARRVAL_MAYBE_P(self->value),
                                              return_value TSRMLS_CC) == FAILURE) {
     zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
-                            "Graph result isn't an vertex");
+                            "Graph result isn't a vertex");
     return;
   }
 }
@@ -581,8 +582,8 @@ php_dse_graph_result_properties(zval *object TSRMLS_DC)
                            PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(value),
-                    PHP5TO7_ZVAL_MAYBE_P(self->value));
+  ZVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value),
+            PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "value", sizeof("value"),
                            PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));

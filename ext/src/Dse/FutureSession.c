@@ -28,7 +28,8 @@ PHP_METHOD(DseFutureSession, get)
 
   php_cassandra_future_session_get(future, timeout, session TSRMLS_CC);
 
-  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(future->default_session), return_value);
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(future->default_session),
+                    return_value);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_timeout, 0, ZEND_RETURN_VALUE, 0)

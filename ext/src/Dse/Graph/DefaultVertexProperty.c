@@ -82,9 +82,7 @@ PHP_METHOD(DseGraphDefaultVertexProperty, properties)
 
   self = PHP_DSE_GET_GRAPH_VERTEX_PROPERTY(getThis());
 
-  array_init(return_value);
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(Z_ARRVAL_P(return_value),
-                              &self->element.properties);
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->element.properties), 1, 0);
 }
 
 PHP_METHOD(DseGraphDefaultVertexProperty, property)
@@ -101,7 +99,7 @@ PHP_METHOD(DseGraphDefaultVertexProperty, property)
 
   self = PHP_DSE_GET_GRAPH_VERTEX_PROPERTY(getThis());
 
-  if (PHP5TO7_ZEND_HASH_FIND(&self->element.properties,
+  if (PHP5TO7_ZEND_HASH_FIND(PHP5TO7_Z_ARRVAL_MAYBE_P(self->element.properties),
                              name, name_len + 1,
                              result)) {
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(result), 1, 0);

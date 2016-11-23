@@ -40,8 +40,8 @@ php_dse_graph_result_set_build(CassFuture *future, zval *return_value TSRMLS_DC)
       return FAILURE;
     }
 
-    if (!PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(&result_set->results,
-                                            PHP5TO7_ZVAL_MAYBE_P(result), sizeof(zval *))) {
+    if (!PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(PHP5TO7_Z_ARRVAL_MAYBE_P(result_set->results),
+                                             PHP5TO7_ZVAL_MAYBE_P(result), sizeof(zval *))) {
       PHP5TO7_ZVAL_MAYBE_DESTROY(result);
     }
   }
@@ -66,7 +66,7 @@ PHP_METHOD(DseGraphResultSet, count)
 
   self = PHP_DSE_GET_GRAPH_RESULT_SET(getThis());
 
-  RETURN_LONG(zend_hash_num_elements(&self->results));
+  RETURN_LONG(zend_hash_num_elements(PHP5TO7_Z_ARRVAL_MAYBE_P(self->results)));
 }
 
 PHP_METHOD(DseGraphResultSet, rewind)
@@ -78,7 +78,7 @@ PHP_METHOD(DseGraphResultSet, rewind)
 
   self = PHP_DSE_GET_GRAPH_RESULT_SET(getThis());
 
-  zend_hash_internal_pointer_reset(&self->results);
+  zend_hash_internal_pointer_reset(PHP5TO7_Z_ARRVAL_MAYBE_P(self->results));
 }
 
 PHP_METHOD(DseGraphResultSet, current)
@@ -92,7 +92,7 @@ PHP_METHOD(DseGraphResultSet, current)
 
   self = PHP_DSE_GET_GRAPH_RESULT_SET(getThis());
 
-  if (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA(&self->results, entry)) {
+  if (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA(PHP5TO7_Z_ARRVAL_MAYBE_P(self->results), entry)) {
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(entry), 1, 0);
   }
 }
@@ -108,7 +108,7 @@ PHP_METHOD(DseGraphResultSet, key)
 
   self = PHP_DSE_GET_GRAPH_RESULT_SET(getThis());
 
-  if (PHP5TO7_ZEND_HASH_GET_CURRENT_KEY(&self->results,
+  if (PHP5TO7_ZEND_HASH_GET_CURRENT_KEY(PHP5TO7_Z_ARRVAL_MAYBE_P(self->results),
                                         &str_index, &num_index) == HASH_KEY_IS_LONG)
     RETURN_LONG(num_index);
 }
@@ -123,7 +123,7 @@ PHP_METHOD(DseGraphResultSet, next)
 
   self = PHP_DSE_GET_GRAPH_RESULT_SET(getThis());
 
-  zend_hash_move_forward(&self->results);
+  zend_hash_move_forward(PHP5TO7_Z_ARRVAL_MAYBE_P(self->results));
 }
 
 PHP_METHOD(DseGraphResultSet, valid)
@@ -135,7 +135,7 @@ PHP_METHOD(DseGraphResultSet, valid)
 
   self = PHP_DSE_GET_GRAPH_RESULT_SET(getThis());
 
-  RETURN_BOOL(zend_hash_has_more_elements(&self->results) == SUCCESS);
+  RETURN_BOOL(zend_hash_has_more_elements(PHP5TO7_Z_ARRVAL_MAYBE_P(self->results)) == SUCCESS);
 }
 
 PHP_METHOD(DseGraphResultSet, offsetExists)
@@ -152,7 +152,7 @@ PHP_METHOD(DseGraphResultSet, offsetExists)
 
   self = PHP_DSE_GET_GRAPH_RESULT_SET(getThis());
 
-  RETURN_BOOL(zend_hash_index_exists(&self->results, (php5to7_ulong) Z_LVAL_P(offset)));
+  RETURN_BOOL(zend_hash_index_exists(PHP5TO7_Z_ARRVAL_MAYBE_P(self->results), (php5to7_ulong) Z_LVAL_P(offset)));
 }
 
 PHP_METHOD(DseGraphResultSet, offsetGet)
@@ -169,9 +169,11 @@ PHP_METHOD(DseGraphResultSet, offsetGet)
   }
 
   self = PHP_DSE_GET_GRAPH_RESULT_SET(getThis());
-  if (PHP5TO7_ZEND_HASH_INDEX_FIND(&self->results, Z_LVAL_P(offset), value)) {
+  if (PHP5TO7_ZEND_HASH_INDEX_FIND(PHP5TO7_Z_ARRVAL_MAYBE_P(self->results), Z_LVAL_P(offset), value)) {
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(value), 1, 0);
   }
+
+  RETURN_FALSE;
 }
 
 PHP_METHOD(DseGraphResultSet, offsetSet)
@@ -208,8 +210,8 @@ PHP_METHOD(DseGraphResultSet, first)
 
   self = PHP_DSE_GET_GRAPH_RESULT_SET(getThis());
 
-  zend_hash_internal_pointer_reset_ex(&self->results, &pos);
-  if (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA(&self->results, entry)) {
+  zend_hash_internal_pointer_reset_ex(PHP5TO7_Z_ARRVAL_MAYBE_P(self->results), &pos);
+  if (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA(PHP5TO7_Z_ARRVAL_MAYBE_P(self->results), entry)) {
     RETVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(entry), 1, 0);
   }
 }
@@ -255,9 +257,8 @@ php_dse_graph_result_set_properties(zval *object TSRMLS_DC)
   HashTable            *props = zend_std_get_properties(object TSRMLS_CC);
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  array_init(PHP5TO7_ZVAL_MAYBE_P(value));
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(PHP5TO7_Z_ARRVAL_MAYBE_P(value), &self->results);
-
+  ZVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value),
+            PHP5TO7_ZVAL_MAYBE_P(self->results), 1, 0);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "results", sizeof("results"),
                            PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
@@ -279,7 +280,7 @@ php_dse_graph_result_set_free(php5to7_zend_object_free *object TSRMLS_DC)
 {
   dse_graph_result_set *self = PHP5TO7_ZEND_OBJECT_GET(dse_graph_result_set, object);
 
-  zend_hash_destroy(&self->results);
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->results);
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
@@ -291,7 +292,9 @@ php_dse_graph_result_set_new(zend_class_entry *ce TSRMLS_DC)
   dse_graph_result_set *self =
       PHP5TO7_ZEND_OBJECT_ECALLOC(dse_graph_result_set, ce);
 
-  zend_hash_init(&self->results, 0, NULL, ZVAL_PTR_DTOR, 0);
+  PHP5TO7_ZVAL_MAYBE_MAKE(self->results);
+  array_init(PHP5TO7_ZVAL_MAYBE_P(self->results));
+
 
   PHP5TO7_ZEND_OBJECT_INIT(dse_graph_result_set, self, ce);
 }

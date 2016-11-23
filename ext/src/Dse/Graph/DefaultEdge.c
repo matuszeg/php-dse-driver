@@ -17,6 +17,17 @@ php_dse_graph_default_edge_construct(HashTable *ht,
   object_init_ex(return_value, dse_graph_default_edge_ce);
   edge = PHP_DSE_GET_GRAPH_EDGE(return_value);
 
+  if (!PHP5TO7_ZEND_HASH_FIND(ht, "type", sizeof("type"), value)) {
+    return FAILURE;
+  }
+  result = PHP_DSE_GET_GRAPH_RESULT(PHP5TO7_ZVAL_MAYBE_DEREF(value));
+  if (PHP5TO7_Z_TYPE_MAYBE_P(result->value) != IS_STRING ||
+      strncmp(PHP5TO7_Z_STRVAL_MAYBE_P(result->value),
+              "edge",
+              PHP5TO7_Z_STRLEN_MAYBE_P(result->value)) != 0) {
+    return FAILURE;
+  }
+
   if (php_dse_graph_default_element_populate(ht,
                                              return_value,
                                              &edge->element TSRMLS_CC) == FAILURE) {
@@ -96,9 +107,7 @@ PHP_METHOD(DseGraphDefaultEdge, properties)
 
   self = PHP_DSE_GET_GRAPH_EDGE(getThis());
 
-  array_init(return_value);
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(Z_ARRVAL_P(return_value),
-                              &self->element.properties);
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->element.properties), 1, 0);
 }
 
 PHP_METHOD(DseGraphDefaultEdge, property)
@@ -115,7 +124,7 @@ PHP_METHOD(DseGraphDefaultEdge, property)
 
   self = PHP_DSE_GET_GRAPH_EDGE(getThis());
 
-  if (PHP5TO7_ZEND_HASH_FIND(&self->element.properties,
+  if (PHP5TO7_ZEND_HASH_FIND(PHP5TO7_Z_ARRVAL_MAYBE_P(self->element.properties),
                              name, name_len + 1,
                              result)) {
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(result), 1, 0);
@@ -207,30 +216,30 @@ php_dse_graph_default_edge_properties(zval *object TSRMLS_DC)
   php_dse_graph_element_properties(&self->element, props TSRMLS_CC);
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(value),
-                    PHP5TO7_ZVAL_MAYBE_P(self->in_v));
+  ZVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value),
+            PHP5TO7_ZVAL_MAYBE_P(self->in_v), 1, 0);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "inV", sizeof("inV"),
-                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
   PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(value), self->in_v_label);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "inVLabel", sizeof("inVLabel"),
-                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(value),
-                    PHP5TO7_ZVAL_MAYBE_P(self->out_v));
+  ZVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value),
+            PHP5TO7_ZVAL_MAYBE_P(self->out_v), 1, 0);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "outV", sizeof("outV"),
-                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
   PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(value), self->out_v_label);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "outVLabel", sizeof("outVLabel"),
-                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));
 
   return props;
 }

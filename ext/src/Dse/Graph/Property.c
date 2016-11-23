@@ -28,17 +28,18 @@ php_dse_graph_property_properties(dse_graph_property_base* property,
   php5to7_zval value;
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(value), property->name);
+  PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(value),
+                      property->name);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "name", sizeof("name"),
-                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(value),
-                    PHP5TO7_ZVAL_MAYBE_P(property->value));
+  ZVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value),
+            PHP5TO7_ZVAL_MAYBE_P(property->value), 1, 0);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "value", sizeof("value"),
-                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)

@@ -41,7 +41,7 @@ php_dse_graph_default_element_populate(HashTable *ht,
                       PHP5TO7_ZVAL_MAYBE_DEREF(current));
     PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(property->base.parent), element);
 
-    PHP5TO7_ZEND_HASH_ADD(&element_base->properties,
+    PHP5TO7_ZEND_HASH_ADD(PHP5TO7_Z_ARRVAL_MAYBE_P(element_base->properties),
                           name, strlen(name) + 1,
                           PHP5TO7_ZVAL_MAYBE_P(zproperty), sizeof(zval *));
   } PHP5TO7_ZEND_HASH_FOREACH_END(PHP5TO7_Z_ARRVAL_MAYBE_P(result->value));
@@ -89,9 +89,7 @@ PHP_METHOD(DseGraphDefaultElement, properties)
 
   self = PHP_DSE_GET_GRAPH_ELEMENT(getThis());
 
-  array_init(return_value);
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(Z_ARRVAL_P(return_value),
-                              &self->base.properties);
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->base.properties), 1, 0);
 }
 
 PHP_METHOD(DseGraphDefaultElement, property)
@@ -108,7 +106,7 @@ PHP_METHOD(DseGraphDefaultElement, property)
 
   self = PHP_DSE_GET_GRAPH_ELEMENT(getThis());
 
-  if (PHP5TO7_ZEND_HASH_FIND(&self->base.properties,
+  if (PHP5TO7_ZEND_HASH_FIND(PHP5TO7_Z_ARRVAL_MAYBE_P(self->base.properties),
                              name, name_len + 1,
                              result)) {
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(result), 1, 0);

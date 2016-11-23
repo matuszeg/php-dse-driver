@@ -19,6 +19,17 @@ php_dse_graph_default_vertex_construct(HashTable *ht,
   object_init_ex(return_value, dse_graph_default_vertex_ce);
   vertex = PHP_DSE_GET_GRAPH_VERTEX(return_value);
 
+  if (!PHP5TO7_ZEND_HASH_FIND(ht, "type", sizeof("type"), value)) {
+    return FAILURE;
+  }
+  result = PHP_DSE_GET_GRAPH_RESULT(PHP5TO7_ZVAL_MAYBE_DEREF(value));
+  if (PHP5TO7_Z_TYPE_MAYBE_P(result->value) != IS_STRING ||
+      strncmp(PHP5TO7_Z_STRVAL_MAYBE_P(result->value),
+              "vertex",
+              PHP5TO7_Z_STRLEN_MAYBE_P(result->value)) != 0) {
+    return FAILURE;
+  }
+
   if (php_dse_graph_element_header_populate(ht, &vertex->element TSRMLS_CC) == FAILURE) {
     return FAILURE;
   }
@@ -51,7 +62,7 @@ php_dse_graph_default_vertex_construct(HashTable *ht,
     PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(vertex_property->property.parent),
                       return_value);
 
-    PHP5TO7_ZEND_HASH_ADD(&vertex->element.properties,
+    PHP5TO7_ZEND_HASH_ADD(PHP5TO7_Z_ARRVAL_MAYBE_P(vertex->element.properties),
                           name, strlen(name) + 1,
                           PHP5TO7_ZVAL_MAYBE_P(zvertex_property), sizeof(zval *));
   } PHP5TO7_ZEND_HASH_FOREACH_END(PHP5TO7_Z_ARRVAL_MAYBE_P(result->value));
@@ -99,9 +110,7 @@ PHP_METHOD(DseGraphDefaultVertex, properties)
 
   self = PHP_DSE_GET_GRAPH_VERTEX(getThis());
 
-  array_init(return_value);
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(Z_ARRVAL_P(return_value),
-                              &self->element.properties);
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->element.properties), 1, 0);
 }
 
 PHP_METHOD(DseGraphDefaultVertex, property)
@@ -118,7 +127,7 @@ PHP_METHOD(DseGraphDefaultVertex, property)
 
   self = PHP_DSE_GET_GRAPH_VERTEX(getThis());
 
-  if (PHP5TO7_ZEND_HASH_FIND(&self->element.properties,
+  if (PHP5TO7_ZEND_HASH_FIND(PHP5TO7_Z_ARRVAL_MAYBE_P(self->element.properties),
                              name, name_len + 1,
                              result)) {
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(result), 1, 0);

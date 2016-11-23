@@ -9,8 +9,8 @@ ZEND_END_ARG_INFO()
 static zend_function_entry dse_graph_edge_methods[] = {
   PHP_ABSTRACT_ME(DseGraphEdge, inV,       arginfo_none)
   PHP_ABSTRACT_ME(DseGraphEdge, inVLabel,  arginfo_none)
-  PHP_ABSTRACT_ME(DseGraphEdge, out,       arginfo_none)
-  PHP_ABSTRACT_ME(DseGraphEdge, outVLable, arginfo_none)
+  PHP_ABSTRACT_ME(DseGraphEdge, outV,      arginfo_none)
+  PHP_ABSTRACT_ME(DseGraphEdge, outVLabel, arginfo_none)
   PHP_FE_END
 };
 

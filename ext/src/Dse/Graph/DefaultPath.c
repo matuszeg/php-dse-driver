@@ -5,6 +5,26 @@
 
 zend_class_entry *dse_graph_default_path_ce = NULL;
 
+static int
+build_label(HashTable* label, php5to7_zval* return_value TSRMLS_DC)
+{
+  php5to7_zval *current;
+  PHP5TO7_ZVAL_MAYBE_MAKE(*return_value);
+  array_init(PHP5TO7_ZVAL_MAYBE_DEREF(return_value));
+
+  PHP5TO7_ZEND_HASH_FOREACH_VAL(label, current) {
+    dse_graph_result *result =
+        PHP_DSE_GET_GRAPH_RESULT(PHP5TO7_ZVAL_MAYBE_DEREF(current));
+    if (PHP5TO7_Z_TYPE_MAYBE_P(result->value) != IS_STRING) {
+      return FAILURE;
+    }
+    PHP5TO7_ADD_NEXT_INDEX_STRING(PHP5TO7_ZVAL_MAYBE_DEREF(return_value),
+                                  PHP5TO7_Z_STRVAL_MAYBE_P(result->value));
+  } PHP5TO7_ZEND_HASH_FOREACH_END(label);
+
+  return SUCCESS;
+}
+
 int
 php_dse_graph_default_path_construct(HashTable *ht,
                                      zval *return_value TSRMLS_DC)
@@ -17,6 +37,9 @@ php_dse_graph_default_path_construct(HashTable *ht,
   object_init_ex(return_value, dse_graph_default_path_ce);
   path = PHP_DSE_GET_GRAPH_PATH(return_value);
 
+  PHP5TO7_ZVAL_MAYBE_MAKE(path->labels);
+  array_init(PHP5TO7_ZVAL_MAYBE_P(path->labels));
+
   if (!PHP5TO7_ZEND_HASH_FIND(ht, "labels", sizeof("labels"), value)) {
     return FAILURE;
   }
@@ -26,26 +49,22 @@ php_dse_graph_default_path_construct(HashTable *ht,
   }
 
   PHP5TO7_ZEND_HASH_FOREACH_VAL(PHP5TO7_Z_ARRVAL_MAYBE_P(result->value), current) {
-    php5to7_zval zlabel;
+    php5to7_zval label;
     dse_graph_result *sub_result =
         PHP_DSE_GET_GRAPH_RESULT(PHP5TO7_ZVAL_MAYBE_DEREF(current));
-    if (PHP5TO7_Z_TYPE_MAYBE_P(sub_result->value) != IS_STRING) {
+    if (PHP5TO7_Z_TYPE_MAYBE_P(sub_result->value) != IS_ARRAY) {
       return FAILURE;
     }
 
-    PHP5TO7_ZVAL_MAYBE_MAKE(zlabel);
-    PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(zlabel),
-                         PHP5TO7_Z_STRVAL_MAYBE_P(sub_result->value),
-                         PHP5TO7_Z_STRLEN_MAYBE_P(sub_result->value));
+    PHP5TO7_ZVAL_UNDEF(label);
 
-    if (!PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(&path->labels,
-                                             PHP5TO7_ZVAL_MAYBE_P(zlabel),
-                                             sizeof(zval *))) {
-      PHP5TO7_ZVAL_MAYBE_DESTROY(zlabel);
+    if (build_label(PHP5TO7_Z_ARRVAL_MAYBE_P(sub_result->value), &label TSRMLS_CC) == FAILURE) {
       return FAILURE;
     }
 
-    Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(zlabel));
+    PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(PHP5TO7_Z_ARRVAL_MAYBE_P(path->labels),
+                                        PHP5TO7_ZVAL_MAYBE_P(label),
+                                        sizeof(zval *));
   } PHP5TO7_ZEND_HASH_FOREACH_END(PHP5TO7_Z_ARRVAL_MAYBE_P(result->value));
 
   if (!PHP5TO7_ZEND_HASH_FIND(ht, "objects", sizeof("objects"), value)) {
@@ -56,8 +75,9 @@ php_dse_graph_default_path_construct(HashTable *ht,
     return FAILURE;
   }
 
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(&path->objects,
-                              PHP5TO7_Z_ARRVAL_MAYBE_P(result->value));
+  PHP5TO7_ZVAL_MAYBE_MAKE(path->objects);
+  ZVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(path->objects),
+            PHP5TO7_ZVAL_MAYBE_P(result->value), 1, 0);
 
   return SUCCESS;
 }
@@ -78,9 +98,7 @@ PHP_METHOD(DseGraphDefaultPath, labels)
 
   self = PHP_DSE_GET_GRAPH_PATH(getThis());
 
-  array_init(return_value);
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(Z_ARRVAL_P(return_value),
-                              &self->labels);
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->labels), 1, 0);
 }
 
 PHP_METHOD(DseGraphDefaultPath, objects)
@@ -92,9 +110,7 @@ PHP_METHOD(DseGraphDefaultPath, objects)
 
   self = PHP_DSE_GET_GRAPH_PATH(getThis());
 
-  array_init(return_value);
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(Z_ARRVAL_P(return_value),
-                              &self->objects);
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->objects), 1, 0);
 }
 
 PHP_METHOD(DseGraphDefaultPath, hasLabel)
@@ -110,7 +126,8 @@ PHP_METHOD(DseGraphDefaultPath, hasLabel)
 
   self = PHP_DSE_GET_GRAPH_PATH(getThis());
 
-  RETURN_BOOL(PHP5TO7_ZEND_HASH_EXISTS(&self->labels, name, name_len + 1));
+  /* TODO: Implement */
+  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
 }
 
 PHP_METHOD(DseGraphDefaultPath, object)
@@ -118,7 +135,6 @@ PHP_METHOD(DseGraphDefaultPath, object)
   char *name;
   php5to7_size name_len;
   dse_graph_path *self = NULL;
-  php5to7_zval* result;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
                             &name, &name_len) == FAILURE) {
@@ -127,11 +143,8 @@ PHP_METHOD(DseGraphDefaultPath, object)
 
   self = PHP_DSE_GET_GRAPH_PATH(getThis());
 
-  if (PHP5TO7_ZEND_HASH_FIND(&self->objects,
-                             name, name_len + 1,
-                             result)) {
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(result), 1, 0);
-  }
+  /* TODO: Implement */
+  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
 
   RETURN_FALSE;
 }
@@ -163,20 +176,18 @@ php_dse_graph_default_path_properties(zval *object TSRMLS_DC)
   HashTable      *props = zend_std_get_properties(object TSRMLS_CC);
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  array_init(PHP5TO7_ZVAL_MAYBE_P(value));
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(PHP5TO7_Z_ARRVAL_MAYBE_P(value),
-                              &self->labels);
+  ZVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value),
+            PHP5TO7_ZVAL_MAYBE_P(self->labels), 1, 0);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "labels", sizeof("labels"),
-                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));
 
   PHP5TO7_ZVAL_MAYBE_MAKE(value);
-  array_init(PHP5TO7_ZVAL_MAYBE_P(value));
-  PHP5TO7_ZEND_HASH_ZVAL_COPY(PHP5TO7_Z_ARRVAL_MAYBE_P(value),
-                              &self->objects);
+  ZVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value),
+            PHP5TO7_ZVAL_MAYBE_P(self->objects), 1, 0);
   PHP5TO7_ZEND_HASH_UPDATE(props,
                            "objects", sizeof("objects"),
-                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval));
+                           PHP5TO7_ZVAL_MAYBE_P(value), sizeof(zval *));
 
   return props;
 }
@@ -195,8 +206,8 @@ php_dse_graph_default_path_free(php5to7_zend_object_free *object TSRMLS_DC)
 {
   dse_graph_path *self = PHP5TO7_ZEND_OBJECT_GET(dse_graph_path, object);
 
-  zend_hash_destroy(&self->labels);
-  zend_hash_destroy(&self->objects);
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->labels);
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->objects);
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
@@ -208,8 +219,8 @@ php_dse_graph_default_path_new(zend_class_entry *ce TSRMLS_DC)
   dse_graph_path *self =
       PHP5TO7_ZEND_OBJECT_ECALLOC(dse_graph_path, ce);
 
-  zend_hash_init(&self->labels, 0, NULL, ZVAL_PTR_DTOR, 0);
-  zend_hash_init(&self->objects, 0, NULL, ZVAL_PTR_DTOR, 0);
+  PHP5TO7_ZVAL_UNDEF(self->labels);
+  PHP5TO7_ZVAL_UNDEF(self->objects);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(dse_graph_path, dse_graph_default_path, self, ce);
 }

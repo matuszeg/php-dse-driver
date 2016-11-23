@@ -104,7 +104,7 @@ PHP_DSE_BEGIN_OBJECT_TYPE(graph_result)
 PHP_DSE_END_OBJECT_TYPE(graph_result)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_result_set)
-  HashTable results;
+  php5to7_zval results;
 PHP_DSE_END_OBJECT_TYPE(graph_result_set)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_future_result_set)
@@ -115,7 +115,7 @@ PHP_DSE_END_OBJECT_TYPE(graph_future_result_set)
 typedef struct {
   php5to7_zval id;
   char *label;
-  HashTable properties;
+  php5to7_zval properties;
 } dse_graph_element_base;
 
 typedef struct {
@@ -141,8 +141,8 @@ PHP_DSE_BEGIN_OBJECT_TYPE(graph_edge)
 PHP_DSE_END_OBJECT_TYPE(graph_edge)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_path)
-  HashTable labels;
-  HashTable objects;
+  php5to7_zval labels;
+  php5to7_zval objects;
 PHP_DSE_END_OBJECT_TYPE(graph_path)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_vertex)
