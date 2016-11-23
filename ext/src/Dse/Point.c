@@ -97,19 +97,16 @@ static zend_object_handlers dse_point_handlers;
 static HashTable *
 php_dse_point_properties(zval *object TSRMLS_DC)
 {
-//  dse_point  *self = PHP_DSE_GET_POINT(object);
   HashTable *props = zend_std_get_properties(object TSRMLS_CC);
-  /* Not sure this is useful.
-  zval wrappedX;
+  /* TODO Remove if we don't plan to expose attributes as properties. Fix if we do; current impl is
+     copying the value, and the attribute seems writable. Also, there's a masking issue with the method.
+  dse_point  *self = PHP_DSE_GET_POINT(object);
+
+  php5to7_zval wrappedX;
   PHP5TO7_ZVAL_MAYBE_MAKE(wrappedX);
   ZVAL_DOUBLE(PHP5TO7_ZVAL_MAYBE_P(wrappedX), self->x);
-  if (PHP5TO7_ZEND_HASH_UPDATE(props,
-                               "x", sizeof("x"),
-                               PHP5TO7_ZVAL_MAYBE_P(wrappedX), sizeof(zval))) {
-    Z_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(wrappedX));
-  }
+  PHP5TO7_ZEND_HASH_UPDATE(props, "x", sizeof("x"), PHP5TO7_ZVAL_MAYBE_P(wrappedX), sizeof(zval));
 */
-
   return props;
 }
 

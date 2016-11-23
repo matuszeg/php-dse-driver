@@ -6,19 +6,19 @@ zend_class_entry *dse_line_string_ce = NULL;
 // Helper function to copy the points collection out of a line-string struct
 // to a previously initialized array.
 static void
-copy_points(dse_line_string *lineString, zval *array)
+copy_points(dse_line_string *line_string, zval *array)
 {
   php5to7_zval *current;
-  PHP5TO7_ZEND_HASH_FOREACH_VAL(&lineString->points, current) {
+  PHP5TO7_ZEND_HASH_FOREACH_VAL(&line_string->points, current) {
     if (add_next_index_zval(array, PHP5TO7_ZVAL_MAYBE_DEREF(current)) == SUCCESS)
       Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_DEREF(current));
     else
       break;
-  } PHP5TO7_ZEND_HASH_FOREACH_END(&lineString->points);
+  } PHP5TO7_ZEND_HASH_FOREACH_END(&line_string->points);
 }
 
 static int
-to_string(zval *result, dse_line_string *lineString TSRMLS_DC)
+to_string(zval *result, dse_line_string *line_string TSRMLS_DC)
 {
   char *string;
   spprintf(&string, 0, "__NOT_IMPLEMENTED__");
@@ -29,22 +29,25 @@ to_string(zval *result, dse_line_string *lineString TSRMLS_DC)
 
 PHP_METHOD(DseLineString, __construct)
 {
-  php5to7_zval_args int_args;
-  dse_line_string *lineString = PHP_DSE_GET_LINE_STRING(getThis());
+  php5to7_zval_args point_args;
+  dse_line_string *line_string = NULL;
   int num_args = 0;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "*", &int_args, &num_args) == FAILURE) {
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "*", &point_args, &num_args) == FAILURE) {
     return;
   }
 
-  for (int i = 0; i < num_args; ++i) {
-    zval* point = PHP5TO7_ZVAL_ARG(int_args[i]);
-    if (PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(&lineString->points, point, sizeof(zval *))) {
-      Z_TRY_ADDREF_P(point);
+  if (num_args > 0) {
+    line_string = PHP_DSE_GET_LINE_STRING(getThis());
+    for (int i = 0; i < num_args; ++i) {
+      zval* point = PHP5TO7_ZVAL_ARG(point_args[i]);
+      if (PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(&line_string->points, point, sizeof(zval *))) {
+        Z_TRY_ADDREF_P(point);
+      }
     }
-  }
 
-  PHP5TO7_MAYBE_EFREE(int_args);
+    PHP5TO7_MAYBE_EFREE(point_args);
+  }
 }
 
 PHP_METHOD(DseLineString, __toString)
@@ -56,10 +59,10 @@ PHP_METHOD(DseLineString, __toString)
 
 PHP_METHOD(DseLineString, points)
 {
-  dse_line_string *lineString = NULL;
+  dse_line_string *line_string = NULL;
   array_init(return_value);
-  lineString = PHP_DSE_GET_LINE_STRING(getThis());
-  copy_points(lineString, return_value);
+  line_string = PHP_DSE_GET_LINE_STRING(getThis());
+  copy_points(line_string, return_value);
 }
 
 PHP_METHOD(DseLineString, wkt)

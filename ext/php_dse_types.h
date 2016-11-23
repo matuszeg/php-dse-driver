@@ -168,8 +168,8 @@ PHP_DSE_BEGIN_OBJECT_TYPE(line_string)
 PHP_DSE_END_OBJECT_TYPE(line_string)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(polygon)
-  php5to7_zval exteriorRing;
-  HashTable interiorRings;
+  php5to7_zval exterior_ring;
+  HashTable interior_rings;
   php5to7_zval wkt;
   php5to7_zval string;
 PHP_DSE_END_OBJECT_TYPE(polygon)
