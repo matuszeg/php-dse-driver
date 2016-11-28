@@ -22,6 +22,9 @@
   } dse_##type_name;
 #endif
 
+// Format string macro for how to emit a coordinate of a Point.
+#define COORD_FMT "%.17g"
+
 #if PHP_MAJOR_VERSION >= 7
   #define PHP_DSE_GET_SESSION(obj) php_dse_session_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_FUTURE_SESSION(obj) php_dse_future_session_object_fetch(Z_OBJ_P(obj))

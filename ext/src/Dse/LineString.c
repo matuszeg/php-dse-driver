@@ -4,6 +4,12 @@
 // For php_cassandra_value_compare
 #include "util/hash.h"
 
+#if PHP_MAJOR_VERSION >= 7
+#include <zend_smart_str.h>
+#else
+#include <ext/standard/php_smart_str.h>
+#endif
+
 zend_class_entry *dse_line_string_ce = NULL;
 
 PHP_METHOD(DseLineString, __construct)
@@ -11,63 +17,59 @@ PHP_METHOD(DseLineString, __construct)
   php5to7_zval_args point_args;
   dse_line_string *self = PHP_DSE_GET_LINE_STRING(getThis());
   int num_args = 0;
+  char coord_buf[100];
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "*", &point_args, &num_args) == FAILURE) {
     return;
   }
 
   if (num_args > 0) {
-    // Populate the points array based on args. Since we're traversing each point, use it
-    // as an opportunity to get the lengths of the 'string' attributes of the points. We'll need
-    // that to make our 'string' in a bit. Get the dse_point* objects while we're at it.
-    // Also build up the cpp dse driver's DseLineString, which we'll use to generate our
-    // wkt.
+    // Populate the points array based on args. Since we're traversing each point, iteratively construct to
+    // "string" and "wkt" members using PHP smart strings.
 
-    int to_string_len = 0;
-    dse_point **points = emalloc(sizeof(dse_point*) * num_args);
-
-    DseLineString *cpp_line_string = dse_line_string_new();
+    smart_str wkt = PHP5TO7_SMART_STR_INIT;
+    smart_str_appends(&wkt, "LINESTRING (");
+    smart_str to_string = PHP5TO7_SMART_STR_INIT;
 
     for (int i = 0; i < num_args; ++i) {
       zval* point_obj = PHP5TO7_ZVAL_ARG(point_args[i]);
-      points[i] = PHP_DSE_GET_POINT(point_obj);
-      dse_line_string_add_point(cpp_line_string, points[i]->x, points[i]->y);
-      to_string_len += strlen(PHP5TO7_Z_STRVAL_MAYBE_P(points[i]->string));
+      dse_point *point = PHP_DSE_GET_POINT(point_obj);
+
+      if (i > 0) {
+        // Add the comma that separates points in the wkt.
+        smart_str_appends(&wkt, ", ");
+
+        // Add the " to " that separates points in toString.
+        smart_str_appends(&to_string, " to ");
+      }
+
+      // Add the next point in the form "x y" for wkt.
+      sprintf(coord_buf, COORD_FMT, point->x);
+      smart_str_appends(&wkt, coord_buf);
+      smart_str_appends(&wkt, " ");
+      sprintf(coord_buf, COORD_FMT, point->y);
+      smart_str_appends(&wkt, coord_buf);
+
+      // Add the next point to to_string.
+      smart_str_appends(&to_string, PHP5TO7_Z_STRVAL_MAYBE_P(point->string));
+
       if (add_next_index_zval(PHP5TO7_ZVAL_MAYBE_P(self->points), point_obj) == SUCCESS)
         Z_TRY_ADDREF_P(point_obj);
       else
         break;
     }
 
-    // to_string_len has the total length of all point-string lengths. Our to-string format is
-    // actually: x1,y1 to x2,y2 to x3,y3 ...
-    // So we have " to " between points; so there are num_args - 1 of those; and then we have
-    // our null terminator.
-    to_string_len += 4 * (num_args-1) + 1;
+    // Wrap up the wkt.
+    smart_str_appendc(&wkt, ')');
+    smart_str_0(&wkt);
+    PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->wkt), PHP5TO7_SMART_STR_VAL(wkt), PHP5TO7_SMART_STR_LEN(wkt));
+    smart_str_free(&wkt);
 
-    // Ok, create a buffer for our to-string, fill it, then zvalify!
-    // We use ecalloc to get 0 initialization.
-    char *to_string = ecalloc(to_string_len, 1);
-    for (int i = 0; i < num_args; ++i) {
-      if (i > 0) {
-        strcat(to_string, " to ");
-      }
-      strcat(to_string, PHP5TO7_Z_STRVAL_MAYBE_P(points[i]->string));
-    }
+    // Wrap up the toString representation.
+    smart_str_0(&to_string);
+    PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->string), PHP5TO7_SMART_STR_VAL(to_string), PHP5TO7_SMART_STR_LEN(to_string));
+    smart_str_free(&to_string);
 
-    PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->string), to_string, to_string_len - 1);
-
-    // Use the cpp dse driver's logic to create the wkt.
-    char* wkt;
-    dse_line_string_to_wkt(cpp_line_string, &wkt);
-
-    PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->wkt), wkt, strlen(wkt));
-
-    dse_line_string_free_wkt_string(wkt);
-    dse_line_string_free(cpp_line_string);
-
-    efree(to_string);
-    efree(points);
     PHP5TO7_MAYBE_EFREE(point_args);
   } else {
     PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(self->string), "");
@@ -112,7 +114,7 @@ PHP_METHOD(DseLineString, point)
   HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(self->points);
 
   if (PHP5TO7_ZEND_HASH_INDEX_FIND(points, index, value)) {
-    Z_TRY_ADDREF_P(value);
+    Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(*value));
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(*value), 1, 0);
   }
 }

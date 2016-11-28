@@ -19,12 +19,12 @@ PHP_METHOD(DsePoint, __construct)
 
   // Build up wkt representation of this point.
   char* rep;
-  spprintf(&rep, 0, "POINT (%f %f)", self->x, self->y);
+  spprintf(&rep, 0, "POINT (" COORD_FMT " " COORD_FMT ")", self->x, self->y);
   PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->wkt), rep, strlen(rep));
   efree(rep);
 
   // Build up to-string rep of this point.
-  spprintf(&rep, 0, "%f,%f", self->x, self->y);
+  spprintf(&rep, 0, COORD_FMT "," COORD_FMT, self->x, self->y);
   PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->string), rep, strlen(rep));
   efree(rep);
 }
