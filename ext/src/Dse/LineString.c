@@ -3,12 +3,15 @@
 
 // For php_cassandra_value_compare
 #include "util/hash.h"
+#include "util/types.h"
 
 #if PHP_MAJOR_VERSION >= 7
 #include <zend_smart_str.h>
 #else
 #include <ext/standard/php_smart_str.h>
 #endif
+
+#define DSE_LINE_STRING_TYPE "org.apache.cassandra.db.marshal.LineStringType"
 
 zend_class_entry *dse_line_string_ce = NULL;
 
@@ -187,6 +190,12 @@ PHP_METHOD(DseLineString, __toString)
   RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->string), 1, 0);
 }
 
+PHP_METHOD(DseLineString, type)
+{
+  dse_line_string *self = PHP_DSE_GET_LINE_STRING(getThis());
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->type), 1, 0);
+}
+
 PHP_METHOD(DseLineString, points)
 {
   dse_line_string *self = NULL;
@@ -242,6 +251,7 @@ ZEND_END_ARG_INFO()
 
 static zend_function_entry dse_line_string_methods[] = {
   PHP_ME(DseLineString, __construct,  arginfo__construct,    ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+  PHP_ME(DseLineString, type, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DseLineString, points, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DseLineString, point, arginfo_point, ZEND_ACC_PUBLIC)
   PHP_ME(DseLineString, wkt, arginfo_none, ZEND_ACC_PUBLIC)
@@ -310,6 +320,8 @@ php_dse_line_string_free(php5to7_zend_object_free *object TSRMLS_DC)
 
   /* Clean up */
 
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->type);
+
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
 }
@@ -325,6 +337,8 @@ php_dse_line_string_new(zend_class_entry *ce TSRMLS_DC)
 
   PHP5TO7_ZVAL_MAYBE_MAKE(self->string);
   PHP5TO7_ZVAL_MAYBE_MAKE(self->wkt);
+
+  self->type = php_cassandra_type_custom(DSE_LINE_STRING_TYPE TSRMLS_CC);
 
   PHP5TO7_ZEND_OBJECT_INIT(dse_line_string, self, ce);
 }
@@ -344,7 +358,7 @@ void dse_define_LineString(TSRMLS_D)
   dse_line_string_handlers.compare_objects = php_dse_line_string_compare;
   dse_line_string_handlers.clone_obj = NULL;
 
-  php_cassandra_custom_marshal_add("org.apache.cassandra.db.marshal.LineStringType",
+  php_cassandra_custom_marshal_add(DSE_LINE_STRING_TYPE,
                                    marshal_bind_by_index,
                                    marshal_bind_by_name,
                                    marshal_get_result TSRMLS_CC);

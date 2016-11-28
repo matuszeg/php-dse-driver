@@ -1,7 +1,11 @@
 #include "php_dse.h"
 #include "php_dse_types.h"
 
+#include "util/types.h"
+
 zend_class_entry *dse_point_ce = NULL;
+
+#define DSE_POINT_TYPE "org.apache.cassandra.db.marshal.PointType"
 
 static int
 marshal_bind_by_index(CassStatement *statement, size_t index, zval *value TSRMLS_DC)
@@ -76,6 +80,12 @@ PHP_METHOD(DsePoint, __toString)
   RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->string), 1, 0);
 }
 
+PHP_METHOD(DsePoint, type)
+{
+  dse_point *self = PHP_DSE_GET_POINT(getThis());
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->type), 1, 0);
+}
+
 PHP_METHOD(DsePoint, x)
 {
   dse_point *self = NULL;
@@ -119,6 +129,7 @@ ZEND_END_ARG_INFO()
 
 static zend_function_entry dse_point_methods[] = {
   PHP_ME(DsePoint, __construct,  arginfo__construct, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+  PHP_ME(DsePoint, type, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePoint, x, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePoint, y, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePoint, wkt, arginfo_none, ZEND_ACC_PUBLIC)
@@ -181,6 +192,8 @@ php_dse_point_free(php5to7_zend_object_free *object TSRMLS_DC)
 
   /* Clean up */
 
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->type);
+
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
 }
@@ -193,6 +206,8 @@ php_dse_point_new(zend_class_entry *ce TSRMLS_DC)
 
   PHP5TO7_ZVAL_MAYBE_MAKE(self->wkt);
   PHP5TO7_ZVAL_MAYBE_MAKE(self->string);
+
+  self->type = php_cassandra_type_custom(DSE_POINT_TYPE TSRMLS_CC);
 
   PHP5TO7_ZEND_OBJECT_INIT(dse_point, self, ce);
 }
@@ -212,7 +227,7 @@ void dse_define_Point(TSRMLS_D)
   dse_point_handlers.compare_objects = php_dse_point_compare;
   dse_point_handlers.clone_obj = NULL;
 
-  php_cassandra_custom_marshal_add("org.apache.cassandra.db.marshal.PointType",
+  php_cassandra_custom_marshal_add(DSE_POINT_TYPE,
                                    marshal_bind_by_index,
                                    marshal_bind_by_name,
                                    marshal_get_result TSRMLS_CC);

@@ -1,8 +1,11 @@
 #include "php_dse.h"
 #include "php_dse_types.h"
 
+#include "util/types.h"
+
 zend_class_entry *dse_polygon_ce = NULL;
 
+#define DSE_POLYGON_TYPE "org.apache.cassandra.db.marshal.PolygonType"
 
 // Helper function to copy the points collection out of a line-string struct
 // to a previously initialized array.
@@ -192,6 +195,12 @@ PHP_METHOD(DsePolygon, __toString)
   to_string(return_value, self TSRMLS_CC);
 }
 
+PHP_METHOD(DsePolygon, type)
+{
+  dse_polygon *self = PHP_DSE_GET_POLYGON(getThis());
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->type), 1, 0);
+}
+
 PHP_METHOD(DsePolygon, exterior_ring)
 {
   dse_polygon *polygon = PHP_DSE_GET_POLYGON(getThis());
@@ -233,6 +242,7 @@ ZEND_END_ARG_INFO()
 
 static zend_function_entry dse_polygon_methods[] = {
   PHP_ME(DsePolygon, __construct,  arginfo__construct,    ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+  PHP_ME(DsePolygon, type, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, exterior_ring, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, interior_rings, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, wkt, arginfo_none, ZEND_ACC_PUBLIC)
@@ -266,6 +276,8 @@ php_dse_polygon_free(php5to7_zend_object_free *object TSRMLS_DC)
 
   /* Clean up */
 
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->type);
+
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
 }
@@ -278,6 +290,8 @@ php_dse_polygon_new(zend_class_entry *ce TSRMLS_DC)
 
   PHP5TO7_ZVAL_UNDEF(self->exterior_ring);
   PHP5TO7_ZVAL_MAYBE_MAKE(self->exterior_ring);
+
+  self->type = php_cassandra_type_custom(DSE_POLYGON_TYPE TSRMLS_CC);
 
   zend_hash_init(&self->interior_rings, 0, NULL, ZVAL_PTR_DTOR, 0);
 
@@ -299,7 +313,7 @@ void dse_define_Polygon(TSRMLS_D)
   dse_polygon_handlers.compare_objects = php_dse_polygon_compare;
   dse_polygon_handlers.clone_obj = NULL;
 
-  php_cassandra_custom_marshal_add("org.apache.cassandra.db.marshal.PolygonType",
+  php_cassandra_custom_marshal_add(DSE_POLYGON_TYPE,
                                    marshal_bind_by_index,
                                    marshal_bind_by_name,
                                    marshal_get_result TSRMLS_CC);
