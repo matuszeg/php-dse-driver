@@ -28,6 +28,137 @@ to_string(zval *result, dse_polygon *polygon TSRMLS_DC)
   return SUCCESS;
 }
 
+static DsePolygon *
+build_polygon(HashTable *line_strings TSRMLS_DC)
+{
+  php5to7_zval *current1;
+  DsePolygon *result = dse_polygon_new();
+
+  PHP5TO7_ZEND_HASH_FOREACH_VAL(line_strings, current1) {
+    php5to7_zval *current2;
+    dse_line_string *line_string = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_DEREF(current1));
+    HashTable *points = NULL; /* TODO: Set this */
+
+    ASSERT_SUCCESS_BLOCK(dse_polygon_start_ring(result),
+                         dse_polygon_free(result);
+                         return NULL;
+    );
+
+    PHP5TO7_ZEND_HASH_FOREACH_VAL(points, current2) {
+      dse_point *point = PHP_DSE_GET_POINT(PHP5TO7_ZVAL_MAYBE_DEREF(current2));
+      ASSERT_SUCCESS_BLOCK(dse_polygon_add_point(result, point->x, point->y),
+                           dse_polygon_free(result);
+                           return NULL;
+      );
+    } PHP5TO7_ZEND_HASH_FOREACH_END(points);
+
+
+  } PHP5TO7_ZEND_HASH_FOREACH_END(line_strings);
+
+
+  ASSERT_SUCCESS_BLOCK(dse_polygon_finish(result),
+                       dse_polygon_free(result);
+                       return NULL;
+  );
+
+  return result;
+}
+
+static int
+marshal_bind_by_index(CassStatement *statement, size_t index, zval *value TSRMLS_DC)
+{
+  dse_polygon *polygon = PHP_DSE_GET_POLYGON(value);
+  HashTable *line_strings = NULL; /* TODO: Set this */
+
+  DsePolygon *dse_polygon = build_polygon(line_strings TSRMLS_CC);
+
+  ASSERT_SUCCESS_BLOCK(cass_statement_bind_dse_polygon(statement,
+                                                       index,
+                                                       dse_polygon),
+                       dse_polygon_free(dse_polygon);
+                       return FAILURE;
+  );
+
+  dse_polygon_free(dse_polygon);
+  return SUCCESS;
+}
+
+static int
+marshal_bind_by_name(CassStatement *statement, const char *name, zval *value TSRMLS_DC)
+{
+  dse_polygon *polygon = PHP_DSE_GET_POLYGON(value);
+  HashTable *line_strings = NULL; /* TODO: Set this */
+
+  DsePolygon *dse_polygon = build_polygon(line_strings TSRMLS_CC);
+
+  ASSERT_SUCCESS_BLOCK(cass_statement_bind_dse_polygon_by_name(statement,
+                                                       name,
+                                                       dse_polygon),
+                       dse_polygon_free(dse_polygon);
+                       return FAILURE;
+  );
+
+  dse_polygon_free(dse_polygon);
+  return SUCCESS;
+}
+
+static int
+marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
+{
+  dse_polygon *polygon;
+  size_t i, num_rings;
+  HashTable *line_strings = NULL; /* TODO: Set this */
+  DsePolygonIterator* iterator = dse_polygon_iterator_new();
+
+ ASSERT_SUCCESS_BLOCK(dse_polygon_iterator_reset(iterator, value),
+                      dse_polygon_iterator_free(iterator);
+                      return FAILURE;
+ );
+
+ object_init_ex(PHP5TO7_ZVAL_MAYBE_DEREF(out), dse_polygon_ce);
+ polygon = PHP_DSE_GET_POLYGON(PHP5TO7_ZVAL_MAYBE_DEREF(out));
+
+ num_rings = dse_polygon_iterator_num_rings(iterator);
+
+ for (i = 0; i < num_rings; ++i) {
+   php5to7_zval zline_string;
+   dse_line_string *line_string;
+   cass_uint32_t j, num_points;
+   HashTable *points = NULL; /* TODO: Set this */
+
+   PHP5TO7_ZVAL_MAYBE_MAKE(zline_string);
+   object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zline_string), dse_line_string_ce);
+   line_string = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_P(zline_string));
+   PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(line_strings,
+                                       PHP5TO7_ZVAL_MAYBE_P(zline_string),
+                                       sizeof(zval *));
+
+   ASSERT_SUCCESS_BLOCK(dse_polygon_iterator_next_num_points(iterator, &num_points),
+                        dse_polygon_iterator_free(iterator);
+                        return FAILURE;
+   );
+
+   for (j = 0; j < num_points; ++j) {
+     php5to7_zval zpoint;
+     dse_point *point;
+
+     PHP5TO7_ZVAL_MAYBE_MAKE(zpoint);
+     object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zpoint), dse_point_ce);
+     point = PHP_DSE_GET_POINT(PHP5TO7_ZVAL_MAYBE_P(zpoint));
+     PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(points,
+                                         PHP5TO7_ZVAL_MAYBE_P(zpoint),
+                                         sizeof(zval *));
+
+     ASSERT_SUCCESS_BLOCK(dse_polygon_iterator_next_point(iterator, &point->x, &point->y),
+                          dse_polygon_iterator_free(iterator);
+                          return FAILURE;
+     );
+   }
+ }
+
+  return SUCCESS;
+}
+
 PHP_METHOD(DsePolygon, __construct)
 {
   php5to7_zval_args args;
@@ -159,6 +290,7 @@ void dse_define_Polygon(TSRMLS_D)
 
   INIT_CLASS_ENTRY(ce, "Dse\\Polygon", dse_polygon_methods);
   dse_polygon_ce = zend_register_internal_class(&ce TSRMLS_CC);
+  zend_class_implements(dse_polygon_ce TSRMLS_CC, 1, cassandra_custom_ce);
   dse_polygon_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   dse_polygon_ce->create_object = php_dse_polygon_new;
 
@@ -166,4 +298,9 @@ void dse_define_Polygon(TSRMLS_D)
   dse_polygon_handlers.get_properties  = php_dse_polygon_properties;
   dse_polygon_handlers.compare_objects = php_dse_polygon_compare;
   dse_polygon_handlers.clone_obj = NULL;
+
+  php_cassandra_custom_marshal_add("org.apache.cassandra.db.marshal.PolygonType",
+                                   marshal_bind_by_index,
+                                   marshal_bind_by_name,
+                                   marshal_get_result TSRMLS_CC);
 }

@@ -108,6 +108,7 @@ if (PHP_DSE != "no") {
                 "Cluster.c " +
                 "Collection.c " +
                 "Column.c " +
+                "Custom.c " +
                 "Date.c " +
                 "Decimal.c " +
                 "DefaultAggregate.c " +

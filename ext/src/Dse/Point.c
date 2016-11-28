@@ -3,6 +3,42 @@
 
 zend_class_entry *dse_point_ce = NULL;
 
+static int
+marshal_bind_by_index(CassStatement *statement, size_t index, zval *value TSRMLS_DC)
+{
+  dse_point *point = PHP_DSE_GET_POINT(value);
+  ASSERT_SUCCESS_VALUE(cass_statement_bind_dse_point(statement,
+                                                     index,
+                                                     point->x, point->y),
+                       FAILURE);
+  return SUCCESS;
+}
+
+static int
+marshal_bind_by_name(CassStatement *statement, const char *name, zval *value TSRMLS_DC)
+{
+  dse_point *point = PHP_DSE_GET_POINT(value);
+  ASSERT_SUCCESS_VALUE(cass_statement_bind_dse_point_by_name(statement,
+                                                             name,
+                                                             point->x, point->y),
+                       FAILURE);
+  return SUCCESS;
+}
+
+static int
+marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
+{
+  dse_point *point;
+
+  object_init_ex(PHP5TO7_ZVAL_MAYBE_DEREF(out), dse_point_ce);
+  point = PHP_DSE_GET_POINT(PHP5TO7_ZVAL_MAYBE_DEREF(out));
+
+  ASSERT_SUCCESS_VALUE(cass_value_get_dse_point(value, &point->x, &point->y),
+                       FAILURE);
+
+  return SUCCESS;
+}
+
 PHP_METHOD(DsePoint, __construct)
 {
   double x;
@@ -167,6 +203,7 @@ void dse_define_Point(TSRMLS_D)
 
   INIT_CLASS_ENTRY(ce, "Dse\\Point", dse_point_methods);
   dse_point_ce = zend_register_internal_class(&ce TSRMLS_CC);
+  zend_class_implements(dse_point_ce TSRMLS_CC, 1, cassandra_custom_ce);
   dse_point_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   dse_point_ce->create_object = php_dse_point_new;
 
@@ -174,4 +211,9 @@ void dse_define_Point(TSRMLS_D)
   dse_point_handlers.get_properties  = php_dse_point_properties;
   dse_point_handlers.compare_objects = php_dse_point_compare;
   dse_point_handlers.clone_obj = NULL;
+
+  php_cassandra_custom_marshal_add("org.apache.cassandra.db.marshal.PointType",
+                                   marshal_bind_by_index,
+                                   marshal_bind_by_name,
+                                   marshal_get_result TSRMLS_CC);
 }

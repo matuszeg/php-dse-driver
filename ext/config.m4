@@ -34,6 +34,7 @@ if test "$PHP_DSE" != "no"; then
     $PHP_DRIVER_DIR/src/Cassandra/Cluster/DefaultBuilder.c \
     $PHP_DRIVER_DIR/src/Cassandra/Collection.c \
     $PHP_DRIVER_DIR/src/Cassandra/Column.c \
+    $PHP_DRIVER_DIR/src/Cassandra/Custom.c \
     $PHP_DRIVER_DIR/src/Cassandra/Date.c \
     $PHP_DRIVER_DIR/src/Cassandra/Decimal.c \
     $PHP_DRIVER_DIR/src/Cassandra/DefaultAggregate.c \

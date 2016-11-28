@@ -12,6 +12,105 @@
 
 zend_class_entry *dse_line_string_ce = NULL;
 
+static DseLineString*
+build_line_string(HashTable *points TSRMLS_DC)
+{
+  DseLineString *result = dse_line_string_new();
+
+  php5to7_zval *current;
+  PHP5TO7_ZEND_HASH_FOREACH_VAL(points, current) {
+    dse_point *point = PHP_DSE_GET_POINT(PHP5TO7_ZVAL_MAYBE_DEREF(current));
+    ASSERT_SUCCESS_BLOCK(dse_line_string_add_point(result, point->x, point->y),
+                         dse_line_string_free(result);
+                         return NULL;
+    );
+  } PHP5TO7_ZEND_HASH_FOREACH_END(points);
+
+
+  ASSERT_SUCCESS_BLOCK(dse_line_string_finish(result),
+                       dse_line_string_free(result);
+                       return NULL;
+  );
+
+  return result;
+}
+
+static int
+marshal_bind_by_index(CassStatement *statement, size_t index, zval *value TSRMLS_DC)
+{
+  dse_line_string *line_string = PHP_DSE_GET_LINE_STRING(value);
+  HashTable *points = NULL; /* TODO: Set this */
+
+  DseLineString *dse_line_string = build_line_string(points TSRMLS_CC);
+
+  ASSERT_SUCCESS_BLOCK(cass_statement_bind_dse_line_string(statement,
+                                                           index,
+                                                           dse_line_string),
+                       dse_line_string_free(dse_line_string);
+                       return FAILURE;
+  );
+
+  dse_line_string_free(dse_line_string);
+  return SUCCESS;
+}
+
+static int
+marshal_bind_by_name(CassStatement *statement, const char *name, zval *value TSRMLS_DC)
+{
+  dse_line_string *line_string = PHP_DSE_GET_LINE_STRING(value);
+  HashTable *points = NULL; /* TODO: Set this */
+
+  DseLineString *dse_line_string = build_line_string(points TSRMLS_CC);
+
+  ASSERT_SUCCESS_BLOCK(cass_statement_bind_dse_line_string_by_name(statement,
+                                                           name,
+                                                           dse_line_string),
+                       dse_line_string_free(dse_line_string);
+                       return FAILURE;
+  );
+
+  dse_line_string_free(dse_line_string);
+  return SUCCESS;
+}
+
+static int
+marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
+{
+  dse_line_string *line_string;
+  size_t i, num_points;
+  HashTable *points = NULL; /* TODO: Set this */
+  DseLineStringIterator* iterator = dse_line_string_iterator_new();
+
+ ASSERT_SUCCESS_BLOCK(dse_line_string_iterator_reset(iterator, value),
+                      dse_line_string_iterator_free(iterator);
+                      return FAILURE;
+ );
+
+ object_init_ex(PHP5TO7_ZVAL_MAYBE_DEREF(out), dse_line_string_ce);
+ line_string = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_DEREF(out));
+
+ num_points = dse_line_string_iterator_num_points(iterator);
+
+ for (i = 0; i < num_points; ++i) {
+   php5to7_zval zpoint;
+   dse_point *point;
+
+   PHP5TO7_ZVAL_MAYBE_MAKE(zpoint);
+   object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zpoint), dse_point_ce);
+   point = PHP_DSE_GET_POINT(PHP5TO7_ZVAL_MAYBE_P(zpoint));
+   PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(points,
+                                       PHP5TO7_ZVAL_MAYBE_P(zpoint),
+                                       sizeof(zval *));
+
+   ASSERT_SUCCESS_BLOCK(dse_line_string_iterator_next_point(iterator, &point->x, &point->y),
+                        dse_line_string_iterator_free(iterator);
+                        return FAILURE;
+   );
+ }
+
+  return SUCCESS;
+}
+
 PHP_METHOD(DseLineString, __construct)
 {
   php5to7_zval_args point_args;
@@ -236,6 +335,7 @@ void dse_define_LineString(TSRMLS_D)
 
   INIT_CLASS_ENTRY(ce, "Dse\\LineString", dse_line_string_methods);
   dse_line_string_ce = zend_register_internal_class(&ce TSRMLS_CC);
+  zend_class_implements(dse_line_string_ce TSRMLS_CC, 1, cassandra_custom_ce);
   dse_line_string_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   dse_line_string_ce->create_object = php_dse_line_string_new;
 
@@ -243,4 +343,9 @@ void dse_define_LineString(TSRMLS_D)
   dse_line_string_handlers.get_properties  = php_dse_line_string_properties;
   dse_line_string_handlers.compare_objects = php_dse_line_string_compare;
   dse_line_string_handlers.clone_obj = NULL;
+
+  php_cassandra_custom_marshal_add("org.apache.cassandra.db.marshal.LineStringType",
+                                   marshal_bind_by_index,
+                                   marshal_bind_by_name,
+                                   marshal_get_result TSRMLS_CC);
 }
