@@ -3,16 +3,6 @@
 
 zend_class_entry *dse_point_ce = NULL;
 
-static int
-to_string(zval *result, dse_point *point TSRMLS_DC)
-{
-  char *string;
-  spprintf(&string, 0, "%f, %f", point->x, point->y);
-  PHP5TO7_ZVAL_STRING(result, string);
-  efree(string);
-  return SUCCESS;
-}
-
 PHP_METHOD(DsePoint, __construct)
 {
   double x;
@@ -26,13 +16,28 @@ PHP_METHOD(DsePoint, __construct)
   self = PHP_DSE_GET_POINT(getThis());
   self->x = x;
   self->y = y;
+
+  // Build up wkt representation of this point.
+  char* rep;
+  spprintf(&rep, 0, "POINT (%f %f)", self->x, self->y);
+  PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->wkt), rep, strlen(rep));
+  efree(rep);
+
+  // Build up to-string rep of this point.
+  spprintf(&rep, 0, "%f,%f", self->x, self->y);
+  PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->string), rep, strlen(rep));
+  efree(rep);
 }
 
 PHP_METHOD(DsePoint, __toString)
 {
-  dse_point *self = PHP_DSE_GET_POINT(getThis());
+  dse_point *self = NULL;
 
-  to_string(return_value, self TSRMLS_CC);
+  if (zend_parse_parameters_none() == FAILURE)
+    return;
+
+  self = PHP_DSE_GET_POINT(getThis());
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->string), 1, 0);
 }
 
 PHP_METHOD(DsePoint, x)
@@ -65,13 +70,6 @@ PHP_METHOD(DsePoint, wkt)
     return;
 
   self = PHP_DSE_GET_POINT(getThis());
-  if (PHP5TO7_ZVAL_IS_UNDEF(self->wkt)) {
-    char* rep;
-    spprintf(&rep, 0, "POINT (%f %f)", self->x, self->y);
-    PHP5TO7_ZVAL_MAYBE_MAKE(self->wkt);
-    PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->wkt), rep, strlen(rep));
-    efree(rep);
-  }
   RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->wkt), 1, 0);
 }
 
@@ -98,15 +96,16 @@ static HashTable *
 php_dse_point_properties(zval *object TSRMLS_DC)
 {
   HashTable *props = zend_std_get_properties(object TSRMLS_CC);
-  /* TODO Remove if we don't plan to expose attributes as properties. Fix if we do; current impl is
-     copying the value, and the attribute seems writable. Also, there's a masking issue with the method.
   dse_point  *self = PHP_DSE_GET_POINT(object);
 
-  php5to7_zval wrappedX;
+  php5to7_zval wrappedX, wrappedY;
   PHP5TO7_ZVAL_MAYBE_MAKE(wrappedX);
+  PHP5TO7_ZVAL_MAYBE_MAKE(wrappedY);
   ZVAL_DOUBLE(PHP5TO7_ZVAL_MAYBE_P(wrappedX), self->x);
+  ZVAL_DOUBLE(PHP5TO7_ZVAL_MAYBE_P(wrappedY), self->y);
   PHP5TO7_ZEND_HASH_UPDATE(props, "x", sizeof("x"), PHP5TO7_ZVAL_MAYBE_P(wrappedX), sizeof(zval));
-*/
+  PHP5TO7_ZEND_HASH_UPDATE(props, "y", sizeof("y"), PHP5TO7_ZVAL_MAYBE_P(wrappedY), sizeof(zval));
+
   return props;
 }
 
@@ -116,7 +115,27 @@ php_dse_point_compare(zval *obj1, zval *obj2 TSRMLS_DC)
   if (Z_OBJCE_P(obj1) != Z_OBJCE_P(obj2))
     return 1; /* different classes */
 
-  return Z_OBJ_HANDLE_P(obj1) != Z_OBJ_HANDLE_P(obj1);
+  dse_point  *left = PHP_DSE_GET_POINT(obj1);
+  dse_point  *right = PHP_DSE_GET_POINT(obj2);
+
+  // Comparisons compare x, then y.
+
+  // left has smaller x.
+  if (left->x < right->x)
+    return -1;
+
+  if (left->x == right->x) {
+    // x's are the same; compare y's.
+    if (left->y < right->y)
+      return -1;
+    else if (left->y == right->y)
+      return 0;
+    else
+      return 1;
+  } else {
+    // left x is larger than right x.
+    return 1;
+  }
 }
 
 static void
@@ -136,7 +155,9 @@ php_dse_point_new(zend_class_entry *ce TSRMLS_DC)
   dse_point *self =
       PHP5TO7_ZEND_OBJECT_ECALLOC(dse_point, ce);
 
-  /* Initialize */
+  PHP5TO7_ZVAL_MAYBE_MAKE(self->wkt);
+  PHP5TO7_ZVAL_MAYBE_MAKE(self->string);
+
   PHP5TO7_ZEND_OBJECT_INIT(dse_point, self, ce);
 }
 

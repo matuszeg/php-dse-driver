@@ -162,8 +162,11 @@ PHP_DSE_BEGIN_OBJECT_TYPE(point)
 PHP_DSE_END_OBJECT_TYPE(point)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(line_string)
-  HashTable points;
+  // array of points
+  php5to7_zval points;
+  // wkt as a string
   php5to7_zval wkt;
+  // toString value
   php5to7_zval string;
 PHP_DSE_END_OBJECT_TYPE(line_string)
 
