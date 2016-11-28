@@ -25,6 +25,29 @@ build_label(HashTable* label, php5to7_zval* return_value TSRMLS_DC)
   return SUCCESS;
 }
 
+static int
+find_label(HashTable *ht, const char* label, php5to7_size label_len)
+{
+  int index = 0;
+  php5to7_zval *c1;
+
+  PHP5TO7_ZEND_HASH_FOREACH_VAL(ht, c1) {
+    php5to7_zval *c2;
+    HashTable *sub_ht = Z_ARRVAL_P(PHP5TO7_ZVAL_MAYBE_DEREF(c1));
+    PHP5TO7_ZEND_HASH_FOREACH_VAL(sub_ht, c2) {
+      zval *c = PHP5TO7_ZVAL_MAYBE_DEREF(c2);
+      if (Z_TYPE_P(c) == IS_STRING &&
+          Z_STRLEN_P(c) == label_len &&
+          memcmp(Z_STRVAL_P(c), label, label_len) == 0) {
+        return index;
+      }
+    } PHP5TO7_ZEND_HASH_FOREACH_END(sub_ht);
+    ++index;
+  } PHP5TO7_ZEND_HASH_FOREACH_END(ht);
+
+  return -1;
+}
+
 int
 php_dse_graph_default_path_construct(HashTable *ht,
                                      zval *return_value TSRMLS_DC)
@@ -56,9 +79,8 @@ php_dse_graph_default_path_construct(HashTable *ht,
       return FAILURE;
     }
 
-    PHP5TO7_ZVAL_UNDEF(label);
-
-    if (build_label(PHP5TO7_Z_ARRVAL_MAYBE_P(sub_result->value), &label TSRMLS_CC) == FAILURE) {
+    if (build_label(PHP5TO7_Z_ARRVAL_MAYBE_P(sub_result->value),
+                    &label TSRMLS_CC) == FAILURE) {
       return FAILURE;
     }
 
@@ -126,14 +148,14 @@ PHP_METHOD(DseGraphDefaultPath, hasLabel)
 
   self = PHP_DSE_GET_GRAPH_PATH(getThis());
 
-  /* TODO: Implement */
-  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+  RETURN_BOOL(find_label(PHP5TO7_Z_ARRVAL_MAYBE_P(self->labels), name, name_len) != -1);
 }
 
 PHP_METHOD(DseGraphDefaultPath, object)
 {
   char *name;
   php5to7_size name_len;
+  int index;
   dse_graph_path *self = NULL;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s",
@@ -143,8 +165,13 @@ PHP_METHOD(DseGraphDefaultPath, object)
 
   self = PHP_DSE_GET_GRAPH_PATH(getThis());
 
-  /* TODO: Implement */
-  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+  index = find_label(PHP5TO7_Z_ARRVAL_MAYBE_P(self->labels), name, name_len);
+  if (index >= 0) {
+    php5to7_zval *value;
+    if (PHP5TO7_ZEND_HASH_INDEX_FIND(PHP5TO7_Z_ARRVAL_MAYBE_P(self->objects), index, value)) {
+      RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_DEREF(value), 1, 0);
+    }
+  }
 
   RETURN_FALSE;
 }
