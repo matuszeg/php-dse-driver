@@ -1,4 +1,5 @@
 #include "php_dse.h"
+#include "php_dse_globals.h"
 #include "php_dse_types.h"
 
 // For php_cassandra_value_compare
@@ -192,8 +193,10 @@ PHP_METHOD(DseLineString, __toString)
 
 PHP_METHOD(DseLineString, type)
 {
-  dse_line_string *self = PHP_DSE_GET_LINE_STRING(getThis());
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->type), 1, 0);
+  if (PHP5TO7_ZVAL_IS_UNDEF(DSE_G(type_line_string))) {
+    DSE_G(type_line_string) = php_cassandra_type_custom(DSE_LINE_STRING_TYPE TSRMLS_CC);
+  }
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(DSE_G(type_line_string)), 1, 0);
 }
 
 PHP_METHOD(DseLineString, points)
@@ -320,8 +323,6 @@ php_dse_line_string_free(php5to7_zend_object_free *object TSRMLS_DC)
 
   /* Clean up */
 
-  PHP5TO7_ZVAL_MAYBE_DESTROY(self->type);
-
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
 }
@@ -337,8 +338,6 @@ php_dse_line_string_new(zend_class_entry *ce TSRMLS_DC)
 
   PHP5TO7_ZVAL_MAYBE_MAKE(self->string);
   PHP5TO7_ZVAL_MAYBE_MAKE(self->wkt);
-
-  self->type = php_cassandra_type_custom(DSE_LINE_STRING_TYPE TSRMLS_CC);
 
   PHP5TO7_ZEND_OBJECT_INIT(dse_line_string, self, ce);
 }

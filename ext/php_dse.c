@@ -136,11 +136,19 @@ PHP_MSHUTDOWN_FUNCTION(dse)
 
 PHP_RINIT_FUNCTION(dse)
 {
+  PHP5TO7_ZVAL_UNDEF(DSE_G(type_line_string));
+  PHP5TO7_ZVAL_UNDEF(DSE_G(type_point));
+  PHP5TO7_ZVAL_UNDEF(DSE_G(type_polygon));
+
   return php_cassandra_rinit(INIT_FUNC_ARGS_PASSTHRU);
 }
 
 PHP_RSHUTDOWN_FUNCTION(dse)
 {
+  PHP5TO7_ZVAL_MAYBE_DESTROY(DSE_G(type_line_string));
+  PHP5TO7_ZVAL_MAYBE_DESTROY(DSE_G(type_point));
+  PHP5TO7_ZVAL_MAYBE_DESTROY(DSE_G(type_polygon));
+
   return php_cassandra_rshutdown(SHUTDOWN_FUNC_ARGS_PASSTHRU);
 }
 

@@ -1,4 +1,5 @@
 #include "php_dse.h"
+#include "php_dse_globals.h"
 #include "php_dse_types.h"
 
 #include "util/types.h"
@@ -197,8 +198,10 @@ PHP_METHOD(DsePolygon, __toString)
 
 PHP_METHOD(DsePolygon, type)
 {
-  dse_polygon *self = PHP_DSE_GET_POLYGON(getThis());
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->type), 1, 0);
+  if (PHP5TO7_ZVAL_IS_UNDEF(DSE_G(type_polygon))) {
+    DSE_G(type_polygon) = php_cassandra_type_custom(DSE_POLYGON_TYPE TSRMLS_CC);
+  }
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(DSE_G(type_polygon)), 1, 0);
 }
 
 PHP_METHOD(DsePolygon, exterior_ring)
@@ -276,8 +279,6 @@ php_dse_polygon_free(php5to7_zend_object_free *object TSRMLS_DC)
 
   /* Clean up */
 
-  PHP5TO7_ZVAL_MAYBE_DESTROY(self->type);
-
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
 }
@@ -290,8 +291,6 @@ php_dse_polygon_new(zend_class_entry *ce TSRMLS_DC)
 
   PHP5TO7_ZVAL_UNDEF(self->exterior_ring);
   PHP5TO7_ZVAL_MAYBE_MAKE(self->exterior_ring);
-
-  self->type = php_cassandra_type_custom(DSE_POLYGON_TYPE TSRMLS_CC);
 
   zend_hash_init(&self->interior_rings, 0, NULL, ZVAL_PTR_DTOR, 0);
 

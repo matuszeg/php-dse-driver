@@ -162,7 +162,6 @@ PHP_DSE_BEGIN_OBJECT_TYPE(point)
   double y;
   php5to7_zval wkt;
   php5to7_zval string;
-  php5to7_zval type;
 PHP_DSE_END_OBJECT_TYPE(point)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(line_string)
@@ -172,7 +171,6 @@ PHP_DSE_BEGIN_OBJECT_TYPE(line_string)
   php5to7_zval wkt;
   // toString value
   php5to7_zval string;
-  php5to7_zval type;
 PHP_DSE_END_OBJECT_TYPE(line_string)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(polygon)
@@ -180,7 +178,6 @@ PHP_DSE_BEGIN_OBJECT_TYPE(polygon)
   HashTable interior_rings;
   php5to7_zval wkt;
   php5to7_zval string;
-  php5to7_zval type;
 PHP_DSE_END_OBJECT_TYPE(polygon)
 
 extern PHP_DRIVER_API zend_class_entry *dse_session_ce;

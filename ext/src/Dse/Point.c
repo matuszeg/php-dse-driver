@@ -1,4 +1,5 @@
 #include "php_dse.h"
+#include "php_dse_globals.h"
 #include "php_dse_types.h"
 
 #include "util/types.h"
@@ -82,8 +83,10 @@ PHP_METHOD(DsePoint, __toString)
 
 PHP_METHOD(DsePoint, type)
 {
-  dse_point *self = PHP_DSE_GET_POINT(getThis());
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->type), 1, 0);
+  if (PHP5TO7_ZVAL_IS_UNDEF(DSE_G(type_point))) {
+    DSE_G(type_point) = php_cassandra_type_custom(DSE_POINT_TYPE TSRMLS_CC);
+  }
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(DSE_G(type_point)), 1, 0);
 }
 
 PHP_METHOD(DsePoint, x)
@@ -192,8 +195,6 @@ php_dse_point_free(php5to7_zend_object_free *object TSRMLS_DC)
 
   /* Clean up */
 
-  PHP5TO7_ZVAL_MAYBE_DESTROY(self->type);
-
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
 }
@@ -206,8 +207,6 @@ php_dse_point_new(zend_class_entry *ce TSRMLS_DC)
 
   PHP5TO7_ZVAL_MAYBE_MAKE(self->wkt);
   PHP5TO7_ZVAL_MAYBE_MAKE(self->string);
-
-  self->type = php_cassandra_type_custom(DSE_POINT_TYPE TSRMLS_CC);
 
   PHP5TO7_ZEND_OBJECT_INIT(dse_point, self, ce);
 }
