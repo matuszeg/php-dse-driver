@@ -44,7 +44,7 @@ static int
 marshal_bind_by_index(CassStatement *statement, size_t index, zval *value TSRMLS_DC)
 {
   dse_line_string *line_string = PHP_DSE_GET_LINE_STRING(value);
-  HashTable *points = NULL; /* TODO: Set this */
+  HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
 
   DseLineString *dse_line_string = build_line_string(points TSRMLS_CC);
 
@@ -63,7 +63,7 @@ static int
 marshal_bind_by_name(CassStatement *statement, const char *name, zval *value TSRMLS_DC)
 {
   dse_line_string *line_string = PHP_DSE_GET_LINE_STRING(value);
-  HashTable *points = NULL; /* TODO: Set this */
+  HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
 
   DseLineString *dse_line_string = build_line_string(points TSRMLS_CC);
 
@@ -83,7 +83,7 @@ marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
 {
   dse_line_string *line_string;
   size_t i, num_points;
-  HashTable *points = NULL; /* TODO: Set this */
+  HashTable *points; /* TODO: Set this */
   DseLineStringIterator* iterator = dse_line_string_iterator_new();
 
   ASSERT_SUCCESS_BLOCK(dse_line_string_iterator_reset(iterator, value),
@@ -93,6 +93,7 @@ marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
 
   object_init_ex(PHP5TO7_ZVAL_MAYBE_DEREF(out), dse_line_string_ce);
   line_string = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_DEREF(out));
+  points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
 
   num_points = dse_line_string_iterator_num_points(iterator);
 
