@@ -44,6 +44,20 @@ marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
   return SUCCESS;
 }
 
+char *point_to_wkt(dse_point *point)
+{
+  char* rep;
+  spprintf(&rep, 0, "POINT (" COORD_FMT " " COORD_FMT ")", point->x, point->y);
+  return rep;
+}
+
+char *point_to_string(dse_point *point)
+{
+  char* rep;
+  spprintf(&rep, 0, COORD_FMT "," COORD_FMT, point->x, point->y);
+  return rep;
+}
+
 PHP_METHOD(DsePoint, __construct)
 {
   double x;
@@ -57,28 +71,22 @@ PHP_METHOD(DsePoint, __construct)
   self = PHP_DSE_GET_POINT(getThis());
   self->x = x;
   self->y = y;
-
-  // Build up wkt representation of this point.
-  char* rep;
-  spprintf(&rep, 0, "POINT (" COORD_FMT " " COORD_FMT ")", self->x, self->y);
-  PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->wkt), rep, strlen(rep));
-  efree(rep);
-
-  // Build up to-string rep of this point.
-  spprintf(&rep, 0, COORD_FMT "," COORD_FMT, self->x, self->y);
-  PHP5TO7_ZVAL_STRINGL(PHP5TO7_ZVAL_MAYBE_P(self->string), rep, strlen(rep));
-  efree(rep);
 }
 
 PHP_METHOD(DsePoint, __toString)
 {
+  char* rep;
   dse_point *self = NULL;
 
   if (zend_parse_parameters_none() == FAILURE)
     return;
 
   self = PHP_DSE_GET_POINT(getThis());
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->string), 1, 0);
+
+  // Build up string representation of this point.
+  rep = point_to_string(self);
+  PHP5TO7_RETVAL_STRING(rep);
+  efree(rep);
 }
 
 PHP_METHOD(DsePoint, type)
@@ -113,13 +121,18 @@ PHP_METHOD(DsePoint, y)
 
 PHP_METHOD(DsePoint, wkt)
 {
+  char* rep;
   dse_point *self = NULL;
 
   if (zend_parse_parameters_none() == FAILURE)
     return;
 
   self = PHP_DSE_GET_POINT(getThis());
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->wkt), 1, 0);
+
+  // Build up wkt representation of this point.
+  rep = point_to_wkt(self);
+  PHP5TO7_RETVAL_STRING(rep);
+  efree(rep);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
@@ -202,12 +215,7 @@ php_dse_point_free(php5to7_zend_object_free *object TSRMLS_DC)
 static php5to7_zend_object
 php_dse_point_new(zend_class_entry *ce TSRMLS_DC)
 {
-  dse_point *self =
-      PHP5TO7_ZEND_OBJECT_ECALLOC(dse_point, ce);
-
-  PHP5TO7_ZVAL_MAYBE_MAKE(self->wkt);
-  PHP5TO7_ZVAL_MAYBE_MAKE(self->string);
-
+  dse_point *self = PHP5TO7_ZEND_OBJECT_ECALLOC(dse_point, ce);
   PHP5TO7_ZEND_OBJECT_INIT(dse_point, self, ce);
 }
 

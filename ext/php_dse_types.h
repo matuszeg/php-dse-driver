@@ -160,24 +160,18 @@ PHP_DSE_END_OBJECT_TYPE(graph_vertex_property)
 PHP_DSE_BEGIN_OBJECT_TYPE(point)
   double x;
   double y;
-  php5to7_zval wkt;
-  php5to7_zval string;
 PHP_DSE_END_OBJECT_TYPE(point)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(line_string)
   // array of points
   php5to7_zval points;
-  // wkt as a string
-  php5to7_zval wkt;
-  // toString value
-  php5to7_zval string;
 PHP_DSE_END_OBJECT_TYPE(line_string)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(polygon)
+  // LineString
   php5to7_zval exterior_ring;
-  HashTable interior_rings;
-  php5to7_zval wkt;
-  php5to7_zval string;
+  // array of LineString
+  php5to7_zval interior_rings;
 PHP_DSE_END_OBJECT_TYPE(polygon)
 
 extern PHP_DRIVER_API zend_class_entry *dse_session_ce;
