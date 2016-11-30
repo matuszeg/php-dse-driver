@@ -589,8 +589,7 @@ void dse_define_DefaultClusterBuilder(TSRMLS_D)
   zend_class_entry ce;
 
   INIT_CLASS_ENTRY(ce, "Dse\\Cluster\\DefaultBuilder", dse_default_cluster_builder_methods);
-  dse_default_cluster_builder_ce = zend_register_internal_class(&ce TSRMLS_CC);
-  zend_class_implements(dse_default_cluster_builder_ce TSRMLS_CC, 1, dse_cluster_builder_ce);
+  dse_default_cluster_builder_ce = php5to7_zend_register_internal_class_ex(&ce, dse_cluster_builder_ce);
   dse_default_cluster_builder_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   dse_default_cluster_builder_ce->create_object = php_dse_default_cluster_builder_new;
 

@@ -20,5 +20,5 @@ void dse_define_Session(TSRMLS_D)
   INIT_CLASS_ENTRY(ce, "Dse\\Session", dse_session_methods);
   dse_session_ce = zend_register_internal_class(&ce TSRMLS_CC);
   zend_class_implements(dse_session_ce TSRMLS_CC, 1, cassandra_session_ce);
-  dse_session_ce->ce_flags |= ZEND_ACC_INTERFACE;
+  dse_session_ce->ce_flags |= ZEND_ACC_ABSTRACT;
 }

@@ -202,8 +202,7 @@ void dse_define_GraphDefaultVertex(TSRMLS_D)
   zend_class_entry ce;
 
   INIT_CLASS_ENTRY(ce, "Dse\\Graph\\DefaultVertex", dse_graph_default_vertex_methods);
-  dse_graph_default_vertex_ce = zend_register_internal_class(&ce TSRMLS_CC);
-  zend_class_implements(dse_graph_default_vertex_ce TSRMLS_CC, 1, dse_graph_vertex_ce);
+  dse_graph_default_vertex_ce = php5to7_zend_register_internal_class_ex(&ce, dse_graph_vertex_ce);
   dse_graph_default_vertex_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   dse_graph_default_vertex_ce->create_object = php_dse_graph_default_vertex_new;
 

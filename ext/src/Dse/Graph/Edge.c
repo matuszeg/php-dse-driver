@@ -21,5 +21,5 @@ void dse_define_GraphEdge(TSRMLS_D)
   INIT_CLASS_ENTRY(ce, "Dse\\Graph\\Edge", dse_graph_edge_methods);
   dse_graph_edge_ce = zend_register_internal_class(&ce TSRMLS_CC);
   zend_class_implements(dse_graph_edge_ce TSRMLS_CC, 1, dse_graph_element_ce);
-  dse_graph_edge_ce->ce_flags |= ZEND_ACC_INTERFACE;
+  dse_graph_edge_ce->ce_flags |= ZEND_ACC_ABSTRACT;
 }

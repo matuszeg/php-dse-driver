@@ -1475,8 +1475,7 @@ void dse_define_DefaultSession(TSRMLS_D)
   zend_class_entry ce;
 
   INIT_CLASS_ENTRY(ce, "Dse\\DefaultSession", dse_default_session_methods);
-  dse_default_session_ce = zend_register_internal_class(&ce TSRMLS_CC);
-  zend_class_implements(dse_default_session_ce TSRMLS_CC, 1, dse_session_ce);
+  dse_default_session_ce = php5to7_zend_register_internal_class_ex(&ce, dse_session_ce);
   dse_default_session_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   dse_default_session_ce->create_object = php_dse_default_session_new;
 

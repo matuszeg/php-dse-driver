@@ -58,5 +58,5 @@ void dse_define_ClusterBuilder(TSRMLS_D)
   INIT_CLASS_ENTRY(ce, "Dse\\Cluster\\Builder", dse_cluster_builder_methods);
   dse_cluster_builder_ce = zend_register_internal_class(&ce TSRMLS_CC);
   zend_class_implements(dse_cluster_builder_ce TSRMLS_CC, 1, cassandra_cluster_builder_ce);
-  dse_cluster_builder_ce->ce_flags |= ZEND_ACC_INTERFACE;
+  dse_cluster_builder_ce->ce_flags |= ZEND_ACC_ABSTRACT;
 }

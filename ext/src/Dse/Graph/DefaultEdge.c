@@ -292,8 +292,7 @@ void dse_define_GraphDefaultEdge(TSRMLS_D)
   zend_class_entry ce;
 
   INIT_CLASS_ENTRY(ce, "Dse\\Graph\\DefaultEdge", dse_graph_default_edge_methods);
-  dse_graph_default_edge_ce = zend_register_internal_class(&ce TSRMLS_CC);
-  zend_class_implements(dse_graph_default_edge_ce TSRMLS_CC, 1, dse_graph_edge_ce);
+  dse_graph_default_edge_ce = php5to7_zend_register_internal_class_ex(&ce, dse_graph_edge_ce);
   dse_graph_default_edge_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   dse_graph_default_edge_ce->create_object = php_dse_graph_default_edge_new;
 
