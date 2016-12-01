@@ -47,7 +47,9 @@
       "support/ccm.php",
       "support/configuration.php",
       "support/embedded_ads.php",
-      "support/version.php"
+      "support/version.php",
+      "tests/integration/Integration.php",
+      "tests/integration/Dse/DseIntegration.php"
     ],
     "psr-4": {
       "Dse\\": [

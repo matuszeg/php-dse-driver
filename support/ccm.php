@@ -321,6 +321,12 @@ class Cluster {
     }
 }
 
+/**
+ * This class provides an interface to the external CCM command which allows
+ * for quickly setting up and tearing down Cassandra/DSE clusters for testing.
+ *
+ * @package CCM
+ */
 class Bridge {
     /**
      * Timeout for CCM process (10 minutes)
@@ -450,6 +456,31 @@ class Bridge {
             "uninitialized" => $uninitialized_nodes,
             "up" => $up_nodes,
             "nodes" => $node_count);
+    }
+
+    /**
+     * Get the comma separated list of IPv4 addresses for nodes in the active
+     * cluster
+     *
+     * @param bool $all (Optional) True if all nodes IPv4 addresses should be
+     *                             returned; false if only the `UP` nodes
+     *                             (default: true)
+     * @return string Comma separated list of IPv4 addresses
+     */
+    public function contact_points($all = true) {
+        if ($all) {
+            //TODO: Handle different IP prefix when SSH support is added
+            $ip_prefix = "127.0.0.";
+            $nodes = $this->cluster_status()["nodes"];
+            $contact_points = array();
+            foreach (range(1, $nodes) as $node) {
+                $contact_points[] = "{$ip_prefix}{$node}";
+            }
+            return implode(",", $contact_points);
+        }
+
+        // Return the liveset (UP) IPv4 addresses
+        return $this->execute_ccm_command("liveset");
     }
 
     /**

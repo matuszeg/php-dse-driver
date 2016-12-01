@@ -44,7 +44,7 @@ trait CommonTraits {
      */
     public static function setup(BeforeSuiteScope $scope) {
         // Initialize the suite
-        self::initialze($scope);
+        self::initialize($scope);
     }
 
     /**
@@ -209,7 +209,7 @@ trait CommonTraits {
      *
      * @param HookScope $scope Scope to gather initialization information from
      */
-    private static function initialze(HookScope $scope) {
+    private static function initialize(HookScope $scope) {
         // Get the version from the feature
         $settings = $scope->getEnvironment()
             ->getSuite()
@@ -224,12 +224,15 @@ trait CommonTraits {
 
     /**
      * Initialize the CCM instance
+     *
+     * @param string|null $prefix Prefix to assign for CCM clusters
+     * @throws \Exception If DSE version has not been assigned
      */
     private static function initialize_ccm($prefix = null) {
         if (isset(self::$configuration)) {
             // Initialize CCM instance
             if (!is_null($prefix)) {
-                self::$configuration->prefix = $prefix;
+                self::$configuration->prefix .= "_{$prefix}";
             }
             self::$ccm = new CCM\Bridge(self::$configuration);
 

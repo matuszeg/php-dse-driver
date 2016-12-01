@@ -82,6 +82,20 @@ class Configuration {
     }
 
     /**
+     * Display the current configuration settings
+     */
+    public function print_settings() {
+        if ($this->dse) {
+            echo "  DSE Version: v{$this->version}/v{$this->version->cassandra_version}" . PHP_EOL
+                . "    Username: {$this->dse_username}" . PHP_EOL
+                . "    Password: {$this->dse_password}" . PHP_EOL;
+        } else {
+            echo "  Cassandra Version: {$this->version}" . PHP_EOL;
+        }
+        echo "  CCM Cluster Prefix: {$this->prefix}" . PHP_EOL;
+    }
+
+    /**
      * Configure the settings based on environment or server variables
      */
     private function configure() {

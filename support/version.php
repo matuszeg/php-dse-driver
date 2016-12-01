@@ -142,12 +142,12 @@ class Version extends \Version {
     /**
      * Get the Cassandra\Version from the server
      *
-     * @param Cassandra\Session $session Session object to utilize when
-     *                                   gathering the Cassandra version number
+     * @param \Cassandra\Session $session Session object to utilize when
+     *                                    gathering the Cassandra version number
      * @return Version Cassandra version from the server
      */
-    public static function from_server(Cassandra\Session $session) {
-        $result = $session->execute(new Cassandra\SimpleStatement(
+    public static function from_server(\Cassandra\Session $session) {
+        $result = $session->execute(new \Cassandra\SimpleStatement(
             self::CQL_SELECT_CASSANDRA_RELEASE_VERSION));
         return new Version($result[0]["release_version"]);
     }
@@ -199,15 +199,15 @@ class Version extends \Version {
     /**
      * Get the Cassandra\Version from the server
      *
-     * @param Dse\Session $session Session object to utilize when
-     *                                   gathering the Cassandra version number
+     * @param \Dse\Session $session Session object to utilize when
+     *                              gathering the Cassandra version number
      * @return Version DSE version from the server
      */
-    public static function from_server(Dse\Session $session) {
-        $result = $session->execute(new Dse\SimpleStatement(
+    public static function from_server(\Dse\Session $session) {
+        $result = $session->execute(new \Cassandra\SimpleStatement(
             self::CQL_SELECT_DSE_RELEASE_VERSION));
         $version = new Version($result[0]["dse_version"]);
-        $version->cassandra_version = new \Cassandra\Version($session);
+        $version->cassandra_version = \Cassandra\Version::from_server($session);
         return $version;
     }
 
