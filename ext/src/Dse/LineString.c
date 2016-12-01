@@ -209,11 +209,12 @@ PHP_METHOD(DseLineString, __construct)
   }
 
   if (num_args > 0) {
+    int i;
     // Populate the points array based on args. Since we're traversing each point, iteratively construct to
     // "string" and "wkt" members using PHP smart strings.
 
 
-    for (int i = 0; i < num_args; ++i) {
+    for (i = 0; i < num_args; ++i) {
       zval* point_obj = PHP5TO7_ZVAL_ARG(point_args[i]);
 
       add_next_index_zval(PHP5TO7_ZVAL_MAYBE_P(self->points), point_obj);

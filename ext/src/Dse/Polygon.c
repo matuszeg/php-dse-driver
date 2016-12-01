@@ -256,9 +256,10 @@ PHP_METHOD(DsePolygon, __construct)
   }
 
   if (num_args > 0) {
+    int i;
     // TODO: Error out if any line-string's are empty.
 
-    for (int i = 0; i < num_args; ++i) {
+    for (i = 0; i < num_args; ++i) {
       zval* line_string = PHP5TO7_ZVAL_ARG(args[i]);
       add_next_index_zval(PHP5TO7_ZVAL_MAYBE_P(self->rings), line_string);
       Z_TRY_ADDREF_P(line_string);
