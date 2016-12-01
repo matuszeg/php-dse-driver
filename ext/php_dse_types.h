@@ -168,10 +168,8 @@ PHP_DSE_BEGIN_OBJECT_TYPE(line_string)
 PHP_DSE_END_OBJECT_TYPE(line_string)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(polygon)
-  // LineString
-  php5to7_zval exterior_ring;
   // array of LineString
-  php5to7_zval interior_rings;
+  php5to7_zval rings;
 PHP_DSE_END_OBJECT_TYPE(polygon)
 
 extern PHP_DRIVER_API zend_class_entry *dse_session_ce;

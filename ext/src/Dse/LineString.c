@@ -83,7 +83,7 @@ marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
 {
   dse_line_string *line_string;
   size_t i, num_points;
-  HashTable *points; /* TODO: Set this */
+  HashTable *points;
   DseLineStringIterator* iterator = dse_line_string_iterator_new();
 
   ASSERT_SUCCESS_BLOCK(dse_line_string_iterator_reset(iterator, value),

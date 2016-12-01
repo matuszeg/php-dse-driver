@@ -20,37 +20,31 @@ zend_class_entry *dse_polygon_ce = NULL;
 char *polygon_to_wkt(dse_polygon *polygon TSRMLS_DC)
 {
   char *result = NULL;
-  dse_line_string *exterior_ring = NULL;
-  HashTable *interior_rings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->interior_rings);
+  HashTable *rings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
 
-  if (zend_hash_num_elements(interior_rings) > 0 || !PHP5TO7_ZVAL_IS_UNDEF_P(PHP5TO7_ZVAL_MAYBE_P(polygon->exterior_ring))) {
-    // Traverse the interior_rings array and iteratively build "wkt".
-    exterior_ring = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_P(polygon->exterior_ring));
+  if (zend_hash_num_elements(rings) > 0) {
+    // Traverse the rings array and iteratively build "wkt".
     php5to7_ulong num_key;
-    php5to7_zval *interior_ring_obj;
+    php5to7_zval *ring_obj;
     smart_str wkt = PHP5TO7_SMART_STR_INIT;
     smart_str_appends(&wkt, "POLYGON (");
 
-    // Add the exterior ring to the wkt. We use the wkt of the linestring, which is of the form
-    //   LINESTRING (x1 y1, x2 y2, ...)
-    // and extract the data part (e.g. starting at index 11, the open-paren).
-    char *ring_wkt = line_string_to_wkt(exterior_ring TSRMLS_CC);
-    smart_str_appends(&wkt, ring_wkt + 11);
-    efree(ring_wkt);
+    PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(rings, num_key, ring_obj) {
+      char *ring_wkt;
+      dse_line_string *ring = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_DEREF(ring_obj));
 
-    PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(interior_rings, num_key, interior_ring_obj) {
-      dse_line_string *ring = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_DEREF(interior_ring_obj));
+      if (num_key > 0) {
+        // Add the comma that separates rings in the wkt.
+        smart_str_appends(&wkt, ", ");
+      }
 
-      // Add the comma that separates interior_rings in the wkt.
-      smart_str_appends(&wkt, ", ");
-
-      // Add the next ring to the wkt. Again, we use the wkt of the linestring, which is of the form
+      // Add the ring to the wkt. We use the wkt of the linestring, which is of the form
       //   LINESTRING (x1 y1, x2 y2, ...)
       // and extract the data part (e.g. starting at index 11, the open-paren).
       ring_wkt = line_string_to_wkt(ring TSRMLS_CC);
       smart_str_appends(&wkt, ring_wkt + 11);
       efree(ring_wkt);
-    } PHP5TO7_ZEND_HASH_FOREACH_END(interior_rings);
+    } PHP5TO7_ZEND_HASH_FOREACH_END(rings);
 
     // Wrap up the wkt.
     smart_str_appendc(&wkt, ')');
@@ -67,35 +61,47 @@ char *polygon_to_wkt(dse_polygon *polygon TSRMLS_DC)
 
 char *polygon_to_string(dse_polygon *polygon TSRMLS_DC)
 {
-  dse_line_string *exterior_ring = NULL;
-  HashTable *interior_rings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->interior_rings);
+  HashTable *rings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
   char* result = NULL;
 
-  if (zend_hash_num_elements(interior_rings) > 0 || !PHP5TO7_ZVAL_IS_UNDEF_P(PHP5TO7_ZVAL_MAYBE_P(polygon->exterior_ring))) {
-    // Traverse the interior_rings array and iteratively build the to-string rep.
-    exterior_ring = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_P(polygon->exterior_ring));
+  if (zend_hash_num_elements(rings) > 0) {
+    // Traverse the rings array and iteratively build the to-string rep.
 
     php5to7_ulong num_key;
-    php5to7_zval *interior_ring_obj;
+    php5to7_zval *ring_obj;
     char *ring_string;
     smart_str to_string = PHP5TO7_SMART_STR_INIT;
-    smart_str_appends(&to_string, "Exterior ring: ");
-    ring_string = line_string_to_string(exterior_ring TSRMLS_CC);
-    smart_str_appends(&to_string, ring_string);
-    efree(ring_string);
-    smart_str_appends(&to_string, "\nInterior rings:");
 
-    PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(interior_rings, num_key, interior_ring_obj) {
-      dse_line_string *interior_ring = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_DEREF(interior_ring_obj));
+    PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(rings, num_key, ring_obj) {
+      dse_line_string *ring = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_DEREF(ring_obj));
 
-      // Add the newline and indent that separates line-strings in toString.
-      smart_str_appends(&to_string, "\n    ");
+      // Ok, things get a little funky here. We want to write out the exterior ring separately from
+      // interior rings. Concretely, we want output to look like this:
+      //
+      // Exterior ring: x1,y1 to x2,y2 to ...
+      // Interior rings:
+      //     x1,y1 to x2,y2 to ...
+      //     x11,y11 to x12,y12 to ...
+      //
+      // We use the index (num_key) to separate cases.
 
-      // Add the next interior_ring to to_string.
-      ring_string = line_string_to_string(interior_ring TSRMLS_CC);
+      if (num_key == 0) {
+        // We're emitting the exterior-ring, so add the title first.
+        smart_str_appends(&to_string, "Exterior ring: ");
+      } else {
+        if (num_key == 1) {
+          // This is our first interior-ring, so add its title.
+          smart_str_appends(&to_string, "\nInterior rings:");
+        }
+        // Every interior ring is preceded by newline and indent.
+        smart_str_appends(&to_string, "\n    ");
+      }
+
+      // Add the ring to to_string.
+      ring_string = line_string_to_string(ring TSRMLS_CC);
       smart_str_appends(&to_string, ring_string);
       efree(ring_string);
-    } PHP5TO7_ZEND_HASH_FOREACH_END(interior_rings);
+    } PHP5TO7_ZEND_HASH_FOREACH_END(rings);
 
     // Wrap up the toString representation.
     smart_str_0(&to_string);
@@ -118,7 +124,7 @@ build_polygon(HashTable *line_strings TSRMLS_DC)
   PHP5TO7_ZEND_HASH_FOREACH_VAL(line_strings, current1) {
     php5to7_zval *current2;
     dse_line_string *line_string = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_DEREF(current1));
-    HashTable *points = NULL; /* TODO: Set this */
+    HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
 
     ASSERT_SUCCESS_BLOCK(dse_polygon_start_ring(result),
                          dse_polygon_free(result);
@@ -147,7 +153,7 @@ static int
 marshal_bind_by_index(CassStatement *statement, size_t index, zval *value TSRMLS_DC)
 {
   dse_polygon *polygon = PHP_DSE_GET_POLYGON(value);
-  HashTable *line_strings = NULL; /* TODO: Set this */
+  HashTable *line_strings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
 
   DsePolygon *dse_polygon = build_polygon(line_strings TSRMLS_CC);
 
@@ -166,7 +172,7 @@ static int
 marshal_bind_by_name(CassStatement *statement, const char *name, zval *value TSRMLS_DC)
 {
   dse_polygon *polygon = PHP_DSE_GET_POLYGON(value);
-  HashTable *line_strings = NULL; /* TODO: Set this */
+  HashTable *line_strings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
 
   DsePolygon *dse_polygon = build_polygon(line_strings TSRMLS_CC);
 
@@ -186,7 +192,7 @@ marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
 {
   dse_polygon *polygon;
   size_t i, num_rings;
-  HashTable *line_strings = NULL; /* TODO: Set this */
+  HashTable *line_strings;
   DsePolygonIterator* iterator = dse_polygon_iterator_new();
 
   ASSERT_SUCCESS_BLOCK(dse_polygon_iterator_reset(iterator, value),
@@ -196,18 +202,19 @@ marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
 
   object_init_ex(PHP5TO7_ZVAL_MAYBE_DEREF(out), dse_polygon_ce);
   polygon = PHP_DSE_GET_POLYGON(PHP5TO7_ZVAL_MAYBE_DEREF(out));
-
+  line_strings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
   num_rings = dse_polygon_iterator_num_rings(iterator);
 
   for (i = 0; i < num_rings; ++i) {
     php5to7_zval zline_string;
     dse_line_string *line_string;
     cass_uint32_t j, num_points;
-    HashTable *points = NULL; /* TODO: Set this */
+    HashTable *points;
 
     PHP5TO7_ZVAL_MAYBE_MAKE(zline_string);
     object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zline_string), dse_line_string_ce);
     line_string = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_P(zline_string));
+    points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
     PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(line_strings,
                                         PHP5TO7_ZVAL_MAYBE_P(zline_string),
                                         sizeof(zval *));
@@ -248,16 +255,12 @@ PHP_METHOD(DsePolygon, __construct)
     return;
   }
 
-  // The first param is the exterior-ring, if specified.
   if (num_args > 0) {
-    PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(self->exterior_ring), PHP5TO7_ZVAL_ARG(args[0]));
-
     // TODO: Error out if any line-string's are empty.
 
-    // The rest are interior-rings, if specified.
-    for (int i = 1; i < num_args; ++i) {
+    for (int i = 0; i < num_args; ++i) {
       zval* line_string = PHP5TO7_ZVAL_ARG(args[i]);
-      add_next_index_zval(PHP5TO7_ZVAL_MAYBE_P(self->interior_rings), line_string);
+      add_next_index_zval(PHP5TO7_ZVAL_MAYBE_P(self->rings), line_string);
       Z_TRY_ADDREF_P(line_string);
     }
 
@@ -290,18 +293,21 @@ PHP_METHOD(DsePolygon, type)
 PHP_METHOD(DsePolygon, exteriorRing)
 {
   dse_polygon *self = NULL;
+  php5to7_zval *value;
 
   if (zend_parse_parameters_none() == FAILURE)
     return;
 
   self = PHP_DSE_GET_POLYGON(getThis());
 
-  if (!PHP5TO7_ZVAL_IS_UNDEF_P(PHP5TO7_ZVAL_MAYBE_P(self->exterior_ring))) {
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->exterior_ring), 1, 0);
+  HashTable *rings = PHP5TO7_Z_ARRVAL_MAYBE_P(self->rings);
+
+  if (PHP5TO7_ZEND_HASH_INDEX_FIND(rings, 0, value)) {
+    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(*value), 1, 0);
   }
 }
 
-PHP_METHOD(DsePolygon, interiorRings)
+PHP_METHOD(DsePolygon, rings)
 {
   dse_polygon *self = NULL;
 
@@ -309,10 +315,10 @@ PHP_METHOD(DsePolygon, interiorRings)
     return;
 
   self = PHP_DSE_GET_POLYGON(getThis());
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->interior_rings), 1, 0);
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->rings), 1, 0);
 }
 
-PHP_METHOD(DsePolygon, interiorRing)
+PHP_METHOD(DsePolygon, ring)
 {
   ulong index;
   dse_polygon *self = NULL;
@@ -324,7 +330,7 @@ PHP_METHOD(DsePolygon, interiorRing)
 
   self = PHP_DSE_GET_POLYGON(getThis());
 
-  HashTable *rings = PHP5TO7_Z_ARRVAL_MAYBE_P(self->interior_rings);
+  HashTable *rings = PHP5TO7_Z_ARRVAL_MAYBE_P(self->rings);
 
   if (PHP5TO7_ZEND_HASH_INDEX_FIND(rings, index, value)) {
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(*value), 1, 0);
@@ -352,7 +358,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo__construct, 0, ZEND_RETURN_VALUE, 0)
 ZEND_ARG_INFO(0, rings)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_interiorRing, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_ring, 0, ZEND_RETURN_VALUE, 0)
 ZEND_ARG_INFO(0, index)
 ZEND_END_ARG_INFO()
 
@@ -360,8 +366,8 @@ static zend_function_entry dse_polygon_methods[] = {
   PHP_ME(DsePolygon, __construct,  arginfo__construct,    ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
   PHP_ME(DsePolygon, type, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, exteriorRing, arginfo_none, ZEND_ACC_PUBLIC)
-  PHP_ME(DsePolygon, interiorRings, arginfo_none, ZEND_ACC_PUBLIC)
-  PHP_ME(DsePolygon, interiorRing, arginfo_interiorRing, ZEND_ACC_PUBLIC)
+  PHP_ME(DsePolygon, rings, arginfo_none, ZEND_ACC_PUBLIC)
+  PHP_ME(DsePolygon, ring, arginfo_ring, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, wkt, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, __toString, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_FE_END
@@ -375,14 +381,8 @@ php_dse_polygon_properties(zval *object TSRMLS_DC)
   HashTable *props = zend_std_get_properties(object TSRMLS_CC);
   dse_polygon *self = PHP_DSE_GET_POLYGON(object);
 
-  if (!PHP5TO7_ZVAL_IS_UNDEF_P(PHP5TO7_ZVAL_MAYBE_P(self->exterior_ring))) {
-    Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(self->exterior_ring));
-    PHP5TO7_ZEND_HASH_UPDATE(props, "exteriorRing", sizeof("exteriorRing"),
-      PHP5TO7_ZVAL_MAYBE_P(self->exterior_ring), sizeof(zval));
-  }
-  Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(self->interior_rings));
-  PHP5TO7_ZEND_HASH_UPDATE(props, "interiorRings", sizeof("interiorRings"),
-    PHP5TO7_ZVAL_MAYBE_P(self->interior_rings), sizeof(zval));
+  Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(self->rings));
+  PHP5TO7_ZEND_HASH_UPDATE(props, "rings", sizeof("rings"), PHP5TO7_ZVAL_MAYBE_P(self->rings), sizeof(zval));
 
   return props;
 }
@@ -396,21 +396,15 @@ php_dse_polygon_compare(zval *obj1, zval *obj2 TSRMLS_DC)
   dse_polygon *left = PHP_DSE_GET_POLYGON(obj1);
   dse_polygon *right = PHP_DSE_GET_POLYGON(obj2);
 
-  // First compare exterior-ring's
-  int result = php_cassandra_value_compare(PHP5TO7_ZVAL_MAYBE_P(left->exterior_ring),
-                                           PHP5TO7_ZVAL_MAYBE_P(right->exterior_ring) TSRMLS_CC);
+  // Compare ring's
+  HashTable *left_rings = PHP5TO7_Z_ARRVAL_MAYBE_P(left->rings);
+  HashTable *right_rings = PHP5TO7_Z_ARRVAL_MAYBE_P(right->rings);
+  unsigned left_num_rings = zend_hash_num_elements(left_rings);
+  unsigned right_num_rings = zend_hash_num_elements(right_rings);
 
-  if (result != 0) return result;
-
-  // Now compare interior-ring's
-  HashTable *left_interior_rings = PHP5TO7_Z_ARRVAL_MAYBE_P(left->interior_rings);
-  HashTable *right_interior_rings = PHP5TO7_Z_ARRVAL_MAYBE_P(right->interior_rings);
-  unsigned left_num_interior_rings = zend_hash_num_elements(left_interior_rings);
-  unsigned right_num_interior_rings = zend_hash_num_elements(right_interior_rings);
-
-  // The polygon with fewer interior rings is the "lesser" of the two.
-  if (left_num_interior_rings != right_num_interior_rings) {
-    return left_num_interior_rings < right_num_interior_rings ? -1 : 1;
+  // The polygon with fewer rings is the "lesser" of the two.
+  if (left_num_rings != right_num_rings) {
+    return left_num_rings < right_num_rings ? -1 : 1;
   }
 
   HashPosition pos1;
@@ -418,17 +412,17 @@ php_dse_polygon_compare(zval *obj1, zval *obj2 TSRMLS_DC)
   php5to7_zval *current1;
   php5to7_zval *current2;
 
-  zend_hash_internal_pointer_reset_ex(left_interior_rings, &pos1);
-  zend_hash_internal_pointer_reset_ex(right_interior_rings, &pos2);
+  zend_hash_internal_pointer_reset_ex(left_rings, &pos1);
+  zend_hash_internal_pointer_reset_ex(right_rings, &pos2);
 
-  while (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(left_interior_rings, current1, &pos1) &&
-         PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(right_interior_rings, current2, &pos2)) {
-    result = php_cassandra_value_compare(PHP5TO7_ZVAL_MAYBE_DEREF(current1),
+  while (PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(left_rings, current1, &pos1) &&
+         PHP5TO7_ZEND_HASH_GET_CURRENT_DATA_EX(right_rings, current2, &pos2)) {
+    int result = php_cassandra_value_compare(PHP5TO7_ZVAL_MAYBE_DEREF(current1),
                                          PHP5TO7_ZVAL_MAYBE_DEREF(current2) TSRMLS_CC);
     if (result != 0) return result;
 
-    zend_hash_move_forward_ex(left_interior_rings, &pos1);
-    zend_hash_move_forward_ex(right_interior_rings, &pos2);
+    zend_hash_move_forward_ex(left_rings, &pos1);
+    zend_hash_move_forward_ex(right_rings, &pos2);
   }
 
   return 0;
@@ -439,8 +433,7 @@ php_dse_polygon_free(php5to7_zend_object_free *object TSRMLS_DC)
 {
   dse_polygon *self = PHP5TO7_ZEND_OBJECT_GET(dse_polygon, object);
 
-  PHP5TO7_ZVAL_MAYBE_DESTROY(self->exterior_ring);
-  PHP5TO7_ZVAL_MAYBE_DESTROY(self->interior_rings);
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->rings);
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
@@ -452,10 +445,8 @@ php_dse_polygon_new(zend_class_entry *ce TSRMLS_DC)
   dse_polygon *self =
       PHP5TO7_ZEND_OBJECT_ECALLOC(dse_polygon, ce);
 
-  PHP5TO7_ZVAL_UNDEF(self->exterior_ring);
-
-  PHP5TO7_ZVAL_MAYBE_MAKE(self->interior_rings);
-  array_init(PHP5TO7_ZVAL_MAYBE_P(self->interior_rings));
+  PHP5TO7_ZVAL_MAYBE_MAKE(self->rings);
+  array_init(PHP5TO7_ZVAL_MAYBE_P(self->rings));
 
   PHP5TO7_ZEND_OBJECT_INIT(dse_polygon, self, ce);
 }
