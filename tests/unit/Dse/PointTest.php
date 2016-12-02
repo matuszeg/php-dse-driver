@@ -65,27 +65,32 @@ class PointTest extends \PHPUnit_Framework_TestCase
      */
     public function testCompare($x1, $y1, $x2, $y2, $expected)
     {
-        $this->assertEquals($expected, new Point($x1, $y1) <=> new Point($x2, $y2));
-        $this->assertEquals(-$expected, new Point($x2, $y2) <=> new Point($x1, $y1));
+        $left = new Point($x1, $y1);
+        $right = new Point($x2, $y2);
+
+        // When comparing, do it both ways to verify that the comparison operator is stable.
+        $this->assertEquals($expected, $left <=> $right);
+        $this->assertEquals(-$expected, $right <=> $left);
     }
 
     public function comparisonTable()
     {
         return array(
-            array(1, 2, 1, 2, 0),
+            array(0, 9, 1, 1, -1),
             array(1, 2, 1, 3, -1),
-            array(1, 2, 1, 1, 1),
-            array(2, 1, 1, 2, 1),
-            array(2, 3, 1, 2, 1),
+            array(1, 2, 1, 2, 0)
         );
+    }
+
+    public function testCompareDifferentTypes()
+    {
+        $this->assertEquals(1, new Point(1, 2) <=> new LineString());
     }
 
     public function testProperties()
     {
         $point = new Point(3.5, 2.5);
         $props = get_object_vars($point);
-        $this->assertEquals(3.5, $props["x"]);
-        $this->assertEquals(2.5, $props["y"]);
-        $this->assertEquals(2, sizeof($props));
+        $this->assertEquals(array("x" => 3.5, "y" => 2.5), $props);
     }
 }

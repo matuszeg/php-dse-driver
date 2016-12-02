@@ -210,9 +210,31 @@ PHP_METHOD(DseLineString, __construct)
 
   if (num_args > 0) {
     int i;
+
+    if (num_args == 1) {
+      // A LineString must have at least two points!
+      zend_throw_exception_ex(spl_ce_BadFunctionCallException, 0 TSRMLS_CC, "%s",
+        "A line-string must have at least two points or be empty"
+      );
+      PHP5TO7_MAYBE_EFREE(point_args);
+      return;
+    }
+
+    // Every arg must be a Point.
+    for (i = 0; i < num_args; ++i) {
+      zval* point_obj = PHP5TO7_ZVAL_ARG(point_args[i]);
+      if (Z_TYPE_P(point_obj) != IS_OBJECT || Z_OBJCE_P(point_obj) != dse_point_ce) {
+        char *object_name;
+        spprintf(&object_name, 0, "Argument %d", i+1);
+        throw_invalid_argument(point_obj, object_name, "an instance of Dse\\Point");
+        efree(object_name);
+        PHP5TO7_MAYBE_EFREE(point_args);
+        return;
+      }
+    }
+
     // Populate the points array based on args. Since we're traversing each point, iteratively construct to
     // "string" and "wkt" members using PHP smart strings.
-
 
     for (i = 0; i < num_args; ++i) {
       zval* point_obj = PHP5TO7_ZVAL_ARG(point_args[i]);
