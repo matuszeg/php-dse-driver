@@ -257,7 +257,31 @@ PHP_METHOD(DsePolygon, __construct)
 
   if (num_args > 0) {
     int i;
-    // TODO: Error out if any line-string's are empty.
+
+    // Every arg must be a LineString, and each LineString must have at least three points.
+    for (i = 0; i < num_args; ++i) {
+      zval* ring_obj = PHP5TO7_ZVAL_ARG(args[i]);
+      if (Z_TYPE_P(ring_obj) != IS_OBJECT || Z_OBJCE_P(ring_obj) != dse_line_string_ce) {
+        char *object_name;
+        spprintf(&object_name, 0, "Argument %d", i+1);
+        throw_invalid_argument(ring_obj, object_name, "an instance of Dse\\LineString");
+        efree(object_name);
+        PHP5TO7_MAYBE_EFREE(args);
+        return;
+      }
+
+      // Verify that the ring (linestring) has at least three points.
+      dse_line_string *ring = PHP_DSE_GET_LINE_STRING(ring_obj);
+      HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(ring->points);
+      if (zend_hash_num_elements(points) < 3) {
+        char *object_name;
+        spprintf(&object_name, 0, "Argument %d", i+1);
+        throw_invalid_argument(ring_obj, object_name, "a Dse\\LineString with at least three points");
+        efree(object_name);
+        PHP5TO7_MAYBE_EFREE(args);
+        return;
+      }
+    }
 
     for (i = 0; i < num_args; ++i) {
       zval* line_string = PHP5TO7_ZVAL_ARG(args[i]);
@@ -319,6 +343,31 @@ PHP_METHOD(DsePolygon, rings)
   RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->rings), 1, 0);
 }
 
+PHP_METHOD(DsePolygon, interiorRings)
+{
+  dse_polygon *self = NULL;
+  php5to7_ulong num_key;
+  php5to7_zval *ring_obj;
+  HashTable *rings;
+
+  if (zend_parse_parameters_none() == FAILURE)
+    return;
+
+  self = PHP_DSE_GET_POLYGON(getThis());
+  rings = PHP5TO7_Z_ARRVAL_MAYBE_P(self->rings);
+  array_init(return_value);
+
+  PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(rings, num_key, ring_obj) {
+    if (num_key == 0) {
+      // The first ring is the exterior ring.
+      continue;
+    }
+
+    add_next_index_zval(return_value, ring_obj);
+    Z_TRY_ADDREF_P(ring_obj);
+  } PHP5TO7_ZEND_HASH_FOREACH_END(rings);
+}
+
 PHP_METHOD(DsePolygon, ring)
 {
   ulong index;
@@ -368,6 +417,7 @@ static zend_function_entry dse_polygon_methods[] = {
   PHP_ME(DsePolygon, type, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, exteriorRing, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, rings, arginfo_none, ZEND_ACC_PUBLIC)
+  PHP_ME(DsePolygon, interiorRings, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, ring, arginfo_ring, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, wkt, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(DsePolygon, __toString, arginfo_none, ZEND_ACC_PUBLIC)

@@ -137,7 +137,7 @@ class LineStringTest extends \PHPUnit_Framework_TestCase
     public function comparisonTable()
     {
         // We only need to construct cases for "<" and "==" because the actual test
-        // compares left to right, and right to left (and thus covers >).
+        // compares left to right and right to left (and thus covers >).
         return array(
             // left has fewer points than right
             array(array(2, 3, 3, 4), array(0, 0, 0, 0, 0, 0), -1),
