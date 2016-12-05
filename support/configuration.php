@@ -68,7 +68,8 @@ class Configuration {
     public function __set($property, $value) {
         if (property_exists($this, $property)) {
             // Allow the DSE and version flag to be overridden for features
-            if ($property == "dse" || $property == "prefix" || $property == "version") {
+            if ($property == "dse" || $property == "prefix" || $property == "version" ||
+                $property == "verbose") {
                 if ($property == "version") {
                     if (!is_a($value, 'Cassandra\Version') &&
                         !is_a($value, 'Dse\Version')) {

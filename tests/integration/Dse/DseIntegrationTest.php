@@ -10,5 +10,5 @@
 /**
  * Base class to provide common integration test functionality for DSE testing.
  */
-class DseIntegration extends Integration {
+abstract class DseIntegrationTest extends IntegrationTest {
 }

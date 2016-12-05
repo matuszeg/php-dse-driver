@@ -48,8 +48,8 @@
       "support/configuration.php",
       "support/embedded_ads.php",
       "support/version.php",
-      "tests/integration/Integration.php",
-      "tests/integration/Dse/DseIntegration.php"
+      "tests/integration/IntegrationTest.php",
+      "tests/integration/Dse/DseIntegrationTest.php"
     ],
     "psr-4": {
       "Dse\\": [
