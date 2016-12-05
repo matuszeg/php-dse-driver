@@ -1214,7 +1214,7 @@ DseGraphOptions *build_graph_options(dse_session *session,
                                      session->graph_options.graph_name);
   }
 
-  if (options && PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "read_consistency", sizeof("read_consistentcy"), value)) {
+  if (options && PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "read_consistency", sizeof("read_consistency"), value)) {
     long consistency;
     if (php_cassandra_get_consistency(PHP5TO7_ZVAL_MAYBE_DEREF(value), &consistency TSRMLS_CC) == FAILURE) {
       dse_graph_options_free(graph_options);
@@ -1227,7 +1227,7 @@ DseGraphOptions *build_graph_options(dse_session *session,
                                            session->graph_options.read_consistency);
   }
 
-  if (options && PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "write_consistency", sizeof("write_consistentcy"), value)) {
+  if (options && PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "write_consistency", sizeof("write_consistency"), value)) {
     long consistency;
     if (php_cassandra_get_consistency(PHP5TO7_ZVAL_MAYBE_DEREF(value), &consistency TSRMLS_CC) == FAILURE) {
       dse_graph_options_free(graph_options);
