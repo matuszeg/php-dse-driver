@@ -226,7 +226,7 @@ PHP_METHOD(DseLineString, __construct)
       if (Z_TYPE_P(point_obj) != IS_OBJECT || Z_OBJCE_P(point_obj) != dse_point_ce) {
         char *object_name;
         spprintf(&object_name, 0, "Argument %d", i+1);
-        throw_invalid_argument(point_obj, object_name, "an instance of Dse\\Point");
+        throw_invalid_argument(point_obj, object_name, "an instance of Dse\\Point" TSRMLS_CC);
         efree(object_name);
         PHP5TO7_MAYBE_EFREE(point_args);
         return;

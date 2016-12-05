@@ -17,6 +17,7 @@
 zend_class_entry *dse_polygon_ce = NULL;
 
 #define DSE_POLYGON_TYPE "org.apache.cassandra.db.marshal.PolygonType"
+
 char *polygon_to_wkt(dse_polygon *polygon TSRMLS_DC)
 {
   char *result = NULL;
@@ -264,7 +265,7 @@ PHP_METHOD(DsePolygon, __construct)
       if (Z_TYPE_P(ring_obj) != IS_OBJECT || Z_OBJCE_P(ring_obj) != dse_line_string_ce) {
         char *object_name;
         spprintf(&object_name, 0, "Argument %d", i+1);
-        throw_invalid_argument(ring_obj, object_name, "an instance of Dse\\LineString");
+        throw_invalid_argument(ring_obj, object_name, "an instance of Dse\\LineString" TSRMLS_CC);
         efree(object_name);
         PHP5TO7_MAYBE_EFREE(args);
         return;
@@ -276,7 +277,7 @@ PHP_METHOD(DsePolygon, __construct)
       if (zend_hash_num_elements(points) < 3) {
         char *object_name;
         spprintf(&object_name, 0, "Argument %d", i+1);
-        throw_invalid_argument(ring_obj, object_name, "a Dse\\LineString with at least three points");
+        throw_invalid_argument(ring_obj, object_name, "a Dse\\LineString with at least three points" TSRMLS_CC);
         efree(object_name);
         PHP5TO7_MAYBE_EFREE(args);
         return;
@@ -363,8 +364,8 @@ PHP_METHOD(DsePolygon, interiorRings)
       continue;
     }
 
-    add_next_index_zval(return_value, ring_obj);
-    Z_TRY_ADDREF_P(ring_obj);
+    add_next_index_zval(return_value, PHP5TO7_ZVAL_MAYBE_DEREF(ring_obj));
+    Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_DEREF(ring_obj));
   } PHP5TO7_ZEND_HASH_FOREACH_END(rings);
 }
 
