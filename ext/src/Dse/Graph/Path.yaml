@@ -1,0 +1,53 @@
+---
+Dse\Graph\Path:
+  comment: ""
+  methods:
+    labels:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    objects:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    hasLabel:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    object:
+      comment: ""
+      params:
+        key:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    id:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    label:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    properties:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    property:
+      comment: ""
+      params:
+        key:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+...

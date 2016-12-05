@@ -1,0 +1,46 @@
+---
+Dse\Graph\DefaultVertexProperty:
+  comment: ""
+  methods:
+    __construct:
+      comment: ""
+    name:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    value:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    parent:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    id:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    label:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    properties:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    property:
+      comment: ""
+      params:
+        key:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+...

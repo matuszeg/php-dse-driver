@@ -1,0 +1,22 @@
+---
+Dse\Graph\DefaultProperty:
+  comment: ""
+  methods:
+    __construct:
+      comment: ""
+    name:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    value:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    parent:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+...

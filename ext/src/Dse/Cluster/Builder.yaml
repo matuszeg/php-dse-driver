@@ -1,0 +1,339 @@
+---
+Dse\Cluster\Builder:
+  comment: ""
+  methods:
+    withPlaintextAuthenticator:
+      comment: ""
+      params:
+        username:
+          comment: ""
+          type: mixed
+        password:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withGssapiAuthenticator:
+      comment: ""
+      params:
+        service:
+          comment: ""
+          type: mixed
+        principal:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withGraphLanguage:
+      comment: ""
+      params:
+        language:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withGraphSource:
+      comment: ""
+      params:
+        source:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withGraphName:
+      comment: ""
+      params:
+        name:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withGraphReadConsistency:
+      comment: ""
+      params:
+        consistency:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withGraphWriteConsistency:
+      comment: ""
+      params:
+        consistency:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withGraphRequestTimeout:
+      comment: ""
+      params:
+        request_timeout:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    build:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    withDefaultConsistency:
+      comment: ""
+      params:
+        consistency:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withDefaultPageSize:
+      comment: ""
+      params:
+        pageSize:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withDefaultTimeout:
+      comment: ""
+      params:
+        timeout:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withContactPoints:
+      comment: ""
+      params:
+        host:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withPort:
+      comment: ""
+      params:
+        port:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withRoundRobinLoadBalancingPolicy:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    withDatacenterAwareRoundRobinLoadBalancingPolicy:
+      comment: ""
+      params:
+        localDatacenter:
+          comment: ""
+          type: mixed
+        hostPerRemoteDatacenter:
+          comment: ""
+          type: mixed
+        useRemoteDatacenterForLocalConsistencies:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withBlackListHosts:
+      comment: ""
+      params:
+        hosts:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withWhiteListHosts:
+      comment: ""
+      params:
+        hosts:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withBlackListDCs:
+      comment: ""
+      params:
+        dcs:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withWhiteListDCs:
+      comment: ""
+      params:
+        dcs:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withTokenAwareRouting:
+      comment: ""
+      params:
+        enabled:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withCredentials:
+      comment: ""
+      params:
+        username:
+          comment: ""
+          type: mixed
+        password:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withConnectTimeout:
+      comment: ""
+      params:
+        timeout:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withRequestTimeout:
+      comment: ""
+      params:
+        timeout:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withSSL:
+      comment: ""
+      params:
+        options:
+          comment: ""
+          type: Cassandra\SSLOptions
+      return:
+        comment: ""
+        type: mixed
+    withPersistentSessions:
+      comment: ""
+      params:
+        enabled:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withProtocolVersion:
+      comment: ""
+      params:
+        version:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withIOThreads:
+      comment: ""
+      params:
+        count:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withConnectionsPerHost:
+      comment: ""
+      params:
+        core:
+          comment: ""
+          type: mixed
+        max:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withReconnectInterval:
+      comment: ""
+      params:
+        interval:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withLatencyAwareRouting:
+      comment: ""
+      params:
+        enabled:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withTCPNodelay:
+      comment: ""
+      params:
+        enabled:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withTCPKeepalive:
+      comment: ""
+      params:
+        delay:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withRetryPolicy:
+      comment: ""
+      params:
+        policy:
+          comment: ""
+          type: Cassandra\RetryPolicy
+      return:
+        comment: ""
+        type: mixed
+    withTimestampGenerator:
+      comment: ""
+      params:
+        generator:
+          comment: ""
+          type: Cassandra\TimestampGenerator
+      return:
+        comment: ""
+        type: mixed
+    withSchemaMetadata:
+      comment: ""
+      params:
+        enabled:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+...

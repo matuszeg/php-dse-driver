@@ -1,0 +1,40 @@
+---
+Dse\LineString:
+  comment: ""
+  methods:
+    __construct:
+      comment: ""
+      params:
+        points:
+          comment: ""
+          type: mixed
+    type:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    points:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    point:
+      comment: ""
+      params:
+        index:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    wkt:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    __toString:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+...

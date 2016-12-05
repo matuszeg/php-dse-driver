@@ -1,0 +1,15 @@
+---
+Dse:
+  comment: ""
+  methods:
+    cluster:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    ssl:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+...

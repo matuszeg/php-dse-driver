@@ -1,0 +1,39 @@
+---
+Dse\Point:
+  comment: ""
+  methods:
+    __construct:
+      comment: ""
+      params:
+        x:
+          comment: ""
+          type: mixed
+        "y":
+          comment: ""
+          type: mixed
+    type:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    x:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    "y":
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    wkt:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    __toString:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+...
