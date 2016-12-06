@@ -10,8 +10,6 @@
 /**
  * Base class to provide common integration test functionality for DSE graph
  * testing.
- *
- * @requires DSE >= 5.1.0
  */
 abstract class DseGraphIntegrationTest extends DseIntegrationTest {
     /**

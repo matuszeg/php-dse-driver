@@ -238,13 +238,7 @@ class EmbeddedAds {
     public function stop() {
         // Stop the process and remove the temporary directory
         $this->process->stop(0);
-        foreach(scandir($this->configuration_directory) as $file) {
-            $fullpath = $this->configuration_directory . DIRECTORY_SEPARATOR . $file;
-            if (is_file($fullpath)) {
-                unlink($fullpath);
-            }
-        }
-        rmdir($this->configuration_directory);
+        IntegrationTest::remove_path($this->configuration_directory);
     }
 
     /**

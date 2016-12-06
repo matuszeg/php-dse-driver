@@ -6,6 +6,7 @@ build/
 vendor/
 
 # Files to ignore
+*.hprof
 *.in
 *.lo
 *.log

@@ -567,6 +567,21 @@ class Bridge {
     }
 
     /**
+     * Get the list of IPv4 addresses for the nodes in the active Cassandra/DSE
+     * cluster
+     *
+     * @param bool $all (Optional) True if all nodes IPv4 addresses should be
+     *                             returned; false if only the `UP` nodes
+     *                             (default: true)
+     * @return array Array of IPv4 addresses
+     */
+    public function ip_addresses($all = true) {
+        $ip_addresses = explode(",", $this->contact_points($all));
+        sort($ip_addresses);
+        return $ip_addresses;
+    }
+
+    /**
      * Check to see if the active cluster is no longer accepting connections
      *
      * NOTE: This method may check the status of the nodes in the cluster
@@ -907,11 +922,12 @@ class Bridge {
      * @return bool True if node is up; false otherwise
      */
     public function start_node($node, $jvm_arguments = array()) {
-        $start_node_command[] = array();
+        $start_node_command = array();
         $start_node_command[] = "node{$node}";
-        $start_node_command[] = $this->generate_start_command($jvm_arguments);
-        call_user_func_array(array($this, "execute_ccm_command"),
+        $start_node_command = array_merge($start_node_command,
             $this->generate_start_command($jvm_arguments));
+        call_user_func_array(array($this, "execute_ccm_command"),
+            $start_node_command);
         return $this->is_node_up($node);
     }
 

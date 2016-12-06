@@ -58,7 +58,7 @@ class IntegrationTestFixture {
         }
 
         // Display information about the current setup for the tests being run
-        echo "Starting DataStax PHP Driver Integration Test" . PHP_EOL
+        echo PHP_EOL . "Starting DataStax PHP Driver Integration Test" . PHP_EOL
             . "  PHP v" . phpversion() . PHP_EOL
             . "  Cassandra driver v" . \Cassandra::VERSION . PHP_EOL
             . "  DSE driver v" . \Dse::VERSION . PHP_EOL
@@ -71,6 +71,9 @@ class IntegrationTestFixture {
 
         // Clear any clusters that may have been left over from previous tests
         $this->ccm->remove_clusters();
+
+        // Remove the log file(s)
+        IntegrationTest::remove_path("logs");
     }
 }
 
@@ -128,9 +131,9 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      */
     protected $keyspace;
     /**
-     * @var string Replication factor override; default is calculated based on
-     *             number of data center nodes; single data center is
-     *             (nodes / 2) rounded up
+     * @var int Replication factor override; default is calculated based on
+     *          number of data center nodes; single data center is (nodes / 2)
+     *          rounded up
      */
     protected $replication_factor = 0;
     /**
@@ -177,6 +180,31 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Remove all files and directories from a path
+     *
+     * @param $path Path to remove all files and directories from
+     */
+    public static function remove_path($path) {
+        // Iterate over each element in the path and remove all elements
+        if (file_exists($path)) {
+            // Read the contents of the path (removing unnecessary paths)
+            $files = array_diff(scandir($path), array('..', '.'));
+            foreach ($files as $file) {
+                // Determine if the file should be deleted or the directory
+                $full_path = $path . DIRECTORY_SEPARATOR . $file;
+                if (is_file($full_path)) {
+                    @unlink($full_path);
+                } else if (is_dir($full_path)) {
+                    self::remove_path($full_path);
+                }
+            }
+
+            // Remove the path
+            @rmdir($path);
+        }
+    }
+
+    /**
      * Add custom @requires for specific Cassandra/DSE version requirements
      *
      * NOTE: If server configuration is using DSE and requirement is for
@@ -192,6 +220,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     protected function checkRequirements() {
         parent::checkRequirements();
 
+        // Get all the annotations for the test being performed
         $annotations = $this->getAnnotations();
         foreach (array("class", "method") as $depth) {
             // Short circuit if no annotation are available
@@ -241,6 +270,9 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      * @inheritdoc
      */
     public function setUp() {
+        // Initialize the logger for the current test
+        $this->initialize_logger();
+
         // Determine if the data center nodes should be initialized (default 1 node)
         if (count(self::$cluster_configuration->data_centers) == 0) {
             self::$cluster_configuration->add_data_center();
@@ -248,6 +280,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
         // Generate the keyspace name; apply unique id if keyspace is to long
         $this->keyspace = $this->get_short_name() . "_" . $this->getName(false);
+        $this->keyspace = str_replace("test", "", strtolower($this->keyspace));
         if (strlen($this->keyspace) > self::KEYSPACE_MAXIMUM_LENGTH) {
             // Update the keyspace name with a unique ID
             $unique_id = uniqid();
@@ -255,7 +288,6 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                     0, self::KEYSPACE_MAXIMUM_LENGTH - strlen($unique_id)) .
                 $unique_id;
         }
-        $this->keyspace = str_replace("test", "", strtolower($this->keyspace));
 
         // Generate the table name
         $this->table = str_replace("test", "", strtolower($this->getName(false)));
@@ -289,11 +321,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         if ($this->start_cluster) {
             $this->start_server_cluster();
             if ($this->create_session) {
-                // Establish the session connection
-                $this->cluster = $this->default_cluster();
-                $connection = $this->connect_cluster();
-                $this->session = $connection["session"];
-                $this->server_version = $connection["version"];
+                $this->establish_default_connection();
             }
         }
     }
@@ -302,12 +330,18 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      * @inheritdoc
      */
     protected function tearDown() {
-        // Drop keyspace for integration test (may or may have not been created)
+        // Drop keyspace and close session for the integration test
         if (!is_null($this->session)) {
             try {
                 $query = sprintf(self::DROP_KEYSPACE_FORMAT, $this->keyspace);
                 $statement = new \Cassandra\SimpleStatement($query);
                 $this->session->execute($statement);
+            } catch (\Exception $e) {
+                ; // no-op
+            }
+
+            try {
+                $this->session->close();
             } catch (\Exception $e) {
                 ; // no-op
             }
@@ -441,29 +475,97 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Get the default cluster builder
+     *
+     * @param bool $all (Optional) True if all contact should be used; false
+     *                             otherwise (e.g. liveset) (default: true)
+     * @return \Cassandra\Cluster\Builder|\Dse\Cluster\Builder Cassandra or DSE
+     *                                                         cluster builder
+     *
+     * @see \Cassandra\Cluster\Builder
+     * @see \Dse\Cluster\Builder
+     */
+    protected function default_cluster_builder($all = true) {
+        $contact_points = self::$ccm->contact_points($all);
+
+        // Determine if the DSE cluster should be created
+        if (self::$configuration->dse) {
+            $cluster = \Dse::cluster();
+        } else {
+            $cluster = \Cassandra::cluster();
+        }
+
+        // Assign the defaults for the cluster configuration
+        $cluster->withContactPoints($contact_points)
+            ->withPersistentSessions(false)
+            ->withRandomizedContactPoints(false)
+            ->withSchemaMetadata(false);
+        return $cluster;
+    }
+
+    /**
      * Get the default cluster
      *
+     * @param bool $all (Optional) True if all contact should be used; false
+     *                             otherwise (e.g. liveset) (default: true)
      * @return \Cassandra\Cluster|\Dse\Cluster Cassandra or DSE cluster
      *
      * @see \Cassandra\Cluster
      * @see \Dse\Cluster
      */
-    protected function default_cluster() {
-        $contact_points = self::$ccm->contact_points();
-
-        // Determine if the DSE cluster should be created
-        if (self::$configuration->dse) {
-            return \Dse::cluster()
-                ->withContactPoints($contact_points)
-                ->withSchemaMetadata(false)
-                ->build();
-        }
-
-        // Create the default Cassandra cluster
-        return \Cassandra::cluster()
-            ->withContactPoints($contact_points)
-            ->withSchemaMetadata(false)
+    protected function default_cluster($all = true) {
+        return $this->default_cluster_builder($all)
             ->build();
+    }
+
+    /**
+     * Establish the connection; assigns cluster, session, and server
+     * version
+     *
+     * @param \Cassandra\Cluster|\Dse\Cluster Cassandra or DSE cluster
+     *
+     * @see IntegrationTest::cluster
+     * @see IntegrationTest::server_version
+     * @see IntegrationTest::session
+     */
+    protected function establish_connection($cluster) {
+        $this->cluster = $cluster;
+        $connection = $this->connect_cluster($cluster);
+        $this->session = $connection["session"];
+        $this->server_version = $connection["version"];
+    }
+
+    /**
+     * Establish the default connection; assigns cluster, session, and server
+     * version
+     *
+     * @see IntegrationTest::cluster
+     * @see IntegrationTest::server_version
+     * @see IntegrationTest::session
+     */
+    protected function establish_default_connection() {
+        $this->establish_connection($this->default_cluster());
+    }
+
+    /**
+     * Determine if a node is available in teh active cluster
+     *
+     * @param int $node Node to check availability
+     * @return bool True if node is available; false otherwise
+     */
+    protected function wait_for_port_on_node($node, $port) {
+        // Create the remote socket
+        $ip_address = self::$ccm->ip_addresses()[$node - 1];
+        $remote_socket = "tcp://{$ip_address}:{$port}";
+
+        // Attempt to establish connection (timeout = 1s)
+        $connection = @stream_socket_client("{$remote_socket}",
+            $error_code, $error_message, 1);
+        if ($connection) {
+            fclose($connection);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -474,5 +576,20 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     private function get_short_name() {
         $class = new \ReflectionClass($this);
         return $class->name;
+    }
+
+    /**
+     * Initialize/Alter the driver logger configuration to force each test to
+     * utilize its own log file and force the maximum log level
+     */
+    private function initialize_logger() {
+        // Create the directory for the test class (directory may already exist)
+        $log_directory = "logs/{$this->get_short_name()}";
+        @mkdir($log_directory, 0777, true);
+
+        // Assign the logger filename and update the logger level
+        $log_filename = "{$this->getName(false)}.log";
+        ini_alter("dse.log", $log_directory . DIRECTORY_SEPARATOR . $log_filename);
+        ini_alter("dse.log_level", "TRACE");
     }
 }

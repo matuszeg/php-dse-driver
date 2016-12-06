@@ -8,7 +8,9 @@
  */
 
 /**
- * DSE graph consistency integration tests
+ * DSE graph consistency integration tests.
+ *
+ * @requires DSE >= 5.0.0
  */
 class GraphConsistencyTest extends DseGraphIntegrationTest {
     /**
@@ -184,7 +186,6 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      *                  applied
      *
      * @test
-     * @skip
      */
     public function testRead() {
         $this->execute_read(\Cassandra::CONSISTENCY_ONE);
