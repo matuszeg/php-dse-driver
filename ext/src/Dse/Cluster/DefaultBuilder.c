@@ -261,6 +261,27 @@ PHP_METHOD(DseDefaultClusterBuilder, withSchemaMetadata)
                                                      INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
+PHP_METHOD(DseDefaultClusterBuilder, withHostnameResolution)
+{
+  dse_cluster_builder *self = PHP_DSE_GET_CLUSTER_BUILDER(getThis());
+  php_cassandra_cluster_builder_with_hostname_resolution(&self->base,
+                                                         INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+
+PHP_METHOD(DseDefaultClusterBuilder, withRandomizedContactPoints)
+{
+  dse_cluster_builder *self = PHP_DSE_GET_CLUSTER_BUILDER(getThis());
+  php_cassandra_cluster_builder_with_randomized_contact_points(&self->base,
+                                                               INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+
+PHP_METHOD(DseDefaultClusterBuilder, withConnectionHeartbeatInterval)
+{
+  dse_cluster_builder *self = PHP_DSE_GET_CLUSTER_BUILDER(getThis());
+  php_cassandra_cluster_builder_with_connection_heartbeat_interval(&self->base,
+                                                                   INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+
 PHP_METHOD(DseDefaultClusterBuilder, withPlaintextAuthenticator)
 {
   zval *username = NULL;
@@ -491,6 +512,9 @@ static zend_function_entry dse_default_cluster_builder_methods[] = {
   PHP_ME(DseDefaultClusterBuilder, withRetryPolicy, arginfo_retry_policy, ZEND_ACC_PUBLIC)
   PHP_ME(DseDefaultClusterBuilder, withTimestampGenerator, arginfo_timestamp_gen, ZEND_ACC_PUBLIC)
   PHP_ME(DseDefaultClusterBuilder, withSchemaMetadata, arginfo_enabled, ZEND_ACC_PUBLIC)
+  PHP_ME(DseDefaultClusterBuilder, withHostnameResolution, arginfo_enabled, ZEND_ACC_PUBLIC)
+  PHP_ME(DseDefaultClusterBuilder, withRandomizedContactPoints, arginfo_enabled, ZEND_ACC_PUBLIC)
+  PHP_ME(DseDefaultClusterBuilder, withConnectionHeartbeatInterval, arginfo_interval, ZEND_ACC_PUBLIC)
   PHP_ME(DseDefaultClusterBuilder, withPlaintextAuthenticator, arginfo_plaintext_authenticator, ZEND_ACC_PUBLIC)
   PHP_ME(DseDefaultClusterBuilder, withGssapiAuthenticator, arginfo_gssapi_authenticator, ZEND_ACC_PUBLIC)
   PHP_ME(DseDefaultClusterBuilder, withGraphLanguage, arginfo_graph_language, ZEND_ACC_PUBLIC)
