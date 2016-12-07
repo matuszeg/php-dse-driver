@@ -1,25 +1,34 @@
 ---
 Dse\LineString:
   comment: |
-      Encapsulates a set of lines, characterized by a sequence of {Point}s in the xy-plane. It corresponds to the
+      Encapsulates a set of lines, characterized by a sequence of Point's in the xy-plane. It corresponds to the
       `org.apache.cassandra.db.marshal.LineStringType` column type in DSE.
 
-      @see https://en.wikipedia.org/wiki/Well-known_text Wikipedia article on Well Known Text
+      @see https://en.wikipedia.org/wiki/Well-known_text
   methods:
     __construct:
       comment: |
-          Construct a LineString with some {Point}s.
-          @example Create with some points on the fly
+          Construct a LineString with some Point's.
+
+          To create an empty LineString:
+          @code
+              $lineString = new Dse\LineString();
+          @endcode
+          To create with some points on the fly:
+          @code
               $p1 = new Dse\Point(2, 3);
               $p2 = new Dse\Point(4, 5);
               $lineString = new Dse\LineString($p1, $p2);
-          @example Create with an array of points by unrolling into varargs
+          @endcode
+          To create with an array of points by unrolling into varargs:
+          @code
               $points = [new Dse\Point(2, 3), new Dse\Point(4, 5)];
               $lineString = new Dse\LineString(...$points);
+          @endcode
       params:
         points:
-          comment: "varargs-style array of {Point}s"
-          type: Array<Point>
+          comment: "varargs-style array of Point's"
+          type: array
     type:
       comment: ""
       return:
@@ -28,8 +37,8 @@ Dse\LineString:
     points:
       comment: ""
       return:
-        comment: "{Point}s that constitute this LineString"
-        type: Array<Point>
+        comment: "Points that constitute this LineString"
+        type: array
     point:
       comment: ""
       params:
@@ -43,10 +52,10 @@ Dse\LineString:
       comment: ""
       return:
         comment: "the well-known-text representation of this LineString"
-        type: String
+        type: string
     __toString:
       comment: ""
       return:
         comment: "a human-readable string representation of this LineString"
-        type: String
+        type: string
 ...

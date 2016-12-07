@@ -1,6 +1,6 @@
 title:    DataStax Enterprise PHP Driver
 summary:  A native PHP extension to communicate with DataStax Enterprise
-homepage: http://docs.datastax.com/en/developer/php-driver-dse/1.0
+homepage: http://docs.datastax.com/en/developer/php-driver-dse
 theme:    datastax
 sections:
   - title:     Features
@@ -10,7 +10,6 @@ sections:
         files: 'features/**/*.md'
       - type:  gherkin
         files: 'features/**/*.feature'
-
   - title:     API docs
     prefix:    /api
     type:      doxygen
@@ -20,18 +19,18 @@ sections:
       FILE_PATTERNS = *.php
       INPUT_FILTER  = ./doxygen.rb
 links:
-  - title: Binaries
-    href:  http://downloads.datastax.com/php-driver-dse/
-  - title: Docs
-    href:  http://docs.datastax.com/en/developer/php-driver-dse
+#  - title: Binaries
+#    href:  http://downloads.datastax.com/php-driver-dse/
+#  - title: Docs
+#    href:  http://docs.datastax.com/en/developer/php-driver-dse
   - title: Issues
     href:  https://datastax-oss.atlassian.net/browse/PHP/
   - title: Mailing List
     href:  https://groups.google.com/a/lists.datastax.com/forum/#!forum/php-driver-user
   - title: IRC Channel
     href:  irc://irc.freenode.net/datastax-drivers
-  - title: Releases
-    href:  https://github.com/datastax/php-driver-dse-private/releases
+#  - title: Releases
+#    href:  https://github.com/datastax/php-driver-dse-private/releases
 versions:
   - name: v1.0
     ref:  HEAD

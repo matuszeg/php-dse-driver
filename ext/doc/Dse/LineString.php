@@ -9,24 +9,32 @@
 namespace Dse;
 
 /**
- * Encapsulates a set of lines, characterized by a sequence of {Point}s in the xy-plane. It corresponds to the
+ * Encapsulates a set of lines, characterized by a sequence of Point's in the xy-plane. It corresponds to the
  * `org.apache.cassandra.db.marshal.LineStringType` column type in DSE.
- *
- * @see https://en.wikipedia.org/wiki/Well-known_text Wikipedia article on Well Known Text
+ * 
+ * @see https://en.wikipedia.org/wiki/Well-known_text
  */
 final class LineString implements Cassandra\Custom {
 
     /**
-     * Construct a LineString with some {Point}s.
-     * @example Create with some points on the fly
+     * Construct a LineString with some Point's.
+     * 
+     * To create an empty LineString:
+     * @code
+     *     $lineString = new Dse\LineString();
+     * @endcode
+     * To create with some points on the fly:
+     * @code
      *     $p1 = new Dse\Point(2, 3);
      *     $p2 = new Dse\Point(4, 5);
      *     $lineString = new Dse\LineString($p1, $p2);
-     * @example Create with an array of points by unrolling into varargs
+     * @endcode
+     * To create with an array of points by unrolling into varargs:
+     * @code
      *     $points = [new Dse\Point(2, 3), new Dse\Point(4, 5)];
      *     $lineString = new Dse\LineString(...$points);
-     *
-     * @param Array<Point> $points varargs-style array of {Point}s
+     * @endcode
+     * @param array $points varargs-style array of Point's
      */
     public function __construct($points) { }
 
@@ -36,7 +44,7 @@ final class LineString implements Cassandra\Custom {
     public function type() { }
 
     /**
-     * @return Array<Point> {Point}s that constitute this LineString
+     * @return array Points that constitute this LineString
      */
     public function points() { }
 
@@ -47,12 +55,12 @@ final class LineString implements Cassandra\Custom {
     public function point($index) { }
 
     /**
-     * @return String the well-known-text representation of this LineString
+     * @return string the well-known-text representation of this LineString
      */
     public function wkt() { }
 
     /**
-     * @return String a human-readable string representation of this LineString
+     * @return string a human-readable string representation of this LineString
      */
     public function __toString() { }
 
