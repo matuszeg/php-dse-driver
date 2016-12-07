@@ -6,14 +6,14 @@ define("LICENSE_COMMENT", "/*
   license at http://www.datastax.com/terms/datastax-dse-driver-license-terms
 */");
 
-define("DOC_COMMENT_HEADER", "/**\n");
+define("DOC_COMMENT_HEADER", "/**" . PHP_EOL);
 define("DOC_COMMENT_LINE", " * ");
-define("DOC_COMMENT_FOOTER", " */\n");
+define("DOC_COMMENT_FOOTER", " */" . PHP_EOL);
 
-define("PHP_SYNTAX_CHECK", "php -l");
+define("PHP_SYNTAX_CHECK", "php -l -n");
 
 if (count($argv) < 2) {
-    die("Usage: {$argv[0]} <directory>\n");
+    die("Usage: {$argv[0]} <directory>" . PHP_EOL);
 }
 
 define("BASEDIR", $argv[1]);
@@ -49,7 +49,7 @@ function isAlreadyImplementedByBase($current, $implemented) {
 }
 
 function logWarning($message) {
-    fwrite(STDERR, "Warning: $message\n");
+    fwrite(STDERR, "Warning: $message" . PHP_EOL);
 }
 
 function writeCommentDoc($file, $comment, $indent = 0) {
@@ -84,7 +84,7 @@ function writeParameterDoc($doc, $file, $class, $method, $parameter) {
         }
 
         $parameterType = $parameterType ? $parameterType : "mixed";
-        $parameterType = $type ? $type : $parameterType; # Override's builtin if provided
+        $parameterType = $type ? $type : $parameterType; # Overrides builtin if provided
         $commentLine = "@param $parameterType \$$parameterName $comment";
         $commentLine = rtrim($commentLine) . PHP_EOL;
         fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
@@ -302,7 +302,7 @@ foreach ($regex as $fileName => $notused) {
 
         if (!is_dir($namespaceDirectory)) {
             if (!mkdir($namespaceDirectory, 0777, true)) {
-                die("Unable to create directory '$namespaceDirectory'\n");
+                die("Unable to create directory '$namespaceDirectory'" . PHP_EOL);
             }
         }
 
@@ -311,9 +311,9 @@ foreach ($regex as $fileName => $notused) {
         $className = $class->getShortName();
 
         $stubFileName = "$namespaceDirectory/$className.php";
-        echo "Generating stub for '$fullClassName' ($stubFileName)\n";
+        echo "Generating stub for '$fullClassName' ($stubFileName)" . PHP_EOL;
         if(!($file = fopen($stubFileName, "w"))) {
-            die("Unable to create file '$stubFileName'\n");
+            die("Unable to create file '$stubFileName'" . PHP_EOL);
         }
 
         fwrite($file, "<?php" . PHP_EOL);
@@ -339,8 +339,8 @@ foreach ($regex as $fileName => $notused) {
 
         exec(PHP_SYNTAX_CHECK . " $stubFileName", $syntaxCheckOutput, $syntaxCheckReturnVar);
         if ($syntaxCheckReturnVar !== 0) {
-            $syntaxCheckOutput = implode("\n", $syntaxCheckOutput);
-            die("Syntax invalid for '$fullClassName' ($stubFileName): $syntaxCheckOutput\n");
+            $syntaxCheckOutput = implode(PHP_EOL, $syntaxCheckOutput);
+            die("Syntax invalid for '$fullClassName' ($stubFileName): $syntaxCheckOutput" . PHP_EOL);
         }
     } catch(ReflectionException $e) {
         logWarning("Ignoring '$fullClassName': $e");
