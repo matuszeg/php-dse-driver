@@ -53,12 +53,13 @@ function logWarning($message) {
 }
 
 function writeCommentDoc($file, $comment, $indent = 0) {
-    $lines = explode("\n", $comment);
+    $lines = explode(PHP_EOL, $comment);
     if (strlen(end($lines)) == 0) {
         array_pop($lines);
     }
     foreach($lines as $line) {
-        $commentLine = str_pad("", strlen(INDENT) * $indent, INDENT, STR_PAD_LEFT) . DOC_COMMENT_LINE . "$line\n";
+        $commentLine = str_pad("", strlen(INDENT) * $indent, INDENT, STR_PAD_LEFT) . DOC_COMMENT_LINE . "$line";
+        $commentLine = rtrim($commentLine) . PHP_EOL;
         fwrite($file, str_pad($commentLine, $indent, INDENT, STR_PAD_LEFT));
     }
 }
@@ -84,10 +85,12 @@ function writeParameterDoc($doc, $file, $class, $method, $parameter) {
 
         $parameterType = $parameterType ? $parameterType : "mixed";
         $parameterType = $type ? $type : $parameterType; # Override's builtin if provided
-        fwrite($file, INDENT . DOC_COMMENT_LINE . "@param $parameterType \$$parameterName $comment\n");
+        $commentLine = "@param $parameterType \$$parameterName $comment";
+        $commentLine = rtrim($commentLine) . PHP_EOL;
+        fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
     } else {
         $parameterType = $parameterType ? $parameterType : "mixed";
-        fwrite($file, INDENT . DOC_COMMENT_LINE . "@param $parameterType \$$parameterName\n");
+        fwrite($file, INDENT . DOC_COMMENT_LINE . "@param $parameterType \$$parameterName" . PHP_EOL);
         logWarning("Missing parameter '$parameterName' documentation for method '$className.$methodName'");
     }
 }
@@ -112,9 +115,11 @@ function writeReturnDoc($doc, $file, $class, $method) {
         }
 
         $type = $type ? $type : "mixed";
-        fwrite($file, INDENT . DOC_COMMENT_LINE . "@return $type $comment\n");
+        $commentLine = "@return $type $comment";
+        $commentLine = rtrim($commentLine) . PHP_EOL;
+        fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
     } else {
-        fwrite($file, INDENT . DOC_COMMENT_LINE . "@return mixed\n");
+        fwrite($file, INDENT . DOC_COMMENT_LINE . "@return mixed" . PHP_EOL);
         logWarning("Missing 'return' documentation for method '$className.$methodName'");
     }
 }
@@ -138,13 +143,18 @@ function writeMethodDoc($doc, $file, $class, $method) {
         $methodName = $method->getShortName();
         $parameters = $method->getParameters();
 
-        if ($comment) writeCommentDoc($file, $comment, 1);
+        if ($comment) {
+            if (count($parameters) > 0) {
+                $comment .= PHP_EOL;
+            }
+            writeCommentDoc($file, $comment, 1);
+        }
         foreach ($parameters as $parameter) {
             writeParameterDoc($doc, $file, $class, $method, $parameter);
         }
         writeReturnDoc($doc, $file, $class, $method);
     } else {
-        fwrite($file, INDENT . DOC_COMMENT_LINE . "@return mixed\n");
+        fwrite($file, INDENT . DOC_COMMENT_LINE . "@return mixed" . PHP_EOL);
         logWarning("Missing documentation for method '$className.$methodName'");
     }
 
@@ -187,12 +197,12 @@ function writeMethod($doc, $file, $class, $method) {
     }
 
     if ($class->isInterface() || $method->isAbstract()) {
-        fwrite($file, ");\n");
+        fwrite($file, ");" . PHP_EOL);
     } else {
-        fwrite($file, ") { }\n");
+        fwrite($file, ") { }" . PHP_EOL);
     }
 
-    fwrite($file, "\n");
+    fwrite($file, PHP_EOL);
 }
 
 function writeClassDoc($doc, $file, $class) {
@@ -209,7 +219,7 @@ function writeClassDoc($doc, $file, $class) {
             logWarning("Missing 'methods' documentation for class '$className'");
         }
     } else {
-        fwrite($file, DOC_COMMENT_LINE . "\n");
+        fwrite($file, DOC_COMMENT_LINE . PHP_EOL);
         logWarning("Missing documentation for class '$className'");
     }
     fwrite($file, DOC_COMMENT_FOOTER);
@@ -264,8 +274,8 @@ function writeClass($doc, $file, $class) {
         fwrite($file, " ");
     }
 
-    fwrite($file, "{\n");
-    fwrite($file, "\n");
+    fwrite($file, "{" . PHP_EOL);
+    fwrite($file, PHP_EOL);
 
     $methods = $class->getMethods();
     if ($methods) {
@@ -274,7 +284,7 @@ function writeClass($doc, $file, $class) {
         }
     }
 
-    fwrite($file, "}\n");
+    fwrite($file, "}" . PHP_EOL);
 }
 
 $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(SRCDIR));
@@ -306,15 +316,15 @@ foreach ($regex as $fileName => $notused) {
             die("Unable to create file '$stubFileName'\n");
         }
 
-        fwrite($file, "<?php\n");
-        fwrite($file, "\n");
-        fwrite($file, LICENSE_COMMENT . "\n");
-        fwrite($file, "\n");
+        fwrite($file, "<?php" . PHP_EOL);
+        fwrite($file, PHP_EOL);
+        fwrite($file, LICENSE_COMMENT . PHP_EOL);
+        fwrite($file, PHP_EOL);
 
         $namespace = $class->getNamespaceName();
         if ($namespace) {
-            fwrite($file, "namespace $namespace;\n");
-            fwrite($file, "\n");
+            fwrite($file, "namespace $namespace;" . PHP_EOL);
+            fwrite($file, PHP_EOL);
         }
 
         $doc = yaml_parse_file($yamlFileName);

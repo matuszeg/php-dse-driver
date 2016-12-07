@@ -17,127 +17,127 @@ final class Result implements Iterator, ArrayAccess {
     private final function __construct() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function count() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function rewind() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function current() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function key() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function next() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function valid() { }
 
     /**
-     * @param mixed $offset 
-     * @return mixed 
+     * @param mixed $offset
+     * @return mixed
      */
     public function offsetExists($offset) { }
 
     /**
-     * @param mixed $offset 
-     * @return mixed 
+     * @param mixed $offset
+     * @return mixed
      */
     public function offsetGet($offset) { }
 
     /**
-     * @param mixed $offset 
-     * @param mixed $value 
-     * @return mixed 
+     * @param mixed $offset
+     * @param mixed $value
+     * @return mixed
      */
     public function offsetSet($offset, $value) { }
 
     /**
-     * @param mixed $offset 
-     * @return mixed 
+     * @param mixed $offset
+     * @return mixed
      */
     public function offsetUnset($offset) { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function isNull() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function isValue() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function isArray() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function isObject() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function asInt() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function asBool() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function asDouble() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function asString() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function asEdge() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function asPath() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function asVertex() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function asPoint() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function asLineString() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function asPolygon() { }
 

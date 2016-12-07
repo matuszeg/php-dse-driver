@@ -16,8 +16,8 @@ namespace Dse;
 final class Point implements Cassandra\Custom {
 
     /**
-     * @param double $x The x-coordinate of the point
-     * @param double $y The y-coordinate of the point
+     * @param double $x the x-coordinate of the point
+     * @param double $y the y-coordinate of the point
      */
     public function __construct($x, $y) { }
 
@@ -27,22 +27,22 @@ final class Point implements Cassandra\Custom {
     public function type() { }
 
     /**
-     * @return double The x-coordinate of this Point
+     * @return double the x-coordinate of this Point
      */
     public function x() { }
 
     /**
-     * @return double The y-coordinate of this Point
+     * @return double the y-coordinate of this Point
      */
     public function y() { }
 
     /**
-     * @return String The well-known-text representation of this Point
+     * @return String the well-known-text representation of this Point
      */
     public function wkt() { }
 
     /**
-     * @return String A human-readable string representation of this Point
+     * @return String a human-readable string representation of this Point
      */
     public function __toString() { }
 

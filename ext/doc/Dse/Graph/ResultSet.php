@@ -17,62 +17,62 @@ final class ResultSet implements Iterator, ArrayAccess {
     private final function __construct() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function count() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function rewind() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function current() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function key() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function next() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function valid() { }
 
     /**
-     * @param mixed $offset 
-     * @return mixed 
+     * @param mixed $offset
+     * @return mixed
      */
     public function offsetExists($offset) { }
 
     /**
-     * @param mixed $offset 
-     * @return mixed 
+     * @param mixed $offset
+     * @return mixed
      */
     public function offsetGet($offset) { }
 
     /**
-     * @param mixed $offset 
-     * @param mixed $value 
-     * @return mixed 
+     * @param mixed $offset
+     * @param mixed $value
+     * @return mixed
      */
     public function offsetSet($offset, $value) { }
 
     /**
-     * @param mixed $offset 
-     * @return mixed 
+     * @param mixed $offset
+     * @return mixed
      */
     public function offsetUnset($offset) { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function first() { }
 

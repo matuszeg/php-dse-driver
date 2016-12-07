@@ -13,17 +13,17 @@ namespace Dse\Graph;
 interface Property {
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function name();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function value();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function parent();
 

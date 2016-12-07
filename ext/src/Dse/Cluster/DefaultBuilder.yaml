@@ -258,6 +258,49 @@ Dse\Cluster\DefaultBuilder:
       return:
         comment: ""
         type: mixed
+    withHostnameResolution:
+      comment: |
+          Enables/Disables Hostname Resolution.
+
+          If enabled the driver will resolve hostnames for IP addresses using
+          reverse IP lookup. This is useful for authentication (Kerberos) or
+          encryption SSL services that require a valid hostname for verification.
+      params:
+        enabled:
+          comment: "True to use hostname resolution; false otherwise."
+          type: bool
+      return:
+        comment: "self"
+        type: DefaultBuilder
+    withRandomizedContactPoints:
+      comment: |
+          Enable/Disables Randomized Contact Points
+
+          If enabled this allows the driver randomly use contact points in order
+          to evenly spread the load across the cluster and prevent
+          hotspots/load spikes during notifications (e.g. massive schema change).
+
+          Note: This setting should only be disabled for debugging and testing.
+      params:
+        enabled:
+          comment: "True to enable randomized contact points; false otherwise."
+          type: bool
+      return:
+        comment: "self"
+        type: DefaultBuilder
+    withConnectionHeartbeatInterval:
+      comment: |
+          Specify interval in seconds that the driver should wait before attempting
+          to send heartbeat messages and control the amount of time the connection
+          must be idle before sending heartbeat messages. This is useful for
+          preventing intermediate network devices from dropping connections.
+      params:
+        interval:
+          comment: "Interval in seconds (0 to disable)"
+          type: int|float
+      return:
+        comment: "self"
+        type: DefaultBuilder
     withPlaintextAuthenticator:
       comment: ""
       params:

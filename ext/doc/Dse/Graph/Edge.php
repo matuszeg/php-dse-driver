@@ -13,43 +13,43 @@ namespace Dse\Graph;
 abstract class Edge implements Element {
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function inV();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function inVLabel();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function outV();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function outVLabel();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function id();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function label();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function properties();
 
     /**
-     * @param mixed $key 
-     * @return mixed 
+     * @param mixed $key
+     * @return mixed
      */
     public abstract function property($key);
 

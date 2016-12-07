@@ -11,12 +11,12 @@
 class Dse extends Cassandra {
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public static function cluster() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public static function ssl() { }
 

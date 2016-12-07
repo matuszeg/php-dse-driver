@@ -11,7 +11,7 @@ namespace Dse;
 /**
  * Encapsulates a set of lines, characterized by a sequence of {Point}s in the xy-plane. It corresponds to the
  * `org.apache.cassandra.db.marshal.LineStringType` column type in DSE.
- * 
+ *
  * @see https://en.wikipedia.org/wiki/Well-known_text Wikipedia article on Well Known Text
  */
 final class LineString implements Cassandra\Custom {
@@ -25,7 +25,8 @@ final class LineString implements Cassandra\Custom {
      * @example Create with an array of points by unrolling into varargs
      *     $points = [new Dse\Point(2, 3), new Dse\Point(4, 5)];
      *     $lineString = new Dse\LineString(...$points);
-     * @param Array<Point> $points Varargs-style array of {Point}s
+     *
+     * @param Array<Point> $points varargs-style array of {Point}s
      */
     public function __construct($points) { }
 
@@ -46,12 +47,12 @@ final class LineString implements Cassandra\Custom {
     public function point($index) { }
 
     /**
-     * @return String The well-known-text representation of this LineString
+     * @return String the well-known-text representation of this LineString
      */
     public function wkt() { }
 
     /**
-     * @return String A human-readable string representation of this LineString
+     * @return String a human-readable string representation of this LineString
      */
     public function __toString() { }
 

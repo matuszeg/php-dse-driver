@@ -13,23 +13,23 @@ namespace Dse\Graph;
 abstract class Vertex implements Element {
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function id();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function label();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function properties();
 
     /**
-     * @param mixed $key 
-     * @return mixed 
+     * @param mixed $key
+     * @return mixed
      */
     public abstract function property($key);
 

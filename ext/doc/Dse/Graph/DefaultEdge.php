@@ -17,43 +17,43 @@ final class DefaultEdge extends Edge  {
     private final function __construct() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function id() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function label() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function properties() { }
 
     /**
-     * @param mixed $key 
-     * @return mixed 
+     * @param mixed $key
+     * @return mixed
      */
     public function property($key) { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function inV() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function inVLabel() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function outV() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function outVLabel() { }
 

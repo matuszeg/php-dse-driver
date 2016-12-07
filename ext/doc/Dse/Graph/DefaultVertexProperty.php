@@ -17,38 +17,38 @@ final class DefaultVertexProperty extends VertexProperty  {
     private final function __construct() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function name() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function value() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function parent() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function id() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function label() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function properties() { }
 
     /**
-     * @param mixed $key 
-     * @return mixed 
+     * @param mixed $key
+     * @return mixed
      */
     public function property($key) { }
 

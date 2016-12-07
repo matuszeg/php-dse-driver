@@ -13,38 +13,38 @@ namespace Dse\Graph;
 abstract class VertexProperty implements Property, Element {
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function name();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function value();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function parent();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function id();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function label();
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public abstract function properties();
 
     /**
-     * @param mixed $key 
-     * @return mixed 
+     * @param mixed $key
+     * @return mixed
      */
     public abstract function property($key);
 

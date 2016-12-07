@@ -17,17 +17,17 @@ final class DefaultProperty implements Property {
     private final function __construct() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function name() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function value() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function parent() { }
 

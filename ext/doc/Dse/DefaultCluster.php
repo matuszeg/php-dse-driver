@@ -13,15 +13,15 @@ namespace Dse;
 final class DefaultCluster implements Cluster {
 
     /**
-     * @param mixed $keyspace 
-     * @param mixed $timeout 
-     * @return mixed 
+     * @param mixed $keyspace
+     * @param mixed $timeout
+     * @return mixed
      */
     public function connect($keyspace, $timeout) { }
 
     /**
-     * @param mixed $keyspace 
-     * @return mixed 
+     * @param mixed $keyspace
+     * @return mixed
      */
     public function connectAsync($keyspace) { }
 

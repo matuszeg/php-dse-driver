@@ -17,23 +17,23 @@ final class DefaultPath {
     private final function __construct() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function labels() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function objects() { }
 
     /**
-     * @return mixed 
+     * @return mixed
      */
     public function hasLabel() { }
 
     /**
-     * @param mixed $key 
-     * @return mixed 
+     * @param mixed $key
+     * @return mixed
      */
     public function object($key) { }
 
