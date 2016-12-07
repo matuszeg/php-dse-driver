@@ -11,14 +11,14 @@ namespace Dse;
 /**
  * Encapsulates a set of lines, characterized by a sequence of Point's in the xy-plane. It corresponds to the
  * `org.apache.cassandra.db.marshal.LineStringType` column type in DSE.
- * 
+ *
  * @see https://en.wikipedia.org/wiki/Well-known_text
  */
 final class LineString implements Cassandra\Custom {
 
     /**
      * Construct a LineString with some Point's.
-     * 
+     *
      * To create an empty LineString:
      * @code
      *     $lineString = new Dse\LineString();
@@ -34,6 +34,7 @@ final class LineString implements Cassandra\Custom {
      *     $points = [new Dse\Point(2, 3), new Dse\Point(4, 5)];
      *     $lineString = new Dse\LineString(...$points);
      * @endcode
+     *
      * @param array $points varargs-style array of Point's
      */
     public function __construct($points) { }
