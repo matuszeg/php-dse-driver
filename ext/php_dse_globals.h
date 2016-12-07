@@ -1,10 +1,12 @@
 #ifndef PHP_DSE_GLOBALS_H
 #define PHP_DSE_GLOBALS_H
 
-#define PHP_DRIVER_EXTRA_MODULE_GLOBALS \
-  php5to7_zval  type_line_string;       \
-  php5to7_zval  type_point;             \
-  php5to7_zval  type_polygon;
+#define PHP_DRIVER_EXTRA_MODULE_GLOBALS        \
+  php5to7_zval           type_line_string;     \
+  php5to7_zval           type_point;           \
+  php5to7_zval           type_polygon;         \
+  DseLineStringIterator *iterator_line_string; \
+  DsePolygonIterator    *iterator_polygon;
 
 #include "php_driver_globals.h"
 

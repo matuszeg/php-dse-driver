@@ -116,6 +116,54 @@ char *polygon_to_string(dse_polygon *polygon TSRMLS_DC)
   return result;
 }
 
+int php_dse_polygon_construct_from_iterator(DsePolygonIterator* iterator,
+                                            zval *return_value TSRMLS_DC)
+{
+  dse_polygon *polygon;
+  size_t i, num_rings;
+  HashTable *line_strings;
+
+  object_init_ex(return_value, dse_polygon_ce);
+  polygon = PHP_DSE_GET_POLYGON(return_value);
+  line_strings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
+  num_rings = dse_polygon_iterator_num_rings(iterator);
+
+  for (i = 0; i < num_rings; ++i) {
+    php5to7_zval zline_string;
+    dse_line_string *line_string;
+    cass_uint32_t j, num_points;
+    HashTable *points;
+
+    PHP5TO7_ZVAL_MAYBE_MAKE(zline_string);
+    object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zline_string), dse_line_string_ce);
+    line_string = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_P(zline_string));
+    points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
+    PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(line_strings,
+                                        PHP5TO7_ZVAL_MAYBE_P(zline_string),
+                                        sizeof(zval *));
+
+    ASSERT_SUCCESS_VALUE(dse_polygon_iterator_next_num_points(iterator, &num_points),
+                         FAILURE);
+
+    for (j = 0; j < num_points; ++j) {
+      php5to7_zval zpoint;
+      dse_point *point;
+
+      PHP5TO7_ZVAL_MAYBE_MAKE(zpoint);
+      object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zpoint), dse_point_ce);
+      point = PHP_DSE_GET_POINT(PHP5TO7_ZVAL_MAYBE_P(zpoint));
+      PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(points,
+                                          PHP5TO7_ZVAL_MAYBE_P(zpoint),
+                                          sizeof(zval *));
+
+      ASSERT_SUCCESS_VALUE(dse_polygon_iterator_next_point(iterator, &point->x, &point->y),
+                           FAILURE);
+    }
+  }
+
+  return SUCCESS;
+}
+
 static DsePolygon *
 build_polygon(HashTable *line_strings TSRMLS_DC)
 {
@@ -191,9 +239,7 @@ marshal_bind_by_name(CassStatement *statement, const char *name, zval *value TSR
 static int
 marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
 {
-  dse_polygon *polygon;
-  size_t i, num_rings;
-  HashTable *line_strings;
+  int rc;
   DsePolygonIterator* iterator = dse_polygon_iterator_new();
 
   ASSERT_SUCCESS_BLOCK(dse_polygon_iterator_reset(iterator, value),
@@ -201,49 +247,10 @@ marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
                        return FAILURE;
   );
 
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_DEREF(out), dse_polygon_ce);
-  polygon = PHP_DSE_GET_POLYGON(PHP5TO7_ZVAL_MAYBE_DEREF(out));
-  line_strings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
-  num_rings = dse_polygon_iterator_num_rings(iterator);
-
-  for (i = 0; i < num_rings; ++i) {
-    php5to7_zval zline_string;
-    dse_line_string *line_string;
-    cass_uint32_t j, num_points;
-    HashTable *points;
-
-    PHP5TO7_ZVAL_MAYBE_MAKE(zline_string);
-    object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zline_string), dse_line_string_ce);
-    line_string = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_P(zline_string));
-    points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
-    PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(line_strings,
-                                        PHP5TO7_ZVAL_MAYBE_P(zline_string),
-                                        sizeof(zval *));
-
-    ASSERT_SUCCESS_BLOCK(dse_polygon_iterator_next_num_points(iterator, &num_points),
-                         dse_polygon_iterator_free(iterator);
-                         return FAILURE;
-    );
-
-    for (j = 0; j < num_points; ++j) {
-      php5to7_zval zpoint;
-      dse_point *point;
-
-      PHP5TO7_ZVAL_MAYBE_MAKE(zpoint);
-      object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zpoint), dse_point_ce);
-      point = PHP_DSE_GET_POINT(PHP5TO7_ZVAL_MAYBE_P(zpoint));
-      PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(points,
-                                          PHP5TO7_ZVAL_MAYBE_P(zpoint),
-                                          sizeof(zval *));
-
-      ASSERT_SUCCESS_BLOCK(dse_polygon_iterator_next_point(iterator, &point->x, &point->y),
-                           dse_polygon_iterator_free(iterator);
-                           return FAILURE;
-      );
-    }
-  }
-
-  return SUCCESS;
+  rc = php_dse_polygon_construct_from_iterator(iterator,
+                                               PHP5TO7_ZVAL_MAYBE_DEREF(out) TSRMLS_CC);
+  dse_polygon_iterator_free(iterator);
+  return rc;
 }
 
 PHP_METHOD(DsePolygon, __construct)

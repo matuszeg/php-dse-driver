@@ -34,16 +34,14 @@ php_dse_graph_result_set_build(CassFuture *future, zval *return_value TSRMLS_DC)
     }
 
     PHP5TO7_ZVAL_MAYBE_MAKE(result);
-    if (php_dse_graph_result_build(graph_result,
-                                   PHP5TO7_ZVAL_MAYBE_P(result) TSRMLS_CC) == FAILURE) {
+    if (php_dse_graph_result_construct(graph_result,
+                                       PHP5TO7_ZVAL_MAYBE_P(result) TSRMLS_CC) == FAILURE) {
       PHP5TO7_ZVAL_MAYBE_DESTROY(result);
       return FAILURE;
     }
 
-    if (!PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(PHP5TO7_Z_ARRVAL_MAYBE_P(result_set->results),
-                                             PHP5TO7_ZVAL_MAYBE_P(result), sizeof(zval *))) {
-      PHP5TO7_ZVAL_MAYBE_DESTROY(result);
-    }
+    PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(PHP5TO7_Z_ARRVAL_MAYBE_P(result_set->results),
+                                        PHP5TO7_ZVAL_MAYBE_P(result), sizeof(zval *));
   }
 
   return SUCCESS;

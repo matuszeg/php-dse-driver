@@ -77,11 +77,17 @@ PHP_INI_END()
 static PHP_GINIT_FUNCTION(php_driver)
 {
   php_cassandra_ginit(TSRMLS_C);
+
+  DSE_G(iterator_line_string) = dse_line_string_iterator_new();
+  DSE_G(iterator_polygon) = dse_polygon_iterator_new();
 }
 
 static PHP_GSHUTDOWN_FUNCTION(php_driver)
 {
   php_cassandra_gshutdown(TSRMLS_C);
+
+  dse_line_string_iterator_free(DSE_G(iterator_line_string));
+  dse_polygon_iterator_free(DSE_G(iterator_polygon));
 }
 
 PHP_MINIT_FUNCTION(dse)

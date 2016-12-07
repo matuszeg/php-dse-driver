@@ -1,6 +1,7 @@
 #include "php_dse.h"
 #include "php_dse_globals.h"
 #include "php_dse_types.h"
+#include "LineString.h"
 #include "Point.h"
 
 // For php_cassandra_value_compare
@@ -81,9 +82,7 @@ marshal_bind_by_name(CassStatement *statement, const char *name, zval *value TSR
 static int
 marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
 {
-  dse_line_string *line_string;
-  size_t i, num_points;
-  HashTable *points;
+  int rc;
   DseLineStringIterator* iterator = dse_line_string_iterator_new();
 
   ASSERT_SUCCESS_BLOCK(dse_line_string_iterator_reset(iterator, value),
@@ -91,30 +90,10 @@ marshal_get_result(const CassValue *value, php5to7_zval *out TSRMLS_DC)
                        return FAILURE;
   );
 
-  object_init_ex(PHP5TO7_ZVAL_MAYBE_DEREF(out), dse_line_string_ce);
-  line_string = PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_DEREF(out));
-  points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
-
-  num_points = dse_line_string_iterator_num_points(iterator);
-
-  for (i = 0; i < num_points; ++i) {
-    php5to7_zval zpoint;
-    dse_point *point;
-
-    PHP5TO7_ZVAL_MAYBE_MAKE(zpoint);
-    object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zpoint), dse_point_ce);
-    point = PHP_DSE_GET_POINT(PHP5TO7_ZVAL_MAYBE_P(zpoint));
-    PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(points,
-                                        PHP5TO7_ZVAL_MAYBE_P(zpoint),
-                                        sizeof(zval *));
-
-    ASSERT_SUCCESS_BLOCK(dse_line_string_iterator_next_point(iterator, &point->x, &point->y),
-                         dse_line_string_iterator_free(iterator);
-                         return FAILURE;
-    );
-  }
-
-  return SUCCESS;
+  rc = php_dse_line_string_construct_from_iterator(iterator,
+                                                   PHP5TO7_ZVAL_MAYBE_DEREF(out) TSRMLS_CC);
+  dse_line_string_iterator_free(iterator);
+  return rc;
 }
 
 char *line_string_to_wkt(dse_line_string *line_string TSRMLS_DC)
@@ -196,6 +175,37 @@ char *line_string_to_string(dse_line_string *line_string TSRMLS_DC)
     *result = '\0';
   }
   return result;
+}
+
+int php_dse_line_string_construct_from_iterator(DseLineStringIterator* iterator,
+                                                zval *return_value TSRMLS_DC)
+{
+  dse_line_string *line_string;
+  size_t i, num_points;
+  HashTable *points;
+
+  object_init_ex(return_value, dse_line_string_ce);
+  line_string = PHP_DSE_GET_LINE_STRING(return_value);
+  points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
+
+  num_points = dse_line_string_iterator_num_points(iterator);
+
+  for (i = 0; i < num_points; ++i) {
+    php5to7_zval zpoint;
+    dse_point *point;
+
+    PHP5TO7_ZVAL_MAYBE_MAKE(zpoint);
+    object_init_ex(PHP5TO7_ZVAL_MAYBE_P(zpoint), dse_point_ce);
+    point = PHP_DSE_GET_POINT(PHP5TO7_ZVAL_MAYBE_P(zpoint));
+    PHP5TO7_ZEND_HASH_NEXT_INDEX_INSERT(points,
+                                        PHP5TO7_ZVAL_MAYBE_P(zpoint),
+                                        sizeof(zval *));
+
+    ASSERT_SUCCESS_VALUE(dse_line_string_iterator_next_point(iterator, &point->x, &point->y),
+                         FAILURE);
+  }
+
+  return SUCCESS;
 }
 
 PHP_METHOD(DseLineString, __construct)

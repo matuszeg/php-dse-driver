@@ -1,30 +1,70 @@
 #include "php_dse.h"
 #include "php_dse_types.h"
+#include "php_dse_globals.h"
 
 #include <Zend/zend_operators.h>
 
 #include "DefaultEdge.h"
 #include "DefaultPath.h"
 #include "DefaultVertex.h"
+#include "../LineString.h"
+#include "../Polygon.h"
 
 zend_class_entry *dse_graph_result_ce = NULL;
 
+static int
+parse_string(const DseGraphResult *graph_result, zval* return_value TSRMLS_DC)
+{
+  CassError rc;
+  double x, y;
+  size_t len;
+  const char *str;
+
+  rc = dse_graph_result_as_point(graph_result, &x, &y);
+  if (rc == CASS_OK) {
+    dse_point *point;
+
+    object_init_ex(return_value, dse_point_ce);
+    point = PHP_DSE_GET_POINT(return_value);
+    point->x = x;
+    point->y = y;
+
+    return SUCCESS;
+  }
+
+  rc = dse_graph_result_as_line_string(graph_result, DSE_G(iterator_line_string));
+  if (rc == CASS_OK) {
+    return php_dse_line_string_construct_from_iterator(DSE_G(iterator_line_string),
+                                                       return_value TSRMLS_CC);
+  }
+
+  rc = dse_graph_result_as_polygon(graph_result, DSE_G(iterator_polygon));
+  if (rc == CASS_OK) {
+    return php_dse_polygon_construct_from_iterator(DSE_G(iterator_polygon),
+                                                   return_value TSRMLS_CC);
+  }
+
+  str = dse_graph_result_get_string(graph_result, &len);
+  PHP5TO7_ZVAL_STRINGL(return_value, str, len);
+
+  return SUCCESS;
+}
+
 int
-php_dse_graph_result_build(const DseGraphResult *graph_result,
-                           zval *return_value TSRMLS_DC)
+php_dse_graph_result_construct(const DseGraphResult *graph_result,
+                               zval *return_value TSRMLS_DC)
 {
   dse_graph_result *result;
   size_t i, count;
-  DseGraphResultType type = dse_graph_result_type(graph_result);
 
   object_init_ex(return_value, dse_graph_result_ce);
   result = PHP_DSE_GET_GRAPH_RESULT(return_value);
 
   PHP5TO7_ZVAL_MAYBE_MAKE(result->value);
 
-  result->type = type;
+  result->type = dse_graph_result_type(graph_result);
 
-  switch (type) {
+  switch (result->type) {
   case DSE_GRAPH_RESULT_TYPE_NULL:
     ZVAL_NULL(PHP5TO7_ZVAL_MAYBE_P(result->value));
     break;
@@ -48,8 +88,10 @@ php_dse_graph_result_build(const DseGraphResult *graph_result,
     break;
 
   case DSE_GRAPH_RESULT_TYPE_STRING:
-    PHP5TO7_ZVAL_STRING(PHP5TO7_ZVAL_MAYBE_P(result->value),
-                        dse_graph_result_get_string(graph_result, NULL));
+    if (parse_string(graph_result,
+                     PHP5TO7_ZVAL_MAYBE_P(result->value) TSRMLS_CC) == FAILURE) {
+      return FAILURE;
+    }
     break;
 
   case DSE_GRAPH_RESULT_TYPE_OBJECT:
@@ -58,8 +100,8 @@ php_dse_graph_result_build(const DseGraphResult *graph_result,
     for (i = 0; i < count; ++i) {
       php5to7_zval value;
       PHP5TO7_ZVAL_MAYBE_MAKE(value);
-      if (php_dse_graph_result_build(dse_graph_result_member_value(graph_result, i),
-                                     PHP5TO7_ZVAL_MAYBE_P(value) TSRMLS_CC) == FAILURE) {
+      if (php_dse_graph_result_construct(dse_graph_result_member_value(graph_result, i),
+                                         PHP5TO7_ZVAL_MAYBE_P(value) TSRMLS_CC) == FAILURE) {
         PHP5TO7_ZVAL_MAYBE_DESTROY(value);
         return FAILURE;
       }
@@ -75,8 +117,8 @@ php_dse_graph_result_build(const DseGraphResult *graph_result,
     for (i = 0; i < count; ++i) {
       php5to7_zval value;
       PHP5TO7_ZVAL_MAYBE_MAKE(value);
-      if (php_dse_graph_result_build(dse_graph_result_element(graph_result, i),
-                                     PHP5TO7_ZVAL_MAYBE_P(value) TSRMLS_CC) == FAILURE) {
+      if (php_dse_graph_result_construct(dse_graph_result_element(graph_result, i),
+                                         PHP5TO7_ZVAL_MAYBE_P(value) TSRMLS_CC) == FAILURE) {
         PHP5TO7_ZVAL_MAYBE_DESTROY(value);
         return FAILURE;
       }
