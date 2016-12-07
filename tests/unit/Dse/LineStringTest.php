@@ -71,11 +71,7 @@ class LineStringTest extends \PHPUnit_Framework_TestCase
         $p3 = new Point(5, 8);
         $lineString = new LineString($p1, $p2, $p3);
         $this->assertEquals(array($p1, $p2, $p3), $lineString->points());
-        // The following assert is commented out because it causes the test suite to eventually
-        // complete with this:
-        //   zend_mm_heap corrupted
-        //   Segmentation fault: 11
-//        $this->assertEquals("org.apache.cassandra.db.marshal.LineStringType", $lineString->type()->name());
+        $this->assertEquals("org.apache.cassandra.db.marshal.LineStringType", $lineString->type()->name());
     }
 
     public function testPointsImmediate()

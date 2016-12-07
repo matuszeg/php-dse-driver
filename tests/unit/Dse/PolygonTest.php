@@ -94,11 +94,7 @@ Interior rings:
 
         $polygon = new Polygon($exteriorRing, $interiorRing1, $interiorRing2);
         $this->assertEquals(array($exteriorRing, $interiorRing1, $interiorRing2), $polygon->rings());
-        // The following assert is commented out because it causes the test suite to eventually
-        // complete with this:
-        //   zend_mm_heap corrupted
-        //   Segmentation fault: 11
-//        $this->assertEquals("org.apache.cassandra.db.marshal.PolygonType", $polygon->type()->name());
+        $this->assertEquals("org.apache.cassandra.db.marshal.PolygonType", $polygon->type()->name());
     }
 
     public function testInteriorRings()

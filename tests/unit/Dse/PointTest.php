@@ -53,11 +53,7 @@ class PointTest extends \PHPUnit_Framework_TestCase
         $point = new Point(3.5, 2.5);
         $this->assertEquals(3.5, $point->x());
         $this->assertEquals(2.5, $point->y());
-        // The following assert is commented out because it causes the test suite to eventually
-        // complete with this:
-        //   zend_mm_heap corrupted
-        //   Segmentation fault: 11
-//        $this->assertEquals("org.apache.cassandra.db.marshal.PointType", $point->type()->name());
+        $this->assertEquals("org.apache.cassandra.db.marshal.PointType", $point->type()->name());
     }
 
     /**
