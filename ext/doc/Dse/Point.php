@@ -9,37 +9,40 @@
 namespace Dse;
 
 /**
+ * Encapsulates a 2D point with x,y coordinates. It corresponds to the `org.apache.cassandra.db.marshal.PointType`
+ * column type in DSE.
+ * @see https://en.wikipedia.org/wiki/Well-known_text Wikipedia article on Well Known Text"
  */
 final class Point implements Cassandra\Custom {
 
     /**
-     * @param mixed $x 
-     * @param mixed $y 
+     * @param double $x The x-coordinate of the point
+     * @param double $y The y-coordinate of the point
      */
     public function __construct($x, $y) { }
 
     /**
-     * @return mixed 
+     * @return Cassandra\Type\Custom the Cassandra custom type for Point
      */
     public function type() { }
 
     /**
-     * @return mixed 
+     * @return double The x-coordinate of this Point
      */
     public function x() { }
 
     /**
-     * @return mixed 
+     * @return double The y-coordinate of this Point
      */
     public function y() { }
 
     /**
-     * @return mixed 
+     * @return String The well-known-text representation of this Point
      */
     public function wkt() { }
 
     /**
-     * @return mixed 
+     * @return String A human-readable string representation of this Point
      */
     public function __toString() { }
 
