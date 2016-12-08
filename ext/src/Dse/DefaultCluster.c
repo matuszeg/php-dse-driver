@@ -123,6 +123,7 @@ php_dse_default_cluster_new(zend_class_entry *ce TSRMLS_DC)
       PHP5TO7_ZEND_OBJECT_ECALLOC(dse_cluster, ce);
 
   php_cassandra_cluster_init(&self->base);
+  smart_str_appends(&self->base.hash_key, "dse");
   php_dse_graph_options_init(&self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(dse_cluster, dse_default_cluster, self, ce);

@@ -35,13 +35,45 @@ PHP_METHOD(DseDefaultClusterBuilder, build)
                     PHP5TO7_ZVAL_MAYBE_P(builder_base->default_timeout));
 
   if (builder_base->persist) {
-    php_cassandra_cluster_builder_generate_hash_key(builder_base,
-                                                    &cluster_base->hash_key,
-                                                    &cluster_base->hash_key_len);
+    smart_str *hash_key = &cluster_base->hash_key;
+    php_cassandra_cluster_builder_generate_hash_key(builder_base, hash_key);
+
+    smart_str_appendc(hash_key, ':');
+    smart_str_appends(hash_key, SAFE_STR(self->plaintext_username));
+
+    smart_str_appendc(hash_key, ':');
+    smart_str_appends(hash_key, SAFE_STR(self->plaintext_password));
+
+    smart_str_appendc(hash_key, ':');
+    smart_str_appends(hash_key, SAFE_STR(self->gssapi_service));
+
+    smart_str_appendc(hash_key, ':');
+    smart_str_appends(hash_key, SAFE_STR(self->gssapi_principal));
+
+    smart_str_appendc(hash_key, ':');
+    smart_str_appends(hash_key, SAFE_STR(self->graph_options.graph_language));
+
+    smart_str_appendc(hash_key, ':');
+    smart_str_appends(hash_key, SAFE_STR(self->graph_options.graph_source));
+
+    smart_str_appendc(hash_key, ':');
+    smart_str_appends(hash_key, SAFE_STR(self->graph_options.graph_name));
+
+    smart_str_appendc(hash_key, ':');
+    smart_str_append_long(hash_key, self->graph_options.read_consistency);
+
+    smart_str_appendc(hash_key, ':');
+    smart_str_append_long(hash_key, self->graph_options.write_consistency);
+
+    smart_str_appendc(hash_key, ':');
+    smart_str_append_long(hash_key, self->graph_options.request_timeout);
+
+    smart_str_0(hash_key);
 
     cluster_base->cluster = php_cassandra_cluster_builder_get_cache(builder_base,
-                                                                    cluster_base->hash_key,
-                                                                    cluster_base->hash_key_len TSRMLS_CC);
+                                                                    PHP5TO7_SMART_STR_VAL(cluster_base->hash_key),
+                                                                    PHP5TO7_SMART_STR_LEN(cluster_base->hash_key) TSRMLS_CC);
+
     if (cluster_base->cluster) {
       return;
     }
@@ -65,8 +97,8 @@ PHP_METHOD(DseDefaultClusterBuilder, build)
 
   if (builder_base->persist) {
     php_cassandra_cluster_builder_add_cache(builder_base,
-                                            cluster_base->hash_key,
-                                            cluster_base->hash_key_len,
+                                            PHP5TO7_SMART_STR_VAL(cluster_base->hash_key),
+                                            PHP5TO7_SMART_STR_LEN(cluster_base->hash_key),
                                             cluster_base->cluster TSRMLS_CC);
   }
 }
