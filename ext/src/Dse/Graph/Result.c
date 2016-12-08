@@ -8,6 +8,7 @@
 #include "DefaultPath.h"
 #include "DefaultVertex.h"
 #include "../LineString.h"
+#include "../Point.h"
 #include "../Polygon.h"
 
 zend_class_entry *dse_graph_result_ce = NULL;
@@ -48,6 +49,27 @@ parse_string(const DseGraphResult *graph_result, zval* return_value TSRMLS_DC)
   PHP5TO7_ZVAL_STRINGL(return_value, str, len);
 
   return SUCCESS;
+}
+
+void
+to_string(dse_graph_result *result, zval *return_value TSRMLS_DC)
+{
+  if (instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(result->value), dse_point_ce TSRMLS_CC)) {
+    char* wkt = point_to_wkt(PHP_DSE_GET_POINT(PHP5TO7_ZVAL_MAYBE_P(result->value)));
+    PHP5TO7_RETVAL_STRING(wkt);
+    efree(wkt);
+  } else if (instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(result->value), dse_line_string_ce TSRMLS_CC)) {
+    char* wkt = line_string_to_wkt(PHP_DSE_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_P(result->value)) TSRMLS_CC);
+    PHP5TO7_RETVAL_STRING(wkt);
+    efree(wkt);
+  } else if (instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(result->value), dse_polygon_ce TSRMLS_CC)) {
+    char* wkt = polygon_to_wkt(PHP_DSE_GET_POLYGON(PHP5TO7_ZVAL_MAYBE_P(result->value)) TSRMLS_CC);
+    PHP5TO7_RETVAL_STRING(wkt);
+    efree(wkt);
+  } else {
+    RETVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(result->value), 1, 0);
+    convert_to_string(return_value);
+  }
 }
 
 int
@@ -136,13 +158,6 @@ php_dse_graph_result_construct(const DseGraphResult *graph_result,
   return SUCCESS;
 }
 
-PHP_METHOD(DseGraphResult, __construct)
-{
-  zend_throw_exception_ex(cassandra_logic_exception_ce, 0 TSRMLS_CC,
-                          "Instantiation of a Dse\\Graph\\Result objects directly is not supported.");
-  return;
-}
-
 static int
 check_array(dse_graph_result *result, const char* message TSRMLS_DC) {
   if ((result->type != DSE_GRAPH_RESULT_TYPE_ARRAY &&
@@ -166,6 +181,25 @@ get_arrval(INTERNAL_FUNCTION_PARAMETERS)
   }
 
   return PHP5TO7_Z_ARRVAL_MAYBE_P(self->value);
+}
+
+PHP_METHOD(DseGraphResult, __construct)
+{
+  zend_throw_exception_ex(cassandra_logic_exception_ce, 0 TSRMLS_CC,
+                          "Instantiation of a Dse\\Graph\\Result objects directly is not supported.");
+  return;
+}
+
+PHP_METHOD(DseGraphResult, __toString)
+{
+  dse_graph_result *self = NULL;
+
+  if (zend_parse_parameters_none() == FAILURE)
+    return;
+
+  self = PHP_DSE_GET_GRAPH_RESULT(getThis());
+
+  to_string(self, return_value TSRMLS_CC);
 }
 
 PHP_METHOD(DseGraphResult, count)
@@ -457,8 +491,7 @@ PHP_METHOD(DseGraphResult, asString)
 
   self = PHP_DSE_GET_GRAPH_RESULT(getThis());
 
-  RETVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
-  convert_to_string(return_value);
+  to_string(self, return_value TSRMLS_CC);
 }
 
 PHP_METHOD(DseGraphResult, asEdge)
@@ -523,20 +556,53 @@ PHP_METHOD(DseGraphResult, asVertex)
 
 PHP_METHOD(DseGraphResult, asPoint)
 {
-  /* TODO: Implement */
-  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+  dse_graph_result *self = NULL;
+
+  if (zend_parse_parameters_none() == FAILURE)
+    return;
+
+  self = PHP_DSE_GET_GRAPH_RESULT(getThis());
+
+  if (!instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(self->value), dse_point_ce TSRMLS_CC)) {
+    zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
+                            "Graph result isn't a point");
+  }
+
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
 }
 
 PHP_METHOD(DseGraphResult, asLineString)
 {
-  /* TODO: Implement */
-  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+  dse_graph_result *self = NULL;
+
+  if (zend_parse_parameters_none() == FAILURE)
+    return;
+
+  self = PHP_DSE_GET_GRAPH_RESULT(getThis());
+
+  if (!instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(self->value), dse_line_string_ce TSRMLS_CC)) {
+    zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
+                            "Graph result isn't a line string");
+  }
+
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
 }
 
 PHP_METHOD(DseGraphResult, asPolygon)
 {
-  /* TODO: Implement */
-  zend_throw_exception_ex(cassandra_runtime_exception_ce, 0 TSRMLS_CC, "Not implemented");
+  dse_graph_result *self = NULL;
+
+  if (zend_parse_parameters_none() == FAILURE)
+    return;
+
+  self = PHP_DSE_GET_GRAPH_RESULT(getThis());
+
+  if (!instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(self->value), dse_polygon_ce TSRMLS_CC)) {
+    zend_throw_exception_ex(cassandra_domain_exception_ce, 0 TSRMLS_CC,
+                            "Graph result isn't a polygon");
+  }
+
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
@@ -553,6 +619,7 @@ ZEND_END_ARG_INFO()
 
 static zend_function_entry dse_graph_result_methods[] = {
   PHP_ME(DseGraphResult, __construct,  arginfo_none,   ZEND_ACC_PRIVATE | ZEND_ACC_CTOR | PHP5TO7_ZEND_ACC_FINAL)
+  PHP_ME(DseGraphResult, __toString,   arginfo_none,   ZEND_ACC_PUBLIC)
   /* Iterator */
   PHP_ME(DseGraphResult, count,        arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(DseGraphResult, rewind,       arginfo_none,   ZEND_ACC_PUBLIC)
