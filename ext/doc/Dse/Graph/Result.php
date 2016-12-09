@@ -19,6 +19,11 @@ final class Result implements Iterator, ArrayAccess {
     /**
      * @return mixed
      */
+    public function __toString() { }
+
+    /**
+     * @return mixed
+     */
     public function count() { }
 
     /**
@@ -47,26 +52,21 @@ final class Result implements Iterator, ArrayAccess {
     public function valid() { }
 
     /**
-     * @param mixed $offset
      * @return mixed
      */
     public function offsetExists($offset) { }
 
     /**
-     * @param mixed $offset
      * @return mixed
      */
     public function offsetGet($offset) { }
 
     /**
-     * @param mixed $offset
-     * @param mixed $value
      * @return mixed
      */
     public function offsetSet($offset, $value) { }
 
     /**
-     * @param mixed $offset
      * @return mixed
      */
     public function offsetUnset($offset) { }

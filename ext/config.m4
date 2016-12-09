@@ -167,6 +167,7 @@ if test "$PHP_DSE" != "no"; then
     src/Dse/Graph/Element.c \
     src/Dse/Graph/FutureResultSet.c \
     src/Dse/Graph/Options.c \
+    src/Dse/Graph/Options/Builder.c \
     src/Dse/Graph/Path.c \
     src/Dse/Graph/Property.c \
     src/Dse/Graph/Result.c \
@@ -311,8 +312,8 @@ if test "$PHP_DSE" != "no"; then
   AC_MSG_CHECKING([for supported DataStax Enterprise C/C++ driver version])
   PHP_DSE_FOUND_CASSANDRA_VERSION=`$AWK '/DSE_VERSION_MAJOR/ {printf $3"."} /DSE_VERSION_MINOR/ {printf $3"."} /DSE_VERSION_PATCH/ {printf $3}' $CPP_DRIVER_DIR/include/dse.h`
   PHP_DSE_FOUND_CASSANDRA_VERSION_NUMBER=`echo "${PHP_DSE_FOUND_CASSANDRA_VERSION}" | $AWK 'BEGIN { FS = "."; } { printf "%d", ([$]1 * 100 + [$]2) * 100 + [$]3;}'`
-  if test "$PHP_DSE_FOUND_CASSANDRA_VERSION_NUMBER" -lt "10000"; then
-  AC_MSG_ERROR([not supported. Driver version 1.0.0+ required (found $PHP_DSE_FOUND_CASSANDRA_VERSION)])
+  if test "$PHP_DSE_FOUND_CASSANDRA_VERSION_NUMBER" -lt "10100"; then
+  AC_MSG_ERROR([not supported. Driver version 1.1.0+ required (found $PHP_DSE_FOUND_CASSANDRA_VERSION)])
   else
     AC_MSG_RESULT([supported ($PHP_DSE_FOUND_CASSANDRA_VERSION)])
   fi

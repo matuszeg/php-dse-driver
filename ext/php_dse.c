@@ -107,6 +107,8 @@ PHP_MINIT_FUNCTION(dse)
   dse_define_DefaultCluster(TSRMLS_C);
   dse_define_ClusterBuilder(TSRMLS_C);
   dse_define_DefaultClusterBuilder(TSRMLS_C);
+  dse_define_GraphOptions(TSRMLS_C);
+  dse_define_GraphOptionsBuilder(TSRMLS_C);
   dse_define_GraphStatement(TSRMLS_C);
   dse_define_GraphSimpleStatement(TSRMLS_C);
   dse_define_GraphResult(TSRMLS_C);

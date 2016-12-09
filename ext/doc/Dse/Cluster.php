@@ -10,6 +10,16 @@ namespace Dse;
 
 /**
  */
-interface Cluster {
+abstract class Cluster implements Cassandra\Cluster {
+
+    /**
+     * @return mixed
+     */
+    public abstract function connect($keyspace);
+
+    /**
+     * @return mixed
+     */
+    public abstract function connectAsync($keyspace);
 
 }

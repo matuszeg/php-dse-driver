@@ -85,9 +85,26 @@ function writeParameterDoc($doc, $file, $class, $method, $parameter) {
 
         $parameterType = $parameterType ? $parameterType : "mixed";
         $parameterType = $type ? $type : $parameterType; # Overrides builtin if provided
-        $commentLine = "@param $parameterType \$$parameterName $comment";
-        $commentLine = rtrim($commentLine) . PHP_EOL;
-        fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
+        $parameterTypeAndName = "param $parameterType \$$parameterName";
+
+        $lines = explode(PHP_EOL, $comment);
+        if (strlen(end($lines)) == 0) {
+            array_pop($lines);
+        }
+
+        $first = true;
+        foreach($lines as $line) {
+            if ($first) {
+                $commentLine = "$parameterTypeAndName $line";
+                $commentLine = rtrim($commentLine) . PHP_EOL;
+                fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
+            } else {
+                $commentLine = str_pad("", strlen($parameterTypeAndName) + 1, " ") . $line;
+                $commentLine = rtrim($commentLine) . PHP_EOL;
+                fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
+            }
+            $first = false;
+        }
     } else {
         $parameterType = $parameterType ? $parameterType : "mixed";
         fwrite($file, INDENT . DOC_COMMENT_LINE . "@param $parameterType \$$parameterName" . PHP_EOL);

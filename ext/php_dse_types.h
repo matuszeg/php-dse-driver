@@ -30,6 +30,8 @@
   #define PHP_DSE_GET_FUTURE_SESSION(obj) php_dse_future_session_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_CLUSTER(obj) php_dse_cluster_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_CLUSTER_BUILDER(obj) php_dse_cluster_builder_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DSE_GET_GRAPH_OPTIONS(obj) php_dse_graph_options_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DSE_GET_GRAPH_OPTIONS_BUILDER(obj) php_dse_graph_options_builder_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_STATEMENT(obj) php_dse_graph_statement_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_RESULT(obj) php_dse_graph_result_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_RESULT_SET(obj) php_dse_graph_result_set_object_fetch(Z_OBJ_P(obj))
@@ -40,7 +42,6 @@
   #define PHP_DSE_GET_GRAPH_PATH(obj) php_dse_graph_path_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_VERTEX(obj) php_dse_graph_vertex_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_GRAPH_VERTEX_PROPERTY(obj) php_dse_graph_vertex_property_object_fetch(Z_OBJ_P(obj))
-
   #define PHP_DSE_GET_POINT(obj) php_dse_point_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_LINE_STRING(obj) php_dse_line_string_object_fetch(Z_OBJ_P(obj))
   #define PHP_DSE_GET_POLYGON(obj) php_dse_polygon_object_fetch(Z_OBJ_P(obj))
@@ -49,6 +50,8 @@
   #define PHP_DSE_GET_FUTURE_SESSION(obj) ((dse_future_session *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_CLUSTER(obj) ((dse_cluster *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_CLUSTER_BUILDER(obj) ((dse_cluster_builder *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_GRAPH_OPTIONS(obj) ((dse_graph_options *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DSE_GET_GRAPH_OPTIONS_BUILDER(obj) ((dse_graph_options_builder *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_GRAPH_STATEMENT(obj) ((dse_graph_statement *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_GRAPH_RESULT(obj) ((dse_graph_result *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DSE_GET_GRAPH_RESULT_SET(obj) ((dse_graph_result_set *)zend_object_store_get_object((obj) TSRMLS_CC))
@@ -64,28 +67,19 @@
   #define PHP_DSE_GET_POLYGON(obj) ((dse_polygon *)zend_object_store_get_object((obj) TSRMLS_CC))
 #endif
 
-typedef struct {
-  char *graph_language;
-  char *graph_source;
-  char *graph_name;
-  CassConsistency read_consistency;
-  CassConsistency write_consistency;
-  cass_int64_t request_timeout;
-} dse_graph_options;
-
 PHP_DSE_BEGIN_OBJECT_TYPE(session)
   cassandra_session_base base;
-  dse_graph_options graph_options;
+  php5to7_zval graph_options;
 PHP_DSE_END_OBJECT_TYPE(session)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(future_session)
   cassandra_future_session_base base;
-  dse_graph_options graph_options;
+  php5to7_zval graph_options;
 PHP_DSE_END_OBJECT_TYPE(future_session)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(cluster)
   cassandra_cluster_base base;
-  dse_graph_options graph_options;
+  php5to7_zval graph_options;
 PHP_DSE_END_OBJECT_TYPE(cluster)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(cluster_builder)
@@ -94,8 +88,22 @@ PHP_DSE_BEGIN_OBJECT_TYPE(cluster_builder)
   char *plaintext_password;
   char *gssapi_service;
   char *gssapi_principal;
-  dse_graph_options graph_options;
+  php5to7_zval graph_options;
 PHP_DSE_END_OBJECT_TYPE(cluster_builder)
+
+PHP_DSE_BEGIN_OBJECT_TYPE(graph_options)
+  DseGraphOptions *options;
+  char* hash_key;
+PHP_DSE_END_OBJECT_TYPE(graph_options)
+
+PHP_DSE_BEGIN_OBJECT_TYPE(graph_options_builder)
+  char *graph_language;
+  char *graph_source;
+  char *graph_name;
+  long read_consistency;
+  long write_consistency;
+  cass_int64_t request_timeout;
+PHP_DSE_END_OBJECT_TYPE(graph_options_builder)
 
 PHP_DSE_BEGIN_OBJECT_TYPE(graph_statement)
   char *query;
@@ -179,6 +187,8 @@ extern PHP_DRIVER_API zend_class_entry *dse_cluster_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_default_cluster_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_cluster_builder_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_default_cluster_builder_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_options_ce;
+extern PHP_DRIVER_API zend_class_entry *dse_graph_options_builder_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_statement_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_simple_statement_ce;
 extern PHP_DRIVER_API zend_class_entry *dse_graph_result_ce;
@@ -208,6 +218,8 @@ void dse_define_Cluster(TSRMLS_D);
 void dse_define_DefaultCluster(TSRMLS_D);
 void dse_define_ClusterBuilder(TSRMLS_D);
 void dse_define_DefaultClusterBuilder(TSRMLS_D);
+void dse_define_GraphOptions(TSRMLS_D);
+void dse_define_GraphOptionsBuilder(TSRMLS_D);
 void dse_define_GraphStatement(TSRMLS_D);
 void dse_define_GraphSimpleStatement(TSRMLS_D);
 void dse_define_GraphResult(TSRMLS_D);

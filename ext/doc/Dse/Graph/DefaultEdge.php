@@ -32,7 +32,6 @@ final class DefaultEdge extends Edge  {
     public function properties() { }
 
     /**
-     * @param mixed $key
      * @return mixed
      */
     public function property($key) { }

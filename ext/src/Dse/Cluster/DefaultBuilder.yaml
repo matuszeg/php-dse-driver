@@ -325,55 +325,10 @@ Dse\Cluster\DefaultBuilder:
       return:
         comment: ""
         type: mixed
-    withGraphLanguage:
+    withGraphOptions:
       comment: ""
       params:
-        language:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
-    withGraphSource:
-      comment: ""
-      params:
-        source:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
-    withGraphName:
-      comment: ""
-      params:
-        name:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
-    withGraphReadConsistency:
-      comment: ""
-      params:
-        consistency:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
-    withGraphWriteConsistency:
-      comment: ""
-      params:
-        consistency:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
-    withGraphRequestTimeout:
-      comment: ""
-      params:
-        request_timeout:
+        options:
           comment: ""
           type: mixed
       return:

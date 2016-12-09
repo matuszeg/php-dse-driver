@@ -13,7 +13,6 @@ namespace Dse\Graph;
 final class SimpleStatement implements Statement {
 
     /**
-     * @param mixed $query
      */
     public function __construct($query) { }
 

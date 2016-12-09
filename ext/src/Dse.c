@@ -8,11 +8,17 @@ PHP_METHOD(Dse, cluster)
   object_init_ex(return_value, dse_default_cluster_builder_ce);
 }
 
+PHP_METHOD(Dse, graphOptions)
+{
+  object_init_ex(return_value, dse_graph_options_builder_ce);
+}
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry Dse_methods[] = {
   PHP_ME(Dse, cluster, arginfo_none,  ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
+  PHP_ME(Dse, graphOptions, arginfo_none,  ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
   PHP_FE_END
 };
 

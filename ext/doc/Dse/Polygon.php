@@ -33,7 +33,7 @@ final class Polygon implements Cassandra\Custom {
      *   $polygon = new Dse\Polygon.new($exterior_ring, $interior_ring);
      * @endcode
      *
-     * @param array $rings varargs-style array of LineStrings
+     * param array $rings varargs-style array of LineStrings
      */
     public function __construct($rings) { }
 
@@ -58,7 +58,7 @@ final class Polygon implements Cassandra\Custom {
     public function interiorRings() { }
 
     /**
-     * @param int $index index of the desired LineString in this Polygon
+     * param int $index index of the desired LineString in this Polygon
      * @return LineString the index'th LineString in this Polygon; `null` if there is no such element
      */
     public function ring($index) { }

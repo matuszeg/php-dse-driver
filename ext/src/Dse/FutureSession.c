@@ -10,25 +10,32 @@ zend_class_entry *dse_future_session_ce = NULL;
 PHP_METHOD(DseFutureSession, get)
 {
   zval *timeout = NULL;
-  cassandra_session_base *session = NULL;
-  cassandra_future_session_base *future = NULL;
+  dse_future_session *self = NULL;
+  dse_session *session = NULL;
+  cassandra_session_base *session_base = NULL;
+  cassandra_future_session_base *future_base = NULL;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|z", &timeout) == FAILURE) {
     return;
   }
 
-  future = &PHP_DSE_GET_FUTURE_SESSION(getThis())->base;
+  self = PHP_DSE_GET_FUTURE_SESSION(getThis());
+  future_base = &self->base;
 
-  if (!PHP5TO7_ZVAL_IS_UNDEF(future->default_session)) {
-    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(future->default_session), 1, 0);
+  if (!PHP5TO7_ZVAL_IS_UNDEF(future_base->default_session)) {
+    RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(future_base->default_session), 1, 0);
   }
 
   object_init_ex(return_value, dse_default_session_ce);
-  session = &PHP_DSE_GET_SESSION(return_value)->base;
+  session = PHP_DSE_GET_SESSION(return_value);
+  session_base = &session->base;
 
-  php_cassandra_future_session_get(future, timeout, session TSRMLS_CC);
+  php_cassandra_future_session_get(future_base, timeout, session_base TSRMLS_CC);
 
-  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(future->default_session),
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(session->graph_options),
+                    PHP5TO7_ZVAL_MAYBE_P(self->graph_options));
+
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(future_base->default_session),
                     return_value);
 }
 
@@ -67,6 +74,7 @@ php_dse_future_session_free(php5to7_zend_object_free *object TSRMLS_DC)
       PHP5TO7_ZEND_OBJECT_GET(dse_future_session, object);
 
   php_cassandra_future_session_destroy(&self->base);
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->graph_options);
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
@@ -79,6 +87,7 @@ php_dse_future_session_new(zend_class_entry *ce TSRMLS_DC)
       = PHP5TO7_ZEND_OBJECT_ECALLOC(dse_future_session, ce);
 
   php_cassandra_future_session_init(&self->base);
+  PHP5TO7_ZVAL_UNDEF(self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT(dse_future_session, self, ce);
 }

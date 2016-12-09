@@ -32,7 +32,6 @@ final class DefaultElement implements Element {
     public function properties() { }
 
     /**
-     * @param mixed $key
      * @return mixed
      */
     public function property($key) { }

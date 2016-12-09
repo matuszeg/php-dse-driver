@@ -3,7 +3,6 @@
 #include "util/future.h"
 
 #include "Cassandra/Cluster.h"
-#include "Graph/Options.h"
 
 zend_class_entry *dse_default_cluster_ce = NULL;
 
@@ -32,7 +31,8 @@ PHP_METHOD(DseDefaultCluster, connect)
   session_base->default_page_size   = cluster_base->default_page_size;
   session_base->persist             = cluster_base->persist;
 
-  php_dse_graph_options_clone(&session->graph_options, &self->graph_options);
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(session->graph_options),
+                    PHP5TO7_ZVAL_MAYBE_P(self->graph_options));
 
   if (!PHP5TO7_ZVAL_IS_UNDEF(session_base->default_timeout)) {
     PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(session_base->default_timeout),
@@ -50,27 +50,34 @@ PHP_METHOD(DseDefaultCluster, connectAsync)
 {
   char *keyspace = NULL;
   php5to7_size keyspace_len;
-  cassandra_cluster_base *cluster = NULL;
-  cassandra_future_session_base *future = NULL;
+  dse_cluster *self;
+  dse_future_session *future;
+  cassandra_cluster_base *cluster_base = NULL;
+  cassandra_future_session_base *future_base = NULL;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &keyspace, &keyspace_len) == FAILURE) {
     return;
   }
 
-  cluster = &PHP_DSE_GET_CLUSTER(getThis())->base;
+  self = PHP_DSE_GET_CLUSTER(getThis());
+  cluster_base = &self->base;
 
   object_init_ex(return_value, dse_future_session_ce);
-  future = &PHP_DSE_GET_FUTURE_SESSION(return_value)->base;
+  future = PHP_DSE_GET_FUTURE_SESSION(return_value);
+  future_base = &future->base;
 
-  future->persist = cluster->persist;
+  future_base->persist = cluster_base->persist;
 
-  php_cassandra_cluster_connect_async(cluster,
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(future->graph_options),
+                    PHP5TO7_ZVAL_MAYBE_P(self->graph_options));
+
+  php_cassandra_cluster_connect_async(cluster_base,
                                       keyspace, keyspace_len,
-                                      future TSRMLS_CC);
+                                      future_base TSRMLS_CC);
 
 }
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_connect, 0, ZEND_RETURN_VALUE, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_connect, 0c, ZEND_RETURN_VALUE, 0)
   ZEND_ARG_INFO(0, keyspace)
   ZEND_ARG_INFO(0, timeout)
 ZEND_END_ARG_INFO()
@@ -110,7 +117,7 @@ php_dse_default_cluster_free(php5to7_zend_object_free *object TSRMLS_DC)
   dse_cluster *self = PHP5TO7_ZEND_OBJECT_GET(dse_cluster, object);
 
   php_cassandra_cluster_destroy(&self->base);
-  php_dse_graph_options_destroy(&self->graph_options);
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->graph_options);
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
@@ -124,7 +131,7 @@ php_dse_default_cluster_new(zend_class_entry *ce TSRMLS_DC)
 
   php_cassandra_cluster_init(&self->base);
   smart_str_appends(&self->base.hash_key, "dse");
-  php_dse_graph_options_init(&self->graph_options);
+  PHP5TO7_ZVAL_UNDEF(self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(dse_cluster, dse_default_cluster, self, ce);
 }
@@ -134,8 +141,7 @@ void dse_define_DefaultCluster(TSRMLS_D)
   zend_class_entry ce;
 
   INIT_CLASS_ENTRY(ce, "Dse\\DefaultCluster", dse_default_cluster_methods);
-  dse_default_cluster_ce = zend_register_internal_class(&ce TSRMLS_CC);
-  zend_class_implements(dse_default_cluster_ce TSRMLS_CC, 1, dse_cluster_ce);
+  dse_default_cluster_ce = php5to7_zend_register_internal_class_ex(&ce, dse_cluster_ce);
   dse_default_cluster_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   dse_default_cluster_ce->create_object = php_dse_default_cluster_new;
 

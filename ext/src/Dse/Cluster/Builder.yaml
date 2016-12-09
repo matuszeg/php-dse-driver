@@ -1,80 +1,45 @@
 ---
 Dse\Cluster\Builder:
-  comment: ""
+  comment: |
+      Used to configure and construct a Dse\Cluster object.
   methods:
     withPlaintextAuthenticator:
-      comment: ""
+      comment: |
+          Enable authentication with a plaintext username and password. This is for use
+          with DSE's builtin authentication and LDAP authentication.
       params:
         username:
-          comment: ""
-          type: mixed
+          comment: "The username to use with DSE's plaintext authentication"
+          type: string
         password:
-          comment: ""
-          type: mixed
+          comment: "The password to use with DSE's plaintext authentication"
+          type: string
       return:
         comment: ""
-        type: mixed
+        type: "null"
     withGssapiAuthenticator:
-      comment: ""
+      comment: |
+          Enable authentication for use with Kerberos. By default the driver uses the connecting host's
+          IP address to construct the full service name (e.g. <service>@<IP address>). To use the host's
+          DNS name enable hostname resolution using Dse\Cluster\Builder::withHostnameResolution().
+
+          @see Dse\Cluster\Builder::withHostnameResolution()
       params:
         service:
-          comment: ""
-          type: mixed
+          comment: "The name of the Kerberos service"
+          type: string
         principal:
-          comment: ""
-          type: mixed
+          comment: |
+              The principal whose credentials are used to authenticate. If not provided then the first
+              principal in the Kerberos ticket cache will be used.
+          type: string
       return:
         comment: ""
-        type: mixed
-    withGraphLanguage:
+        type: "null"
+    withGraphOptions:
       comment: ""
       params:
-        language:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
-    withGraphSource:
-      comment: ""
-      params:
-        source:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
-    withGraphName:
-      comment: ""
-      params:
-        name:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
-    withGraphReadConsistency:
-      comment: ""
-      params:
-        consistency:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
-    withGraphWriteConsistency:
-      comment: ""
-      params:
-        consistency:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
-    withGraphRequestTimeout:
-      comment: ""
-      params:
-        request_timeout:
+        options:
           comment: ""
           type: mixed
       return:

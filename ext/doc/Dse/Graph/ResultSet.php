@@ -47,26 +47,21 @@ final class ResultSet implements Iterator, ArrayAccess {
     public function valid() { }
 
     /**
-     * @param mixed $offset
      * @return mixed
      */
     public function offsetExists($offset) { }
 
     /**
-     * @param mixed $offset
      * @return mixed
      */
     public function offsetGet($offset) { }
 
     /**
-     * @param mixed $offset
-     * @param mixed $value
      * @return mixed
      */
     public function offsetSet($offset, $value) { }
 
     /**
-     * @param mixed $offset
      * @return mixed
      */
     public function offsetUnset($offset) { }

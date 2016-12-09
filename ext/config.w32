@@ -4,7 +4,7 @@ ARG_ENABLE("dse", "Enable DataStax PHP DSE extension", "no");
 
 // Establish the minimum DSE C/C++ driver version
 var minimum_major = 1;
-var minimum_minor = 0;
+var minimum_minor = 1;
 var minimum_patch = 0;
 var minimum_version = minimum_major + "." + minimum_minor + "." + minimum_patch;
 
@@ -245,6 +245,8 @@ if (PHP_DSE != "no") {
                 "Statement.c " +
                 "Vertex.c" +
                 "VertexProperty.c", "dse");
+            ADD_SOURCES(configure_module_dirname + "/src/Dse/Graph/Options",
+                "Builder.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Dse/Cluster",
                 "Builder.c " +
                 "DefaultBuilder.c", "dse");

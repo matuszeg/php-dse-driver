@@ -1,4 +1,23 @@
 ---
 Dse\Cluster:
   comment: ""
+  methods:
+    connect:
+      comment: ""
+      params:
+        keyspace:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    connectAsync:
+      comment: ""
+      params:
+        keyspace:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
 ...

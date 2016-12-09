@@ -47,7 +47,6 @@ final class DefaultVertexProperty extends VertexProperty  {
     public function properties() { }
 
     /**
-     * @param mixed $key
      * @return mixed
      */
     public function property($key) { }

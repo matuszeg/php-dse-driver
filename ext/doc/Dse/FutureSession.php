@@ -13,7 +13,6 @@ namespace Dse;
 final class FutureSession implements Cassandra\Future {
 
     /**
-     * @param mixed $timeout
      * @return mixed
      */
     public function get($timeout) { }

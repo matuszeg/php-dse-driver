@@ -6,45 +6,45 @@
   license at http://www.datastax.com/terms/datastax-dse-driver-license-terms
 */
 
-namespace Dse\Graph;
+namespace Dse\Graph\Options;
 
 /**
  */
-abstract class VertexProperty implements Property, Element {
+final class Builder {
 
     /**
      * @return mixed
      */
-    public abstract function name();
+    public function build() { }
 
     /**
      * @return mixed
      */
-    public abstract function value();
+    public function withGraphLanguage($language) { }
 
     /**
      * @return mixed
      */
-    public abstract function parent();
+    public function withGraphSource($source) { }
 
     /**
      * @return mixed
      */
-    public abstract function id();
+    public function withGraphName($name) { }
 
     /**
      * @return mixed
      */
-    public abstract function label();
+    public function withReadConsistency($consistency) { }
 
     /**
      * @return mixed
      */
-    public abstract function properties();
+    public function withWriteConsistency($consistency) { }
 
     /**
      * @return mixed
      */
-    public abstract function property($key);
+    public function withRequestTimeout($request_timeout) { }
 
 }

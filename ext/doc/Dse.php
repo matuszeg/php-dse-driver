@@ -7,16 +7,26 @@
 */
 
 /**
+ * Provides access to builder objects used to configure Dse\Cluster and
+ * Cassandra\SSLOptions objects.
  */
 class Dse extends Cassandra {
 
     /**
-     * @return mixed
+     * Creates a new cluster builder for constructing a Dse\Cluster object.
+     * @return Dse\Cluster\Builder A cluster builder object with default settings
      */
     public static function cluster() { }
 
     /**
-     * @return mixed
+     * Creates a new graph options builder for constructing a Dse\Graph\Options object.
+     * @return Dse\Graph\Options A graph options builder with default settings
+     */
+    public static function graphOptions() { }
+
+    /**
+     * Creates a new ssl builder for constructing a Cassandra\SSLOptions object.
+     * @return Cassandra\SSLOptions\Builder A SSL options builder with default settings
      */
     public static function ssl() { }
 

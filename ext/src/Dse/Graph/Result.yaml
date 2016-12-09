@@ -4,6 +4,11 @@ Dse\Graph\Result:
   methods:
     __construct:
       comment: ""
+    __toString:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
     count:
       comment: ""
       return:

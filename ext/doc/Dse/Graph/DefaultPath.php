@@ -32,7 +32,6 @@ final class DefaultPath {
     public function hasLabel() { }
 
     /**
-     * @param mixed $key
      * @return mixed
      */
     public function object($key) { }

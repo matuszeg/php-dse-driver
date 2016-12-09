@@ -28,7 +28,6 @@ abstract class Path implements Element {
     public abstract function hasLabel();
 
     /**
-     * @param mixed $key
      * @return mixed
      */
     public abstract function object($key);
@@ -49,7 +48,6 @@ abstract class Path implements Element {
     public abstract function properties();
 
     /**
-     * @param mixed $key
      * @return mixed
      */
     public abstract function property($key);

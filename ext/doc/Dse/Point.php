@@ -11,13 +11,14 @@ namespace Dse;
 /**
  * Encapsulates a 2D point with x,y coordinates. It corresponds to the `org.apache.cassandra.db.marshal.PointType`
  * column type in DSE.
+ *
  * @see https://en.wikipedia.org/wiki/Well-known_text
  */
 final class Point implements Cassandra\Custom {
 
     /**
-     * @param double $x the x-coordinate of the point
-     * @param double $y the y-coordinate of the point
+     * param double $x the x-coordinate of the point
+     * param double $y the y-coordinate of the point
      */
     public function __construct($x, $y) { }
 

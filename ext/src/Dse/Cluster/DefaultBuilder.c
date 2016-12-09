@@ -3,7 +3,6 @@
 #include "util/consistency.h"
 
 #include "Cassandra/Cluster/Builder.h"
-#include "../Graph/Options.h"
 
 #if PHP_MAJOR_VERSION >= 7
 #include <zend_smart_str.h>
@@ -29,7 +28,8 @@ PHP_METHOD(DseDefaultClusterBuilder, build)
   cluster_base->default_consistency = builder_base->default_consistency;
   cluster_base->default_page_size   = builder_base->default_page_size;
 
-  php_dse_graph_options_clone(&cluster->graph_options, &self->graph_options);
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(cluster->graph_options),
+                    PHP5TO7_ZVAL_MAYBE_P(self->graph_options));
 
   PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(cluster_base->default_timeout),
                     PHP5TO7_ZVAL_MAYBE_P(builder_base->default_timeout));
@@ -50,25 +50,13 @@ PHP_METHOD(DseDefaultClusterBuilder, build)
     smart_str_appendc(hash_key, ':');
     smart_str_appends(hash_key, SAFE_STR(self->gssapi_principal));
 
-    smart_str_appendc(hash_key, ':');
-    smart_str_appends(hash_key, SAFE_STR(self->graph_options.graph_language));
 
-    smart_str_appendc(hash_key, ':');
-    smart_str_appends(hash_key, SAFE_STR(self->graph_options.graph_source));
-
-    smart_str_appendc(hash_key, ':');
-    smart_str_appends(hash_key, SAFE_STR(self->graph_options.graph_name));
-
-    smart_str_appendc(hash_key, ':');
-    smart_str_append_long(hash_key, self->graph_options.read_consistency);
-
-    smart_str_appendc(hash_key, ':');
-    smart_str_append_long(hash_key, self->graph_options.write_consistency);
-
-    smart_str_appendc(hash_key, ':');
-    smart_str_append_long(hash_key, self->graph_options.request_timeout);
-
-    smart_str_0(hash_key);
+    if (!PHP5TO7_ZVAL_IS_UNDEF(self->graph_options)) {
+      dse_graph_options *options = PHP_DSE_GET_GRAPH_OPTIONS(PHP5TO7_ZVAL_MAYBE_P(self->graph_options));
+      smart_str_appends(hash_key, options->hash_key);
+    } else {
+      smart_str_appends(hash_key, ":graph_options");
+    }
 
     cluster_base->cluster = php_cassandra_cluster_builder_get_cache(builder_base,
                                                                     PHP5TO7_SMART_STR_VAL(cluster_base->hash_key),
@@ -351,7 +339,7 @@ PHP_METHOD(DseDefaultClusterBuilder, withGssapiAuthenticator)
 
   dse_cluster_builder *self = PHP_DSE_GET_CLUSTER_BUILDER(getThis());
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz", &service, &principal) == FAILURE) {
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &service, &principal) == FAILURE) {
     return;
   }
 
@@ -359,7 +347,7 @@ PHP_METHOD(DseDefaultClusterBuilder, withGssapiAuthenticator)
     INVALID_ARGUMENT(service, "a string");
   }
 
-  if (Z_TYPE_P(principal) != IS_STRING) {
+  if (principal && Z_TYPE_P(principal) != IS_STRING) {
     INVALID_ARGUMENT(principal, "a string");
   }
 
@@ -369,33 +357,24 @@ PHP_METHOD(DseDefaultClusterBuilder, withGssapiAuthenticator)
   }
 
   self->gssapi_service = estrndup(Z_STRVAL_P(service), Z_STRLEN_P(service));
-  self->gssapi_principal = estrndup(Z_STRVAL_P(principal), Z_STRLEN_P(principal));
+  self->gssapi_principal = principal ? estrndup(Z_STRVAL_P(principal), Z_STRLEN_P(principal)) : estrdup("");
 
   RETURN_ZVAL(getThis(), 1, 0);
 }
 
-PHP_METHOD(DseDefaultClusterBuilder, withGraphLanguage)
+PHP_METHOD(DseDefaultClusterBuilder, withGraphOptions)
 {
-}
+  zval *options = NULL;
 
-PHP_METHOD(DseDefaultClusterBuilder, withGraphSource)
-{
-}
+  dse_cluster_builder *self = PHP_DSE_GET_CLUSTER_BUILDER(getThis());
 
-PHP_METHOD(DseDefaultClusterBuilder, withGraphName)
-{
-}
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &options) == FAILURE) {
+    return;
+  }
 
-PHP_METHOD(DseDefaultClusterBuilder, withGraphReadConsistency)
-{
-}
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(self->graph_options), options);
 
-PHP_METHOD(DseDefaultClusterBuilder, withGraphWriteConsistency)
-{
-}
-
-PHP_METHOD(DseDefaultClusterBuilder, withGraphRequestTimeout)
-{
+  RETURN_ZVAL(getThis(), 1, 0);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
@@ -495,24 +474,8 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_gssapi_authenticator, 0, ZEND_RETURN_VALUE, 2)
   ZEND_ARG_INFO(0, principal)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_language, 0, ZEND_RETURN_VALUE, 1)
-  ZEND_ARG_INFO(0, language)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_source, 0, ZEND_RETURN_VALUE, 1)
-  ZEND_ARG_INFO(0, source)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_name, 0, ZEND_RETURN_VALUE, 1)
-  ZEND_ARG_INFO(0, name)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_consistency, 0, ZEND_RETURN_VALUE, 1)
-  ZEND_ARG_INFO(0, consistency)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_request_timeout, 0, ZEND_RETURN_VALUE, 1)
-  ZEND_ARG_INFO(0, request_timeout)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_options, 0, ZEND_RETURN_VALUE, 2)
+  ZEND_ARG_OBJ_INFO(0, options, Dse\\Graph\\Options, 0)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry dse_default_cluster_builder_methods[] = {
@@ -549,12 +512,7 @@ static zend_function_entry dse_default_cluster_builder_methods[] = {
   PHP_ME(DseDefaultClusterBuilder, withConnectionHeartbeatInterval, arginfo_interval, ZEND_ACC_PUBLIC)
   PHP_ME(DseDefaultClusterBuilder, withPlaintextAuthenticator, arginfo_plaintext_authenticator, ZEND_ACC_PUBLIC)
   PHP_ME(DseDefaultClusterBuilder, withGssapiAuthenticator, arginfo_gssapi_authenticator, ZEND_ACC_PUBLIC)
-  PHP_ME(DseDefaultClusterBuilder, withGraphLanguage, arginfo_graph_language, ZEND_ACC_PUBLIC)
-  PHP_ME(DseDefaultClusterBuilder, withGraphSource, arginfo_graph_source, ZEND_ACC_PUBLIC)
-  PHP_ME(DseDefaultClusterBuilder, withGraphName, arginfo_graph_name, ZEND_ACC_PUBLIC)
-  PHP_ME(DseDefaultClusterBuilder, withGraphReadConsistency, arginfo_graph_consistency, ZEND_ACC_PUBLIC)
-  PHP_ME(DseDefaultClusterBuilder, withGraphWriteConsistency, arginfo_graph_consistency, ZEND_ACC_PUBLIC)
-  PHP_ME(DseDefaultClusterBuilder, withGraphRequestTimeout, arginfo_graph_request_timeout, ZEND_ACC_PUBLIC)
+  PHP_ME(DseDefaultClusterBuilder, withGraphOptions, arginfo_graph_options, ZEND_ACC_PUBLIC)
   PHP_FE_END
 };
 
@@ -616,7 +574,7 @@ php_dse_default_cluster_builder_free(php5to7_zend_object_free *object TSRMLS_DC)
     self->gssapi_principal = NULL;
   }
 
-  php_dse_graph_options_destroy(&self->graph_options);
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->graph_options);
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
@@ -634,8 +592,7 @@ php_dse_default_cluster_builder_new(zend_class_entry *ce TSRMLS_DC)
   self->plaintext_password = NULL;
   self->gssapi_service = NULL;
   self->gssapi_principal = NULL;
-
-  php_dse_graph_options_init(&self->graph_options);
+  PHP5TO7_ZVAL_UNDEF(self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(dse_cluster_builder, dse_default_cluster_builder, self, ce);
 }
