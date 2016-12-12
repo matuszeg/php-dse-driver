@@ -88,7 +88,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     /**
      * Drop keyspace format
      */
-    const DROP_KEYSPACE_FORMAT = "DROP KEYSPACE '%s';";
+    const DROP_KEYSPACE_FORMAT = "DROP KEYSPACE %s;";
     /**
      * Maximum length for the keyspace (server limit)
      */
@@ -131,6 +131,18 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      */
     protected $keyspace;
     /**
+     * @var string Directory/Path where the log file will be saved
+     */
+    protected $log_directory;
+    /**
+     * @var string Filename being used for the current tests logging (driver)
+     */
+    protected $log_filename;
+    /**
+     * @var resource File handle for log file being monitored
+     */
+    protected $log_handle = null;
+    /**
      * @var int Replication factor override; default is calculated based on
      *          number of data center nodes; single data center is (nodes / 2)
      *          rounded up
@@ -163,6 +175,12 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      * @var string Table name to use for the test(s)
      */
     protected $table;
+    /**
+     * @var bool True if test case is using a data provider; false otherwise
+     *
+     * NOTE: This will effect the table name and log file name
+     */
+    protected $using_data_provider = false;
 
     /**
      * @inheritdoc
@@ -290,7 +308,16 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         }
 
         // Generate the table name
-        $this->table = str_replace("test", "", strtolower($this->getName(false)));
+        $search = array(
+            "test",
+            "with data set",
+            "#",
+            "\"",
+            "-"
+        );
+        $this->table = str_replace($search, "",
+            strtolower($this->getName($this->using_data_provider)));
+        $this->table = preg_replace("!\\s+!", "_", $this->table);
 
         // Determine replication strategy
         $replication_strategy = "'SimpleStrategy', 'replication_factor': ";
@@ -347,8 +374,223 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             }
         }
 
+        // Close the log handle (if monitoring was started)
+        if (!is_null($this->log_handle)) {
+            fclose($this->log_handle);
+        }
+
         // Reset the default cluster (in the event it was changed)
         self::$cluster_configuration = self::$ccm->default_cluster();
+    }
+
+    /**
+     * Cassandra data types (scalar)
+     *
+     * NOTE: Should be used as a data provider
+     */
+    public function data_types() {
+        // Create the data provider for all the Cassandra data types
+        return array(
+            // ASCII data type
+            array(
+                \Cassandra\Type::ascii(),
+                array(
+                    "a",
+                    "b",
+                    "c",
+                    "1",
+                    "2",
+                    "3"
+                )
+            ),
+
+            // Bigint data type
+            array(
+                \Cassandra\Type::bigint(),
+                array(
+                    \Cassandra\Bigint::max(),
+                    \Cassandra\Bigint::min(),
+                    new \Cassandra\Bigint("0"),
+                    new \Cassandra\Bigint("37")
+                )
+            ),
+
+            // Blob data type
+            array(
+                \Cassandra\Type::blob(),
+                array(
+                    new \Cassandra\Blob("DataStax PHP Driver Extension"),
+                    new \Cassandra\Blob("Cassandra"),
+                    new \Cassandra\Blob("DataStax Enterprise")
+                )
+            ),
+
+            // Boolean data type
+            array(
+                \Cassandra\Type::boolean(),
+                array(
+                    true,
+                    false
+                )
+            ),
+
+            // Data data type
+            array(
+                \Cassandra\Type::date(),
+                array(
+                    new \Cassandra\Date(),
+                    new \Cassandra\Date(0),
+                    new \Cassandra\Date(-86400),
+                    new \Cassandra\Date(86400)
+                )
+            ),
+
+            // Decimal data type
+            array(
+                \Cassandra\Type::decimal(),
+                array(
+                    new \Cassandra\Decimal("3.14159265358979323846"),
+                    new \Cassandra\Decimal("2.71828182845904523536"),
+                    new \Cassandra\Decimal("1.61803398874989484820")
+                )
+            ),
+
+            // Double data type
+            array(
+                \Cassandra\Type::double(),
+                array(
+                    3.1415926535,
+                    2.7182818284,
+                    1.6180339887
+                )
+            ),
+
+            // Float data type
+            array(
+                \Cassandra\Type::float(),
+                array(
+                    new \Cassandra\Float(3.14159),
+                    new \Cassandra\Float(2.71828),
+                    new \Cassandra\Float(1.61803)
+                )
+            ),
+
+            // Inet data type
+            array(
+                \Cassandra\Type::inet(),
+                array(
+                    new \Cassandra\Inet("127.0.0.1"),
+                    new \Cassandra\Inet("0:0:0:0:0:0:0:1"),
+                    new \Cassandra\Inet("2001:db8:85a3:0:0:8a2e:370:7334")
+                )
+            ),
+
+            // Integer data type
+            array(
+                \Cassandra\Type::int(),
+                array(
+                    2147483647,
+                    -2147483648,
+                    0,
+                    148
+                )
+            ),
+
+            // Smallint data type
+            array(
+                \Cassandra\Type::smallint(),
+                array(
+                    \Cassandra\Smallint::min(),
+                    \Cassandra\Smallint::max(),
+                    new \Cassandra\Smallint(0),
+                    new \Cassandra\Smallint(74)
+                )
+            ),
+
+            // Text data type
+            array(
+                \Cassandra\Type::text(),
+                array(
+                    "The quick brown fox jumps over the lazy dog",
+                    "Hello World",
+                    "DataStax PHP Driver Extension"
+                )
+            ),
+
+            // Time data type
+            array(
+                \Cassandra\Type::time(),
+                array(
+                    new \Cassandra\Time(),
+                    new \Cassandra\Time(0),
+                    new \Cassandra\Time(1234567890)
+                )
+            ),
+
+            // Tinyint data type
+            array(
+                \Cassandra\Type::tinyint(),
+                array(
+                    \Cassandra\Tinyint::min(),
+                    \Cassandra\Tinyint::max(),
+                    new \Cassandra\Tinyint(0),
+                    new \Cassandra\Tinyint(37)
+                )
+            ),
+
+            // Timestamp data type
+            array(
+                \Cassandra\Type::timestamp(),
+                array(
+                    new \Cassandra\Timestamp(123),
+                    new \Cassandra\Timestamp(456),
+                    new \Cassandra\Timestamp(789),
+                    new \Cassandra\Timestamp(time())
+                )
+            ),
+
+            // Timeuuid data type
+            array(
+                \Cassandra\Type::timeuuid(),
+                array(
+                    new \Cassandra\Timeuuid(0),
+                    new \Cassandra\Timeuuid(1),
+                    new \Cassandra\Timeuuid(2),
+                    new \Cassandra\Timeuuid(time())
+                )
+            ),
+
+            // Uuid data type
+            array(
+                \Cassandra\Type::uuid(),
+                array(
+                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2"),
+                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c3"),
+                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c4")
+                )
+            ),
+
+            // Varchar data type
+            array(
+                \Cassandra\Type::varchar(),
+                array(
+                    "The quick brown fox jumps over the lazy dog",
+                    "Hello World",
+                    "DataStax PHP Driver Extension"
+                )
+            ),
+
+            // Varint data type
+            array(
+                \Cassandra\Type::varint(),
+                array(
+                    new \Cassandra\Varint(PHP_INT_MAX),
+                    new \Cassandra\Varint(PHP_INT_MIN),
+                    new \Cassandra\Varint(0),
+                    new \Cassandra\Varint(296)
+                )
+            )
+        );
     }
 
     /**
@@ -548,6 +790,36 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Start the log monitoring; open the test's log file for reading and seek
+     * to the end of the file.
+     */
+    protected function start_log_monitoring() {
+        // Open the file for reading and seek to the end of the file
+        if (is_null($this->log_handle)) {
+            $this->log_handle = fopen($this->log_directory . $this->log_filename, "r");
+        }
+        fseek($this->log_handle, -1, SEEK_END);
+    }
+
+    /**
+     * Get the contents of the test's log file
+     *
+     * NOTE: If the log monitoring was not started then the entire contents of
+     *       of the log file will be returned
+     *
+     * @return string Contents of the test's log file
+     *
+     * @see IntegrationTest::start_log_monitoring()
+     */
+    protected function log_contents() {
+        if (is_null($this->log_handle)) {
+            $this->log_handle = fopen($this->log_directory . $this->log_filename, "r");
+        }
+
+        return stream_get_contents($this->log_handle);
+    }
+
+    /**
      * Determine if a node is available in teh active cluster
      *
      * @param int $node Node to check availability
@@ -584,12 +856,23 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      */
     private function initialize_logger() {
         // Create the directory for the test class (directory may already exist)
-        $log_directory = "logs/{$this->get_short_name()}";
-        @mkdir($log_directory, 0777, true);
+        $this->log_directory = "logs/{$this->get_short_name()}" . DIRECTORY_SEPARATOR;
+        if ($this->using_data_provider) {
+            $this->log_directory .= $this->getName(false) . DIRECTORY_SEPARATOR;
+        }
+        @mkdir($this->log_directory, 0777, true);
 
         // Assign the logger filename and update the logger level
-        $log_filename = "{$this->getName(false)}.log";
-        ini_alter("dse.log", $log_directory . DIRECTORY_SEPARATOR . $log_filename);
+        $this->log_filename = "{$this->getName(false)}.log";
+        if ($this->using_data_provider) {
+            // Determine if we can retrieve the name of the data set
+            $dataset_name = $this->getDataSetAsString(false);
+            if (preg_match('/"([^"]+)"/', $dataset_name, $match)) {
+                $dataset_name = $match[1];
+            }
+            $this->log_filename = "{$dataset_name}.log";
+        }
+        ini_alter("dse.log", "{$this->log_directory}{$this->log_filename}");
         ini_alter("dse.log_level", "TRACE");
     }
 }

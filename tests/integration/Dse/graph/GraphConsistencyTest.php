@@ -38,17 +38,11 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      */
     public function setUp() {
         // Create the proper cluster configuration for the test
-        self::$cluster_configuration
-            ->add_data_center(self::NODES)
-            ->add_workload(\CCM\Workload::GRAPH);
+        self::$cluster_configuration->add_data_center(self::NODES);
         $this->replication_factor = self::NODES;
 
         // Call the parent function
         parent::setUp();
-
-        // Create the classic graph structure
-        $this->create_graph();
-        $this->populate_classic_graph();
     }
 
     /**
