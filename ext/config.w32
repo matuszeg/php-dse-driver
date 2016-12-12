@@ -226,6 +226,9 @@ if (PHP_DSE != "no") {
                 "DefaultCluster.c " +
                 "DefaultSession.c " +
                 "FutureSession.c " +
+                "LineString.c " +
+                "Point.c " +
+                "Polygon.c " +
                 "Session.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Dse/Graph",
                 "DefaultElement.c " +
@@ -237,13 +240,14 @@ if (PHP_DSE != "no") {
                 "Element.c " +
                 "Edge.c " +
                 "FutureResultSet.c " +
+                "Options.c " +
                 "Path.c " +
                 "Property.c " +
                 "Result.c " +
                 "ResultSet.c " +
                 "SimpleStatement.c " +
                 "Statement.c " +
-                "Vertex.c" +
+                "Vertex.c " +
                 "VertexProperty.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Dse/Graph/Options",
                 "Builder.c", "dse");
