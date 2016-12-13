@@ -16,7 +16,7 @@ class LineStringTest extends \PHPUnit_Framework_TestCase
      * @expectedException BadFunctionCallException
      * @expectedExceptionMessage A line-string must have at least two points or be empty
      */
-    public function testWrongNumberOfArguments()
+    public function testNotEnoughPoints()
     {
         new LineString(new Point(2, 3));
     }
@@ -28,6 +28,31 @@ class LineStringTest extends \PHPUnit_Framework_TestCase
     public function testWrongTypeOfArguments()
     {
         new LineString(new Point(2, 3), 7);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Argument 1 must be valid WKT for a LineString, 'POINT' given
+     */
+    public function testBadWkt()
+    {
+        new LineString("POINT");
+    }
+
+    /**
+     * @dataProvider lineFromWkt
+     */
+    public function testConstructFromWkt($wkt, $expected)
+    {
+        $lineString = new LineString($wkt);
+        $this->assertEquals($expected, $lineString->__toString());
+    }
+
+    public function lineFromWkt()
+    {
+        return array(
+            array("LINESTRING (2 3.5, 3 4)", "2,3.5 to 3,4")
+        );
     }
 
     /**
@@ -126,8 +151,8 @@ class LineStringTest extends \PHPUnit_Framework_TestCase
         $right = $this->makeLineString($rightPointSpecs);
 
         // When comparing, do it both ways to verify that the comparison operator is stable.
-        $this->assertEquals($expected, $left <=> $right);
-        $this->assertEquals(-$expected, $right <=> $left);
+        $this->assertEquals($expected, $this->spaceship($left, $right));
+        $this->assertEquals(-$expected, $this->spaceship($right, $left));
     }
 
     public function comparisonTable()
@@ -148,7 +173,7 @@ class LineStringTest extends \PHPUnit_Framework_TestCase
 
     public function testCompareDifferentTypes()
     {
-        $this->assertEquals(1, new LineString() <=> new Point(1, 2));
+        $this->assertEquals(1, $this->spaceship(new LineString(), new Point(1, 2)));
     }
 
     public function testProperties()
@@ -183,5 +208,19 @@ class LineStringTest extends \PHPUnit_Framework_TestCase
             array_push($points, new Point($x, $y));
         }
         return new LineString(...$points);
+    }
+
+    /**
+     * Spaceship (<=>) impl for testing our compare function. The operator exists in PHP7, but not
+     * PHP 5, so we implement it ourselves as a function.
+    */
+    public function spaceship($left, $right) {
+        if ($left < $right) {
+            return -1;
+        } else if ($left == $right) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
 }

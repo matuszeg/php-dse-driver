@@ -184,7 +184,14 @@ int php_dse_line_string_construct_from_iterator(DseLineStringIterator* iterator,
   size_t i, num_points;
   HashTable *points;
 
-  object_init_ex(return_value, dse_line_string_ce);
+  // We may be invoked from __construct, in which case "return_value" is already initialized,
+  // or from marshalling code (that is processing a raw response from DSE), in which case
+  // we need to initialize return_value. The following condition works for PHP5.6 and PHP7.
+  // Yay!
+  if (Z_OBJ_HT_P(return_value) == NULL || Z_OBJCE_P(return_value) != dse_line_string_ce) {
+    object_init_ex(return_value, dse_line_string_ce);
+  }
+
   line_string = PHP_DSE_GET_LINE_STRING(return_value);
   points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
 
@@ -210,12 +217,40 @@ int php_dse_line_string_construct_from_iterator(DseLineStringIterator* iterator,
 
 PHP_METHOD(DseLineString, __construct)
 {
-  php5to7_zval_args point_args;
-  dse_line_string *self = PHP_DSE_GET_LINE_STRING(getThis());
+  php5to7_zval_args args;
+  dse_line_string *self = NULL;
   int num_args = 0;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "*", &point_args, &num_args) == FAILURE) {
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "*", &args, &num_args) == FAILURE) {
     return;
+  }
+
+  if (num_args == 1) {
+    zval *point_obj_or_wkt = PHP5TO7_ZVAL_ARG(args[0]);
+
+    if (Z_TYPE_P(point_obj_or_wkt) == IS_STRING) {
+      int rc;
+
+      // Create and initialize a "text iterator" which parses wkt. If there's a parse
+      // error, it typically occurs during initialization. However, it's theoretically
+      // possible to run into an issue when traversing the iterator, so cover that, too.
+
+      DseLineStringIterator* iterator = dse_line_string_iterator_new();
+      rc = dse_line_string_iterator_reset_with_wkt_n(iterator, Z_STRVAL_P(point_obj_or_wkt), Z_STRLEN_P(point_obj_or_wkt));
+      if (rc == CASS_OK) {
+        rc = php_dse_line_string_construct_from_iterator(iterator, getThis() TSRMLS_CC);
+      }
+
+      dse_line_string_iterator_free(iterator);
+
+      if (rc != SUCCESS && rc != CASS_OK) {
+        // Failed to parse the wkt properly. Yell.
+        throw_invalid_argument(point_obj_or_wkt, "Argument 1", "valid WKT for a LineString" TSRMLS_CC);
+      }
+
+      PHP5TO7_MAYBE_EFREE(args);
+      return;
+    }
   }
 
   if (num_args > 0) {
@@ -223,37 +258,36 @@ PHP_METHOD(DseLineString, __construct)
 
     if (num_args == 1) {
       // A LineString must have at least two points!
-      zend_throw_exception_ex(spl_ce_BadFunctionCallException, 0 TSRMLS_CC, "%s",
+      zend_throw_exception_ex(spl_ce_BadFunctionCallException, 0 TSRMLS_CC,
         "A line-string must have at least two points or be empty"
       );
-      PHP5TO7_MAYBE_EFREE(point_args);
+      PHP5TO7_MAYBE_EFREE(args);
       return;
     }
 
     // Every arg must be a Point.
     for (i = 0; i < num_args; ++i) {
-      zval* point_obj = PHP5TO7_ZVAL_ARG(point_args[i]);
+      zval* point_obj = PHP5TO7_ZVAL_ARG(args[i]);
       if (Z_TYPE_P(point_obj) != IS_OBJECT || Z_OBJCE_P(point_obj) != dse_point_ce) {
         char *object_name;
         spprintf(&object_name, 0, "Argument %d", i+1);
         throw_invalid_argument(point_obj, object_name, "an instance of Dse\\Point" TSRMLS_CC);
         efree(object_name);
-        PHP5TO7_MAYBE_EFREE(point_args);
+        PHP5TO7_MAYBE_EFREE(args);
         return;
       }
     }
 
-    // Populate the points array based on args. Since we're traversing each point, iteratively construct to
-    // "string" and "wkt" members using PHP smart strings.
-
+    // Populate the points array based on args.
+    self = PHP_DSE_GET_LINE_STRING(getThis());
     for (i = 0; i < num_args; ++i) {
-      zval* point_obj = PHP5TO7_ZVAL_ARG(point_args[i]);
+      zval* point_obj = PHP5TO7_ZVAL_ARG(args[i]);
 
       add_next_index_zval(PHP5TO7_ZVAL_MAYBE_P(self->points), point_obj);
       Z_TRY_ADDREF_P(point_obj);
     }
 
-    PHP5TO7_MAYBE_EFREE(point_args);
+    PHP5TO7_MAYBE_EFREE(args);
   }
 }
 
