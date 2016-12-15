@@ -9,6 +9,8 @@
 
 /**
  * DSE graph data type integration tests.
+ *
+ * @requires DSE >= 5.0.0
  */
 class GraphDataTypeTest extends DseGraphIntegrationTest {
     /**
@@ -41,13 +43,72 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
     /**
      * Data provider for graph data types
      *
-     * @see DseGraphIntegration::data_types()
+     * @see DseGraphIntegrationTest::data_types()
+     *
+     * @return array Composite and scalar data type to use in a data provider
+     *     [
+     *         [
+     *             [0] => (string) Graph schema
+     *             [1] => (\Cassandra\Type|string) Data type
+     *             [2] => (mixed) Data type value
+     *             [3] => (mixed) Expected value (validation)
+     *         ]
+     *     ]
+     * @throws \Exception If the sizes of values and expected values are
+     *                    different
      */
     public function data_type_provider() {
+        return $this->provider(false);
+    }
+
+    /**
+     * Generate the CQL data type from the give data type
+     *
+     * @param \Cassandra\Type|string $type Data type
+     * @param bool $for_composite (Optional) True if composite data types
+     *                                       should be frozen for use in a
+     *                                       nested composite data type; false
+     *                                       otherwise (default: false)
+     * @return string String representation of the CQL data type
+     */
+    protected function generate_cql_data_type($type) {
+        // Determine if the data type is a geospatial data type
+        if (strcasecmp("linestring", $type) == 0) {
+            return "Linestring";
+        } else if (strcasecmp("point", $type) == 0) {
+            return "Point";
+        } else if (strcasecmp("polygon", $type) == 0) {
+            return "Polygon";
+        }
+
+        // Call the main class to determine CQL data type
+        return ucfirst(IntegrationTest::generate_cql_data_type($type));
+    }
+
+    /**
+     * Data provider for graph data types
+     *
+     * @see DseGraphIntegrationTest::data_types()
+     *
+     * @param bool $primary_keys True if data types will be used as a primary
+     *                           key; false otherwise
+     * @return array Composite and scalar data type to use in a data provider
+     *     [
+     *         [
+     *             [0] => (string) Graph schema
+     *             [1] => (\Cassandra\Type|string) Data type
+     *             [2] => (mixed) Data type value
+     *             [3] => (mixed) Expected value (validation)
+     *         ]
+     *     ]
+     * @throws \Exception If the sizes of values and expected values are
+     *                    different
+     */
+    protected function provider($primary_keys) {
         // Expand data types into a provider
         $provider = array();
         $count = 1;
-        foreach ($this->data_types() as $multiplier => $data_types) {
+        foreach ($this->data_types($primary_keys) as $data_types) {
             // Ensure the values and expected values are the same size
             $contains_expected = (count($data_types) == 3);
             if ($contains_expected) {
@@ -58,23 +119,15 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
                 }
             }
 
-            // Get the data type and data type name
+            // Get the data type and graph type
             $type = $data_types[0];
-            if (is_a($type, "\\Cassandra\\Type")) {
-                $search = array(
-                    "(",
-                    ")"
-                );
-                $data_type_name = ucfirst(str_replace($search, "", $type->name()));
-            } else {
-                $data_type_name = ucfirst($type);
-            }
+            $graph_type = $this->generate_cql_data_type($type);
 
             // Iterate over each value and update the provider (flatten array)
             foreach ($data_types[1] as $index => $value) {
                 // Create the parameters for the provider
                 $parameters = array();
-                $parameters[] = sprintf(self::SCHEMA_FORMAT, $data_type_name);
+                $parameters[] = sprintf(self::SCHEMA_FORMAT, $graph_type);
                 $parameters[] = $type;
                 $parameters[] = $value;
                 if ($contains_expected) {
@@ -84,14 +137,14 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
                 }
 
                 // Name the provider and add the parameters
-                $provider_name = "{$data_type_name}";
-                $provider_name_suffix = " #" . $count++;
+                $provider_name = "{$graph_type}";
+                $provider_name_suffix = "#" . $count++;
                 if (IntegrationTestFixture::get_instance()->configuration->verbose) {
                     $provider_name_suffix = "{$value}";
                     if (strlen($provider_name_suffix) > 40) {
                         $provider_name_suffix = substr($provider_name_suffix, 0, 37) . "...";
                     }
-                    if (strcasecmp($data_type_name, "boolean") == 0) {
+                    if (strcasecmp($graph_type, "boolean") == 0) {
                         $provider_name_suffix = $value ? "True" : "False";
                     }
                     $provider_name_suffix .= " - {$provider_name_suffix}";
@@ -228,5 +281,4 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
         $this->validate($this->session->executeGraph(self::SELECT, $options),
             $property_name, $vertex_label, $type, $expected);
     }
-
 }

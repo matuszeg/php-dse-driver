@@ -86,17 +86,33 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      */
     const CREATE_KEYSPACE_FORMAT = "CREATE KEYSPACE %s WITH replication = %s;";
     /**
+     * Create UDT format
+     */
+    const CREATE_TYPE_FORMAT = "CREATE TYPE IF NOT EXISTS %s.%s (%s)";
+    /**
      * Drop keyspace format
      */
     const DROP_KEYSPACE_FORMAT = "DROP KEYSPACE %s;";
     /**
      * Maximum length for the keyspace (server limit)
+     *
+     * NOTE: The actual limit is 48; however due to graph names creating
+     *       keyspaces with additional suffix information, the keyspace
+     *       length has been reduced to 40
      */
-    const KEYSPACE_MAXIMUM_LENGTH = 48;
+    const KEYSPACE_MAXIMUM_LENGTH = 40;
+    /**
+     * Maximum length for the table (server limit)
+     */
+    const TABLE_MAXIMUM_LENGTH = 48;
     /**
      * Replication strategy format
      */
     const REPLICATION_STRATEGY_FORMAT = "{ 'class': %s }";
+    /**
+     * Select format for the data types (select cql query)
+     */
+    const SELECT_FORMAT = "SELECT id, value FROM %s.%s";
 
     /**
      * @var \CCM\Bridge CCM interface instance
@@ -223,7 +239,9 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Add custom @requires for specific Cassandra/DSE version requirements
+     * Add custom @requires for specific Cassandra/DSE version requirements and
+     * additional annotations for skipping tests (@skip) and also marking tests
+     * incomplete (@incomplete)
      *
      * NOTE: If server configuration is using DSE and requirement is for
      *       Cassandra, the internal Cassandra version of DSE will be utilized
@@ -231,7 +249,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * Example (>=): @requires Cassandra 3.0.0
      * Example (>=): @requires DSE >= 5.0.0
-     * Example (==): @requires DSE == 4.8.11
+     * Example (==): @requires DSE == 4.8.
      *
      * @inheritdoc
      */
@@ -242,43 +260,64 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         $annotations = $this->getAnnotations();
         foreach (array("class", "method") as $depth) {
             // Short circuit if no annotation are available
-            if (empty($annotations[$depth]["requires"])) {
+            if (empty($annotations[$depth]["incomplete"]) &&
+                empty($annotations[$depth]["requires"]) &&
+                empty($annotations[$depth]["skip"])) {
                 continue;
             }
 
-            // Go through each of the annotations and parse the Cassandra/DSE version
-            foreach ($annotations[$depth]["requires"] as $annotation) {
-                // Ensure the server type is Cassandra or DSE and gather the requirements
-                $requires = explode(" ", $annotation);
-                $type = $requires[0];
-                if ($type == "Cassandra" || $type == "DSE") {
-                    // Handle default comparison operator
-                    if (count($requires) == 2) {
-                        $operator = ">=";
-                        $version = $requires[1];
-                    } else if (count($requires) == 3) {
-                        $operator = $requires[1];
-                        $version = $requires[2];
-                    } else {
-                        continue;
-                    }
+            // Go through each of the annotations and parse the incomplete annotation
+            if (!empty($annotations[$depth]["incomplete"])) {
+                foreach ($annotations[$depth]["incomplete"] as $annotation) {
+                    $this->markTestIncomplete("Annotation @incomplete Found: "
+                        . "Skipping {$this->toString()}");
+                }
+            }
 
-                    // Get the version information from the configuration
-                    $server_type = "Cassandra";
-                    $server_version = self::$configuration->version;
-                    if (self::$configuration->dse) {
-                        $server_type = "DSE";
-                        if ($type == "Cassandra") {
-                            $server_version = self::$configuration->version->cassandra_version;
+            // Go through each of the annotations and parse the Cassandra/DSE version
+            if (!empty($annotations[$depth]["requires"])) {
+                foreach ($annotations[$depth]["requires"] as $annotation) {
+                    // Ensure the server type is Cassandra or DSE and gather the requirements
+                    $requires = explode(" ", $annotation);
+                    $type = $requires[0];
+                    if ($type == "Cassandra" || $type == "DSE") {
+                        // Handle default comparison operator
+                        if (count($requires) == 2) {
+                            $operator = ">=";
+                            $version = $requires[1];
+                        } else if (count($requires) == 3) {
+                            $operator = $requires[1];
+                            $version = $requires[2];
+                        } else {
+                            continue;
+                        }
+
+                        // Get the version information from the configuration
+                        $server_type = "Cassandra";
+                        $server_version = self::$configuration->version;
+                        if (self::$configuration->dse) {
+                            $server_type = "DSE";
+                            if ($type == "Cassandra") {
+                                $server_version =
+                                    self::$configuration->version->cassandra_version;
+                            }
+                        }
+
+                        // Determine if the test should be skipped
+                        if (!version_compare($server_version, $version, $operator)) {
+                            $this->markTestSkipped("{$type} {$operator} v{$version} "
+                                . "is Required; {$server_type} v{$server_version} "
+                                . "is in Use: Skipping {$this->toString()}");
                         }
                     }
+                }
+            }
 
-                    // Determine if the test should be skipped
-                    if (!version_compare($server_version, $version, $operator)) {
-                        $this->markTestSkipped("{$type} {$operator} v{$version} "
-                            . "is Required; {$server_type} v{$server_version} is in Use: "
-                            . "Skipping {$this->toString()}");
-                    }
+            // Go through each of the annotations and parse the skip annotation
+            if (!empty($annotations[$depth]["skip"])) {
+                foreach ($annotations[$depth]["skip"] as $annotation) {
+                    $this->markTestSkipped("Annotation @skip Found: Skipping "
+                        . $this->toString());
                 }
             }
         }
@@ -307,17 +346,30 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                 $unique_id;
         }
 
-        // Generate the table name
+        // Generate the table name and filter out invalid characters
         $search = array(
             "test",
             "with data set",
             "#",
             "\"",
-            "-"
+            "'",
+            "-",
+            "<",
+            ">",
+            ":",
+            ","
         );
         $this->table = str_replace($search, "",
             strtolower($this->getName($this->using_data_provider)));
+        // Apply unique id if table is to long
         $this->table = preg_replace("!\\s+!", "_", $this->table);
+        if (strlen($this->table) > self::TABLE_MAXIMUM_LENGTH) {
+            // Update the table name with a unique ID
+            $unique_id = uniqid();
+            $this->table = substr($this->table,
+                    0, self::TABLE_MAXIMUM_LENGTH - strlen($unique_id)) .
+                $unique_id;
+        }
 
         // Determine replication strategy
         $replication_strategy = "'SimpleStrategy', 'replication_factor': ";
@@ -384,246 +436,195 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Cassandra data types (scalar)
+     * Cassandra composite data types
      *
-     * NOTE: Should be used as a data provider
+     * NOTE: Based on the version of Cassandra being used, only the proper
+     *       composite data types will be returned
+     *
+     * @return array Composite data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
      */
-    public function data_types() {
-        // Create the data provider for all the Cassandra data types
+    protected function composite_data_types() {
+        // Get the Cassandra version
+        $version = IntegrationTestFixture::get_instance()->configuration->version;
+        if (is_a($version, 'Dse\Version')) {
+            $version = $version->cassandra_version;
+        }
+
+        // Get the composite data types that should be used
+        $composite_data_types = $this->composite_data_types_1_2();
+        if ($version->compare("2.1.0")) {
+            $composite_data_types = array_merge(
+                $composite_data_types,
+                $this->composite_data_types_2_1()
+            );
+        }
+        if ($version->compare("2.2.0")) {
+            $composite_data_types = array_merge(
+                $composite_data_types,
+                $this->composite_data_types_2_2()
+            );
+        }
+
+        // Return the composite data types
+        return $composite_data_types;
+    }
+
+    /**
+     * Data types (composite) - Cassandra v1.2
+     *
+     * @return array Composite data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires Cassandra >= 1.2.0
+     */
+    protected function composite_data_types_1_2() {
+        // Define the composite data types
+        $collection_type = \Cassandra\Type::collection(\Cassandra\Type::varchar());
+        $map_type = \Cassandra\Type::map(
+            \Cassandra\Type::int(),
+            \Cassandra\Type::varchar());
+        $set_type = \Cassandra\Type::set(\Cassandra\Type::varchar());
+
         return array(
-            // ASCII data type
+            // Collection data type
             array(
-                \Cassandra\Type::ascii(),
+                $collection_type,
                 array(
-                    "a",
-                    "b",
-                    "c",
-                    "1",
-                    "2",
-                    "3"
+                    $collection_type->create("a", "b", "c"),
+                    $collection_type->create("1", "2", "3"),
+                    $collection_type->create(
+                        "The quick brown fox jumps over the lazy dog",
+                        "Hello World",
+                        "DataStax PHP Driver Extension"
+                    )
                 )
             ),
 
-            // Bigint data type
+            // Map data type
             array(
-                \Cassandra\Type::bigint(),
+                $map_type,
                 array(
-                    \Cassandra\Bigint::max(),
-                    \Cassandra\Bigint::min(),
-                    new \Cassandra\Bigint("0"),
-                    new \Cassandra\Bigint("37")
+                    $map_type->create(1, "a", 2, "b", 3, "c"),
+                    $map_type->create(4, "1", 5, "2", 6, "3"),
+                    $map_type->create(
+                        7, "The quick brown fox jumps over the lazy dog",
+                        8, "Hello World",
+                        9, "DataStax PHP Driver Extension"
+                    )
                 )
             ),
 
-            // Blob data type
+            // Set data type
             array(
-                \Cassandra\Type::blob(),
+                $set_type,
                 array(
-                    new \Cassandra\Blob("DataStax PHP Driver Extension"),
-                    new \Cassandra\Blob("Cassandra"),
-                    new \Cassandra\Blob("DataStax Enterprise")
-                )
-            ),
-
-            // Boolean data type
-            array(
-                \Cassandra\Type::boolean(),
-                array(
-                    true,
-                    false
-                )
-            ),
-
-            // Data data type
-            array(
-                \Cassandra\Type::date(),
-                array(
-                    new \Cassandra\Date(),
-                    new \Cassandra\Date(0),
-                    new \Cassandra\Date(-86400),
-                    new \Cassandra\Date(86400)
-                )
-            ),
-
-            // Decimal data type
-            array(
-                \Cassandra\Type::decimal(),
-                array(
-                    new \Cassandra\Decimal("3.14159265358979323846"),
-                    new \Cassandra\Decimal("2.71828182845904523536"),
-                    new \Cassandra\Decimal("1.61803398874989484820")
-                )
-            ),
-
-            // Double data type
-            array(
-                \Cassandra\Type::double(),
-                array(
-                    3.1415926535,
-                    2.7182818284,
-                    1.6180339887
-                )
-            ),
-
-            // Float data type
-            array(
-                \Cassandra\Type::float(),
-                array(
-                    new \Cassandra\Float(3.14159),
-                    new \Cassandra\Float(2.71828),
-                    new \Cassandra\Float(1.61803)
-                )
-            ),
-
-            // Inet data type
-            array(
-                \Cassandra\Type::inet(),
-                array(
-                    new \Cassandra\Inet("127.0.0.1"),
-                    new \Cassandra\Inet("0:0:0:0:0:0:0:1"),
-                    new \Cassandra\Inet("2001:db8:85a3:0:0:8a2e:370:7334")
-                )
-            ),
-
-            // Integer data type
-            array(
-                \Cassandra\Type::int(),
-                array(
-                    2147483647,
-                    -2147483648,
-                    0,
-                    148
-                )
-            ),
-
-            // Smallint data type
-            array(
-                \Cassandra\Type::smallint(),
-                array(
-                    \Cassandra\Smallint::min(),
-                    \Cassandra\Smallint::max(),
-                    new \Cassandra\Smallint(0),
-                    new \Cassandra\Smallint(74)
-                )
-            ),
-
-            // Text data type
-            array(
-                \Cassandra\Type::text(),
-                array(
-                    "The quick brown fox jumps over the lazy dog",
-                    "Hello World",
-                    "DataStax PHP Driver Extension"
-                )
-            ),
-
-            // Time data type
-            array(
-                \Cassandra\Type::time(),
-                array(
-                    new \Cassandra\Time(),
-                    new \Cassandra\Time(0),
-                    new \Cassandra\Time(1234567890)
-                )
-            ),
-
-            // Tinyint data type
-            array(
-                \Cassandra\Type::tinyint(),
-                array(
-                    \Cassandra\Tinyint::min(),
-                    \Cassandra\Tinyint::max(),
-                    new \Cassandra\Tinyint(0),
-                    new \Cassandra\Tinyint(37)
-                )
-            ),
-
-            // Timestamp data type
-            array(
-                \Cassandra\Type::timestamp(),
-                array(
-                    new \Cassandra\Timestamp(123),
-                    new \Cassandra\Timestamp(456),
-                    new \Cassandra\Timestamp(789),
-                    new \Cassandra\Timestamp(time())
-                )
-            ),
-
-            // Timeuuid data type
-            array(
-                \Cassandra\Type::timeuuid(),
-                array(
-                    new \Cassandra\Timeuuid(0),
-                    new \Cassandra\Timeuuid(1),
-                    new \Cassandra\Timeuuid(2),
-                    new \Cassandra\Timeuuid(time())
-                )
-            ),
-
-            // Uuid data type
-            array(
-                \Cassandra\Type::uuid(),
-                array(
-                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2"),
-                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c3"),
-                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c4")
-                )
-            ),
-
-            // Varchar data type
-            array(
-                \Cassandra\Type::varchar(),
-                array(
-                    "The quick brown fox jumps over the lazy dog",
-                    "Hello World",
-                    "DataStax PHP Driver Extension"
-                )
-            ),
-
-            // Varint data type
-            array(
-                \Cassandra\Type::varint(),
-                array(
-                    new \Cassandra\Varint(PHP_INT_MAX),
-                    new \Cassandra\Varint(PHP_INT_MIN),
-                    new \Cassandra\Varint(0),
-                    new \Cassandra\Varint(296)
+                    $set_type->create("a", "b", "c"),
+                    $set_type->create("1", "2", "3"),
+                    $set_type->create(
+                        "The quick brown fox jumps over the lazy dog",
+                        "Hello World",
+                        "DataStax PHP Driver Extension"
+                    )
                 )
             )
         );
     }
 
     /**
-     * Start the active Cassandra/DSE cluster (Asserts that the cluster is
-     * up and available)
+     * Data types (composite) - Cassandra v2.1
      *
-     * @param array $jvm_arguments (Optional) Cassandra/DSE server JVM
-     *                                        arguments (default: none)
-     *     The optional JVM arguments can be a simple array of JVM arguments
-     *     or it can be an array that contains the JVM arguments accessed by a
-     *     key into the array:
-     *     1.
-     *         [
-     *             "-Dproperty=value",
-     *             "-Dproperty=value",
-     *             .
-     *             .
-     *             "-Dproperty=value"
-     *         ]
-     *     2.
-     *         [
-     *             "jvm" => (array[string]) JVM arguments to apply (see (1) for
-     *                                      format
-     *         ]
+     * @return array Composite data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires Cassandra >= 2.1.0
      */
-    public function start_server_cluster($jvm_arguments = array()) {
-        // Start the cluster and assert that the cluster is ready
-        PHPUnit_Framework_Assert::assertTrue(self::$ccm->start_cluster(
-            array_key_exists("jvm", $jvm_arguments)
-                ? $jvm_arguments["jvm"]
-                : array()
-        ), (self::$configuration->dse ? "DSE" : "Cassandra")
-            . " cluster was not started properly");
+    protected function composite_data_types_2_1() {
+        // Define the tuple data type
+        $tuple_type = \Cassandra\Type::tuple(
+            \Cassandra\Type::bigint(),
+            \Cassandra\Type::int(),
+            \Cassandra\Type::varchar()
+        );
+
+        return array(
+            // Tuple data type
+            array(
+                $tuple_type,
+                array(
+                    $tuple_type->create(
+                        new \Cassandra\Bigint(1),
+                        2,
+                        "a"
+                    ),
+                    $tuple_type->create(
+                        new \Cassandra\Bigint(3),
+                        4,
+                        "b"
+                    ),
+                    $tuple_type->create(
+                        new \Cassandra\Bigint(5),
+                        6,
+                        "c"
+                    )
+                )
+            )
+        );
+    }
+
+    /**
+     * Data types (composite) - Cassandra v2.2
+     *
+     * @return array Composite data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires Cassandra >= 2.2.0
+     */
+    protected function composite_data_types_2_2() {
+        // Define the user data type
+        $user_data_type_type = \Cassandra\Type::userType(
+            "a", \Cassandra\Type::bigint(),
+            "b", \Cassandra\Type::int(),
+            "c", \Cassandra\Type::varchar()
+        );
+        $name = $this->generate_user_data_type_name($user_data_type_type);
+        $user_data_type_type = $user_data_type_type->withName($name);
+
+        return array(
+            // User data type
+            array(
+                $user_data_type_type,
+                array(
+                    $user_data_type_type->create(
+                        "a", new \Cassandra\Bigint(1),
+                        "b", 2,
+                        "c", "x"
+                    ),
+                    $user_data_type_type->create(
+                        "a", new \Cassandra\Bigint(3),
+                        "b", 4,
+                        "c", "y"
+                    ),
+                    $user_data_type_type->create(
+                        "a", new \Cassandra\Bigint(5),
+                        "b", 6,
+                        "c", "z"
+                    )
+                )
+            )
+        );
     }
 
     /**
@@ -655,7 +656,11 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         if (is_null($cluster)) {
             $cluster = $this->cluster;
         }
-        $session = $cluster->connect();
+        try {
+            $session = $cluster->connect();
+        } catch (\Exception $e) {
+            echo $e->getMessage() . PHP_EOL;
+        }
 
         // Get the server version
         if (self::$configuration->dse) {
@@ -717,6 +722,90 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Create the given UDT on the server
+     *
+     * @param $user_data_type UDT to create type for
+     * @param string|null $keyspace (Optional) Keyspace to create UDT in
+     */
+    protected function create_user_data_type($user_data_type, $keyspace = null) {
+        // Determine if the default keyspace name should be used
+        if (is_null($keyspace)) {
+            $keyspace = $this->keyspace;
+        }
+
+        // Generate the UDT fields that make up the CQL type
+        $udt_fields = implode(", ", array_map(
+            function ($key, $data_type) {
+                return "{$key} " . $this->generate_cql_data_type($data_type, true);
+            },
+            array_keys($user_data_type->types()),
+            $user_data_type->types())
+        );
+
+        // Create and execute the query
+        $query = sprintf(self::CREATE_TYPE_FORMAT,
+            $keyspace,
+            $this->generate_user_data_type_name($user_data_type),
+            $udt_fields);
+        $this->session->execute(new \Cassandra\SimpleStatement($query));
+    }
+
+    /**
+     * Cassandra data types
+     *
+     * NOTE: Based on the version of Cassandra being used, only the proper
+     *       data types will be returned
+     *
+     * @param bool $primary_keys (Optional) True if data types will be used as
+     *                                      a primary key; false otherwise
+     *                                      (default: false)
+     * @return array Composite, nested composite and scalar data type to use in
+     *               a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     */
+    protected function data_types($primary_keys = false) {
+        // Get the Cassandra version
+        $version = IntegrationTestFixture::get_instance()->configuration->version;
+        if (is_a($version, 'Dse\Version')) {
+            $version = $version->cassandra_version;
+        }
+
+        // Return all the valid composite and scalar data types for Cassandra version
+        $data_types = $this->scalar_data_types_1_2();
+        if (!$primary_keys) {
+            $data_types = array_merge(
+                $data_types,
+                $this->composite_data_types_1_2(),
+                $this->nested_composite_data_types_1_2()
+            );
+        }
+        if ($version->compare("2.1.0") >= 0) {
+            $data_types = array_merge(
+                $data_types,
+                $this->composite_data_types_2_1(),
+                $this->nested_composite_data_types_2_1()
+            );
+        }
+        if ($version->compare("2.2.0") >= 0) {
+            $data_types = array_merge(
+                $data_types,
+                $this->composite_data_types_2_2(),
+                $this->nested_composite_data_types_2_2()
+            );
+        }
+        if ($version->compare("2.2.3") >= 0) {
+            $data_types = array_merge(
+                $data_types,
+                $this->scalar_data_types_2_2_3()
+            );
+        }
+        return $data_types;
+    }
+
+    /**
      * Get the default cluster builder
      *
      * @param bool $all (Optional) True if all contact should be used; false
@@ -739,7 +828,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
         // Assign the defaults for the cluster configuration
         $cluster->withContactPoints($contact_points)
-            ->withPersistentSessions(false)
+            ->withPersistentSessions(true)
             ->withRandomizedContactPoints(false)
             ->withSchemaMetadata(false);
         return $cluster;
@@ -790,15 +879,67 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Start the log monitoring; open the test's log file for reading and seek
-     * to the end of the file.
+     * Generate the CQL data type from the give data type
+     *
+     * @param \Cassandra\Type $type Data type
+     * @return string String representation of the CQL data type
      */
-    protected function start_log_monitoring() {
-        // Open the file for reading and seek to the end of the file
-        if (is_null($this->log_handle)) {
-            $this->log_handle = fopen($this->log_directory . $this->log_filename, "r");
+    protected function generate_cql_data_type($type) {
+        // Determine if the data type is a composite value and should be frozen
+        if ($this->is_composite_data_type($type)) {
+            // Ensure that UDTs are frozen
+            if (is_a($type, "\\Cassandra\\Type\\UserType")) {
+                return sprintf("frozen<%s>", (string) $type);
+            }
+
+            // Gather the value types from the composite type
+            $types = array();
+            if (is_a($type, "\\Cassandra\\Type\\Collection") ||
+                is_a($type, "\\Cassandra\\Type\\Set")) {
+                $types[] = $type->valueType();
+            } else if (is_a($type, "\\Cassandra\\Type\\Map")) {
+                $types[] = $type->keyType();
+                $types[] = $type->valueType();
+            } else if (is_a($type, "\\Cassandra\\Type\\Tuple")) {
+                $types = $type->types();
+            }
+
+            // Freeze the interior composite data types
+            $cql_data_type = implode(", ",
+                array_map(
+                    function ($value) {
+                        if ($this->is_composite_data_type($value)) {
+                            return sprintf("frozen<%s>", (string) $value);
+                        } else {
+                            return (string)$value;
+                        }
+                    },
+                    $types
+                )
+            );
+            $cql_data_type = sprintf("{$type->name()}<%s>", $cql_data_type);
+            return $cql_data_type;
         }
-        fseek($this->log_handle, -1, SEEK_END);
+
+        // Normal data type (return the string representation)
+        return (string) $type;
+    }
+
+    /**
+     * Determine if a given type is a composite data type
+     *
+     * @param \Cassandra\Type $type Type to determine if it is a composite
+     * @return bool True if $type is a composite data type; false otherwise
+     */
+    protected function is_composite_data_type($type) {
+        if (is_a($type, "\\Cassandra\\Type\\Collection") ||
+            is_a($type, "\\Cassandra\\Type\\Map") ||
+            is_a($type, "\\Cassandra\\Type\\Set") ||
+            is_a($type, "\\Cassandra\\Type\\Tuple") ||
+            is_a($type, "\\Cassandra\\Type\\UserType")) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -820,6 +961,482 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Cassandra nested composite data types
+     *
+     * NOTE: Based on the version of Cassandra being used, only the proper
+     *       nested composite data types will be returned
+     *
+     * @return array Nested composite data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     */
+    protected function nested_composite_data_types() {
+        // Get the Cassandra version
+        $version = IntegrationTestFixture::get_instance()->configuration->version;
+        if (is_a($version, 'Dse\Version')) {
+            $version = $version->cassandra_version;
+        }
+
+        // Get the nested composite data types that should be used
+        $nested_composite_data_types = $this->nested_composite_data_types_1_2();
+        if ($version->compare("2.1.0")) {
+            $nested_composite_data_types[] = $this->nested_composite_data_types_2_1();
+        }
+        if ($version->compare("2.2.0")) {
+            $nested_composite_data_types[] = $this->nested_composite_data_types_2_2();
+        }
+
+        // Return the composite data types
+        return $nested_composite_data_types;
+    }
+
+    /**
+     * Nested Data types (composite) - Cassandra v1.2
+     *
+     * @return array Nested composite data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires Cassandra >= 1.2.0
+     */
+    protected function nested_composite_data_types_1_2() {
+        // Get the composite data types that should be nested
+        $composite_data_types = $this->composite_data_types();
+
+        // Create the nested composite (collection)
+        $nested_composite_data_types = array();
+        foreach ($composite_data_types as $composite_data_type) {
+            // Define and create the nested composite data type (one value only)
+            $type = \Cassandra\Type::collection($composite_data_type[0]);
+            $nested_composite_data_types[] = array(
+                $type,
+                array(
+                    $type->create($composite_data_type[1][0])
+                )
+            );
+        }
+
+        // Create the nested composite (map)
+        foreach ($composite_data_types as $composite_data_type) {
+            // Define and create the nested composite data type (one value only)
+            $type = \Cassandra\Type::map($composite_data_type[0], $composite_data_type[0]);
+            $nested_composite_data_types[] = array(
+                $type,
+                array(
+                    $type->create($composite_data_type[1][0], $composite_data_type[1][1])
+                )
+            );
+        }
+
+        // Create the nested composite (set)
+        foreach ($composite_data_types as $composite_data_type) {
+            // Define and create the nested composite data type (one value only)
+            $type = \Cassandra\Type::set($composite_data_type[0]);
+            $nested_composite_data_types[] = array(
+                $type,
+                array(
+                    $type->create($composite_data_type[1][0])
+                )
+            );
+        }
+
+        // Return the nested composite data types
+        return $nested_composite_data_types;
+    }
+
+    /**
+     * Nested Data types (composite) - Cassandra v2.1
+     *
+     * @return array Nested composite data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires Cassandra >= 2.1.0
+     */
+    protected function nested_composite_data_types_2_1() {
+        // Get the composite data types that should be nested
+        $composite_data_types = $this->composite_data_types();
+
+        // Create the nested composite (tuple)
+        foreach ($composite_data_types as $composite_data_type) {
+            // Define and create the nested composite data type (one value only)
+            $type = \Cassandra\Type::tuple($composite_data_type[0], $composite_data_type[0]);
+            $nested_composite_data_types[] = array(
+                $type,
+                array(
+                    $type->create($composite_data_type[1][0], $composite_data_type[1][1])
+                )
+            );
+        }
+
+        // Return the nested composite data types
+        return $nested_composite_data_types;
+    }
+
+    /**
+     * Nested Data types (composite) - Cassandra v2.2
+     *
+     * @return array Nested composite data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires Cassandra >= 2.2.0
+     */
+    protected function nested_composite_data_types_2_2() {
+        // Get the composite data types that should be nested
+        $composite_data_types = $this->composite_data_types();
+
+        // Create the nested composite (UDT)
+        foreach ($composite_data_types as $composite_data_type) {
+            // Define the user data type
+            $type = \Cassandra\Type::userType(
+                "y", $composite_data_type[0],
+                "z", $composite_data_type[0]
+            );
+            $name = $this->generate_user_data_type_name($type);
+            $type = $type->withName($name);
+
+            // Create the nested composite data type (one value only)
+            $nested_composite_data_types[] = array(
+                $type,
+                array(
+                    $type->create(
+                        "y", $composite_data_type[1][0],
+                        "z", $composite_data_type[1][1]
+                    )
+                )
+            );
+        }
+
+        // Return the nested composite data types
+        return $nested_composite_data_types;
+    }
+
+    /**
+     * Cassandra data types that can be used as primary keys
+     *
+     * NOTE: Based on the version of Cassandra being used, only the proper
+     *       data types will be returned
+     *
+     * @return array Composite and scalar data type for use as a primary key to
+     *               use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     */
+    protected function primary_data_types() {
+        return $this->data_types(true);
+    }
+
+    /**
+     * Data types (scalar) - Cassandra v1.2
+     *
+     * @return array Scalar data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires Cassandra >= 1.2.0
+     */
+    protected function scalar_data_types_1_2() {
+        return array(
+            // ASCII data type
+            array(
+                \Cassandra\Type::ascii(),
+                array(
+                    "a",
+                    "b",
+                    "c",
+                    "1",
+                    "2",
+                    "3"
+                )
+            ),
+
+            // Bigint data type
+            array(
+                \Cassandra\Type::bigint(),
+                array(
+                    \Cassandra\Bigint::max(),
+                    \Cassandra\Bigint::min(),
+                    new \Cassandra\Bigint("0"),
+                    new \Cassandra\Bigint("37")
+                )
+            ),
+
+            // Blob data type
+            array(
+                \Cassandra\Type::blob(),
+                array(
+                    new \Cassandra\Blob("DataStax PHP Driver Extension"),
+                    new \Cassandra\Blob("Cassandra"),
+                    new \Cassandra\Blob("DataStax Enterprise")
+                )
+            ),
+
+            // Boolean data type
+            array(
+                \Cassandra\Type::boolean(),
+                array(
+                    true,
+                    false
+                )
+            ),
+
+            //TODO: Should we add a counter data type?
+
+            // Decimal data type
+            array(
+                \Cassandra\Type::decimal(),
+                array(
+                    new \Cassandra\Decimal("3.14159265358979323846"),
+                    new \Cassandra\Decimal("2.71828182845904523536"),
+                    new \Cassandra\Decimal("1.61803398874989484820")
+                )
+            ),
+
+            // Double data type
+            array(
+                \Cassandra\Type::double(),
+                array(
+                    3.1415926535,
+                    2.7182818284,
+                    1.6180339887
+                )
+            ),
+
+            // Float data type
+            array(
+                \Cassandra\Type::float(),
+                array(
+                    new \Cassandra\Float(3.14159),
+                    new \Cassandra\Float(2.71828),
+                    new \Cassandra\Float(1.61803)
+                )
+            ),
+
+            // Inet data type
+            array(
+                \Cassandra\Type::inet(),
+                array(
+                    new \Cassandra\Inet("127.0.0.1"),
+                    new \Cassandra\Inet("0:0:0:0:0:0:0:1"),
+                    new \Cassandra\Inet("2001:db8:85a3:0:0:8a2e:370:7334")
+                )
+            ),
+
+            // Integer data type
+            array(
+                \Cassandra\Type::int(),
+                array(
+                    2147483647,
+                    -2147483648,
+                    0,
+                    148
+                )
+            ),
+
+            // Text data type
+            array(
+                \Cassandra\Type::text(),
+                array(
+                    "The quick brown fox jumps over the lazy dog",
+                    "Hello World",
+                    "DataStax PHP Driver Extension"
+                )
+            ),
+
+            // Timestamp data type
+            array(
+                \Cassandra\Type::timestamp(),
+                array(
+                    new \Cassandra\Timestamp(123),
+                    new \Cassandra\Timestamp(456),
+                    new \Cassandra\Timestamp(789),
+                    new \Cassandra\Timestamp(time())
+                )
+            ),
+
+            // Timeuuid data type
+            array(
+                \Cassandra\Type::timeuuid(),
+                array(
+                    new \Cassandra\Timeuuid(0),
+                    new \Cassandra\Timeuuid(1),
+                    new \Cassandra\Timeuuid(2),
+                    new \Cassandra\Timeuuid(time())
+                )
+            ),
+
+            // Uuid data type
+            array(
+                \Cassandra\Type::uuid(),
+                array(
+                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2"),
+                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c3"),
+                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c4")
+                )
+            ),
+
+            // Varchar data type
+            array(
+                \Cassandra\Type::varchar(),
+                array(
+                    "The quick brown fox jumps over the lazy dog",
+                    "Hello World",
+                    "DataStax PHP Driver Extension"
+                )
+            ),
+
+            // Varint data type
+            array(
+                \Cassandra\Type::varint(),
+                array(
+                    new \Cassandra\Varint(PHP_INT_MAX),
+                    new \Cassandra\Varint(PHP_INT_MIN),
+                    new \Cassandra\Varint(0),
+                    new \Cassandra\Varint(296)
+                )
+            )
+        );
+    }
+
+    /**
+     * Data types (scalar) - Cassandra v2.2.3
+     *
+     * @return array Scalar data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires Cassandra >= 2.2.3
+     */
+    protected function scalar_data_types_2_2_3() {
+        return array(
+            // Date data type
+            array(
+                \Cassandra\Type::date(),
+                array(
+                    new \Cassandra\Date(),
+                    new \Cassandra\Date(0),
+                    new \Cassandra\Date(-86400),
+                    new \Cassandra\Date(86400)
+                )
+            ),
+
+            // Smallint data type
+            array(
+                \Cassandra\Type::smallint(),
+                array(
+                    \Cassandra\Smallint::min(),
+                    \Cassandra\Smallint::max(),
+                    new \Cassandra\Smallint(0),
+                    new \Cassandra\Smallint(74)
+                )
+            ),
+
+            // Time data type
+            array(
+                \Cassandra\Type::time(),
+                array(
+                    new \Cassandra\Time(),
+                    new \Cassandra\Time(0),
+                    new \Cassandra\Time(1234567890)
+                )
+            ),
+
+            // Tinyint data type
+            array(
+                \Cassandra\Type::tinyint(),
+                array(
+                    \Cassandra\Tinyint::min(),
+                    \Cassandra\Tinyint::max(),
+                    new \Cassandra\Tinyint(0),
+                    new \Cassandra\Tinyint(37)
+                )
+            )
+        );
+    }
+
+    /**
+     * Select all rows from a given keyspace and table
+     *
+     * @param string|null $keyspace (Optional) Keyspace to select from
+     * @param string|null $table (Optional) Table to select from
+     * @return \Cassandra\Rows Select statement result
+     */
+    protected function select_all_rows($keyspace = null, $table = null) {
+        // Determine if the base keyspace and table should be used
+        if (is_null($keyspace)) {
+            $keyspace = $this->keyspace;
+        }
+        if (is_null($table)) {
+            $table = $this->table;
+        }
+
+        // Create and execute the select query
+        $query = sprintf(self::SELECT_FORMAT, $keyspace, $table);
+        $statement = new \Cassandra\SimpleStatement($query);
+        return $this->session->execute($statement);
+    }
+
+    /**
+     * Start the log monitoring; open the test's log file for reading and seek
+     * to the end of the file.
+     */
+    protected function start_log_monitoring() {
+        // Open the file for reading and seek to the end of the file
+        if (is_null($this->log_handle)) {
+            $this->log_handle = fopen($this->log_directory . $this->log_filename, "r");
+        }
+        fseek($this->log_handle, -1, SEEK_END);
+    }
+
+    /**
+     * Start the active Cassandra/DSE cluster (Asserts that the cluster is
+     * up and available)
+     *
+     * @param array $jvm_arguments (Optional) Cassandra/DSE server JVM
+     *                                        arguments (default: none)
+     *     The optional JVM arguments can be a simple array of JVM arguments
+     *     or it can be an array that contains the JVM arguments accessed by a
+     *     key into the array:
+     *     1.
+     *         [
+     *             "-Dproperty=value",
+     *             "-Dproperty=value",
+     *             .
+     *             .
+     *             "-Dproperty=value"
+     *         ]
+     *     2.
+     *         [
+     *             "jvm" => (array[string]) JVM arguments to apply (see (1) for
+     *                                      format
+     *         ]
+     */
+    protected function start_server_cluster($jvm_arguments = array()) {
+        // Start the cluster and assert that the cluster is ready
+        PHPUnit_Framework_Assert::assertTrue(self::$ccm->start_cluster(
+            array_key_exists("jvm", $jvm_arguments)
+                ? $jvm_arguments["jvm"]
+                : array()
+        ), (self::$configuration->dse ? "DSE" : "Cassandra")
+            . " cluster was not started properly");
+    }
+
+    /**
      * Determine if a node is available in teh active cluster
      *
      * @param int $node Node to check availability
@@ -838,6 +1455,30 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Generate a user type name (string) suitable for creating a table or CQL
+     * UDT
+     *
+     * @param \Cassandra\Type\UserType $user_data_type UDT to generate name
+     * @return string String representation of the UDT
+     */
+    protected function generate_user_data_type_name($user_data_type) {
+        $name = implode("_", array_map(
+            function ($key, $data_type) {
+                $search = array(
+                    "<",
+                    ">",
+                    ",",
+                    " "
+                );
+                return $key . str_replace($search, "", $this->generate_cql_data_type($data_type));
+            },
+            array_keys($user_data_type->types()),
+            $user_data_type->types())
+        );
+        return $name;
     }
 
     /**

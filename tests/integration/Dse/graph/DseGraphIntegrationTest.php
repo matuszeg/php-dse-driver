@@ -113,55 +113,6 @@ abstract class DseGraphIntegrationTest extends DseIntegrationTest {
     }
 
     /**
-     * DSE data types (graph)
-     *
-     * NOTE: Should be used as a data provider
-     *
-     * @see DseIntegrationTest::geometry_data_types()
-     */
-    public function data_types() {
-        // Create the array representing all the DSE graph data types
-        $data_types = array(
-            // Duration data type
-            array(
-                "duration",
-                array(
-                    "5 s",
-                    "5 seconds",
-                    "1 minute",
-                    "P1DT1H4M1S",
-                    "P2DT3H4M5S"
-                ),
-                array(
-                    "PT5S",
-                    "PT5S",
-                    "PT1M",
-                    "PT25H4M1S",
-                    "PT51H4M5S"
-                )
-            )
-        );
-
-        // Add the Cassandra data types
-        foreach (parent::data_types() as $data_type) {
-            // Ensure the data types that aren't applicable for graph are removed
-            // https://docs.datastax.com/en/latest-dse/datastax_enterprise/graph/reference/refDSEGraphDataTypes.html
-            $type = $data_type[0];
-            if ($type != \Cassandra\Type::ascii() &&
-                $type != \Cassandra\Type::date() &&
-                $type != \Cassandra\Type::time() &&
-                $type != \Cassandra\Type::timeuuid() &&
-                $type != \Cassandra\Type::tinyint() &&
-                $type != \Cassandra\Type::varchar()) {
-                $data_types[] = $data_type;
-            }
-        }
-
-        // Add the geometry data types
-        return array_merge($data_types, $this->geometry_data_types());
-    }
-
-    /**
      * Create a graph for use with the DSE graph integration tests
      *
      * @param string|null $name (Optional) Name of the graph to create
@@ -204,6 +155,69 @@ abstract class DseGraphIntegrationTest extends DseIntegrationTest {
     }
 
     /**
+     * DSE data types (graph)
+     *
+     * @see DseIntegrationTest::geometry_data_types()
+     *
+     * @param bool $primary_keys (Optional) True if data types will be used as
+     *                                      a primary key; false otherwise
+     *                                      (default: false)
+     * @return array Composite and scalar data type to use in a data provider
+     *     [
+     *         [0] => (\Cassandra\Type|string) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     */
+    protected function data_types($primary_keys = false) {
+        // Create the array representing all the DSE graph data types
+        $data_types = array(
+            // Duration data type
+            array(
+                "duration",
+                array(
+                    "5 s",
+                    "5 seconds",
+                    "1 minute",
+                    "P1DT1H4M1S",
+                    "P2DT3H4M5S"
+                ),
+                array(
+                    "PT5S",
+                    "PT5S",
+                    "PT1M",
+                    "PT25H4M1S",
+                    "PT51H4M5S"
+                )
+            )
+        );
+
+        // Add the Cassandra data types
+        foreach (parent::data_types($primary_keys) as $data_type) {
+            // Ensure the data types that aren't applicable for graph are removed
+            // https://docs.datastax.com/en/latest-dse/datastax_enterprise/graph/reference/refDSEGraphDataTypes.html
+            $type = $data_type[0];
+            if ($type != \Cassandra\Type::ascii() &&
+                $type != \Cassandra\Type::date() &&
+                $type != \Cassandra\Type::time() &&
+                $type != \Cassandra\Type::timeuuid() &&
+                $type != \Cassandra\Type::tinyint() &&
+                $type != \Cassandra\Type::varchar() &&
+                $type != \Cassandra\Type::tinyint() &&
+                !is_a($type, "\\Cassandra\\Type\\Collection") &&
+                !is_a($type, "\\Cassandra\\Type\\Map") &&
+                !is_a($type, "\\Cassandra\\Type\\Set") &&
+                !is_a($type, "\\Cassandra\\Type\\Tuple") &&
+                !is_a($type, "\\Cassandra\\Type\\UserType")) {
+                $data_types[] = $data_type;
+            }
+        }
+
+        // Add the geometry data types
+        return $data_types;
+        return array_merge($data_types, $this->geometry_data_types());
+    }
+
+    /**
      * Drop a graph for use with the DSE graph integration tests
      *
      * @param string|null $name (Optional) Name of the graph to create
@@ -211,7 +225,7 @@ abstract class DseGraphIntegrationTest extends DseIntegrationTest {
      * @param string $duration (Optional) Maximum duration to wait for the
      *                                    traversal to evaluate (default: 30s)
      */
-    public function drop_graph($name = null, $duration = "PT30S") {
+    protected function drop_graph($name = null, $duration = "PT30S") {
         // Determine if the default name and/or replication strategy is required
         if (is_null($name)) {
             $name = $this->table;
