@@ -123,12 +123,21 @@ int php_dse_polygon_construct_from_iterator(DsePolygonIterator* iterator,
   size_t i, num_rings;
   HashTable *line_strings;
 
-  // We may be invoked from __construct, in which case "return_value" is already initialized,
-  // or from marshalling code (that is processing a raw response from DSE), in which case
-  // we need to initialize return_value. The following condition works for PHP5.6 and PHP7.
-  // Yay!
-  if (Z_OBJ_HT_P(return_value) == NULL || Z_OBJCE_P(return_value) != dse_polygon_ce) {
-    object_init_ex(return_value, dse_polygon_ce);
+  // We may be invoked with a return value that's already initialized, so we don't want to
+  // necessarily initialize it here. There are actually three known call sites that provide
+  // return_value in three different states, and this is further complicated by PHP5 vs PHP7.
+  //
+  // 1. invoked from __construct, in which case "return_value" is already initialized,
+  // 2. invoked from marshalling code (that is processing a raw response from DSE), in which case
+  //    we need to initialize return_value. The return_value is actually "defined" but its hashtable is null.
+  // 3. invoked from graph result processing logic, where return_value is not "defined", meaning most of its attributes
+  //    are null.
+  //
+  // The following condition works for PHP5.6 and PHP7. I believe, though I'm no longer certain because the various
+  // cases revealed themselves over time, that the first and third conditions are needed for PHP7 and the first and
+  // second are needed for PHP5. Yay!
+  if (PHP5TO7_ZVAL_IS_UNDEF_P(return_value) || Z_OBJ_HT_P(return_value) == NULL || Z_OBJCE_P(return_value) != dse_polygon_ce) {
+    object_init_ex(return_value, dse_line_string_ce);
   }
 
   polygon = PHP_DSE_GET_POLYGON(return_value);
