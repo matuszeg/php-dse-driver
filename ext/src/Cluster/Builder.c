@@ -42,9 +42,19 @@ PHP_METHOD(ClusterBuilder, build)
   PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(cluster->default_timeout),
                     PHP5TO7_ZVAL_MAYBE_P(self->default_timeout));
 
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(cluster->graph_options),
+                    PHP5TO7_ZVAL_MAYBE_P(self->graph_options));
+
+
   if (self->persist) {
+    const char *graph_options_hash_key = ":graph_options";
+    if (!PHP5TO7_ZVAL_IS_UNDEF(self->graph_options)) {
+      graph_options_hash_key = PHP_DRIVER_GET_GRAPH_OPTIONS(PHP5TO7_ZVAL_MAYBE_P(self->graph_options))->hash_key;
+    }
+
     cluster->hash_key_len = spprintf(&cluster->hash_key, 0,
-                                     PHP_DRIVER_NAME ":%s:%d:%d:%s:%d:%d:%d:%s:%s:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%s:%s:%s:%s",
+                                     PHP_DRIVER_NAME ":%s:%d:%d:%s:%d:%d:%d:%s:%s:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%s:%s:%s:%s"
+                                                     ":%s:%s:%s:%s:%s",
                                      self->contact_points, self->port, self->load_balancing_policy,
                                      SAFE_STR(self->local_dc), self->used_hosts_per_remote_dc,
                                      self->allow_remote_dcs_for_local_cl, self->use_token_aware_routing,
@@ -58,7 +68,10 @@ PHP_METHOD(ClusterBuilder, build)
                                      self->enable_hostname_resolution, self->enable_randomized_contact_points,
                                      self->connection_heartbeat_interval,
                                      SAFE_STR(self->whitelist_hosts), SAFE_STR(self->whitelist_dcs),
-                                     SAFE_STR(self->blacklist_hosts), SAFE_STR(self->blacklist_dcs));
+                                     SAFE_STR(self->whitelist_hosts), SAFE_STR(self->whitelist_dcs),
+                                     SAFE_STR(self->plaintext_username), SAFE_STR(self->plaintext_password),
+                                     SAFE_STR(self->gssapi_service), SAFE_STR(self->gssapi_principal),
+                                     graph_options_hash_key);
 
     if (self->persist) {
       php5to7_zend_resource_le *le;
@@ -930,6 +943,81 @@ PHP_METHOD(ClusterBuilder, withConnectionHeartbeatInterval)
   RETURN_ZVAL(getThis(), 1, 0);
 }
 
+PHP_METHOD(ClusterBuilder, withPlaintextAuthenticator)
+{
+  zval *username = NULL;
+  zval *password = NULL;
+
+  php_driver_cluster_builder *self = PHP_DRIVER_GET_CLUSTER_BUILDER(getThis());
+
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz", &username, &password) == FAILURE) {
+    return;
+  }
+
+  if (Z_TYPE_P(username) != IS_STRING) {
+    INVALID_ARGUMENT(username, "a string");
+  }
+
+  if (Z_TYPE_P(password) != IS_STRING) {
+    INVALID_ARGUMENT(password, "a string");
+  }
+
+  if (self->plaintext_username) {
+    efree(self->plaintext_username);
+    efree(self->plaintext_password);
+  }
+
+  self->plaintext_username = estrndup(Z_STRVAL_P(username), Z_STRLEN_P(username));
+  self->plaintext_password = estrndup(Z_STRVAL_P(password), Z_STRLEN_P(password));
+
+  RETURN_ZVAL(getThis(), 1, 0);
+}
+
+PHP_METHOD(ClusterBuilder, withGssapiAuthenticator)
+{
+  zval *service = NULL;
+  zval *principal = NULL;
+
+  php_driver_cluster_builder *self = PHP_DRIVER_GET_CLUSTER_BUILDER(getThis());
+
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &service, &principal) == FAILURE) {
+    return;
+  }
+
+  if (Z_TYPE_P(service) != IS_STRING) {
+    INVALID_ARGUMENT(service, "a string");
+  }
+
+  if (principal && Z_TYPE_P(principal) != IS_STRING) {
+    INVALID_ARGUMENT(principal, "a string");
+  }
+
+  if (self->gssapi_service) {
+    efree(self->gssapi_service);
+    efree(self->gssapi_principal);
+  }
+
+  self->gssapi_service = estrndup(Z_STRVAL_P(service), Z_STRLEN_P(service));
+  self->gssapi_principal = principal ? estrndup(Z_STRVAL_P(principal), Z_STRLEN_P(principal)) : estrdup("");
+
+  RETURN_ZVAL(getThis(), 1, 0);
+}
+
+PHP_METHOD(ClusterBuilder, withGraphOptions)
+{
+  zval *options = NULL;
+
+  php_driver_cluster_builder *self = PHP_DRIVER_GET_CLUSTER_BUILDER(getThis());
+
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &options) == FAILURE) {
+    return;
+  }
+
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(self->graph_options), options);
+
+  RETURN_ZVAL(getThis(), 1, 0);
+}
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
@@ -1017,6 +1105,20 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_timestamp_gen, 0, ZEND_RETURN_VALUE, 1)
   PHP_DRIVER_NAMESPACE_ZEND_ARG_OBJ_INFO(0, generator, TimestampGenerator, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_plaintext_authenticator, 0, ZEND_RETURN_VALUE, 2)
+  ZEND_ARG_INFO(0, username)
+  ZEND_ARG_INFO(0, password)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gssapi_authenticator, 0, ZEND_RETURN_VALUE, 2)
+  ZEND_ARG_INFO(0, service)
+  ZEND_ARG_INFO(0, principal)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_options, 0, ZEND_RETURN_VALUE, 2)
+  PHP_DRIVER_NAMESPACE_ZEND_ARG_OBJ_INFO(0, options, Graph\\Options, 0)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry php_driver_cluster_builder_methods[] = {
   PHP_ME(ClusterBuilder, build, arginfo_none, ZEND_ACC_PUBLIC)
   PHP_ME(ClusterBuilder, withDefaultConsistency, arginfo_consistency, ZEND_ACC_PUBLIC)
@@ -1049,6 +1151,9 @@ static zend_function_entry php_driver_cluster_builder_methods[] = {
   PHP_ME(ClusterBuilder, withHostnameResolution, arginfo_enabled, ZEND_ACC_PUBLIC)
   PHP_ME(ClusterBuilder, withRandomizedContactPoints, arginfo_enabled, ZEND_ACC_PUBLIC)
   PHP_ME(ClusterBuilder, withConnectionHeartbeatInterval, arginfo_interval, ZEND_ACC_PUBLIC)
+  PHP_ME(ClusterBuilder, withPlaintextAuthenticator, arginfo_plaintext_authenticator, ZEND_ACC_PUBLIC)
+  PHP_ME(ClusterBuilder, withGssapiAuthenticator, arginfo_gssapi_authenticator, ZEND_ACC_PUBLIC)
+  PHP_ME(ClusterBuilder, withGraphOptions, arginfo_graph_options, ZEND_ACC_PUBLIC)
   PHP_FE_END
 };
 
@@ -1370,6 +1475,28 @@ php_driver_cluster_builder_free(php5to7_zend_object_free *object TSRMLS_DC)
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->retry_policy);
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->timestamp_gen);
 
+  if (self->plaintext_username) {
+    efree(self->plaintext_username);
+    self->plaintext_username = NULL;
+  }
+
+  if (self->plaintext_password) {
+    efree(self->plaintext_password);
+    self->plaintext_password = NULL;
+  }
+
+  if (self->gssapi_service) {
+    efree(self->gssapi_service);
+    self->gssapi_service = NULL;
+  }
+
+  if (self->gssapi_principal) {
+    efree(self->gssapi_principal);
+    self->gssapi_principal = NULL;
+  }
+
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->graph_options);
+
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
 }
@@ -1416,6 +1543,12 @@ php_driver_cluster_builder_new(zend_class_entry *ce TSRMLS_DC)
   PHP5TO7_ZVAL_UNDEF(self->default_timeout);
   PHP5TO7_ZVAL_UNDEF(self->retry_policy);
   PHP5TO7_ZVAL_UNDEF(self->timestamp_gen);
+
+  self->plaintext_username = NULL;
+  self->plaintext_password = NULL;
+  self->gssapi_service = NULL;
+  self->gssapi_principal = NULL;
+  PHP5TO7_ZVAL_UNDEF(self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT(cluster_builder, self, ce);
 }

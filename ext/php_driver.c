@@ -44,8 +44,8 @@ static uv_once_t log_once = UV_ONCE_INIT;
 static char *log_location = NULL;
 static uv_rwlock_t log_lock;
 
-#if CURRENT_CPP_DRIVER_VERSION < CPP_DRIVER_VERSION(2, 5, 0)
-#error C/C++ driver version 2.5.0 or greater required
+#if CURRENT_CPP_DSE_DRIVER_VERSION < CPP_DSE_DRIVER_VERSION(1, 0, 0)
+#error C/C++ DSE driver version 1.0.0 or greater required
 #endif
 
 ZEND_DECLARE_MODULE_GLOBALS(php_driver)
@@ -87,7 +87,7 @@ zend_module_entry php_driver_module_entry = {
   STANDARD_MODULE_PROPERTIES_EX
 };
 
-#ifdef COMPILE_DL_CASSANDRA
+#ifdef COMPILE_DL_DSE
 ZEND_GET_MODULE(php_driver)
 #endif
 
@@ -427,6 +427,9 @@ static PHP_GINIT_FUNCTION(php_driver)
   PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_timestamp);
   PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_uuid);
   PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_timeuuid);
+
+  php_driver_globals->iterator_line_string = dse_line_string_iterator_new();
+  php_driver_globals->iterator_polygon = dse_polygon_iterator_new();
 }
 
 static PHP_GSHUTDOWN_FUNCTION(php_driver)
@@ -435,6 +438,9 @@ static PHP_GSHUTDOWN_FUNCTION(php_driver)
     cass_uuid_gen_free(php_driver_globals->uuid_gen);
   }
   php_driver_log_cleanup();
+
+  dse_line_string_iterator_free(php_driver_globals->iterator_line_string);
+  dse_polygon_iterator_free(php_driver_globals->iterator_polygon);
 }
 
 PHP_MINIT_FUNCTION(php_driver)
@@ -557,6 +563,32 @@ PHP_MINIT_FUNCTION(php_driver)
   php_driver_define_TimestampGeneratorMonotonic(TSRMLS_C);
   php_driver_define_TimestampGeneratorServerSide(TSRMLS_C);
 
+  /* DSE graph */
+  php_driver_define_GraphOptions(TSRMLS_C);
+  php_driver_define_GraphOptionsBuilder(TSRMLS_C);
+  php_driver_define_GraphStatement(TSRMLS_C);
+  php_driver_define_GraphSimpleStatement(TSRMLS_C);
+  php_driver_define_GraphResult(TSRMLS_C);
+  php_driver_define_GraphResultSet(TSRMLS_C);
+  php_driver_define_GraphFutureResultSet(TSRMLS_C);
+  php_driver_define_GraphElement(TSRMLS_C);
+  php_driver_define_GraphProperty(TSRMLS_C);
+  php_driver_define_GraphEdge(TSRMLS_C);
+  php_driver_define_GraphPath(TSRMLS_C);
+  php_driver_define_GraphVertex(TSRMLS_C);
+  php_driver_define_GraphVertexProperty(TSRMLS_C);
+  php_driver_define_GraphDefaultElement(TSRMLS_C);
+  php_driver_define_GraphDefaultProperty(TSRMLS_C);
+  php_driver_define_GraphDefaultEdge(TSRMLS_C);
+  php_driver_define_GraphDefaultPath(TSRMLS_C);
+  php_driver_define_GraphDefaultVertex(TSRMLS_C);
+  php_driver_define_GraphDefaultVertexProperty(TSRMLS_C);
+
+  /* DSE geometric types */
+  php_driver_define_Point(TSRMLS_C);
+  php_driver_define_LineString(TSRMLS_C);
+  php_driver_define_Polygon(TSRMLS_C);
+
   return SUCCESS;
 }
 
@@ -575,6 +607,10 @@ PHP_RINIT_FUNCTION(php_driver)
   PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
 
+  PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(type_line_string));
+  PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(type_point));
+  PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(type_polygon));
+
   return SUCCESS;
 }
 
@@ -585,6 +621,10 @@ PHP_RSHUTDOWN_FUNCTION(php_driver)
 
   PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
+
+  PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(type_line_string));
+  PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(type_point));
+  PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(type_polygon));
 
   return SUCCESS;
 }
@@ -598,7 +638,7 @@ PHP_MINFO_FUNCTION(php_driver)
   snprintf(buf, sizeof(buf), "%d.%d.%d%s",
            CASS_VERSION_MAJOR, CASS_VERSION_MINOR, CASS_VERSION_PATCH,
            strlen(CASS_VERSION_SUFFIX) > 0 ? "-" CASS_VERSION_SUFFIX : "");
-  php_info_print_table_row(2, "C/C++ driver version", buf);
+  php_info_print_table_row(2, "C/C++ (" PHP_DRIVER_NAMESPACE ") driver version", buf);
 
   snprintf(buf, sizeof(buf), "%d", PHP_DRIVER_G(persistent_clusters));
   php_info_print_table_row(2, "Persistent Clusters", buf);

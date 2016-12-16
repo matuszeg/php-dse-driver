@@ -96,11 +96,7 @@ if (PHP_DSE != "no") {
           if (ADD_EXTENSION_DEP("dse", "spl")) {
             EXTENSION("dse", "php_dse.c");
 
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext",
-                "php_cassandra_shared.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src",
-                "Cassandra.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Cassandra",
                 "Aggregate.c " +
                 "BatchStatement.c " +
                 "Bigint.c " +
@@ -134,9 +130,12 @@ if (PHP_DSE != "no") {
                 "Index.c " +
                 "Inet.c " +
                 "Keyspace.c " +
+                "LineString.c " +
                 "Map.c " +
                 "MaterializedView.c " +
                 "Numeric.c " +
+                "Point.c " +
+                "Polygon.c " +
                 "PreparedStatement.c " +
                 "RetryPolicy.c " +
                 "Rows.c " +
@@ -160,10 +159,10 @@ if (PHP_DSE != "no") {
                 "UuidInterface.c " +
                 "Value.c " +
                 "Varint.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Cassandra/Cluster",
+            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Cluster",
                 "Builder.c " +
                 "DefaultBuilder.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Cassandra/Exception",
+            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Exception",
                 "AlreadyExistsException.c " +
                 "AuthenticationException.c " +
                 "ConfigurationException.c " +
@@ -188,17 +187,17 @@ if (PHP_DSE != "no") {
                 "UnpreparedException.c " +
                 "ValidationException.c " +
                 "WriteTimeoutException.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Cassandra/RetryPolicy",
+            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/RetryPolicy",
                 "DefaultPolicy.c " +
                 "DowngradingConsistency.c " +
                 "Fallthrough.c " +
                 "Logging.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Cassandra/SSLOptions",
+            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/SSLOptions",
                 "Builder.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Cassandra/TimestampGenerator",
+            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/TimestampGenerator",
                 "Monotonic.c " +
                 "ServerSide.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Cassandra/Type",
+            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Type",
                 "Collection.c " +
                 "Custom.c " +
                 "Map.c " +
@@ -218,16 +217,10 @@ if (PHP_DSE != "no") {
                 "result.c " +
                 "types.c " +
                 "uuid_gen.c", "dse");
-
-            ADD_SOURCES(configure_module_dirname + "/src",
-                "Dse.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/src/Dse",
-                "Cluster.c " +
-                "DefaultCluster.c " +
-                "DefaultSession.c " +
-                "FutureSession.c " +
-                "Session.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/src/Dse/Graph",
+            ADD_SOURCES(configure_module_dirname + "/src/Cluster",
+                "Builder.c " +
+                "DefaultBuilder.c", "dse");
+            ADD_SOURCES(configure_module_dirname + "/src/Graph",
                 "DefaultElement.c " +
                 "DefaultEdge.c " +
                 "DefaultPath.c " +
@@ -245,11 +238,8 @@ if (PHP_DSE != "no") {
                 "Statement.c " +
                 "Vertex.c" +
                 "VertexProperty.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/src/Dse/Graph/Options",
+            ADD_SOURCES(configure_module_dirname + "/src/Graph/Options",
                 "Builder.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/src/Dse/Cluster",
-                "Builder.c " +
-                "DefaultBuilder.c", "dse");
 
             ADD_FLAG("LDFLAGS_DSE",
                 "/INCREMENTAL:NO " +

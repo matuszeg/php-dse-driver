@@ -6,7 +6,7 @@
 #endif
 
 #include <gmp.h>
-#include <cassandra.h>
+#include <dse.h>
 
 /* Ensure Visual Studio 2010 does not load MSVC++ stdint definitions */
 #ifdef _WIN32
@@ -56,16 +56,16 @@ typedef int pid_t;
 #  define PHP_DRIVER_API
 #endif
 
-#define PHP_DRIVER_NAMESPACE "Cassandra"
+#define PHP_DRIVER_NAMESPACE "Dse"
 
 #define PHP_DRIVER_NAMESPACE_ZEND_ARG_OBJ_INFO(pass_by_ref, name, classname, allow_null) \
-  ZEND_ARG_OBJ_INFO(pass_by_ref, name, Cassandra\\classname, allow_null)
+  ZEND_ARG_OBJ_INFO(pass_by_ref, name, Dse\\classname, allow_null)
 
 #define PHP_DRIVER_CORE_METHOD(name) \
-  PHP_METHOD(Cassandra, name)
+  PHP_METHOD(, name)
 
 #define PHP_DRIVER_CORE_ME(name, arg_info, flags) \
-  PHP_ME(Cassandra, name, arg_info, flags)
+  PHP_ME(, name, arg_info, flags)
 
 #ifndef ZEND_MOD_END
 #  define ZEND_MOD_END {NULL, NULL, NULL}
@@ -95,8 +95,14 @@ typedef int pid_t;
 #define CPP_DRIVER_VERSION(major, minor, patch) \
   (((major) << 16) + ((minor) << 8) + (patch))
 
+#define CPP_DSE_DRIVER_VERSION(major, minor, patch) \
+  CPP_DRIVER_VERSION(major, minor, path)
+
 #define CURRENT_CPP_DRIVER_VERSION \
   CPP_DRIVER_VERSION(CASS_VERSION_MAJOR, CASS_VERSION_MINOR, CASS_VERSION_PATCH)
+
+#define CURRENT_CPP_DSE_DRIVER_VERSION \
+  CPP_DSE_DRIVER_VERSION(DSE_VERSION_MAJOR, DSE_VERSION_MINOR, DSE_VERSION_PATCH)
 
 #if PHP_MAJOR_VERSION >= 7
 #define php5to7_zend_register_internal_class_ex(ce, parent_ce) zend_register_internal_class_ex((ce), (parent_ce) TSRMLS_CC);

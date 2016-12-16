@@ -59,6 +59,9 @@ PHP_METHOD(DefaultCluster, connect)
                       PHP5TO7_ZVAL_MAYBE_P(self->default_timeout));
   }
 
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(session->graph_options),
+                    PHP5TO7_ZVAL_MAYBE_P(self->graph_options));
+
   if (session->persist) {
     php5to7_zend_resource_le *le;
 
@@ -155,6 +158,9 @@ PHP_METHOD(DefaultCluster, connectAsync)
   future->persist = self->persist;
   future->hash_key = estrdup(self->hash_key);
   future->hash_key_len = self->hash_key_len;
+
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(future->graph_options),
+                    PHP5TO7_ZVAL_MAYBE_P(self->graph_options));
 
   if (self->persist) {
     php5to7_zend_resource_le *le;
@@ -254,6 +260,7 @@ php_driver_default_cluster_free(php5to7_zend_object_free *object TSRMLS_DC)
   }
 
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->default_timeout);
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->graph_options);
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
@@ -272,6 +279,7 @@ php_driver_default_cluster_new(zend_class_entry *ce TSRMLS_DC)
   self->hash_key            = NULL;
 
   PHP5TO7_ZVAL_UNDEF(self->default_timeout);
+  PHP5TO7_ZVAL_UNDEF(self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(cluster, default_cluster, self, ce);
 }

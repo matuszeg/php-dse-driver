@@ -36,6 +36,9 @@
   } php_driver_##type_name;
 #endif
 
+// Format string macro for how to emit a coordinate of a Point.
+#define COORD_FMT "%.17g"
+
 #if PHP_MAJOR_VERSION >= 7
   #define PHP_DRIVER_GET_NUMERIC(obj) php_driver_numeric_object_fetch(Z_OBJ_P(obj))
   #define PHP_DRIVER_GET_BLOB(obj) php_driver_blob_object_fetch(Z_OBJ_P(obj))
@@ -73,6 +76,21 @@
   #define PHP_DRIVER_GET_TYPE(obj) php_driver_type_object_fetch(Z_OBJ_P(obj))
   #define PHP_DRIVER_GET_RETRY_POLICY(obj) php_driver_retry_policy_object_fetch(Z_OBJ_P(obj))
   #define PHP_DRIVER_GET_TIMESTAMP_GEN(obj) php_driver_timestamp_gen_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_OPTIONS(obj) php_driver_graph_options_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_OPTIONS_BUILDER(obj) php_driver_graph_options_builder_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_STATEMENT(obj) php_driver_graph_statement_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_RESULT(obj) php_driver_graph_result_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_RESULT_SET(obj) php_driver_graph_result_set_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_FUTURE_RESULT_SET(obj) php_driver_graph_future_result_set_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_ELEMENT(obj) php_driver_graph_element_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_PROPERTY(obj) php_driver_graph_property_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_EDGE(obj) php_driver_graph_edge_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_PATH(obj) php_driver_graph_path_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_VERTEX(obj) php_driver_graph_vertex_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_GRAPH_VERTEX_PROPERTY(obj) php_driver_graph_vertex_property_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_POINT(obj) php_driver_point_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_LINE_STRING(obj) php_driver_line_string_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_POLYGON(obj) php_driver_polygon_object_fetch(Z_OBJ_P(obj))
 #else
   #define PHP_DRIVER_GET_NUMERIC(obj) ((php_driver_numeric *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DRIVER_GET_BLOB(obj) ((php_driver_blob *)zend_object_store_get_object((obj) TSRMLS_CC))
@@ -110,6 +128,21 @@
   #define PHP_DRIVER_GET_TYPE(obj) ((php_driver_type *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DRIVER_GET_RETRY_POLICY(obj) ((php_driver_retry_policy *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DRIVER_GET_TIMESTAMP_GEN(obj) ((php_driver_timestamp_gen *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_OPTIONS(obj) ((php_driver_graph_options *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_OPTIONS_BUILDER(obj) ((php_driver_graph_options_builder *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_STATEMENT(obj) ((php_driver_graph_statement *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_RESULT(obj) ((php_driver_graph_result *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_RESULT_SET(obj) ((php_driver_graph_result_set *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_FUTURE_RESULT_SET(obj) ((php_driver_graph_future_result_set *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_ELEMENT(obj) ((php_driver_graph_element *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_PROPERTY(obj) ((php_driver_graph_property *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_EDGE(obj) ((php_driver_graph_edge *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_PATH(obj) ((php_driver_graph_path *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_VERTEX(obj) ((php_driver_graph_vertex *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_GRAPH_VERTEX_PROPERTY(obj) ((php_driver_graph_vertex_property *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_POINT(obj) ((php_driver_point *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_LINE_STRING(obj) ((php_driver_line_string *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_POLYGON(obj) ((php_driver_polygon *)zend_object_store_get_object((obj) TSRMLS_CC))
 #endif
 
 typedef enum {
@@ -216,6 +249,8 @@ PHP_DRIVER_BEGIN_OBJECT_TYPE(cluster)
   cass_bool_t persist;
   char *hash_key;
   int hash_key_len;
+  /* DSE */
+  php5to7_zval graph_options;
 PHP_DRIVER_END_OBJECT_TYPE(cluster)
 
 typedef enum {
@@ -321,6 +356,12 @@ PHP_DRIVER_BEGIN_OBJECT_TYPE(cluster_builder)
   cass_bool_t enable_hostname_resolution;
   cass_bool_t enable_randomized_contact_points;
   unsigned int connection_heartbeat_interval;
+  /* DSE */
+  char *plaintext_username;
+  char *plaintext_password;
+  char *gssapi_service;
+  char *gssapi_principal;
+  php5to7_zval graph_options;
 PHP_DRIVER_END_OBJECT_TYPE(cluster_builder)
 
 PHP_DRIVER_BEGIN_OBJECT_TYPE(future_prepared_statement)
@@ -345,6 +386,8 @@ PHP_DRIVER_BEGIN_OBJECT_TYPE(future_session)
   int hash_key_len;
   char *exception_message;
   CassError exception_code;
+  /* DSE */
+  php5to7_zval graph_options;
 PHP_DRIVER_END_OBJECT_TYPE(future_session)
 
 typedef struct {
@@ -358,6 +401,8 @@ PHP_DRIVER_BEGIN_OBJECT_TYPE(session)
   int default_page_size;
   php5to7_zval default_timeout;
   cass_bool_t persist;
+  /* DSE */
+  php5to7_zval graph_options;
 PHP_DRIVER_END_OBJECT_TYPE(session)
 
 PHP_DRIVER_BEGIN_OBJECT_TYPE(ssl)
@@ -471,6 +516,93 @@ PHP_DRIVER_END_OBJECT_TYPE(retry_policy)
 PHP_DRIVER_BEGIN_OBJECT_TYPE(timestamp_gen)
   CassTimestampGen *gen;
 PHP_DRIVER_END_OBJECT_TYPE(timestamp_gen)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_options)
+  DseGraphOptions *options;
+  char* hash_key;
+PHP_DRIVER_END_OBJECT_TYPE(graph_options)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_options_builder)
+  char *graph_language;
+  char *graph_source;
+  char *graph_name;
+  long read_consistency;
+  long write_consistency;
+  cass_int64_t request_timeout;
+PHP_DRIVER_END_OBJECT_TYPE(graph_options_builder)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_statement)
+  char *query;
+PHP_DRIVER_END_OBJECT_TYPE(graph_statement)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_result)
+  DseGraphResultType type;
+  php5to7_zval value;
+PHP_DRIVER_END_OBJECT_TYPE(graph_result)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_result_set)
+  php5to7_zval results;
+PHP_DRIVER_END_OBJECT_TYPE(graph_result_set)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_future_result_set)
+  php5to7_zval result_set;
+  CassFuture *future;
+PHP_DRIVER_END_OBJECT_TYPE(graph_future_result_set)
+
+typedef struct {
+  php5to7_zval id;
+  char *label;
+  php5to7_zval properties;
+} php_driver_graph_element_base;
+
+typedef struct {
+  char *name;
+  php5to7_zval value;
+  php5to7_zval parent;
+} php_driver_graph_property_base;
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_element)
+  php_driver_graph_element_base base;
+PHP_DRIVER_END_OBJECT_TYPE(graph_element)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_property)
+  php_driver_graph_property_base base;
+PHP_DRIVER_END_OBJECT_TYPE(graph_property)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_edge)
+  php_driver_graph_element_base element;
+  php5to7_zval in_v;
+  char *in_v_label;
+  php5to7_zval out_v;
+  char *out_v_label;
+PHP_DRIVER_END_OBJECT_TYPE(graph_edge)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_path)
+  php5to7_zval labels;
+  php5to7_zval objects;
+PHP_DRIVER_END_OBJECT_TYPE(graph_path)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_vertex)
+  php_driver_graph_element_base element;
+PHP_DRIVER_END_OBJECT_TYPE(graph_vertex)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(graph_vertex_property)
+  php_driver_graph_element_base element;
+  php_driver_graph_property_base property;
+PHP_DRIVER_END_OBJECT_TYPE(graph_vertex_property)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(point)
+  double x;
+  double y;
+PHP_DRIVER_END_OBJECT_TYPE(point)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(line_string)
+  php5to7_zval points; /* An array of points */
+PHP_DRIVER_END_OBJECT_TYPE(line_string)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(polygon)
+  php5to7_zval rings; /* An array of LineString */
+PHP_DRIVER_END_OBJECT_TYPE(polygon)
 
 typedef unsigned (*php_driver_value_hash_t)(zval *obj TSRMLS_DC);
 
@@ -696,6 +828,58 @@ extern PHP_DRIVER_API zend_class_entry *php_driver_timestamp_gen_server_side_ce;
 void php_driver_define_TimestampGenerator(TSRMLS_D);
 void php_driver_define_TimestampGeneratorMonotonic(TSRMLS_D);
 void php_driver_define_TimestampGeneratorServerSide(TSRMLS_D);
+
+/* DSE graph */
+
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_options_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_options_builder_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_statement_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_simple_statement_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_result_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_result_set_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_future_result_set_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_element_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_property_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_edge_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_path_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_vertex_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_vertex_property_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_default_element_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_default_property_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_default_edge_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_default_path_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_default_vertex_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_graph_default_vertex_property_ce;
+
+void php_driver_define_GraphOptions(TSRMLS_D);
+void php_driver_define_GraphOptionsBuilder(TSRMLS_D);
+void php_driver_define_GraphStatement(TSRMLS_D);
+void php_driver_define_GraphSimpleStatement(TSRMLS_D);
+void php_driver_define_GraphResult(TSRMLS_D);
+void php_driver_define_GraphResultSet(TSRMLS_D);
+void php_driver_define_GraphFutureResultSet(TSRMLS_D);
+void php_driver_define_GraphElement(TSRMLS_D);
+void php_driver_define_GraphProperty(TSRMLS_D);
+void php_driver_define_GraphEdge(TSRMLS_D);
+void php_driver_define_GraphPath(TSRMLS_D);
+void php_driver_define_GraphVertex(TSRMLS_D);
+void php_driver_define_GraphVertexProperty(TSRMLS_D);
+void php_driver_define_GraphDefaultElement(TSRMLS_D);
+void php_driver_define_GraphDefaultProperty(TSRMLS_D);
+void php_driver_define_GraphDefaultEdge(TSRMLS_D);
+void php_driver_define_GraphDefaultPath(TSRMLS_D);
+void php_driver_define_GraphDefaultVertex(TSRMLS_D);
+void php_driver_define_GraphDefaultVertexProperty(TSRMLS_D);
+
+/* DSE geometric types */
+
+extern PHP_DRIVER_API zend_class_entry *php_driver_point_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_line_string_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_polygon_ce;
+
+void php_driver_define_Point(TSRMLS_D);
+void php_driver_define_LineString(TSRMLS_D);
+void php_driver_define_Polygon(TSRMLS_D);
 
 extern int php_le_php_driver_cluster();
 extern int php_le_php_driver_session();

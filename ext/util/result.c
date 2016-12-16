@@ -21,7 +21,10 @@
 #include "collections.h"
 #include "types.h"
 #include "src/Collection.h"
+#include "src/LineString.h"
 #include "src/Map.h"
+#include "src/Point.h"
+#include "src/Polygon.h"
 #include "src/Set.h"
 #include "src/Tuple.h"
 #include "src/UserTypeValue.h"
@@ -66,6 +69,24 @@ php_driver_value(const CassValue* value, const CassDataType* data_type, php5to7_
   }
 
   switch (type) {
+  case CASS_VALUE_TYPE_CUSTOM:
+    ASSERT_SUCCESS_BLOCK(cass_data_type_class_name(cass_value_data_type(value), &v_string, &v_string_len),
+                         zval_ptr_dtor(out);
+        return FAILURE;
+    );
+    if (strncmp(DSE_LINE_STRING_TYPE, v_string, v_string_len) == 0) {
+      return php_driver_line_string_construct_from_value(value, out TSRMLS_CC);
+    } else if (strncmp(DSE_POINT_TYPE, v_string, v_string_len) == 0) {
+      return php_driver_point_construct_from_value(value, out TSRMLS_CC);
+    } else if (strncmp(DSE_POLYGON_TYPE, v_string, v_string_len) == 0) {
+      return php_driver_polygon_construct_from_value(value, out TSRMLS_CC);
+    } else{
+      zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC,
+                              "Unable to to construct unsupported custom type %.*s",
+                              (int)v_string_len, v_string);
+      return FAILURE;
+    }
+    break;
   case CASS_VALUE_TYPE_ASCII:
   case CASS_VALUE_TYPE_TEXT:
   case CASS_VALUE_TYPE_VARCHAR:

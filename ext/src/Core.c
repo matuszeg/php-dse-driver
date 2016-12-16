@@ -29,12 +29,18 @@ PHP_DRIVER_CORE_METHOD(ssl)
   object_init_ex(return_value, php_driver_ssl_builder_ce);
 }
 
+PHP_DRIVER_CORE_METHOD(graphOptions)
+{
+  object_init_ex(return_value, php_driver_graph_options_builder_ce);
+}
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry core_methods[] = {
-  PHP_DRIVER_CORE_ME(cluster, arginfo_none,  ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
-  PHP_DRIVER_CORE_ME(ssl,     arginfo_none,  ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
+  PHP_DRIVER_CORE_ME(cluster,      arginfo_none,  ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
+  PHP_DRIVER_CORE_ME(ssl,          arginfo_none,  ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
+  PHP_DRIVER_CORE_ME(graphOptions, arginfo_none,  ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
   PHP_FE_END
 };
 
@@ -99,4 +105,9 @@ void php_driver_define_Core(TSRMLS_D)
            CASS_VERSION_MAJOR, CASS_VERSION_MINOR, CASS_VERSION_PATCH,
            strlen(CASS_VERSION_SUFFIX) > 0 ? "-" CASS_VERSION_SUFFIX : "");
   zend_declare_class_constant_string(php_driver_core_ce, ZEND_STRL("CPP_DRIVER_VERSION"), buf TSRMLS_CC);
+
+  snprintf(buf, sizeof(buf), "%d.%d.%d%s",
+           DSE_VERSION_MAJOR, DSE_VERSION_MINOR, DSE_VERSION_PATCH,
+           strlen(DSE_VERSION_SUFFIX) > 0 ? "-" DSE_VERSION_SUFFIX : "");
+  zend_declare_class_constant_string(php_driver_core_ce, ZEND_STRL("CPP_DRIVER_DSE_VERSION"), buf TSRMLS_CC);
 }

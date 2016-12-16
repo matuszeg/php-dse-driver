@@ -45,6 +45,9 @@ PHP_METHOD(FutureSession, get)
   session->session = php_driver_add_ref(self->session);
   session->persist = self->persist;
 
+  PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(session->graph_options),
+                    PHP5TO7_ZVAL_MAYBE_P(self->graph_options));
+
   if (self->exception_message) {
     zend_throw_exception_ex(exception_class(self->exception_code),
                             self->exception_code TSRMLS_CC, self->exception_message);
@@ -133,6 +136,8 @@ php_driver_future_session_free(php5to7_zend_object_free *object TSRMLS_DC)
     efree(self->exception_message);
   }
 
+  PHP5TO7_ZVAL_MAYBE_DESTROY(self->graph_options);
+
   zend_object_std_dtor(&self->zval TSRMLS_CC);
   PHP5TO7_MAYBE_EFREE(self);
 }
@@ -148,6 +153,8 @@ php_driver_future_session_new(zend_class_entry *ce TSRMLS_DC)
   self->exception_message = NULL;
   self->hash_key          = NULL;
   self->persist           = 0;
+
+  PHP5TO7_ZVAL_UNDEF(self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT(future_session, self, ce);
 }
