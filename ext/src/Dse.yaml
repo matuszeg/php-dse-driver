@@ -1,0 +1,25 @@
+---
+Dse:
+  comment: |
+      Provides access to builder objects used to configure Dse\Cluster and
+      Cassandra\SSLOptions objects.
+  methods:
+    cluster:
+      comment: |
+          Creates a new cluster builder for constructing a Dse\Cluster object.
+      return:
+        comment: "A cluster builder object with default settings"
+        type: Dse\Cluster\Builder
+    ssl:
+      comment: |
+         Creates a new ssl builder for constructing a Cassandra\SSLOptions object.
+      return:
+        comment: "A SSL options builder with default settings"
+        type: Cassandra\SSLOptions\Builder
+    graphOptions:
+      comment: |
+         Creates a new graph options builder for constructing a Dse\Graph\Options object.
+      return:
+        comment: "A graph options builder with default settings"
+        type: Dse\Graph\Options
+...

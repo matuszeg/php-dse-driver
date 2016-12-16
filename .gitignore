@@ -1,14 +1,27 @@
 # Directories to ignore
-/.idea/
-/.vagrant/
-/bin/
-/build/
-/docs/
-/vendor/
-/venv/
-
+.libs/
+autom4te.cache/
+bin/
+build/
+docs/
+vendor/
 
 # Files to ignore
-/cassandra.log
-/composer.phar
-/tmp/*
+*.hprof
+*.in
+*.lo
+*.log
+composer.lock
+composer.phar
+Makefile*
+ext/Makefile.global
+ext/acinclude.m4
+ext/aclocal.m4
+ext/config.guess
+ext/config.sub
+ext/configure
+ext/install-sh
+ext/ltmain.sh
+ext/missing
+ext/mkinstalldirs
+ext/run-tests.php

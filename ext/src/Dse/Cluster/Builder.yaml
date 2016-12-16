@@ -1,0 +1,347 @@
+---
+Dse\Cluster\Builder:
+  comment: |
+      Used to configure and construct a Dse\Cluster object.
+  methods:
+    withPlaintextAuthenticator:
+      comment: |
+          Enable authentication with a plaintext username and password. This is for use
+          with DSE's builtin authentication and LDAP authentication.
+      params:
+        username:
+          comment: "The username to use with DSE's plaintext authentication"
+          type: string
+        password:
+          comment: "The password to use with DSE's plaintext authentication"
+          type: string
+      return:
+        comment: ""
+        type: "null"
+    withGssapiAuthenticator:
+      comment: |
+          Enable authentication for use with Kerberos. By default the driver uses the connecting host's
+          IP address to construct the full service name (e.g. <service>@<IP address>). To use the host's
+          DNS name enable hostname resolution using Dse\Cluster\Builder::withHostnameResolution().
+
+          @see Dse\Cluster\Builder::withHostnameResolution()
+      params:
+        service:
+          comment: "The name of the Kerberos service"
+          type: string
+        principal:
+          comment: |
+              The principal whose credentials are used to authenticate. If not provided then the first
+              principal in the Kerberos ticket cache will be used.
+          type: string
+      return:
+        comment: ""
+        type: "null"
+    withGraphOptions:
+      comment: ""
+      params:
+        options:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    build:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    withDefaultConsistency:
+      comment: ""
+      params:
+        consistency:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withDefaultPageSize:
+      comment: ""
+      params:
+        pageSize:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withDefaultTimeout:
+      comment: ""
+      params:
+        timeout:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withContactPoints:
+      comment: ""
+      params:
+        host:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withPort:
+      comment: ""
+      params:
+        port:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withRoundRobinLoadBalancingPolicy:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    withDatacenterAwareRoundRobinLoadBalancingPolicy:
+      comment: ""
+      params:
+        localDatacenter:
+          comment: ""
+          type: mixed
+        hostPerRemoteDatacenter:
+          comment: ""
+          type: mixed
+        useRemoteDatacenterForLocalConsistencies:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withBlackListHosts:
+      comment: ""
+      params:
+        hosts:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withWhiteListHosts:
+      comment: ""
+      params:
+        hosts:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withBlackListDCs:
+      comment: ""
+      params:
+        dcs:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withWhiteListDCs:
+      comment: ""
+      params:
+        dcs:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withTokenAwareRouting:
+      comment: ""
+      params:
+        enabled:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withCredentials:
+      comment: ""
+      params:
+        username:
+          comment: ""
+          type: mixed
+        password:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withConnectTimeout:
+      comment: ""
+      params:
+        timeout:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withRequestTimeout:
+      comment: ""
+      params:
+        timeout:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withSSL:
+      comment: ""
+      params:
+        options:
+          comment: ""
+          type: Cassandra\SSLOptions
+      return:
+        comment: ""
+        type: mixed
+    withPersistentSessions:
+      comment: ""
+      params:
+        enabled:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withProtocolVersion:
+      comment: ""
+      params:
+        version:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withIOThreads:
+      comment: ""
+      params:
+        count:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withConnectionsPerHost:
+      comment: ""
+      params:
+        core:
+          comment: ""
+          type: mixed
+        max:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withReconnectInterval:
+      comment: ""
+      params:
+        interval:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withLatencyAwareRouting:
+      comment: ""
+      params:
+        enabled:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withTCPNodelay:
+      comment: ""
+      params:
+        enabled:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withTCPKeepalive:
+      comment: ""
+      params:
+        delay:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withRetryPolicy:
+      comment: ""
+      params:
+        policy:
+          comment: ""
+          type: Cassandra\RetryPolicy
+      return:
+        comment: ""
+        type: mixed
+    withTimestampGenerator:
+      comment: ""
+      params:
+        generator:
+          comment: ""
+          type: Cassandra\TimestampGenerator
+      return:
+        comment: ""
+        type: mixed
+    withSchemaMetadata:
+      comment: ""
+      params:
+        enabled:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withHostnameResolution:
+      comment: |
+          Enables/Disables Hostname Resolution.
+
+          If enabled the driver will resolve hostnames for IP addresses using
+          reverse IP lookup. This is useful for authentication (Kerberos) or
+          encryption SSL services that require a valid hostname for verification.
+      params:
+        enabled:
+          comment: "True to use hostname resolution; false otherwise."
+          type: bool
+      return:
+        comment: "self"
+        type: Builder
+    withRandomizedContactPoints:
+      comment: |
+          Enable/Disables Randomized Contact Points
+
+          If enabled this allows the driver randomly use contact points in order
+          to evenly spread the load across the cluster and prevent
+          hotspots/load spikes during notifications (e.g. massive schema change).
+
+          Note: This setting should only be disabled for debugging and testing.
+      params:
+        enabled:
+          comment: "True to enable randomized contact points; false otherwise."
+          type: bool
+      return:
+        comment: "self"
+        type: Builder
+    withConnectionHeartbeatInterval:
+      comment: |
+          Specify interval in seconds that the driver should wait before attempting
+          to send heartbeat messages and control the amount of time the connection
+          must be idle before sending heartbeat messages. This is useful for
+          preventing intermediate network devices from dropping connections.
+      params:
+        interval:
+          comment: "Interval in seconds (0 to disable)"
+          type: int|float
+      return:
+        comment: "self"
+        type: Builder
+...

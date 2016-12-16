@@ -1,0 +1,151 @@
+---
+Dse\Graph\Result:
+  comment: ""
+  methods:
+    __construct:
+      comment: ""
+    __toString:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    count:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    rewind:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    current:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    key:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    next:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    valid:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    offsetExists:
+      comment: ""
+      params:
+        offset:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    offsetGet:
+      comment: ""
+      params:
+        offset:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    offsetSet:
+      comment: ""
+      params:
+        offset:
+          comment: ""
+          type: mixed
+        value:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    offsetUnset:
+      comment: ""
+      params:
+        offset:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    isNull:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    isValue:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    isArray:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    isObject:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    asInt:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    asBool:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    asDouble:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    asString:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    asEdge:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    asPath:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    asVertex:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    asPoint:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    asLineString:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    asPolygon:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+...

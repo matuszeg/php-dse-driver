@@ -1,0 +1,51 @@
+---
+Dse\Graph\DefaultEdge:
+  comment: ""
+  methods:
+    __construct:
+      comment: ""
+    id:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    label:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    properties:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    property:
+      comment: ""
+      params:
+        key:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    inV:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    inVLabel:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    outV:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    outVLabel:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+...

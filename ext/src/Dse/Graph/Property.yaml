@@ -1,0 +1,20 @@
+---
+Dse\Graph\Property:
+  comment: ""
+  methods:
+    name:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    value:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    parent:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+...

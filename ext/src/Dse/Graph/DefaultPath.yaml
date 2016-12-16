@@ -1,0 +1,31 @@
+---
+Dse\Graph\DefaultPath:
+  comment: ""
+  methods:
+    __construct:
+      comment: ""
+    labels:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    objects:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    hasLabel:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    object:
+      comment: ""
+      params:
+        key:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+...

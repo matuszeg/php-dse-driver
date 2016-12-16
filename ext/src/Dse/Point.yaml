@@ -1,0 +1,43 @@
+---
+Dse\Point:
+  comment: |
+      Encapsulates a 2D point with x,y coordinates. It corresponds to the `org.apache.cassandra.db.marshal.PointType`
+      column type in DSE.
+
+      @see https://en.wikipedia.org/wiki/Well-known_text
+  methods:
+    __construct:
+      comment: ""
+      params:
+        x:
+          comment: "the x-coordinate of the point"
+          type: double
+        "y":
+          comment: "the y-coordinate of the point"
+          type: double
+    type:
+      comment: ""
+      return:
+        comment: "the Cassandra custom type for Point"
+        type: Cassandra\Type\Custom
+    x:
+      comment: ""
+      return:
+        comment: "the x-coordinate of this Point"
+        type: double
+    "y":
+      comment: ""
+      return:
+        comment: "the y-coordinate of this Point"
+        type: double
+    wkt:
+      comment: ""
+      return:
+        comment: "the well-known-text representation of this Point"
+        type: string
+    __toString:
+      comment: ""
+      return:
+        comment: "a human-readable string representation of this Point"
+        type: string
+...

@@ -1,0 +1,11 @@
+---
+Dse\Graph\SimpleStatement:
+  comment: ""
+  methods:
+    __construct:
+      comment: ""
+      params:
+        query:
+          comment: ""
+          type: mixed
+...

@@ -1,0 +1,81 @@
+---
+Dse\Graph\ResultSet:
+  comment: ""
+  methods:
+    __construct:
+      comment: ""
+    count:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    rewind:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    current:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    key:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    next:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    valid:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    offsetExists:
+      comment: ""
+      params:
+        offset:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    offsetGet:
+      comment: ""
+      params:
+        offset:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    offsetSet:
+      comment: ""
+      params:
+        offset:
+          comment: ""
+          type: mixed
+        value:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    offsetUnset:
+      comment: ""
+      params:
+        offset:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    first:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+...

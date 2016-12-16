@@ -1,0 +1,64 @@
+---
+Dse\Graph\Options\Builder:
+  comment: ""
+  methods:
+    build:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    withGraphLanguage:
+      comment: ""
+      params:
+        language:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withGraphSource:
+      comment: ""
+      params:
+        source:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withGraphName:
+      comment: ""
+      params:
+        name:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withReadConsistency:
+      comment: ""
+      params:
+        consistency:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withWriteConsistency:
+      comment: ""
+      params:
+        consistency:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    withRequestTimeout:
+      comment: ""
+      params:
+        request_timeout:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+...

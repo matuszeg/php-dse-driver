@@ -1,0 +1,96 @@
+---
+Dse\Session:
+  comment: ""
+  methods:
+    executeGraph:
+      comment: ""
+      params:
+        statement:
+          comment: ""
+          type: mixed
+        options:
+          comment: ""
+          type: array
+      return:
+        comment: ""
+        type: mixed
+    executeGraphAsync:
+      comment: ""
+      params:
+        statement:
+          comment: ""
+          type: mixed
+        options:
+          comment: ""
+          type: array
+      return:
+        comment: ""
+        type: mixed
+    execute:
+      comment: ""
+      params:
+        statement:
+          comment: ""
+          type: Cassandra\Statement
+        options:
+          comment: ""
+          type: Cassandra\ExecutionOptions
+      return:
+        comment: ""
+        type: mixed
+    executeAsync:
+      comment: ""
+      params:
+        statement:
+          comment: ""
+          type: Cassandra\Statement
+        options:
+          comment: ""
+          type: Cassandra\ExecutionOptions
+      return:
+        comment: ""
+        type: mixed
+    prepare:
+      comment: ""
+      params:
+        cql:
+          comment: ""
+          type: mixed
+        options:
+          comment: ""
+          type: Cassandra\ExecutionOptions
+      return:
+        comment: ""
+        type: mixed
+    prepareAsync:
+      comment: ""
+      params:
+        cql:
+          comment: ""
+          type: mixed
+        options:
+          comment: ""
+          type: Cassandra\ExecutionOptions
+      return:
+        comment: ""
+        type: mixed
+    close:
+      comment: ""
+      params:
+        timeout:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    closeAsync:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    schema:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+...
