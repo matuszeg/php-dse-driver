@@ -137,7 +137,7 @@ int php_dse_polygon_construct_from_iterator(DsePolygonIterator* iterator,
   // cases revealed themselves over time, that the first and third conditions are needed for PHP7 and the first and
   // second are needed for PHP5. Yay!
   if (PHP5TO7_ZVAL_IS_UNDEF_P(return_value) || Z_OBJ_HT_P(return_value) == NULL || Z_OBJCE_P(return_value) != dse_polygon_ce) {
-    object_init_ex(return_value, dse_line_string_ce);
+    object_init_ex(return_value, dse_polygon_ce);
   }
 
   polygon = PHP_DSE_GET_POLYGON(return_value);
