@@ -35,12 +35,14 @@ parse_string(const DseGraphResult *graph_result, zval* return_value TSRMLS_DC)
 
   rc = dse_graph_result_as_line_string(graph_result, PHP_DRIVER_G(iterator_line_string));
   if (rc == CASS_OK) {
+    object_init_ex(return_value, php_driver_line_string_ce);
     return php_driver_line_string_construct_from_iterator(PHP_DRIVER_G(iterator_line_string),
                                                           return_value TSRMLS_CC);
   }
 
   rc = dse_graph_result_as_polygon(graph_result, PHP_DRIVER_G(iterator_polygon));
   if (rc == CASS_OK) {
+    object_init_ex(return_value, php_driver_polygon_ce);
     return php_driver_polygon_construct_from_iterator(PHP_DRIVER_G(iterator_polygon),
                                                       return_value TSRMLS_CC);
   }

@@ -62,17 +62,64 @@ char *php_driver_point_to_string(php_driver_point *point)
 
 PHP_METHOD(Point, __construct)
 {
-  double x;
-  double y;
+  double coord[2];
+  php5to7_zval_args args;
   php_driver_point *self = NULL;
+  int num_args = 0;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "dd", &x, &y) == FAILURE) {
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "*", &args, &num_args) == FAILURE) {
     return;
   }
 
+  if (num_args == 1) {
+    // We accept one arg *only* if its a WKT string.
+    zval *wkt_zval = PHP5TO7_ZVAL_ARG(args[0]);
+
+    // coord is a 2-element array, for x,y. We want to parse the WKT string and populate
+    // the array.
+    if (Z_TYPE_P(wkt_zval) != IS_STRING ||
+        dse_point_from_wkt_n(Z_STRVAL_P(wkt_zval), Z_STRLEN_P(wkt_zval), coord, coord + 1) != CASS_OK) {
+      // The arg isn't a string/wkt; yell.
+      throw_invalid_argument(wkt_zval, "Argument 1", "valid WKT for a Point" TSRMLS_CC);
+      PHP5TO7_MAYBE_EFREE(args);
+      return;
+    }
+  } else if (num_args == 2) {
+    // With two args, they must be numeric.
+    int i = 0;
+
+    // We'll replace the last space with the arg num if there's an error.
+    char arg_descriptor[] = "Argument  ";
+    for ( ; i < 2; ++i) {
+      zval *arg = PHP5TO7_ZVAL_ARG(args[i]);
+      if (Z_TYPE_P(arg) == IS_LONG) {
+        coord[i] = Z_LVAL_P(arg);
+      } else if (Z_TYPE_P(arg) == IS_DOUBLE) {
+        coord[i] = Z_DVAL_P(arg);
+      } else {
+        // We don't support this type.
+        arg_descriptor[9] = '1' + i;
+        throw_invalid_argument(arg, arg_descriptor, "a long or a double" TSRMLS_CC);
+        PHP5TO7_MAYBE_EFREE(args);
+        return;
+      }
+    }
+  } else {
+    // Invalid number of args.
+    zend_throw_exception_ex(spl_ce_BadFunctionCallException, 0 TSRMLS_CC,
+                            "A Point may only be constructed with 1 string argument (WKT) or 2 numbers (x,y)"
+                            );
+    if (num_args > 0) {
+      PHP5TO7_MAYBE_EFREE(args);
+    }
+    return;
+  }
+
+  // If we get here, we've processed args and are happy.
   self = PHP_DRIVER_GET_POINT(getThis());
-  self->x = x;
-  self->y = y;
+  self->x = coord[0];
+  self->y = coord[1];
+  PHP5TO7_MAYBE_EFREE(args);
 }
 
 PHP_METHOD(Point, __toString)
@@ -141,8 +188,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo__construct, 0, ZEND_RETURN_VALUE, 2)
-ZEND_ARG_INFO(0, x)
-ZEND_ARG_INFO(0, y)
+  ZEND_ARG_INFO(0, point_spec)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry php_driver_point_methods[] = {

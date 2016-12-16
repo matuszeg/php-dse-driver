@@ -91,6 +91,7 @@ int php_driver_line_string_construct_from_value(const CassValue *value,
       return FAILURE;
   );
 
+  object_init_ex(PHP5TO7_ZVAL_MAYBE_DEREF(out), php_driver_line_string_ce);
   rc = php_driver_line_string_construct_from_iterator(iterator,
                                                       PHP5TO7_ZVAL_MAYBE_DEREF(out) TSRMLS_CC);
   dse_line_string_iterator_free(iterator);
@@ -185,24 +186,7 @@ int php_driver_line_string_construct_from_iterator(DseLineStringIterator* iterat
   size_t i, num_points;
   HashTable *points;
 
-  // We may be invoked with a return value that's already initialized, so we don't want to
-  // necessarily initialize it here. There are actually three known call sites that provide
-  // return_value in three different states, and this is further complicated by PHP5 vs PHP7.
-  //
-  // 1. invoked from __construct, in which case "return_value" is already initialized,
-  // 2. invoked from marshalling code (that is processing a raw response from DSE), in which case
-  //    we need to initialize return_value. The return_value is actually "defined" but its hashtable is null.
-  // 3. invoked from graph result processing logic, where return_value is not "defined", meaning most of its attributes
-  //    are null.
-  //
-  // The following condition works for PHP5.6 and PHP7. I believe, though I'm no longer certain because the various
-  // cases revealed themselves over time, that the first and third conditions are needed for PHP7 and the first and
-  // second are needed for PHP5. Yay!
-  if (PHP5TO7_ZVAL_IS_UNDEF_P(return_value) || Z_OBJ_HT_P(return_value) == NULL || Z_OBJCE_P(return_value) != php_driver_line_string_ce) {
-    object_init_ex(return_value, php_driver_line_string_ce);
-  }
-
-  line_string = PHP_DSE_GET_LINE_STRING(return_value);
+  line_string = PHP_DRIVER_GET_LINE_STRING(return_value);
   points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
 
   num_points = dse_line_string_iterator_num_points(iterator);
@@ -228,7 +212,7 @@ int php_driver_line_string_construct_from_iterator(DseLineStringIterator* iterat
 PHP_METHOD(LineString, __construct)
 {
   php5to7_zval_args args;
-  dse_line_string *self = NULL;
+  php_driver_line_string *self = NULL;
   int num_args = 0;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "*", &args, &num_args) == FAILURE) {
@@ -248,7 +232,7 @@ PHP_METHOD(LineString, __construct)
       DseLineStringIterator* iterator = dse_line_string_iterator_new();
       rc = dse_line_string_iterator_reset_with_wkt_n(iterator, Z_STRVAL_P(point_obj_or_wkt), Z_STRLEN_P(point_obj_or_wkt));
       if (rc == CASS_OK) {
-        rc = php_dse_line_string_construct_from_iterator(iterator, getThis() TSRMLS_CC);
+        rc = php_driver_line_string_construct_from_iterator(iterator, getThis() TSRMLS_CC);
       }
 
       dse_line_string_iterator_free(iterator);
@@ -289,7 +273,7 @@ PHP_METHOD(LineString, __construct)
     }
 
     // Populate the points array based on args.
-    self = PHP_DSE_GET_LINE_STRING(getThis());
+    self = PHP_DRIVER_GET_LINE_STRING(getThis());
     for (i = 0; i < num_args; ++i) {
       zval* point_obj = PHP5TO7_ZVAL_ARG(args[i]);
 
