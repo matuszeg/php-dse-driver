@@ -100,11 +100,16 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *       keyspaces with additional suffix information, the keyspace
      *       length has been reduced to 40
      */
-    const KEYSPACE_MAXIMUM_LENGTH = 40;
+    const KEYSPACE_MAXIMUM_LENGTH = 48;
     /**
      * Maximum length for the table (server limit)
+     *
+     * NOTE: The actual limit is 48; however due to graph names creating
+     *       keyspaces with additional suffix information, the table length
+     *       has been reduced to 40 since the table name is used for most graph
+     *       names in tests.
      */
-    const TABLE_MAXIMUM_LENGTH = 48;
+    const TABLE_MAXIMUM_LENGTH = 40;
     /**
      * Replication strategy format
      */
@@ -357,7 +362,8 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             "<",
             ">",
             ":",
-            ","
+            ",",
+            "."
         );
         $this->table = str_replace($search, "",
             strtolower($this->getName($this->using_data_provider)));
@@ -1302,8 +1308,8 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             array(
                 \Cassandra\Type::varint(),
                 array(
-                    new \Cassandra\Varint(PHP_INT_MAX),
-                    new \Cassandra\Varint(PHP_INT_MIN),
+                    new \Cassandra\Varint(2147483647),
+                    new \Cassandra\Varint(-2147483648),
                     new \Cassandra\Varint(0),
                     new \Cassandra\Varint(296)
                 )
