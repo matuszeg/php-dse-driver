@@ -13,6 +13,60 @@ namespace Dse;
 class PointTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @expectedException BadFunctionCallException
+     * @expectedExceptionMessage A Point may only be constructed with 1 string argument (WKT) or 2 numbers (x,y)
+     */
+    public function testTooFewArguments()
+    {
+        new Point();
+    }
+
+    /**
+     * @expectedException BadFunctionCallException
+     * @expectedExceptionMessage A Point may only be constructed with 1 string argument (WKT) or 2 numbers (x,y)
+     */
+    public function testTooManyArguments()
+    {
+        new Point(1, 2, 3);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Argument 1 must be valid WKT for a Point, 7 given
+     */
+    public function testOneArgWrongType()
+    {
+        new Point(7);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Argument 1 must be valid WKT for a Point, 'POINT' given
+     */
+    public function testOneArgBadWkt()
+    {
+        new Point("POINT");
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Argument 1 must be a long or a double, 'POINT' given
+     */
+    public function testTwoArgsBadFirst()
+    {
+        new Point("POINT", 2);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Argument 2 must be a long or a double, 'POINT' given
+     */
+    public function testTwoArgsBadSecond()
+    {
+        new Point(2, "POINT");
+    }
+
+    /**
      * @dataProvider pointStrings
      */
     public function testToString($x, $y, $expected)
@@ -27,6 +81,24 @@ class PointTest extends \PHPUnit_Framework_TestCase
             array(1, 2, "1,2"),
             array(1.0, 2.0, "1,2"),
             array(1.5, -2.75, "1.5,-2.75")
+        );
+    }
+
+    /**
+     * @dataProvider pointFromWkt
+     */
+    public function testConstructFromWkt($wkt, $expected)
+    {
+        $point = new Point($wkt);
+        $this->assertEquals($expected, $point->__toString());
+    }
+
+    public function pointFromWkt()
+    {
+        return array(
+            array("POINT (1 2)", "1,2"),
+            array("POINT (1.0 2.0)", "1,2"),
+            array("POINT (1.5 -2.75)", "1.5,-2.75")
         );
     }
 
@@ -65,8 +137,8 @@ class PointTest extends \PHPUnit_Framework_TestCase
         $right = new Point($x2, $y2);
 
         // When comparing, do it both ways to verify that the comparison operator is stable.
-        $this->assertEquals($expected, $left <=> $right);
-        $this->assertEquals(-$expected, $right <=> $left);
+        $this->assertEquals($expected, $this->spaceship($left, $right));
+        $this->assertEquals(-$expected, $this->spaceship($right, $left));
     }
 
     public function comparisonTable()
@@ -80,7 +152,7 @@ class PointTest extends \PHPUnit_Framework_TestCase
 
     public function testCompareDifferentTypes()
     {
-        $this->assertEquals(1, new Point(1, 2) <=> new LineString());
+        $this->assertEquals(1, $this->spaceship(new Point(1, 2), new LineString()));
     }
 
     public function testProperties()
@@ -88,5 +160,19 @@ class PointTest extends \PHPUnit_Framework_TestCase
         $point = new Point(3.5, 2.5);
         $props = get_object_vars($point);
         $this->assertEquals(array("x" => 3.5, "y" => 2.5), $props);
+    }
+
+    /**
+     * Spaceship (<=>) impl for testing our compare function. The operator exists in PHP7, but not
+     * PHP 5, so we implement it ourselves as a function.
+    */
+    public function spaceship($left, $right) {
+        if ($left < $right) {
+            return -1;
+        } else if ($left == $right) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
 }

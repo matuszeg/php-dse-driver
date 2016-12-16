@@ -214,7 +214,23 @@ int php_driver_polygon_construct_from_iterator(DsePolygonIterator* iterator,
   size_t i, num_rings;
   HashTable *line_strings;
 
-  object_init_ex(return_value, php_driver_polygon_ce);
+  // We may be invoked with a return value that's already initialized, so we don't want to
+  // necessarily initialize it here. There are actually three known call sites that provide
+  // return_value in three different states, and this is further complicated by PHP5 vs PHP7.
+  //
+  // 1. invoked from __construct, in which case "return_value" is already initialized,
+  // 2. invoked from marshalling code (that is processing a raw response from DSE), in which case
+  //    we need to initialize return_value. The return_value is actually "defined" but its hashtable is null.
+  // 3. invoked from graph result processing logic, where return_value is not "defined", meaning most of its attributes
+  //    are null.
+  //
+  // The following condition works for PHP5.6 and PHP7. I believe, though I'm no longer certain because the various
+  // cases revealed themselves over time, that the first and third conditions are needed for PHP7 and the first and
+  // second are needed for PHP5. Yay!
+  if (PHP5TO7_ZVAL_IS_UNDEF_P(return_value) || Z_OBJ_HT_P(return_value) == NULL || Z_OBJCE_P(return_value) != php_driver_polygon_ce) {
+    object_init_ex(return_value, php_driver_polygon_ce);
+  }
+
   polygon = PHP_DRIVER_GET_POLYGON(return_value);
   line_strings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
   num_rings = dse_polygon_iterator_num_rings(iterator);
@@ -263,6 +279,34 @@ PHP_METHOD(Polygon, __construct)
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "*", &args, &num_args) == FAILURE) {
     return;
+  }
+
+  if (num_args == 1) {
+    zval *ring_obj_or_wkt = PHP5TO7_ZVAL_ARG(args[0]);
+
+    if (Z_TYPE_P(ring_obj_or_wkt) == IS_STRING) {
+      int rc;
+
+      // Create and initialize a "text iterator" which parses wkt. If there's a parse
+      // error, it typically occurs during initialization. However, it's theoretically
+      // possible to run into an issue when traversing the iterator, so cover that, too.
+
+      DsePolygonIterator* iterator = dse_polygon_iterator_new();
+      rc = dse_polygon_iterator_reset_with_wkt_n(iterator, Z_STRVAL_P(ring_obj_or_wkt), Z_STRLEN_P(ring_obj_or_wkt));
+      if (rc == CASS_OK) {
+        rc = php_dse_polygon_construct_from_iterator(iterator, getThis() TSRMLS_CC);
+      }
+
+      dse_polygon_iterator_free(iterator);
+
+      if (rc != SUCCESS && rc != CASS_OK) {
+        // Failed to parse the wkt properly. Yell.
+        throw_invalid_argument(ring_obj_or_wkt, "Argument 1", "valid WKT for a Polygon" TSRMLS_CC);
+      }
+
+      PHP5TO7_MAYBE_EFREE(args);
+      return;
+    }
   }
 
   if (num_args > 0) {
@@ -368,13 +412,13 @@ PHP_METHOD(Polygon, interiorRings)
   array_init(return_value);
 
   PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(rings, num_key, ring_obj) {
-    if (num_key == 0) {
-      // The first ring is the exterior ring.
-      continue;
+    // The first ring is the exterior ring, so we skip it.
+    // NB: We can't write this with an 'num_key == 0' and 'continue' because this foreach
+    // macro mechanism doesn't move the iterator forward in PHP5 if we do that.
+    if (num_key > 0) {
+      add_next_index_zval(return_value, PHP5TO7_ZVAL_MAYBE_DEREF(ring_obj));
+      Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_DEREF(ring_obj));
     }
-
-    add_next_index_zval(return_value, PHP5TO7_ZVAL_MAYBE_DEREF(ring_obj));
-    Z_TRY_ADDREF_P(PHP5TO7_ZVAL_MAYBE_DEREF(ring_obj));
   } PHP5TO7_ZEND_HASH_FOREACH_END(rings);
 }
 

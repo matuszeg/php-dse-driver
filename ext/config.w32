@@ -218,8 +218,7 @@ if (PHP_DSE != "no") {
                 "types.c " +
                 "uuid_gen.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Cluster",
-                "Builder.c " +
-                "DefaultBuilder.c", "dse");
+                "Builder.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Graph",
                 "DefaultElement.c " +
                 "DefaultEdge.c " +
@@ -230,13 +229,14 @@ if (PHP_DSE != "no") {
                 "Element.c " +
                 "Edge.c " +
                 "FutureResultSet.c " +
+                "Options.c " +
                 "Path.c " +
                 "Property.c " +
                 "Result.c " +
                 "ResultSet.c " +
                 "SimpleStatement.c " +
                 "Statement.c " +
-                "Vertex.c" +
+                "Vertex.c " +
                 "VertexProperty.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Graph/Options",
                 "Builder.c", "dse");

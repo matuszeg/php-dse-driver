@@ -32,6 +32,34 @@ class PolygonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Argument 1 must be valid WKT for a Polygon, 'POINT' given
+     */
+    public function testBadWkt()
+    {
+        new Polygon("POINT");
+    }
+
+    /**
+     * @dataProvider polygonFromWkt
+     */
+    public function testConstructFromWkt($wkt, $expected)
+    {
+        $polygon = new Polygon($wkt);
+        $this->assertEquals($expected, $polygon->__toString());
+    }
+
+    public function polygonFromWkt()
+    {
+        $polyString = 'Exterior ring: 2,3 to 3,4 to 4,5
+Interior rings:
+    0,0 to 1,0 to 1,1 to 0,1 to 0,0';
+        return array(
+            array("POLYGON ((2 3, 3 4, 4 5), (0 0, 1 0, 1 1, 0 1, 0 0))", $polyString)
+        );
+    }
+
+    /**
      * @dataProvider polygonStrings
      */
     public function testToString($lineStringSpecs, $expected)
@@ -45,12 +73,12 @@ class PolygonTest extends \PHPUnit_Framework_TestCase
         $polyString1 = 'Exterior ring: 2,3 to 3,4 to 4,5';
         $polyString2 = 'Exterior ring: 2,3 to 3,4 to 4,5
 Interior rings:
-    0,0 to 1,0 to 1,1 to 1,0 to 0,0';
+    0,0 to 1,0 to 1,1 to 0,1 to 0,0';
 
         return array(
             array(array(array(2, 3, 3, 4, 4, 5)), $polyString1),
             array(array(array(2, 3, 3, 4, 4, 5),
-                        array(0, 0, 1, 0, 1, 1, 1, 0, 0, 0)), $polyString2),
+                        array(0, 0, 1, 0, 1, 1, 0, 1, 0, 0)), $polyString2),
             array(array(), "")
         );
     }
@@ -163,8 +191,8 @@ Interior rings:
         $right = $this->makePolygon($rightLineStringSpecs);
 
         // When comparing, do it both ways to verify that the comparison operator is stable.
-        $this->assertEquals($expected, $left <=> $right);
-        $this->assertEquals(-$expected, $right <=> $left);
+        $this->assertEquals($expected, $this->spaceship($left, $right));
+        $this->assertEquals(-$expected, $this->spaceship($right, $left));
     }
 
     public function comparisonTable()
@@ -185,7 +213,7 @@ Interior rings:
 
     public function testCompareDifferentTypes()
     {
-        $this->assertEquals(1, new Polygon() <=> new Point(1, 2));
+        $this->assertEquals(1, $this->spaceship(new Polygon(), new Point(1, 2)));
     }
 
     public function testProperties()
@@ -250,5 +278,19 @@ Interior rings:
                 array(-4, -3, -3, -4, -4, -5)
             )
         );
+    }
+
+    /**
+     * Spaceship (<=>) impl for testing our compare function. The operator exists in PHP7, but not
+     * PHP 5, so we implement it ourselves as a function.
+    */
+    public function spaceship($left, $right) {
+        if ($left < $right) {
+            return -1;
+        } else if ($left == $right) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
 }

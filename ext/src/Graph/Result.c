@@ -54,18 +54,20 @@ parse_string(const DseGraphResult *graph_result, zval* return_value TSRMLS_DC)
 void
 to_string(php_driver_graph_result *result, zval *return_value TSRMLS_DC)
 {
-  if (instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(result->value), php_driver_point_ce TSRMLS_CC)) {
-    char* wkt = php_driver_point_to_wkt(PHP_DRIVER_GET_POINT(PHP5TO7_ZVAL_MAYBE_P(result->value)));
-    PHP5TO7_RETVAL_STRING(wkt);
-    efree(wkt);
-  } else if (instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(result->value), php_driver_line_string_ce TSRMLS_CC)) {
-    char* wkt = php_driver_line_string_to_wkt(PHP_DRIVER_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_P(result->value)) TSRMLS_CC);
-    PHP5TO7_RETVAL_STRING(wkt);
-    efree(wkt);
-  } else if (instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(result->value), php_driver_polygon_ce TSRMLS_CC)) {
-    char* wkt = php_driver_polygon_to_wkt(PHP_DRIVER_GET_POLYGON(PHP5TO7_ZVAL_MAYBE_P(result->value)) TSRMLS_CC);
-    PHP5TO7_RETVAL_STRING(wkt);
-    efree(wkt);
+  if (Z_TYPE_P(PHP5TO7_ZVAL_MAYBE_P(result->value)) == IS_OBJECT) {
+    if (instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(result->value), php_driver_point_ce TSRMLS_CC)) {
+      char* wkt = php_driver_point_to_wkt(PHP_DRIVER_GET_POINT(PHP5TO7_ZVAL_MAYBE_P(result->value)));
+      PHP5TO7_RETVAL_STRING(wkt);
+      efree(wkt);
+    } else if (instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(result->value), php_driver_line_string_ce TSRMLS_CC)) {
+      char* wkt = php_driver_line_string_to_wkt(PHP_DRIVER_GET_LINE_STRING(PHP5TO7_ZVAL_MAYBE_P(result->value)) TSRMLS_CC);
+      PHP5TO7_RETVAL_STRING(wkt);
+      efree(wkt);
+    } else if (instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(result->value), php_driver_polygon_ce TSRMLS_CC)) {
+      char* wkt = php_driver_polygon_to_wkt(PHP_DRIVER_GET_POLYGON(PHP5TO7_ZVAL_MAYBE_P(result->value)) TSRMLS_CC);
+      PHP5TO7_RETVAL_STRING(wkt);
+      efree(wkt);
+    }
   } else {
     RETVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(result->value), 1, 0);
     convert_to_string(return_value);
@@ -637,6 +639,9 @@ static zend_function_entry php_driver_graph_result_methods[] = {
   PHP_ME(GraphResult, isValue,      arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(GraphResult, isArray,      arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(GraphResult, isObject,     arginfo_none,   ZEND_ACC_PUBLIC)
+  PHP_ME(GraphResult, isBool,       arginfo_none,   ZEND_ACC_PUBLIC)
+  PHP_ME(GraphResult, isNumber,     arginfo_none,   ZEND_ACC_PUBLIC)
+  PHP_ME(GraphResult, isString,     arginfo_none,   ZEND_ACC_PUBLIC)
   /* Basic types */
   PHP_ME(GraphResult, asInt,        arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(GraphResult, asBool,       arginfo_none,   ZEND_ACC_PUBLIC)
