@@ -56,7 +56,7 @@
         "tests/unit/Dse/",
         "tests/integration/Dse/"
       ],
-	  "Cassandra\\": [
+      "Cassandra\\": [
         "tests/unit/Cassandra/", 
         "tests/integration/Cassandra/"
       ]

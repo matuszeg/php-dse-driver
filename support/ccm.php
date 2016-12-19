@@ -1038,7 +1038,7 @@ class Bridge {
         $configuration = array();
 
         // Do not perform standard configurations for DSE clusters
-        if (!is_a($version, "Dse\\Version")) {
+        if (!($version instanceof Dse\Version)) {
             // Standard configuration elements for all Cassandra versions
             $configuration[] = "--rt=10000";
             $configuration[] = "read_request_timeout_in_ms:10000";

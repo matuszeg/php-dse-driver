@@ -49,7 +49,7 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
      *     [
      *         [
      *             [0] => (string) Graph schema
-     *             [1] => (\Cassandra\Type|string) Data type
+     *             [1] => (Dse\Type|string) Data type
      *             [2] => (mixed) Data type value
      *             [3] => (mixed) Expected value (validation)
      *         ]
@@ -64,7 +64,7 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
     /**
      * Generate the CQL data type from the give data type
      *
-     * @param \Cassandra\Type|string $type Data type
+     * @param Dse\Type|string $type Data type
      * @param bool $for_composite (Optional) True if composite data types
      *                                       should be frozen for use in a
      *                                       nested composite data type; false
@@ -96,7 +96,7 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
      *     [
      *         [
      *             [0] => (string) Graph schema
-     *             [1] => (\Cassandra\Type|string) Data type
+     *             [1] => (Dse\Type|string) Data type
      *             [2] => (mixed) Data type value
      *             [3] => (mixed) Expected value (validation)
      *         ]
@@ -158,7 +158,7 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
     /**
      * Validate the data type using the result set provided
      *
-     * @param \Dse\Graph\ResultSet $result_set Result set to validate
+     * @param Dse\Graph\ResultSet $result_set Result set to validate
      * @param string $property_name Name of the property
      * @param string $vertex_label Name of the vertex label
      * @param string $type Type of value to validate
@@ -205,7 +205,7 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
 
                 // Update the expected value to utilize the updated precision
                 $expected_value = round($expected_value, $precision);
-                $expected = new \Cassandra\Decimal("{$expected_value}");
+                $expected = new Dse\Decimal("{$expected_value}");
             } else if ($type == "double" || $type == "float") {
                 $value = $member->asDouble();
             } else {
@@ -233,7 +233,7 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
         }
 
         // Validate the value (apply coercion if necessary)
-        if (is_a($type, "\\Cassandra\\Type")) {
+        if ($type instanceof Dse\Type) {
             $value = $type->create($value);
         }
         $this->assertEquals($expected, $value);

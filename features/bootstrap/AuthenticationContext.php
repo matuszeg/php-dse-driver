@@ -75,7 +75,7 @@ class AuthenticationContext implements Context {
         );
 
         // Start the DSE cluster
-        $this->a_running_dse_cluster_with_nodes(1, $configuration);
+        $this->a_running_cluster_with_nodes(1, $configuration);
     }
 
     /**
@@ -107,7 +107,7 @@ class AuthenticationContext implements Context {
         $jvm[] = "-Djava.security.krb5.conf=" . self::$ads->configuration_file;
 
         // Start the DSE cluster
-        $this->a_running_dse_cluster_with_nodes(1, array(
+        $this->a_running_cluster_with_nodes(1, array(
             "cassandra" => $cassandra,
             "dse" => $dse,
             "jvm" => $jvm
@@ -141,7 +141,7 @@ class AuthenticationContext implements Context {
         $jvm[] = "-Dcassandra.superuser_setup_delay_ms=0";
 
         // Start the DSE cluster
-        $this->a_running_dse_cluster_with_nodes(1, array(
+        $this->a_running_cluster_with_nodes(1, array(
             "cassandra" => $cassandra,
             "dse" => $dse,
             "jvm" => $jvm
@@ -169,7 +169,7 @@ class AuthenticationContext implements Context {
      * Execute the PHP example code with GSSAPI service and principal
      * environment variables; S: dse, P: invalid (@see EmbeddedAds::REALM)
      *
-     * @Given it is executed with improper GSSAPI principal, a Cassandra\Exception\AuthenticationException will occur
+     * @Given it is executed with improper GSSAPI principal, a Dse\Exception\AuthenticationException will occur
      */
     public function executed_with_improper_gssapi_principal() {
         $this->when_executed(array("environment" => array(
@@ -183,7 +183,7 @@ class AuthenticationContext implements Context {
      * Execute the PHP example code with GSSAPI service and principal
      * environment variables; S: invalid, P: @see EmbeddedAds::DSE_SERVICE_PRINCIPAL
      *
-     * @Given it is executed with improper GSSAPI service provider, a Cassandra\Exception\AuthenticationException will occur
+     * @Given it is executed with improper GSSAPI service provider, a Dse\Exception\AuthenticationException will occur
      */
     public function executed_with_improper_gssapi_service_provider() {
         $this->when_executed(array("environment" => array(
@@ -197,7 +197,7 @@ class AuthenticationContext implements Context {
      * Execute the PHP example code with GSSAPI service and principal
      * environment variables; S: dse, P: EmbeddedAds::DSEUSER_SERVICE_PRINCIPAL
      *
-     * @Given it is executed with unauthorized GSSAPI principal, a Cassandra\Exception\AuthenticationException will occur
+     * @Given it is executed with unauthorized GSSAPI principal, a Dse\Exception\AuthenticationException will occur
      */
     public function executed_with_unauthorized_gssapi_principal() {
         // Ensure the dseuser principal ticket is available
@@ -228,7 +228,7 @@ class AuthenticationContext implements Context {
      * Execute the PHP example code with username and password environment
      * variables; U: invalid, P: credentials
      *
-     * @Given it is executed with improper credentials, a Cassandra\Exception\AuthenticationException will occur
+     * @Given it is executed with improper credentials, a Dse\Exception\AuthenticationException will occur
      */
     public function executed_with_improper_credentials() {
         $this->when_executed(array("environment" => array(

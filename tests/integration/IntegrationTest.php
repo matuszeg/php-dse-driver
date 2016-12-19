@@ -1,5 +1,20 @@
 <?php
 
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
+use const \Dse\VERSION;
+use const \Dse\CPP_DRIVER_DSE_VERSION as CPP_DRIVER_VERSION;
+
+// Create global constants for the logging options
+/**
+ * Filename option for the logger
+ */
+const LOG_FILENAME_OPTION = "dse.log";
+/**
+ * Log level option for the logger
+ */
+const LOG_LEVEL_OPTION = "dse.log_level";
+
 /**
  * Copyright (c) 2016 DataStax, Inc.
  *
@@ -18,7 +33,7 @@ class IntegrationTestFixture {
      */
     private static $instance;
     /**
-     * @var \CCM\Bridge CCM instance for working with Cassandra/DSE clusters
+     * @var CCM\Bridge CCM instance for working with Cassandra/DSE clusters
      */
     private $ccm;
     /**
@@ -59,10 +74,18 @@ class IntegrationTestFixture {
 
         // Display information about the current setup for the tests being run
         echo PHP_EOL . "Starting DataStax PHP Driver Integration Test" . PHP_EOL
-            . "  PHP v" . phpversion() . PHP_EOL
-            . "  Cassandra driver v" . \Cassandra::VERSION . PHP_EOL
-            . "  DSE driver v" . \Dse::VERSION . PHP_EOL
-            . "  C/C++ DSE drvier v" . \Dse::CPP_DRIVER_DSE_VERSION . PHP_EOL;
+            . "  PHP v" . phpversion() . PHP_EOL;
+        if (class_exists("Dse")) {
+            echo "  DSE";
+        } else {
+            echo "  Cassandra";
+        }
+        echo " v" . Cassandra::VERSION . PHP_EOL
+            .  "  C/C++ ";
+        if (class_exists("Dse")) {
+            echo "DSE";
+        }
+        echo " driver v" . Cassandra::CPP_DRIVER_VERSION . PHP_EOL;
         $this->configuration->print_settings();
         echo PHP_EOL;
 
@@ -120,11 +143,11 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     const SELECT_FORMAT = "SELECT id, value FROM %s.%s";
 
     /**
-     * @var \CCM\Bridge CCM interface instance
+     * @var CCM\Bridge CCM interface instance
      */
     protected static $ccm;
     /**
-     * @var \CCM\Cluster CCM cluster configuration to create
+     * @var CCM\Cluster CCM cluster configuration to create
      */
     protected static $cluster_configuration;
     /**
@@ -133,10 +156,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     protected static $configuration;
 
     /**
-     * @var \Cassandra\Cluster|\Dse\Cluster Cassandra/DSE cluster
-     *
-     * @see \Cassandra\Cluster
-     * @see \Dse\Cluster
+     * @var Cassandra\Cluster Cluster instance
      */
     protected $cluster;
     /**
@@ -171,21 +191,18 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     protected $replication_factor = 0;
     /**
      * @var string Replication strategy based on the data center arrangement in
-     *             the \CCM\Cluster configuration
+     *             the CCM\Cluster configuration
      */
     protected $replication_strategy;
     /**
-     * @var \Cassandra\Version|\Dse\Version Version of the server connected to
+     * @var Cassandra\Version|Dse\Version Version of the server connected to
      *
-     * @see \Cassandra\Version
-     * @see \Dse\Version
+     * @see Cassandra\Version
+     * @see Dse\Version
      */
     protected $server_version;
     /**
-     * @var \Cassandra\Session|\Dse\Session Cassandra/DSE session
-     *
-     * @see \Cassandra\Session
-     * @see \Dse\Session
+     * @var Cassandra\Session Session instance
      */
     protected $session;
     /**
@@ -419,7 +436,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         if (!is_null($this->session)) {
             try {
                 $query = sprintf(self::DROP_KEYSPACE_FORMAT, $this->keyspace);
-                $statement = new \Cassandra\SimpleStatement($query);
+                $statement = new Cassandra\SimpleStatement($query);
                 $this->session->execute($statement);
             } catch (\Exception $e) {
                 ; // no-op
@@ -449,14 +466,14 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @return array Composite data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      */
     protected function composite_data_types() {
         // Get the Cassandra version
         $version = IntegrationTestFixture::get_instance()->configuration->version;
-        if (is_a($version, 'Dse\Version')) {
+        if ($version instanceof Dse\Version) {
             $version = $version->cassandra_version;
         }
 
@@ -484,7 +501,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @return array Composite data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      *
@@ -492,11 +509,11 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      */
     protected function composite_data_types_1_2() {
         // Define the composite data types
-        $collection_type = \Cassandra\Type::collection(\Cassandra\Type::varchar());
-        $map_type = \Cassandra\Type::map(
-            \Cassandra\Type::int(),
-            \Cassandra\Type::varchar());
-        $set_type = \Cassandra\Type::set(\Cassandra\Type::varchar());
+        $collection_type = Cassandra\Type::collection(Cassandra\Type::varchar());
+        $map_type = Cassandra\Type::map(
+            Cassandra\Type::int(),
+            Cassandra\Type::varchar());
+        $set_type = Cassandra\Type::set(Cassandra\Type::varchar());
 
         return array(
             // Collection data type
@@ -548,7 +565,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @return array Composite data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      *
@@ -556,10 +573,10 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      */
     protected function composite_data_types_2_1() {
         // Define the tuple data type
-        $tuple_type = \Cassandra\Type::tuple(
-            \Cassandra\Type::bigint(),
-            \Cassandra\Type::int(),
-            \Cassandra\Type::varchar()
+        $tuple_type = Cassandra\Type::tuple(
+            Cassandra\Type::bigint(),
+            Cassandra\Type::int(),
+            Cassandra\Type::varchar()
         );
 
         return array(
@@ -568,17 +585,17 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                 $tuple_type,
                 array(
                     $tuple_type->create(
-                        new \Cassandra\Bigint(1),
+                        new Cassandra\Bigint(1),
                         2,
                         "a"
                     ),
                     $tuple_type->create(
-                        new \Cassandra\Bigint(3),
+                        new Cassandra\Bigint(3),
                         4,
                         "b"
                     ),
                     $tuple_type->create(
-                        new \Cassandra\Bigint(5),
+                        new Cassandra\Bigint(5),
                         6,
                         "c"
                     )
@@ -592,7 +609,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @return array Composite data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      *
@@ -600,10 +617,10 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      */
     protected function composite_data_types_2_2() {
         // Define the user data type
-        $user_data_type_type = \Cassandra\Type::userType(
-            "a", \Cassandra\Type::bigint(),
-            "b", \Cassandra\Type::int(),
-            "c", \Cassandra\Type::varchar()
+        $user_data_type_type = Cassandra\Type::userType(
+            "a", Cassandra\Type::bigint(),
+            "b", Cassandra\Type::int(),
+            "c", Cassandra\Type::varchar()
         );
         $name = $this->generate_user_data_type_name($user_data_type_type);
         $user_data_type_type = $user_data_type_type->withName($name);
@@ -614,17 +631,17 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                 $user_data_type_type,
                 array(
                     $user_data_type_type->create(
-                        "a", new \Cassandra\Bigint(1),
+                        "a", new Cassandra\Bigint(1),
                         "b", 2,
                         "c", "x"
                     ),
                     $user_data_type_type->create(
-                        "a", new \Cassandra\Bigint(3),
+                        "a", new Cassandra\Bigint(3),
                         "b", 4,
                         "c", "y"
                     ),
                     $user_data_type_type->create(
-                        "a", new \Cassandra\Bigint(5),
+                        "a", new Cassandra\Bigint(5),
                         "b", 6,
                         "c", "z"
                     )
@@ -638,24 +655,21 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      * the server (may be different than the configuration settings version
      * used)
      *
-     * @param \Cassandra\Session|\Dse\Session|null $cluster (Optional) Cluster instance
-     *                                                                 (default: base
-     *                                                                 cluster instance)
+     * @param Cassandra\Session|null $cluster (Optional) Cluster instance
+     *                                                   (default: base cluster
+     *                                                   instance)
      * @param string|null $query (Optional) Query to execute upon connection
      *                                      (default: generated create keyspace
      *                                                query)
-     * @return array Cassandra/DSE session and server version from established
-     *               connection
+     * @return array Session and server version from established connection
      *     [
-     *         "rows"  => (\Cassandra\Rows) Query result (rows)
-     *         "session" => (\Cassandra\Session|\Dse\Session) Session instance
-     *         "version" => (\Cassandra\Version|\Dse\Version) Server version
+     *         "rows"  => (Cassandra\Rows) Query result (rows)
+     *         "session" => (Cassandra\Session) Session instance
+     *         "version" => (Cassandra\Version|Dse\Version) Server version
      *     ]
      *
-     * @see \Cassandra\Session
-     * @see \Dse\Session
-     * @see \Cassandra\Version
-     * @see \Dse\Version
+     * @see Cassandra\Version
+     * @see Dse\Version
      */
     protected function connect_cluster($cluster = null, $query = null) {
         // Establish the connection to the server
@@ -682,7 +696,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         if (self::$configuration->verbose) {
             echo "Executing Query: {$query}" . PHP_EOL;
         }
-        $statement = new \Cassandra\SimpleStatement($query);
+        $statement = new Cassandra\SimpleStatement($query);
         $rows = $session->execute($statement);
 
         // Return the result, session and version
@@ -696,7 +710,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     /**
      * Create the Cassandra/DSE cluster
      *
-     * @param \CCM\Cluster|null $cluster_configuration (Optional) CCM cluster
+     * @param CCM\Cluster|null $cluster_configuration (Optional) CCM cluster
      *                                                            configuration
      * @param array $server_configuration (Optional) Cassandra/DSE server
      *                                               configuration
@@ -707,7 +721,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      * @return bool True if cluster was created or switched; false otherwise
      * @throws \Exception If no data centers exist in the cluster
      */
-    protected function create_server_cluster(\CCM\Cluster $cluster_configuration = null,
+    protected function create_server_cluster(CCM\Cluster $cluster_configuration = null,
                                              $server_configuration = array()) {
         // Determine if the base cluster configuration should be used
         if (is_null($cluster_configuration)) {
@@ -753,7 +767,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             $keyspace,
             $this->generate_user_data_type_name($user_data_type),
             $udt_fields);
-        $this->session->execute(new \Cassandra\SimpleStatement($query));
+        $this->session->execute(new Cassandra\SimpleStatement($query));
     }
 
     /**
@@ -768,14 +782,14 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      * @return array Composite, nested composite and scalar data type to use in
      *               a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      */
     protected function data_types($primary_keys = false) {
         // Get the Cassandra version
         $version = IntegrationTestFixture::get_instance()->configuration->version;
-        if (is_a($version, 'Dse\Version')) {
+        if ($version instanceof Dse\Version) {
             $version = $version->cassandra_version;
         }
 
@@ -816,24 +830,17 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @param bool $all (Optional) True if all contact should be used; false
      *                             otherwise (e.g. liveset) (default: true)
-     * @return \Cassandra\Cluster\Builder|\Dse\Cluster\Builder Cassandra or DSE
-     *                                                         cluster builder
+     * @return Cassandra\Cluster\Builder Cluster builder instance
      *
-     * @see \Cassandra\Cluster\Builder
-     * @see \Dse\Cluster\Builder
+     * @see Cassandra\Cluster\Builder
+     * @see Dse\Cluster\Builder
      */
     protected function default_cluster_builder($all = true) {
+        // Get the contact points from CCM
         $contact_points = self::$ccm->contact_points($all);
 
-        // Determine if the DSE cluster should be created
-        if (self::$configuration->dse) {
-            $cluster = \Dse::cluster();
-        } else {
-            $cluster = \Cassandra::cluster();
-        }
-
         // Assign the defaults for the cluster configuration
-        $cluster->withContactPoints($contact_points)
+        $cluster = Cassandra::cluster()->withContactPoints($contact_points)
             ->withPersistentSessions(true)
             ->withRandomizedContactPoints(false)
             ->withSchemaMetadata(false);
@@ -845,10 +852,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @param bool $all (Optional) True if all contact should be used; false
      *                             otherwise (e.g. liveset) (default: true)
-     * @return \Cassandra\Cluster|\Dse\Cluster Cassandra or DSE cluster
-     *
-     * @see \Cassandra\Cluster
-     * @see \Dse\Cluster
+     * @return Cassandra\Cluster Cluster instance
      */
     protected function default_cluster($all = true) {
         return $this->default_cluster_builder($all)
@@ -859,7 +863,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      * Establish the connection; assigns cluster, session, and server
      * version
      *
-     * @param \Cassandra\Cluster|\Dse\Cluster Cassandra or DSE cluster
+     * @param Cassandra\Cluster Cluster instance
      *
      * @see IntegrationTest::cluster
      * @see IntegrationTest::server_version
@@ -887,26 +891,26 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     /**
      * Generate the CQL data type from the give data type
      *
-     * @param \Cassandra\Type $type Data type
+     * @param Cassandra\Type $type Data type
      * @return string String representation of the CQL data type
      */
     protected function generate_cql_data_type($type) {
         // Determine if the data type is a composite value and should be frozen
         if ($this->is_composite_data_type($type)) {
             // Ensure that UDTs are frozen
-            if (is_a($type, "\\Cassandra\\Type\\UserType")) {
+            if ($type instanceof Cassandra\Type\UserType) {
                 return sprintf("frozen<%s>", (string) $type);
             }
 
             // Gather the value types from the composite type
             $types = array();
-            if (is_a($type, "\\Cassandra\\Type\\Collection") ||
-                is_a($type, "\\Cassandra\\Type\\Set")) {
+            if ($type instanceof Cassandra\Type\Collection ||
+                $type instanceof Cassandra\Type\Set) {
                 $types[] = $type->valueType();
-            } else if (is_a($type, "\\Cassandra\\Type\\Map")) {
+            } else if ($type instanceof Cassandra\Type\Map) {
                 $types[] = $type->keyType();
                 $types[] = $type->valueType();
-            } else if (is_a($type, "\\Cassandra\\Type\\Tuple")) {
+            } else if ($type instanceof Cassandra\Type\Tuple) {
                 $types = $type->types();
             }
 
@@ -934,15 +938,15 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     /**
      * Determine if a given type is a composite data type
      *
-     * @param \Cassandra\Type $type Type to determine if it is a composite
+     * @param Cassandra\Type $type Type to determine if it is a composite
      * @return bool True if $type is a composite data type; false otherwise
      */
     protected function is_composite_data_type($type) {
-        if (is_a($type, "\\Cassandra\\Type\\Collection") ||
-            is_a($type, "\\Cassandra\\Type\\Map") ||
-            is_a($type, "\\Cassandra\\Type\\Set") ||
-            is_a($type, "\\Cassandra\\Type\\Tuple") ||
-            is_a($type, "\\Cassandra\\Type\\UserType")) {
+        if ($type instanceof Cassandra\Type\Collection ||
+            $type instanceof Cassandra\Type\Map ||
+            $type instanceof Cassandra\Type\Set ||
+            $type instanceof Cassandra\Type\Tuple ||
+            $type instanceof Cassandra\Type\UserType) {
             return true;
         }
         return false;
@@ -974,14 +978,14 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @return array Nested composite data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      */
     protected function nested_composite_data_types() {
         // Get the Cassandra version
         $version = IntegrationTestFixture::get_instance()->configuration->version;
-        if (is_a($version, 'Dse\Version')) {
+        if ($version instanceof Dse\Version) {
             $version = $version->cassandra_version;
         }
 
@@ -1003,7 +1007,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @return array Nested composite data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      *
@@ -1017,7 +1021,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         $nested_composite_data_types = array();
         foreach ($composite_data_types as $composite_data_type) {
             // Define and create the nested composite data type (one value only)
-            $type = \Cassandra\Type::collection($composite_data_type[0]);
+            $type = Cassandra\Type::collection($composite_data_type[0]);
             $nested_composite_data_types[] = array(
                 $type,
                 array(
@@ -1029,7 +1033,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         // Create the nested composite (map)
         foreach ($composite_data_types as $composite_data_type) {
             // Define and create the nested composite data type (one value only)
-            $type = \Cassandra\Type::map($composite_data_type[0], $composite_data_type[0]);
+            $type = Cassandra\Type::map($composite_data_type[0], $composite_data_type[0]);
             $nested_composite_data_types[] = array(
                 $type,
                 array(
@@ -1041,7 +1045,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         // Create the nested composite (set)
         foreach ($composite_data_types as $composite_data_type) {
             // Define and create the nested composite data type (one value only)
-            $type = \Cassandra\Type::set($composite_data_type[0]);
+            $type = Cassandra\Type::set($composite_data_type[0]);
             $nested_composite_data_types[] = array(
                 $type,
                 array(
@@ -1059,7 +1063,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @return array Nested composite data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      *
@@ -1072,7 +1076,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         // Create the nested composite (tuple)
         foreach ($composite_data_types as $composite_data_type) {
             // Define and create the nested composite data type (one value only)
-            $type = \Cassandra\Type::tuple($composite_data_type[0], $composite_data_type[0]);
+            $type = Cassandra\Type::tuple($composite_data_type[0], $composite_data_type[0]);
             $nested_composite_data_types[] = array(
                 $type,
                 array(
@@ -1090,7 +1094,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @return array Nested composite data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      *
@@ -1103,7 +1107,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         // Create the nested composite (UDT)
         foreach ($composite_data_types as $composite_data_type) {
             // Define the user data type
-            $type = \Cassandra\Type::userType(
+            $type = Cassandra\Type::userType(
                 "y", $composite_data_type[0],
                 "z", $composite_data_type[0]
             );
@@ -1135,7 +1139,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      * @return array Composite and scalar data type for use as a primary key to
      *               use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      */
@@ -1148,7 +1152,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @return array Scalar data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      *
@@ -1158,7 +1162,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         return array(
             // ASCII data type
             array(
-                \Cassandra\Type::ascii(),
+                Cassandra\Type::ascii(),
                 array(
                     "a",
                     "b",
@@ -1171,28 +1175,28 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
             // Bigint data type
             array(
-                \Cassandra\Type::bigint(),
+                Cassandra\Type::bigint(),
                 array(
-                    \Cassandra\Bigint::max(),
-                    \Cassandra\Bigint::min(),
-                    new \Cassandra\Bigint("0"),
-                    new \Cassandra\Bigint("37")
+                    Cassandra\Bigint::max(),
+                    Cassandra\Bigint::min(),
+                    new Cassandra\Bigint("0"),
+                    new Cassandra\Bigint("37")
                 )
             ),
 
             // Blob data type
             array(
-                \Cassandra\Type::blob(),
+                Cassandra\Type::blob(),
                 array(
-                    new \Cassandra\Blob("DataStax PHP Driver Extension"),
-                    new \Cassandra\Blob("Cassandra"),
-                    new \Cassandra\Blob("DataStax Enterprise")
+                    new Cassandra\Blob("DataStax PHP Driver Extension"),
+                    new Cassandra\Blob("Cassandra"),
+                    new Cassandra\Blob("DataStax Enterprise")
                 )
             ),
 
             // Boolean data type
             array(
-                \Cassandra\Type::boolean(),
+                Cassandra\Type::boolean(),
                 array(
                     true,
                     false
@@ -1203,17 +1207,17 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
             // Decimal data type
             array(
-                \Cassandra\Type::decimal(),
+                Cassandra\Type::decimal(),
                 array(
-                    new \Cassandra\Decimal("3.14159265358979323846"),
-                    new \Cassandra\Decimal("2.71828182845904523536"),
-                    new \Cassandra\Decimal("1.61803398874989484820")
+                    new Cassandra\Decimal("3.14159265358979323846"),
+                    new Cassandra\Decimal("2.71828182845904523536"),
+                    new Cassandra\Decimal("1.61803398874989484820")
                 )
             ),
 
             // Double data type
             array(
-                \Cassandra\Type::double(),
+                Cassandra\Type::double(),
                 array(
                     3.1415926535,
                     2.7182818284,
@@ -1223,27 +1227,27 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
             // Float data type
             array(
-                \Cassandra\Type::float(),
+                Cassandra\Type::float(),
                 array(
-                    new \Cassandra\Float(3.14159),
-                    new \Cassandra\Float(2.71828),
-                    new \Cassandra\Float(1.61803)
+                    new Cassandra\Float(3.14159),
+                    new Cassandra\Float(2.71828),
+                    new Cassandra\Float(1.61803)
                 )
             ),
 
             // Inet data type
             array(
-                \Cassandra\Type::inet(),
+                Cassandra\Type::inet(),
                 array(
-                    new \Cassandra\Inet("127.0.0.1"),
-                    new \Cassandra\Inet("0:0:0:0:0:0:0:1"),
-                    new \Cassandra\Inet("2001:db8:85a3:0:0:8a2e:370:7334")
+                    new Cassandra\Inet("127.0.0.1"),
+                    new Cassandra\Inet("0:0:0:0:0:0:0:1"),
+                    new Cassandra\Inet("2001:db8:85a3:0:0:8a2e:370:7334")
                 )
             ),
 
             // Integer data type
             array(
-                \Cassandra\Type::int(),
+                Cassandra\Type::int(),
                 array(
                     2147483647,
                     -2147483648,
@@ -1254,7 +1258,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
             // Text data type
             array(
-                \Cassandra\Type::text(),
+                Cassandra\Type::text(),
                 array(
                     "The quick brown fox jumps over the lazy dog",
                     "Hello World",
@@ -1264,39 +1268,39 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
             // Timestamp data type
             array(
-                \Cassandra\Type::timestamp(),
+                Cassandra\Type::timestamp(),
                 array(
-                    new \Cassandra\Timestamp(123),
-                    new \Cassandra\Timestamp(456),
-                    new \Cassandra\Timestamp(789),
-                    new \Cassandra\Timestamp(time())
+                    new Cassandra\Timestamp(123),
+                    new Cassandra\Timestamp(456),
+                    new Cassandra\Timestamp(789),
+                    new Cassandra\Timestamp(time())
                 )
             ),
 
             // Timeuuid data type
             array(
-                \Cassandra\Type::timeuuid(),
+                Cassandra\Type::timeuuid(),
                 array(
-                    new \Cassandra\Timeuuid(0),
-                    new \Cassandra\Timeuuid(1),
-                    new \Cassandra\Timeuuid(2),
-                    new \Cassandra\Timeuuid(time())
+                    new Cassandra\Timeuuid(0),
+                    new Cassandra\Timeuuid(1),
+                    new Cassandra\Timeuuid(2),
+                    new Cassandra\Timeuuid(time())
                 )
             ),
 
             // Uuid data type
             array(
-                \Cassandra\Type::uuid(),
+                Cassandra\Type::uuid(),
                 array(
-                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2"),
-                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c3"),
-                    new \Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c4")
+                    new Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2"),
+                    new Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c3"),
+                    new Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c4")
                 )
             ),
 
             // Varchar data type
             array(
-                \Cassandra\Type::varchar(),
+                Cassandra\Type::varchar(),
                 array(
                     "The quick brown fox jumps over the lazy dog",
                     "Hello World",
@@ -1306,12 +1310,12 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
             // Varint data type
             array(
-                \Cassandra\Type::varint(),
+                Cassandra\Type::varint(),
                 array(
-                    new \Cassandra\Varint(2147483647),
-                    new \Cassandra\Varint(-2147483648),
-                    new \Cassandra\Varint(0),
-                    new \Cassandra\Varint(296)
+                    new Cassandra\Varint(2147483647),
+                    new Cassandra\Varint(-2147483648),
+                    new Cassandra\Varint(0),
+                    new Cassandra\Varint(296)
                 )
             )
         );
@@ -1322,7 +1326,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @return array Scalar data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type) Data type
+     *         [0] => (Cassandra\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
      *
@@ -1332,44 +1336,44 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         return array(
             // Date data type
             array(
-                \Cassandra\Type::date(),
+                Cassandra\Type::date(),
                 array(
-                    new \Cassandra\Date(),
-                    new \Cassandra\Date(0),
-                    new \Cassandra\Date(-86400),
-                    new \Cassandra\Date(86400)
+                    new Cassandra\Date(),
+                    new Cassandra\Date(0),
+                    new Cassandra\Date(-86400),
+                    new Cassandra\Date(86400)
                 )
             ),
 
             // Smallint data type
             array(
-                \Cassandra\Type::smallint(),
+                Cassandra\Type::smallint(),
                 array(
-                    \Cassandra\Smallint::min(),
-                    \Cassandra\Smallint::max(),
-                    new \Cassandra\Smallint(0),
-                    new \Cassandra\Smallint(74)
+                    Cassandra\Smallint::min(),
+                    Cassandra\Smallint::max(),
+                    new Cassandra\Smallint(0),
+                    new Cassandra\Smallint(74)
                 )
             ),
 
             // Time data type
             array(
-                \Cassandra\Type::time(),
+                Cassandra\Type::time(),
                 array(
-                    new \Cassandra\Time(),
-                    new \Cassandra\Time(0),
-                    new \Cassandra\Time(1234567890)
+                    new Cassandra\Time(),
+                    new Cassandra\Time(0),
+                    new Cassandra\Time(1234567890)
                 )
             ),
 
             // Tinyint data type
             array(
-                \Cassandra\Type::tinyint(),
+                Cassandra\Type::tinyint(),
                 array(
-                    \Cassandra\Tinyint::min(),
-                    \Cassandra\Tinyint::max(),
-                    new \Cassandra\Tinyint(0),
-                    new \Cassandra\Tinyint(37)
+                    Cassandra\Tinyint::min(),
+                    Cassandra\Tinyint::max(),
+                    new Cassandra\Tinyint(0),
+                    new Cassandra\Tinyint(37)
                 )
             )
         );
@@ -1380,7 +1384,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * @param string|null $keyspace (Optional) Keyspace to select from
      * @param string|null $table (Optional) Table to select from
-     * @return \Cassandra\Rows Select statement result
+     * @return Cassandra\Rows Select statement result
      */
     protected function select_all_rows($keyspace = null, $table = null) {
         // Determine if the base keyspace and table should be used
@@ -1393,7 +1397,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
         // Create and execute the select query
         $query = sprintf(self::SELECT_FORMAT, $keyspace, $table);
-        $statement = new \Cassandra\SimpleStatement($query);
+        $statement = new Cassandra\SimpleStatement($query);
         return $this->session->execute($statement);
     }
 
@@ -1467,7 +1471,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      * Generate a user type name (string) suitable for creating a table or CQL
      * UDT
      *
-     * @param \Cassandra\Type\UserType $user_data_type UDT to generate name
+     * @param Cassandra\Type\UserType $user_data_type UDT to generate name
      * @return string String representation of the UDT
      */
     protected function generate_user_data_type_name($user_data_type) {
@@ -1519,7 +1523,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             }
             $this->log_filename = "{$dataset_name}.log";
         }
-        ini_alter("dse.log", "{$this->log_directory}{$this->log_filename}");
-        ini_alter("dse.log_level", "TRACE");
+        ini_alter(LOG_FILENAME_OPTION, "{$this->log_directory}{$this->log_filename}");
+        ini_alter(LOG_LEVEL_OPTION, "TRACE");
     }
 }

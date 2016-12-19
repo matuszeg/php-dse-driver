@@ -113,14 +113,17 @@ class Version {
                 . "Pattern must follow <major>.<minor>.<patch>(.|-)<extra>");
         }
     }
-}
-}
+} // Version class
+} // Global namespace
 
 namespace Cassandra {
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
+use \Dse\DefaultSession as DefaultSession;
+use \Dse\SimpleStatement as SimpleStatement;
+
 /**
  * This class is for representing Cassandra versions.
- *
- * @package Cassandra
  */
 class Version extends \Version {
     /**
@@ -140,30 +143,28 @@ class Version extends \Version {
     }
 
     /**
-     * Get the Cassandra\Version from the server
+     * Get the Cassandra version from the server
      *
-     * @param \Cassandra\Session $session Session object to utilize when
-     *                                    gathering the Cassandra version number
+     * @param DefaultSession $session Session object to utilize when gathering
+     *                                the Cassandra version number
      * @return Version Cassandra version from the server
      */
-    public static function from_server(\Cassandra\Session $session) {
-        $result = $session->execute(new \Cassandra\SimpleStatement(
+    public static function from_server(DefaultSession $session) {
+        $result = $session->execute(new SimpleStatement(
             self::CQL_SELECT_CASSANDRA_RELEASE_VERSION));
         return new Version($result[0]["release_version"]);
     }
-}
-}
+} // Version class
+} // Cassandra namespace
 
 namespace Dse {
 /**
  * This class is for representing DSE versions as it will encapsulate the
  * Cassandra version.
- *
- * @package Dse
  */
 class Version extends \Version {
     /**
-     * @var Cassandra\Version Cassandra version used by DSE version
+     * @var \Cassandra\Version Cassandra version used by DSE version
      */
     private $cassandra_version;
 
@@ -197,14 +198,14 @@ class Version extends \Version {
     }
 
     /**
-     * Get the Cassandra\Version from the server
+     * Get the DSE and Cassandra version from the server
      *
-     * @param \Dse\Session $session Session object to utilize when
-     *                              gathering the Cassandra version number
+     * @param DefaultSession $session Session object to utilize when gathering
+     *                                the DSE and Cassandra version number
      * @return Version DSE version from the server
      */
-    public static function from_server(\Dse\Session $session) {
-        $result = $session->execute(new \Cassandra\SimpleStatement(
+    public static function from_server(DefaultSession $session) {
+        $result = $session->execute(new SimpleStatement(
             self::CQL_SELECT_DSE_RELEASE_VERSION));
         $version = new Version($result[0]["dse_version"]);
         $version->cassandra_version = \Cassandra\Version::from_server($session);
@@ -329,5 +330,5 @@ class Version extends \Version {
         // DSE version does not correspond to a valid Cassandra version
         throw new Exception("Invalid DSE Version {$this}: Could not determine Cassandra version");
     }
-}
-}
+} // Version class
+} // Dse namespace

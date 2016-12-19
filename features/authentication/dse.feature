@@ -24,7 +24,7 @@ Feature: DSE Authentication
 
         // Indicate the connection was successful
         echo "Login successful" . PHP_EOL;
-    } catch (Cassandra\Exception\AuthenticationException $cer) {
+    } catch (Dse\Exception\AuthenticationException $der) {
         // Indicate the connection was unsuccessful
         echo "Login failed" . PHP_EOL;
     }
@@ -38,7 +38,7 @@ Feature: DSE Authentication
       """
 
     Scenario: Authenticating with improper plaintext credentials
-      But it is executed with improper credentials, a Cassandra\Exception\AuthenticationException will occur
+      But it is executed with improper credentials, a Dse\Exception\AuthenticationException will occur
       Then its output should contain:
       """
       Login failed

@@ -67,7 +67,7 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      * Execute a graph read query with the specified read consistency
      *
      * @param int $consistency Read consistency to apply
-     * @return \Dse\Graph\ResultSet Graph result from the executed query
+     * @return Dse\Graph\ResultSet Graph result from the executed query
      */
     private function execute_read($consistency) {
         $options = array(
@@ -81,7 +81,7 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      * Execute a graph write query with the specified write consistency
      *
      * @param $consistency Write consistency to apply
-     * @return \Dse\Graph\ResultSet Graph result from the executed query
+     * @return Dse\Graph\ResultSet Graph result from the executed query
      */
     private function execute_write($consistency) {
         $options = array(
@@ -103,7 +103,7 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
             if (self::$configuration->verbose) {
                 echo "Performing graph query to propagate schema across the cluster" . PHP_EOL;
             }
-            $this->execute_read(\Cassandra::CONSISTENCY_ONE);
+            $this->execute_read(Dse::CONSISTENCY_ONE);
             $this->schema_propagated = true;
         }
 
@@ -115,7 +115,7 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
     /**
      * Validate the write query using the result set provided
      *
-     * @param \Dse\Graph\ResultSet $result_set Result set to validate
+     * @param Dse\Graph\ResultSet $result_set Result set to validate
      */
     private function validate_result_set($result_set) {
         // Get the vertex from the result set
@@ -167,11 +167,11 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      * cluster.
      *
      * Consistency levels options applied:
-     *   - CASS_CONSISTENCY_ONE
-     *   - CASS_CONSISTENCY_TWO
-     *   - CASS_CONSISTENCY_THREE
-     *   - CASS_CONSISTENCY_ALL
-     *   - CASS_CONSISTENCY_QUORUM
+     *   - CONSISTENCY_ONE
+     *   - CONSISTENCY_TWO
+     *   - CONSISTENCY_THREE
+     *   - CONSISTENCY_ALL
+     *   - CONSISTENCY_QUORUM
      *
      * @jira_ticket PHP-103
      * @test_category dse:graph
@@ -182,11 +182,11 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      * @test
      */
     public function testRead() {
-        $this->execute_read(\Cassandra::CONSISTENCY_ONE);
-        $this->execute_read(\Cassandra::CONSISTENCY_TWO);
-        $this->execute_read(\Cassandra::CONSISTENCY_THREE);
-        $this->execute_read(\Cassandra::CONSISTENCY_ALL);
-        $this->execute_read(\Cassandra::CONSISTENCY_QUORUM);
+        $this->execute_read(Dse::CONSISTENCY_ONE);
+        $this->execute_read(Dse::CONSISTENCY_TWO);
+        $this->execute_read(Dse::CONSISTENCY_THREE);
+        $this->execute_read(Dse::CONSISTENCY_ALL);
+        $this->execute_read(Dse::CONSISTENCY_QUORUM);
     }
 
     /**
@@ -197,12 +197,12 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      * node cluster.
      *
      * Consistency levels options applied:
-     *   - CASS_CONSISTENCY_ONE
-     *   - CASS_CONSISTENCY_TWO
-     *   - CASS_CONSISTENCY_QUORUM
+     *   - CONSISTENCY_ONE
+     *   - CONSISTENCY_TWO
+     *   - CONSISTENCY_QUORUM
      *   Expected to fail:
-     *     - CASS_CONSISTENCY_ALL
-     *     - CASS_CONSISTENCY_THREE
+     *     - CONSISTENCY_ALL
+     *     - CONSISTENCY_THREE
      *
      * @jira_ticket PHP-103
      * @test_category dse:graph
@@ -216,22 +216,22 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
     public function testReadOneNodeDown() {
         // Stop the 1st node and run the passing read queries
         $this->stop_node(1);
-        $this->execute_read(\Cassandra::CONSISTENCY_ONE);
-        $this->execute_read(\Cassandra::CONSISTENCY_TWO);
-        $this->execute_read(\Cassandra::CONSISTENCY_QUORUM);
+        $this->execute_read(Dse::CONSISTENCY_ONE);
+        $this->execute_read(Dse::CONSISTENCY_TWO);
+        $this->execute_read(Dse::CONSISTENCY_QUORUM);
 
         // Execute the expected failing queries and assert exception
         try {
-            $this->execute_read(\Cassandra::CONSISTENCY_ALL);
+            $this->execute_read(Dse::CONSISTENCY_ALL);
             $this->fail("Read should have failed for 'ALL' with one node down");
-        } catch (\Cassandra\Exception\InvalidQueryException $iqe) {
+        } catch (Dse\Exception\InvalidQueryException $iqe) {
             $this->assertContains("Operation timed out - received only 2 responses",
                 $iqe->getMessage());
         }
         try {
-            $this->execute_read(\Cassandra::CONSISTENCY_THREE);
+            $this->execute_read(Dse::CONSISTENCY_THREE);
             $this->fail("Read should have failed for 'THREE' with one node down");
-        } catch (\Cassandra\Exception\InvalidQueryException $iqe) {
+        } catch (Dse\Exception\InvalidQueryException $iqe) {
             $this->assertContains("Cannot achieve consistency level",
                 $iqe->getMessage());
         }
@@ -245,12 +245,12 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      * cluster.
      *
      * Consistency levels options applied:
-     *   - CASS_CONSISTENCY_ANY
-     *   - CASS_CONSISTENCY_ONE
-     *   - CASS_CONSISTENCY_TWO
-     *   - CASS_CONSISTENCY_THREE
-     *   - CASS_CONSISTENCY_ALL
-     *   - CASS_CONSISTENCY_QUORUM
+     *   - CONSISTENCY_ANY
+     *   - CONSISTENCY_ONE
+     *   - CONSISTENCY_TWO
+     *   - CONSISTENCY_THREE
+     *   - CONSISTENCY_ALL
+     *   - CONSISTENCY_QUORUM
      *
      * @jira_ticket PHP-103
      * @test_category dse:graph
@@ -262,15 +262,15 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      */
     public function testWrite() {
         $this->validate_result_set(
-            $this->execute_write(\Cassandra::CONSISTENCY_ONE));
+            $this->execute_write(Dse::CONSISTENCY_ONE));
         $this->validate_result_set(
-            $this->execute_write(\Cassandra::CONSISTENCY_TWO));
+            $this->execute_write(Dse::CONSISTENCY_TWO));
         $this->validate_result_set(
-            $this->execute_write(\Cassandra::CONSISTENCY_THREE));
+            $this->execute_write(Dse::CONSISTENCY_THREE));
         $this->validate_result_set(
-            $this->execute_write(\Cassandra::CONSISTENCY_ALL));
+            $this->execute_write(Dse::CONSISTENCY_ALL));
         $this->validate_result_set(
-            $this->execute_write(\Cassandra::CONSISTENCY_QUORUM));
+            $this->execute_write(Dse::CONSISTENCY_QUORUM));
     }
 
     /**
@@ -281,13 +281,13 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      * three node cluster.
      *
      * Consistency levels options applied:
-     *   - CASS_CONSISTENCY_ANY
-     *   - CASS_CONSISTENCY_ONE
-     *   - CASS_CONSISTENCY_TWO
-     *   - CASS_CONSISTENCY_QUORUM
+     *   - CONSISTENCY_ANY
+     *   - CONSISTENCY_ONE
+     *   - CONSISTENCY_TWO
+     *   - CONSISTENCY_QUORUM
      *   Expected to fail:
-     *   - CASS_CONSISTENCY_ALL
-     *   - CASS_CONSISTENCY_THREE
+     *   - CONSISTENCY_ALL
+     *   - CONSISTENCY_THREE
      *
      * @jira_ticket PHP-103
      * @test_category dse:graph
@@ -301,23 +301,22 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
     public function testWriteOneNodeDown() {
         // Stop the 1st node and run the passing write queries
         $this->stop_node(1);
-        $this->execute_write(\Cassandra::CONSISTENCY_ONE);
-        $this->execute_write(\Cassandra::CONSISTENCY_TWO);
-        $this->execute_write(\Cassandra::CONSISTENCY_QUORUM);
+        $this->execute_write(Dse::CONSISTENCY_ONE);
+        $this->execute_write(Dse::CONSISTENCY_TWO);
+        $this->execute_write(Dse::CONSISTENCY_QUORUM);
 
         // Execute the expected failing queries and assert exception
         try {
-            $this->execute_write(\Cassandra::CONSISTENCY_ALL);
+            $this->execute_write(Dse::CONSISTENCY_ALL);
             $this->fail("Write should have failed for 'ALL' with one node down");
-        } catch (\Cassandra\Exception\InvalidQueryException $iqe) {
+        } catch (Dse\Exception\InvalidQueryException $iqe) {
             $this->assertContains("Operation timed out - received only 2 responses",
                 $iqe->getMessage());
         }
         try {
-            $this->execute_write(\Cassandra::CONSISTENCY_THREE);
+            $this->execute_write(Dse::CONSISTENCY_THREE);
             $this->fail("Write should have failed for 'THREE' with one node down");
-        } catch (\Cassandra\Exception\InvalidQueryException $iqe) {
-            sprintf(STDERR, "%s\n", $iqe->getMessage());
+        } catch (Dse\Exception\InvalidQueryException $iqe) {
             $this->assertContains("Operation timed out - received only 2 responses",
                 $iqe->getMessage());
         }

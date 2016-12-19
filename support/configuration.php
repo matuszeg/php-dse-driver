@@ -71,8 +71,8 @@ class Configuration {
             if ($property == "dse" || $property == "prefix" || $property == "version" ||
                 $property == "verbose") {
                 if ($property == "version") {
-                    if (!is_a($value, 'Cassandra\Version') &&
-                        !is_a($value, 'Dse\Version')) {
+                    if (!($value instanceof Cassandra\Version) &&
+                        !($value instanceof Dse\Version)) {
                         throw new Exception("Overriding version is not Cassandra or DSE version");
                     }
                 }

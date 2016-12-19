@@ -24,9 +24,9 @@ Feature: Kerberos Authentication
 
         // Indicate the connection was successful
         echo "Login successful" . PHP_EOL;
-    } catch (Cassandra\Exception\AuthenticationException $cer) {
+    } catch (Dse\Exception\AuthenticationException $der) {
         // Indicate the connection was unsuccessful
-        echo $cer->getMessage() . PHP_EOL;
+        echo $der->getMessage() . PHP_EOL;
     }
     """
 
@@ -38,21 +38,21 @@ Feature: Kerberos Authentication
       """
 
     Scenario: Authenticating with improper GSSAPI service provider
-      But it is executed with improper GSSAPI service provider, a Cassandra\Exception\AuthenticationException will occur
+      But it is executed with improper GSSAPI service provider, a Dse\Exception\AuthenticationException will occur
       Then its output should contain pattern:
       """
       Server .* not found in Kerberos database
       """
 
     Scenario: Authenticating with improper GSSAPI principal
-      But it is executed with improper GSSAPI principal, a Cassandra\Exception\AuthenticationException will occur
+      But it is executed with improper GSSAPI principal, a Dse\Exception\AuthenticationException will occur
       Then its output should contain:
       """
       Can't find client principal invalid@DATASTAX.COM in cache collection
       """
 
     Scenario: Authenticating with unauthorized GSSAPI principal
-      But it is executed with unauthorized GSSAPI principal, a Cassandra\Exception\AuthenticationException will occur
+      But it is executed with unauthorized GSSAPI principal, a Dse\Exception\AuthenticationException will occur
       Then its output should contain pattern:
       """
       dseuser@DATASTAX.COM is not permitted to log in|User dseuser@DATASTAX.COM doesn't exist - create it with CREATE USER query first

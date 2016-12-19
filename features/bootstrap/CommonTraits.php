@@ -19,7 +19,7 @@ use Symfony\Component\Process\PhpProcess;
  */
 trait CommonTraits {
     /**
-     * @var CCM\Bridge CCM bridge to stand up DSE instances
+     * @var CCM\Bridge CCM bridge to stand up Cassandra/DSE instances
      */
     private static $ccm;
     /**
@@ -71,22 +71,22 @@ trait CommonTraits {
     }
 
     /**
-     * Create a DSE cluster with a single node
+     * Create a Cassandra/DSE cluster with a single node
      *
-     * @Given a running DSE cluster
+     * @Given a running (Cassandra|DSE) cluster
      */
-    public function a_running_dse_cluster() {
-        $this->a_running_dse_cluster_with_nodes(1);
+    public function a_running_cluster() {
+        $this->a_running_cluster_with_nodes(1);
     }
 
     /**
-     * Create a DSE cluster with the given number of nodes
+     * Create a Cassandra/DSE cluster with the given number of nodes
      *
      * @param int $nodes
      * @param array $configuration Cassandra/DSE cluster configuration to apply
-     * @Given a running DSE cluster with :nodes nodes
+     * @Given a running (Cassandra|DSE) cluster with :nodes nodes
      */
-    public function a_running_dse_cluster_with_nodes($nodes, $configuration = array()) {
+    public function a_running_cluster_with_nodes($nodes, $configuration = array()) {
         if (self::$ccm->create_cluster(self::$ccm->default_cluster()
             ->add_data_center($nodes))) {
             if (array_key_exists("cassandra", $configuration)) {
@@ -208,38 +208,43 @@ trait CommonTraits {
      * Initialization for the context feature
      *
      * @param HookScope $scope Scope to gather initialization information from
+     * @throws \Exception If Cassandra/DSE version has not been assigned
      */
     private static function initialize(HookScope $scope) {
-        // Get the version from the feature
+        // Get the environmental configurations
+        self::$configuration = new Configuration();
+
+        // Get the version from the feature and update the configuration
         $settings = $scope->getEnvironment()
             ->getSuite()
             ->getSettings();
-        $version = new Dse\Version(self::get_value("dse_version", $settings));
-
-        // Get the environmental configurations
-        self::$configuration = new Configuration();
-        self::$configuration->dse = true;
-        self::$configuration->version = new \Dse\Version($version);
+        if (self::get_value("cassandra_version", $settings)) {
+            self::$configuration->dse = false;
+            self::$configuration->version =
+                new Cassandra\Version(self::get_value("cassandra_version", $settings));
+        } else if (self::get_value("dse_version", $settings)) {
+            self::$configuration->dse = true;
+            self::$configuration->version =
+                new Dse\Version(self::get_value("dse_version", $settings));
+        } else {
+            throw new \Exception("Cassandra/DSE version has not been assigned");
+        }
     }
 
     /**
      * Initialize the CCM instance
      *
      * @param string|null $prefix Prefix to assign for CCM clusters
-     * @throws \Exception If DSE version has not been assigned
      */
     private static function initialize_ccm($prefix = null) {
-        if (isset(self::$configuration)) {
-            // Initialize CCM instance
-            if (!is_null($prefix)) {
-                self::$configuration->prefix .= "_{$prefix}";
-            }
-            self::$ccm = new CCM\Bridge(self::$configuration);
-
-            // Clear any clusters that may have been left over from previous tests
-            self::$ccm->remove_clusters();
-        } else {
-            throw new \Exception("DSE version has not been assigned");
+        // Initialize CCM instance
+        if (!is_null($prefix) &&
+            substr(self::$configuration->prefix, -strlen($prefix)) !== $prefix) {
+            self::$configuration->prefix .= "_{$prefix}";
         }
+        self::$ccm = new CCM\Bridge(self::$configuration);
+
+        // Clear any clusters that may have been left over from previous tests
+        self::$ccm->remove_clusters();
     }
 }

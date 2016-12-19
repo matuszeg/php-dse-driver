@@ -39,11 +39,11 @@ class DseDataTypeTest extends DseIntegrationTest {
         parent::setUp();
 
         // Create the timeuuid for the test
-        $this->id = new \Cassandra\Timeuuid();
+        $this->id = new Dse\Timeuuid();
 
         // Create the user types
         foreach ($this->data_types() as $composite_data_type) {
-            if (is_a($composite_data_type[0], "\\Cassandra\\Type\\UserType")) {
+            if ($composite_data_type[0] instanceof Dse\Type\UserType) {
                 $this->create_user_data_type($composite_data_type[0]);
             }
         }
@@ -52,7 +52,7 @@ class DseDataTypeTest extends DseIntegrationTest {
     /**
      * Create and prepare a statement for inserting the data type
      *
-     * @return \Cassandra\PreparedStatement Prepared statement for insert
+     * @return Dse\PreparedStatement Prepared statement for insert
      */
     private function create_and_prepare_statement() {
         $query = sprintf(self::INSERT_FORMAT, $this->keyspace, $this->table);
@@ -62,11 +62,11 @@ class DseDataTypeTest extends DseIntegrationTest {
     /**
      * Create a simple statement for inserting the data type
      *
-     * @return \Cassandra\SimpleStatement Simple statement for insert
+     * @return Dse\SimpleStatement Simple statement for insert
      */
     private function create_simple_statement() {
         $query = sprintf(self::INSERT_FORMAT, $this->keyspace, $this->table);
-        return new \Cassandra\SimpleStatement($query);
+        return new Dse\SimpleStatement($query);
     }
 
     /**
@@ -88,7 +88,7 @@ class DseDataTypeTest extends DseIntegrationTest {
         }
 
         // Create the table
-        $statement = new \Cassandra\SimpleStatement($query);
+        $statement = new Dse\SimpleStatement($query);
         $this->session->execute($statement);
     }
 
@@ -97,11 +97,11 @@ class DseDataTypeTest extends DseIntegrationTest {
      *
      * @param mixed $id ID/Primary key to insert
      * @param mixed $value Value to associate with primary key
-     * @param \Cassandra\Statement|null (Optional) Statement to execute
+     * @param Dse\Statement|null (Optional) Statement to execute
      */
     private function insert($id, $value, $statement = null) {
         // Create the execution options for the statement execution
-        $options = new \Cassandra\ExecutionOptions(
+        $options = new Dse\ExecutionOptions(
             array(
                 "arguments" => array(
                     "id" => $id,
@@ -132,14 +132,14 @@ class DseDataTypeTest extends DseIntegrationTest {
         // Create the batch statement and add the arguments
         if ($simple_statement) {
             $statement = $this->create_simple_statement();
-            $batch = new \Cassandra\BatchStatement(\Cassandra::BATCH_LOGGED);
+            $batch = new Dse\BatchStatement(Dse::BATCH_LOGGED);
             $batch->add($statement, array(
                 $id,
                 $value
             ));
         } else {
             $statement = $this->create_and_prepare_statement();
-            $batch = new \Cassandra\BatchStatement(\Cassandra::BATCH_LOGGED);
+            $batch = new Dse\BatchStatement(Dse::BATCH_LOGGED);
             $batch->add($statement, array(
                 "id" => $id,
                 "value" => $value
@@ -154,7 +154,7 @@ class DseDataTypeTest extends DseIntegrationTest {
      * Validate the rows and assert that only one row exists and the expected
      * id and value are equal to the returned values from the server.
      *
-     * @param \Cassandra\Rows $rows Rows to validate
+     * @param Dse\Rows $rows Rows to validate
      * @param mixed $expected_id Expected id
      * @param mixed $expected_value Expected value
      */

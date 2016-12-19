@@ -164,7 +164,7 @@ abstract class DseGraphIntegrationTest extends DseIntegrationTest {
      *                                      (default: false)
      * @return array Composite and scalar data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type|string) Data type
+     *         [0] => (Dse\Type|string) Data type
      *         [1] => (array) Array of data type values
      *     ]
      */
@@ -196,18 +196,14 @@ abstract class DseGraphIntegrationTest extends DseIntegrationTest {
             // Ensure the data types that aren't applicable for graph are removed
             // https://docs.datastax.com/en/latest-dse/datastax_enterprise/graph/reference/refDSEGraphDataTypes.html
             $type = $data_type[0];
-            if ($type != \Cassandra\Type::ascii() &&
-                $type != \Cassandra\Type::date() &&
-                $type != \Cassandra\Type::time() &&
-                $type != \Cassandra\Type::timeuuid() &&
-                $type != \Cassandra\Type::tinyint() &&
-                $type != \Cassandra\Type::varchar() &&
-                $type != \Cassandra\Type::tinyint() &&
-                !is_a($type, "\\Cassandra\\Type\\Collection") &&
-                !is_a($type, "\\Cassandra\\Type\\Map") &&
-                !is_a($type, "\\Cassandra\\Type\\Set") &&
-                !is_a($type, "\\Cassandra\\Type\\Tuple") &&
-                !is_a($type, "\\Cassandra\\Type\\UserType")) {
+            if ($type != Dse\Type::ascii() &&
+                $type != Dse\Type::date() &&
+                $type != Dse\Type::time() &&
+                $type != Dse\Type::timeuuid() &&
+                $type != Dse\Type::tinyint() &&
+                $type != Dse\Type::varchar() &&
+                $type != Dse\Type::tinyint() &&
+                !$this->is_composite_data_type($type)) {
                 $data_types[] = $data_type;
             }
         }

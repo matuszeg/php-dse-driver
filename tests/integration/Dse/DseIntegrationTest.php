@@ -20,9 +20,9 @@ abstract class DseIntegrationTest extends IntegrationTest {
      * @return array Composite and scalar data type to use in a data provider
      *     [
      *         [
-     *             [0] => (\Cassandra\Type|string) Data type
+     *             [0] => (Dse\Type|string) Data type
      *             [1] => (string) CQL data type
-     *             [2] => (\Cassandra\Type\Timeuuid) Timeuuid generated value
+     *             [2] => (Dse\Type\Timeuuid) Timeuuid generated value
      *             [3] => (mixed) Data type value
      *         ]
      *     ]
@@ -39,9 +39,9 @@ abstract class DseIntegrationTest extends IntegrationTest {
      * @return array Composite and scalar data type to use in a data provider
      *     [
      *         [
-     *             [0] => (\Cassandra\Type|string) Data type
+     *             [0] => (Dse\Type|string) Data type
      *             [1] => (string) CQL data type
-     *             [2] => (\Cassandra\Type\Timeuuid) Timeuuid generated value
+     *             [2] => (Dse\Type\Timeuuid) Timeuuid generated value
      *             [3] => (mixed) Data type value
      *         ]
      *     ]
@@ -61,14 +61,14 @@ abstract class DseIntegrationTest extends IntegrationTest {
      *                                      (default: false)
      * @return array Composite and scalar data type to use in a data provider
      *     [
-     *         [0] => (\Cassandra\Type|string) Data type
+     *         [0] => (Dse\Type|string) Data type
      *         [1] => (array) Array of data type values
      *     ]
      */
     protected function data_types($primary_keys = false) {
         // Determine if the geometry data types should be added
         $version = IntegrationTestFixture::get_instance()->configuration->version;
-        if (is_a($version, 'Dse\Version') && $version->compare("5.0.0") >= 0) {
+        if ($version instanceof Dse\Version && $version->compare("5.0.0") >= 0) {
             return array_merge(parent::data_types($primary_keys), $this->geometry_data_types());
         }
         return parent::data_types($primary_keys);
@@ -77,7 +77,7 @@ abstract class DseIntegrationTest extends IntegrationTest {
     /**
      * Generate the CQL data type from the give data type
      *
-     * @param \Cassandra\Type|string $type Data type
+     * @param Dse\Type|string $type Data type
      * @return string String representation of the CQL data type
      */
     protected function generate_cql_data_type($type) {
@@ -109,9 +109,9 @@ abstract class DseIntegrationTest extends IntegrationTest {
             array(
                 "point",
                 array(
-                    new \Dse\Point(0, 0),
-                    new \Dse\Point(2, 4),
-                    new \Dse\Point(-1.2, 100),
+                    new Dse\Point(0, 0),
+                    new Dse\Point(2, 4),
+                    new Dse\Point(-1.2, 100),
                 )
             ),
 
@@ -119,18 +119,18 @@ abstract class DseIntegrationTest extends IntegrationTest {
             array(
                 "linestring",
                 array(
-                    new \Dse\LineString(
-                        new \Dse\Point(0, 0),
-                        new \Dse\Point(1, 1)
+                    new Dse\LineString(
+                        new Dse\Point(0, 0),
+                        new Dse\Point(1, 1)
                     ),
-                    new \Dse\LineString(
-                        new \Dse\Point(1, 3),
-                        new \Dse\Point(2, 6),
-                        new \Dse\Point(3, 9)
+                    new Dse\LineString(
+                        new Dse\Point(1, 3),
+                        new Dse\Point(2, 6),
+                        new Dse\Point(3, 9)
                     ),
-                    new \Dse\LineString(
-                        new \Dse\Point(-1.2, -100),
-                        new \Dse\Point(0.99, 3)
+                    new Dse\LineString(
+                        new Dse\Point(-1.2, -100),
+                        new Dse\Point(0.99, 3)
                     )
                 )
             ),
@@ -139,26 +139,26 @@ abstract class DseIntegrationTest extends IntegrationTest {
             array(
                 "polygon",
                 array(
-                    new \Dse\Polygon(
-                        new \Dse\LineString(
-                            new \Dse\Point(1.0, 3.0),
-                            new \Dse\Point(3.0, 1.0),
-                            new \Dse\Point(3.0, 6.0),
-                            new \Dse\Point(1.0, 3.0)
+                    new Dse\Polygon(
+                        new Dse\LineString(
+                            new Dse\Point(1.0, 3.0),
+                            new Dse\Point(3.0, 1.0),
+                            new Dse\Point(3.0, 6.0),
+                            new Dse\Point(1.0, 3.0)
                         )
                     ),
-                    new \Dse\Polygon(
-                        new \Dse\LineString(
-                            new \Dse\Point(0.0, 10.0),
-                            new \Dse\Point(10.0, 0.0),
-                            new \Dse\Point(10.0, 10.0),
-                            new \Dse\Point(0.0, 10.0)
+                    new Dse\Polygon(
+                        new Dse\LineString(
+                            new Dse\Point(0.0, 10.0),
+                            new Dse\Point(10.0, 0.0),
+                            new Dse\Point(10.0, 10.0),
+                            new Dse\Point(0.0, 10.0)
                         ),
-                        new \Dse\LineString(
-                            new \Dse\Point(6.0, 7.0),
-                            new \Dse\Point(3.0, 9.0),
-                            new \Dse\Point(9.0, 9.0),
-                            new \Dse\Point(6.0, 7.0)
+                        new Dse\LineString(
+                            new Dse\Point(6.0, 7.0),
+                            new Dse\Point(3.0, 9.0),
+                            new Dse\Point(9.0, 9.0),
+                            new Dse\Point(6.0, 7.0)
                         )
                     )
                 )
@@ -176,7 +176,7 @@ abstract class DseIntegrationTest extends IntegrationTest {
      * @return array Composite and scalar data type to use in a data provider
      *     [
      *         [
-     *             [0] => (\Cassandra\Type|string) Data type
+     *             [0] => (Dse\Type|string) Data type
      *             [1] => (string) CQL data type
      *             [3] => (mixed) Data type value
      *         ]
