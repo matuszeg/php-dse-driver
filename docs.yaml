@@ -3,6 +3,10 @@ summary:  A native PHP extension to communicate with DataStax Enterprise
 homepage: http://docs.datastax.com/en/developer/php-driver-dse
 theme:    datastax
 sections:
+  - title:    Building and Testing
+    prefix:   /building_testing
+    type:     markdown
+    files:   'doc/building_testing/**/*.md'
   - title:     Features
     prefix:    /features
     sources:
