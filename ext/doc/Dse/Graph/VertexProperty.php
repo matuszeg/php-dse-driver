@@ -43,6 +43,7 @@ abstract class VertexProperty implements Property, Element {
     public abstract function properties();
 
     /**
+     * @param mixed $key
      * @return mixed
      */
     public abstract function property($key);

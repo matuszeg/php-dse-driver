@@ -12,8 +12,6 @@ namespace Dse\Graph;
  */
 final class DefaultVertexProperty extends VertexProperty  {
 
-    /**
-     */
     private final function __construct() { }
 
     /**
@@ -47,6 +45,7 @@ final class DefaultVertexProperty extends VertexProperty  {
     public function properties() { }
 
     /**
+     * @param mixed $key
      * @return mixed
      */
     public function property($key) { }

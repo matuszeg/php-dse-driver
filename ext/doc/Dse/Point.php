@@ -14,13 +14,12 @@ namespace Dse;
  *
  * @see https://en.wikipedia.org/wiki/Well-known_text
  */
-final class Point implements Cassandra\Custom {
+final class Point extends Custom  {
 
     /**
-     * param double $x the x-coordinate of the point
-     * param double $y the y-coordinate of the point
+     * @param double pair or string $pointData Either x, y pair or a WKT string
      */
-    public function __construct($x, $y) { }
+    public function __construct($pointData) { }
 
     /**
      * @return Cassandra\Type\Custom the Cassandra custom type for Point

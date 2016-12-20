@@ -16,9 +16,13 @@ if (count($argv) < 2) {
     die("Usage: {$argv[0]} <directory>" . PHP_EOL);
 }
 
+
 define("BASEDIR", $argv[1]);
 define("SRCDIR", BASEDIR . "/src");
 define("DOCDIR", BASEDIR . "/doc");
+
+define("INPUT_NAMESPACE", "Dse");
+define("OUTPUT_NAMESPACE", "Dse");
 define("INDENT", "    ");
 
 function startsWith($haystack, $needle) {
@@ -48,8 +52,30 @@ function isAlreadyImplementedByBase($current, $implemented) {
     return false;
 }
 
+function doesParentHaveMethod($class, $method) {
+    $parent = $class->getParentClass();
+    if ($parent) {
+        if ($parent->hasMethod($method->getName())) {
+            return true;
+        }
+        return doesParentHaveMethod($parent, $method);
+    }
+    return false;
+}
+
 function logWarning($message) {
     fwrite(STDERR, "Warning: $message" . PHP_EOL);
+}
+
+function replaceKeyword($string) {
+    if ($string == "Function") {
+        return "Function_";
+    } else if ($string == "function") {
+        return "function_";
+    } else if ($string == "Float") {
+        return "Float_";
+    }
+    return $string;
 }
 
 function writeCommentDoc($file, $comment, $indent = 0) {
@@ -75,17 +101,17 @@ function writeParameterDoc($doc, $file, $class, $method, $parameter) {
         if (isset($parameterDoc['comment'])) {
             $comment = trim($parameterDoc['comment']);
         } else {
-            logWarning("Missing '$parameterName' parameter's 'comment' documentation for method '$className.$methodName'");
+            logWarning("Missing '$parameterName' parameter's 'comment' documentation for method '$className::$methodName()'");
         }
         if (isset($parameterDoc['type'])) {
             $type = trim($parameterDoc['type']);
         } else {
-            logWarning("Missing '$parameterName' parameter's 'type' documentation for method '$className.$methodName'");
+            logWarning("Missing '$parameterName' parameter's 'type' documentation for method '$className::$methodName()'");
         }
 
         $parameterType = $parameterType ? $parameterType : "mixed";
         $parameterType = $type ? $type : $parameterType; # Overrides builtin if provided
-        $parameterTypeAndName = "param $parameterType \$$parameterName";
+        $parameterTypeAndName = "@param $parameterType \$$parameterName";
 
         $lines = explode(PHP_EOL, $comment);
         if (strlen(end($lines)) == 0) {
@@ -93,22 +119,26 @@ function writeParameterDoc($doc, $file, $class, $method, $parameter) {
         }
 
         $first = true;
-        foreach($lines as $line) {
-            if ($first) {
-                $commentLine = "$parameterTypeAndName $line";
-                $commentLine = rtrim($commentLine) . PHP_EOL;
-                fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
-            } else {
-                $commentLine = str_pad("", strlen($parameterTypeAndName) + 1, " ") . $line;
-                $commentLine = rtrim($commentLine) . PHP_EOL;
-                fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
+        if ($lines) {
+            foreach($lines as $line) {
+                if ($first) {
+                    $commentLine = "$parameterTypeAndName $line";
+                    $commentLine = rtrim($commentLine) . PHP_EOL;
+                    fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
+                } else {
+                    $commentLine = str_pad("", strlen($parameterTypeAndName) + 1, " ") . $line;
+                    $commentLine = rtrim($commentLine) . PHP_EOL;
+                    fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
+                }
+                $first = false;
             }
-            $first = false;
+        } else {
+            fwrite($file, INDENT . DOC_COMMENT_LINE . $parameterTypeAndName . PHP_EOL);
         }
     } else {
         $parameterType = $parameterType ? $parameterType : "mixed";
         fwrite($file, INDENT . DOC_COMMENT_LINE . "@param $parameterType \$$parameterName" . PHP_EOL);
-        logWarning("Missing parameter '$parameterName' documentation for method '$className.$methodName'");
+        logWarning("Missing parameter '$parameterName' documentation for method '$className::$methodName()'");
     }
 }
 
@@ -123,12 +153,12 @@ function writeReturnDoc($doc, $file, $class, $method) {
         if (isset($returnDoc['comment'])) {
             $comment = trim($returnDoc['comment']);
         } else {
-            logWarning("Missing return 'comment' documentation for method '$className.$methodName'");
+            logWarning("Missing return 'comment' documentation for method '$className::$methodName()'");
         }
         if (isset($returnDoc['type'])) {
             $type = trim($returnDoc['type']);
         } else {
-            logWarning("Missing return 'type' documentation for method '$className.$methodName'");
+            logWarning("Missing return 'type' documentation for method '$className::$methodName()'");
         }
 
         $type = $type ? $type : "mixed";
@@ -137,11 +167,45 @@ function writeReturnDoc($doc, $file, $class, $method) {
         fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
     } else {
         fwrite($file, INDENT . DOC_COMMENT_LINE . "@return mixed" . PHP_EOL);
-        logWarning("Missing 'return' documentation for method '$className.$methodName'");
+        logWarning("Missing 'return' documentation for method '$className::$methodName()'");
     }
 }
 
+function writeConstantDoc($doc, $file, $class, $constantName) {
+    $className = $class->getName();
+
+    fwrite($file, INDENT . DOC_COMMENT_HEADER);
+    if (isset($doc[$className]['constants'][$constantName])) {
+        $constantDoc = $doc[$className]['constants'][$constantName];
+        if (isset($constantDoc['comment'])) {
+            $comment = $constantDoc['comment'];
+        } else {
+            logWarning("Missing 'comment' documentation for constant '$className::$constantName'");
+        }
+
+        if ($comment) {
+            writeCommentDoc($file, $comment, 1);
+        }
+    } else {
+        logWarning("Missing documentation for constant '$className::$constantName'");
+    }
+    fwrite($file, INDENT . DOC_COMMENT_FOOTER);
+}
+
+function writeConstant($doc, $file, $class, $constantName, $constantValue) {
+    writeConstantDoc($doc, $file, $class, $constantName);
+
+    if (is_int($constantValue)) {
+        fwrite($file, INDENT . "const $constantName = $constantValue;" . PHP_EOL);
+    } else {
+        fwrite($file, INDENT . "const $constantName = \"$constantValue\";" . PHP_EOL);
+    }
+    fwrite($file, PHP_EOL);
+}
+
 function writeMethodDoc($doc, $file, $class, $method) {
+    if (!$method->isPublic()) return;
+
     $className = $class->getName();
     $methodName = $method->getShortName();
 
@@ -151,10 +215,10 @@ function writeMethodDoc($doc, $file, $class, $method) {
         if (isset($methodDoc['comment'])) {
             $comment = $methodDoc['comment'];
         } else {
-            logWarning("Missing 'comment' documentation for method '$className.$methodName'");
+            logWarning("Missing 'comment' documentation for method '$className::$methodName()'");
         }
         if (count($method->getParameters()) > 0 && !isset($methodDoc['params'])) {
-            logWarning("Missing 'params' documentation for method '$className.$methodName'");
+            logWarning("Missing 'params' documentation for method '$className::$methodName()'");
         }
 
         $methodName = $method->getShortName();
@@ -172,13 +236,17 @@ function writeMethodDoc($doc, $file, $class, $method) {
         writeReturnDoc($doc, $file, $class, $method);
     } else {
         fwrite($file, INDENT . DOC_COMMENT_LINE . "@return mixed" . PHP_EOL);
-        logWarning("Missing documentation for method '$className.$methodName'");
+        logWarning("Missing documentation for method '$className::$methodName()'");
     }
 
     fwrite($file, INDENT . DOC_COMMENT_FOOTER);
 }
 
 function writeMethod($doc, $file, $class, $method) {
+    if (doesParentHaveMethod($class, $method) &&
+        ($method->isStatic() || $method->isFinal())) {
+        return;
+    }
     writeMethodDoc($doc, $file, $class, $method);
 
     if ($method->isPrivate()) {
@@ -201,15 +269,19 @@ function writeMethod($doc, $file, $class, $method) {
         fwrite($file, "abstract ");
     }
 
-    $methodName = $method->getShortName();
+    $methodName = replaceKeyword($method->getShortName());
     fwrite($file, "function $methodName(");
 
     $parameters = $method->getParameters();
     $first = true;
     foreach ($parameters as $parameter) {
         if (!$first) fwrite($file, ", ");
-        $parameterName = $parameter->getName();
-        fwrite($file, "\$$parameterName");
+        $parameterName = replaceKeyword($parameter->getName());
+        if ($parameterName == "...") {
+            fwrite($file, "...\$params");
+        } else {
+            fwrite($file, "\$$parameterName");
+        }
         $first = false;
     }
 
@@ -232,7 +304,7 @@ function writeClassDoc($doc, $file, $class) {
         } else {
             logWarning("Missing 'comment' documentation for class '$className'");
         }
-        if (count($class->getMethods()) > 0 && !isset($doc[$className]['methods'])) {
+        if (count($class->getMethods(ReflectionMethod::IS_PUBLIC)) > 0 && !isset($doc[$className]['methods'])) {
             logWarning("Missing 'methods' documentation for class '$className'");
         }
     } else {
@@ -258,6 +330,7 @@ function writeClass($doc, $file, $class) {
         fwrite($file, "class ");
     }
 
+    $className = replaceKeyword($className);
     fwrite($file, "$className ");
 
     $parentClass = $class->getParentClass();
@@ -266,6 +339,7 @@ function writeClass($doc, $file, $class) {
         if (startsWith($parentClassName, $namespace)) {
             $parentClassName = $parentClass->getShortName();
         }
+        $parentClassName = replaceKeyword($parentClassName);
         fwrite($file, "extends $parentClassName ");
     }
 
@@ -285,6 +359,7 @@ function writeClass($doc, $file, $class) {
             } else {
                 fwrite($file, ", ");
             }
+            $interfaceName = replaceKeyword($interfaceName);
             fwrite($file, "$interfaceName");
             $first = false;
         }
@@ -293,6 +368,13 @@ function writeClass($doc, $file, $class) {
 
     fwrite($file, "{" . PHP_EOL);
     fwrite($file, PHP_EOL);
+
+    $constants = $class->getConstants();
+    if ($constants) {
+        foreach($constants as $name => $value) {
+            writeConstant($doc, $file, $class, $name, $value);
+        }
+    }
 
     $methods = $class->getMethods();
     if ($methods) {
@@ -312,11 +394,16 @@ foreach ($regex as $fileName => $notused) {
     $fileName = substr($fileName, strlen(SRCDIR));
     $fileName = preg_replace("/(.+)\.c$/", "$1", $fileName);
 
-    $fullClassName = str_replace("/", "\\", $fileName);
+    if ($fileName == "/Core") {
+        $fileName = "/" . INPUT_NAMESPACE;
+        $fullClassName = str_replace("/", "\\", $fileName);
+        $namespaceDirectory = DOCDIR . "/" . dirname($fileName);
+    } else {
+        $fullClassName = INPUT_NAMESPACE . str_replace("/", "\\", $fileName);
+        $namespaceDirectory = DOCDIR . "/" . OUTPUT_NAMESPACE . dirname($fileName);
+    }
 
     try {
-        $namespaceDirectory = DOCDIR . dirname($fileName);
-
         if (!is_dir($namespaceDirectory)) {
             if (!mkdir($namespaceDirectory, 0777, true)) {
                 die("Unable to create directory '$namespaceDirectory'" . PHP_EOL);
@@ -327,8 +414,8 @@ foreach ($regex as $fileName => $notused) {
 
         $className = $class->getShortName();
 
-        $stubFileName = "$namespaceDirectory/$className.php";
-        echo "Generating stub for '$fullClassName' ($stubFileName)" . PHP_EOL;
+        $stubFileName = rtrim($namespaceDirectory, "/")  . "/$className.php";
+        echo "Generating stub for '$fullClassName' ($yamlFileName --> $stubFileName)" . PHP_EOL;
         if(!($file = fopen($stubFileName, "w"))) {
             die("Unable to create file '$stubFileName'" . PHP_EOL);
         }

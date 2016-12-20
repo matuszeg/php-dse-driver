@@ -148,4 +148,19 @@ Dse\Graph\Result:
       return:
         comment: ""
         type: mixed
+    isBool:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    isNumber:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    isString:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
 ...

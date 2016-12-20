@@ -1,0 +1,6 @@
+---
+Dse\TimestampGenerator\ServerSide:
+  comment: |-
+    A timestamp generator that allows Cassandra to assign timestamps
+    server-side.
+...

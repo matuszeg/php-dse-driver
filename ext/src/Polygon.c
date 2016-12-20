@@ -545,8 +545,7 @@ void php_driver_define_Polygon(TSRMLS_D)
   zend_class_entry ce;
 
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Polygon", php_driver_polygon_methods);
-  php_driver_polygon_ce = zend_register_internal_class(&ce TSRMLS_CC);
-  zend_class_implements(php_driver_polygon_ce TSRMLS_CC, 1, php_driver_custom_ce);
+  php_driver_polygon_ce = php5to7_zend_register_internal_class_ex(&ce, php_driver_custom_ce);
   php_driver_polygon_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   php_driver_polygon_ce->create_object = php_driver_polygon_new;
 

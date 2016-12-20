@@ -18,31 +18,37 @@ final class Builder {
     public function build() { }
 
     /**
+     * @param mixed $language
      * @return mixed
      */
     public function withGraphLanguage($language) { }
 
     /**
+     * @param mixed $source
      * @return mixed
      */
     public function withGraphSource($source) { }
 
     /**
+     * @param mixed $name
      * @return mixed
      */
     public function withGraphName($name) { }
 
     /**
+     * @param mixed $consistency
      * @return mixed
      */
     public function withReadConsistency($consistency) { }
 
     /**
+     * @param mixed $consistency
      * @return mixed
      */
     public function withWriteConsistency($consistency) { }
 
     /**
+     * @param mixed $request_timeout
      * @return mixed
      */
     public function withRequestTimeout($request_timeout) { }

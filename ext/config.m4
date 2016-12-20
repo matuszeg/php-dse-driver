@@ -125,7 +125,7 @@ if test "$PHP_DSE" != "no"; then
     src/Exception/OverloadedException.c \
     src/Exception/ProtocolException.c \
     src/Exception/RangeException.c \
-    src/Exception/ReadTimeout.c \
+    src/Exception/ReadTimeoutException.c \
     src/Exception/RuntimeException.c \
     src/Exception/ServerException.c \
     src/Exception/TimeoutException.c \

@@ -12,8 +12,6 @@ namespace Dse\Graph;
  */
 final class DefaultEdge extends Edge  {
 
-    /**
-     */
     private final function __construct() { }
 
     /**
@@ -32,6 +30,7 @@ final class DefaultEdge extends Edge  {
     public function properties() { }
 
     /**
+     * @param mixed $key
      * @return mixed
      */
     public function property($key) { }

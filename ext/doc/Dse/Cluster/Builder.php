@@ -9,193 +9,291 @@
 namespace Dse\Cluster;
 
 /**
- * Used to configure and construct a Dse\Cluster object.
+ * Cluster builder allows fluent configuration of the cluster instance.
+ *
+ * @see \Cassandra::cluster()
  */
-abstract class Builder implements Cassandra\Cluster\Builder {
+final class Builder {
 
     /**
-     * Enable authentication with a plaintext username and password. This is for use
-     * with DSE's builtin authentication and LDAP authentication.
+     * Returns a Cluster Instance.
+     * @return \Cassandra\Cluster Cluster instance
+     */
+    public function build() { }
+
+    /**
+     * Configures default consistency for all requests.
      *
-     * param string $username The username to use with DSE's plaintext authentication
-     * param string $password The password to use with DSE's plaintext authentication
-     * @return null
+     * @param int $consistency A consistency level, must be one of Cassandra::CONSISTENCY_* values
+     * @return Builder self
      */
-    public abstract function withPlaintextAuthenticator($username, $password);
+    public function withDefaultConsistency($consistency) { }
 
     /**
-     * Enable authentication for use with Kerberos. By default the driver uses the connecting host's
-     * IP address to construct the full service name (e.g. <service>@<IP address>). To use the host's
-     * DNS name enable hostname resolution using Dse\Cluster\Builder::withHostnameResolution().
+     * Configures default page size for all results.
+     * Set to `null` to disable paging altogether.
      *
-     * @see Dse\Cluster\Builder::withHostnameResolution()
+     * @param int|null $pageSize default page size
+     * @return Builder self
+     */
+    public function withDefaultPageSize($pageSize) { }
+
+    /**
+     * Configures default timeout for future resolution in blocking operations
+     * Set to null to disable (default).
      *
-     * param string $service The name of the Kerberos service
-     * param string $principal The principal whose credentials are used to authenticate. If not provided then the first
-     *                         principal in the Kerberos ticket cache will be used.
-     * @return null
+     * @param float|null $timeout Timeout value in seconds, can be fractional
+     * @return Builder self
      */
-    public abstract function withGssapiAuthenticator($service, $principal);
+    public function withDefaultTimeout($timeout) { }
 
     /**
-     * @return mixed
+     * Configures the initial endpoints. Note that the driver will
+     * automatically discover and connect to the rest of the cluster.
+     *
+     * @param string $host ,... one or more ip addresses or hostnames
+     * @return Builder self
      */
-    public abstract function withGraphOptions($options);
+    public function withContactPoints($host) { }
 
     /**
-     * @return mixed
+     * Specify a different port to be used when connecting to the cluster.
+     *
+     * @throws \Cassandra\Exception\InvalidArgumentException
+     *
+     * @param int $port a number between 1 and 65535
+     * @return Builder self
      */
-    public abstract function build();
+    public function withPort($port) { }
 
     /**
-     * @return mixed
+     * Configures this cluster to use a round robin load balancing policy.
+     * @return Builder self
      */
-    public abstract function withDefaultConsistency($consistency);
+    public function withRoundRobinLoadBalancingPolicy() { }
 
     /**
-     * @return mixed
+     * Configures this cluster to use a datacenter aware round robin load balancing policy.
+     *
+     * @param string $localDatacenter Name of the local datacenter
+     * @param int $hostPerRemoteDatacenter Maximum number of hosts to try in remote datacenters
+     * @param bool $useRemoteDatacenterForLocalConsistencies Allow using hosts from remote datacenters to execute statements with local consistencies
+     * @return Builder self
      */
-    public abstract function withDefaultPageSize($pageSize);
+    public function withDatacenterAwareRoundRobinLoadBalancingPolicy($localDatacenter, $hostPerRemoteDatacenter, $useRemoteDatacenterForLocalConsistencies) { }
 
     /**
-     * @return mixed
+     * Sets the blacklist hosts. Any host in the blacklist will be ignored and
+     * a conneciton will not be established. This is useful for ensuring that
+     * the driver will not connection to a predefied set of hosts.
+     *
+     * @param string $hosts A comma delimited list of addresses.
+     * @return Builder self
      */
-    public abstract function withDefaultTimeout($timeout);
+    public function withBlackListHosts($hosts) { }
 
     /**
-     * @return mixed
+     * Sets the whitelist hosts. Any host not in the whitelist will be ignored
+     * and a connection will not be established. This policy is useful for
+     * ensuring that the driver will only connect to a predefined set of hosts.
+     *
+     * @param string $hosts A comma delimited list of addresses.
+     * @return Builder self
      */
-    public abstract function withContactPoints($host);
+    public function withWhiteListHosts($hosts) { }
 
     /**
-     * @return mixed
+     * Sets the blacklist datacenters. Any datacenter in the blacklist will be
+     * ignored and a connection will not be established to any host in those
+     * datacenters. This policy is useful for ensuring the driver will not
+     * connect to any host in a specific datacenter.
+     *
+     * @param string $dcs A comma delimited list of datacenters.
+     * @return Builder self
      */
-    public abstract function withPort($port);
+    public function withBlackListDCs($dcs) { }
 
     /**
-     * @return mixed
+     * Sets the whitelist datacenters. Any host not in a whitelisted datacenter
+     * will be ignored. This policy is useful for ensuring the driver will only
+     * connect to hosts in specific datacenters.
+     *
+     * @param string $dcs A comma delimited list of datacenters.
+     * @return Builder self
      */
-    public abstract function withRoundRobinLoadBalancingPolicy();
+    public function withWhiteListDCs($dcs) { }
 
     /**
-     * @return mixed
+     * Enable token aware routing.
+     *
+     * @param bool $enabled Whether to enable token aware routing (optional)
+     * @return Builder self
      */
-    public abstract function withDatacenterAwareRoundRobinLoadBalancingPolicy($localDatacenter, $hostPerRemoteDatacenter, $useRemoteDatacenterForLocalConsistencies);
+    public function withTokenAwareRouting($enabled) { }
 
     /**
-     * @return mixed
+     * Configures cassandra authentication.
+     *
+     * @param string $username Username
+     * @param string $password Password
+     * @return Builder self
      */
-    public abstract function withBlackListHosts($hosts);
+    public function withCredentials($username, $password) { }
 
     /**
-     * @return mixed
+     * Timeout used for establishing TCP connections.
+     *
+     * @param float $timeout Timeout value in seconds, can be fractional
+     * @return Builder self
      */
-    public abstract function withWhiteListHosts($hosts);
+    public function withConnectTimeout($timeout) { }
 
     /**
-     * @return mixed
+     * Timeout used for waiting for a response from a node.
+     *
+     * @param float $timeout Timeout value in seconds, can be fractional
+     * @return Builder self
      */
-    public abstract function withBlackListDCs($dcs);
+    public function withRequestTimeout($timeout) { }
 
     /**
-     * @return mixed
+     * Set up ssl context.
+     *
+     * @param Cassandra\SSLOptions $options a preconfigured ssl context
+     * @return Builder self
      */
-    public abstract function withWhiteListDCs($dcs);
+    public function withSSL($options) { }
 
     /**
-     * @return mixed
+     * Enable persistent sessions and clusters.
+     *
+     *                      (optional)
+     * @param bool $enabled whether to enable persistent sessions and clusters
+     * @return Builder self
      */
-    public abstract function withTokenAwareRouting($enabled);
+    public function withPersistentSessions($enabled) { }
 
     /**
-     * @return mixed
+     * Force the driver to use a specific binary protocol version.
+     *
+     * Apache Cassandra 1.2+ supports protocol version 1
+     * Apache Cassandra 2.0+ supports protocol version 2
+     * Apache Cassandra 2.1+ supports protocol version 3
+     * Apache Cassandra 2.2+ supports protocol version 4
+     *
+     * NOTE: Apache Cassandra 3.x supports protocol version 3 and 4 only
+     *
+     *                     `4` are supported
+     * @param int $version the actual protocol version, only `1`, `2`, `3`, or
+     * @return Builder self
      */
-    public abstract function withCredentials($username, $password);
+    public function withProtocolVersion($version) { }
 
     /**
-     * @return mixed
+     * Total number of IO threads to use for handling the requests.
+     *
+     * Note: number of io threads * core connections per host <= total number
+     *       of connections <= number of io threads * max connections per host
+     *
+     * @param int $count total number of threads.
+     * @return Builder self
      */
-    public abstract function withConnectTimeout($timeout);
+    public function withIOThreads($count) { }
 
     /**
-     * @return mixed
+     * Set the size of connection pools used by the driver. Pools are fixed
+     * when only `$core` is given, when a `$max` is specified as well,
+     * additional connections will be created automatically based on current
+     * load until the maximum number of connection has been reached. When
+     * request load goes down, extra connections are automatically cleaned up
+     * until only the core number of connections is left.
+     *
+     * @param int $core minimum connections to keep open to any given host
+     * @param int $max maximum connections to keep open to any given host
+     * @return Builder self
      */
-    public abstract function withRequestTimeout($timeout);
+    public function withConnectionsPerHost($core, $max) { }
 
     /**
-     * @return mixed
+     * Specify interval in seconds that the driver should wait before attempting
+     * to re-establish a closed connection.
+     *
+     * @param float $interval interval in seconds
+     * @return Builder self
      */
-    public abstract function withSSL($options);
+    public function withReconnectInterval($interval) { }
 
     /**
-     * @return mixed
+     * Enables/disables latency-aware routing.
+     *
+     * @param bool $enabled whether to actually enable or disable the routing.
+     * @return Builder self
      */
-    public abstract function withPersistentSessions($enabled);
+    public function withLatencyAwareRouting($enabled) { }
 
     /**
-     * @return mixed
+     * Disables nagle algorithm for lower latency.
+     *
+     * @param bool $enabled whether to actually enable or disable nodelay.
+     * @return Builder self
      */
-    public abstract function withProtocolVersion($version);
+    public function withTCPNodelay($enabled) { }
 
     /**
-     * @return mixed
+     * Enables/disables TCP keepalive.
+     *
+     *                          which the keepalive probe should be sent over
+     *                          the connection. If set to `null`, disables
+     *                          keepalive probing.
+     * @param float|null $delay the period of inactivity in seconds, after
+     * @return Builder self
      */
-    public abstract function withIOThreads($count);
+    public function withTCPKeepalive($delay) { }
 
     /**
-     * @return mixed
+     * Configures the retry policy.
+     *
+     * @param Cassandra\Cluster\RetryPolicy $policy the retry policy to use.
+     * @return Builder self
      */
-    public abstract function withConnectionsPerHost($core, $max);
+    public function withRetryPolicy($policy) { }
 
     /**
-     * @return mixed
+     * Sets the timestamp generator.
+     *
+     *                                                to generate timestamps for statements.
+     * @param Cassandra\TimestampGenerator $generator A timestamp generator that will be used
+     * @return Builder self
      */
-    public abstract function withReconnectInterval($interval);
+    public function withTimestampGenerator($generator) { }
 
     /**
-     * @return mixed
+     * Enables/disables Schema Metadata.
+     *
+     * If disabled this allows the driver to skip over retrieving and
+     * updating schema metadata, but it also disables the usage of token-aware
+     * routing and $session->schema() will always return an empty object. This
+     * can be useful for reducing the startup overhead of short-lived sessions.
+     *
+     * @param bool $enabled whether the driver fetches and maintains schema metadata.
+     * @return Builder self
      */
-    public abstract function withLatencyAwareRouting($enabled);
+    public function withSchemaMetadata($enabled) { }
 
     /**
-     * @return mixed
-     */
-    public abstract function withTCPNodelay($enabled);
-
-    /**
-     * @return mixed
-     */
-    public abstract function withTCPKeepalive($delay);
-
-    /**
-     * @return mixed
-     */
-    public abstract function withRetryPolicy($policy);
-
-    /**
-     * @return mixed
-     */
-    public abstract function withTimestampGenerator($generator);
-
-    /**
-     * @return mixed
-     */
-    public abstract function withSchemaMetadata($enabled);
-
-    /**
-     * Enables/Disables Hostname Resolution.
+     * Enables/disables Hostname Resolution.
      *
      * If enabled the driver will resolve hostnames for IP addresses using
      * reverse IP lookup. This is useful for authentication (Kerberos) or
      * encryption SSL services that require a valid hostname for verification.
      *
-     * param bool $enabled True to use hostname resolution; false otherwise.
+     * @param bool $enabled whether the driver uses hostname resolution.
      * @return Builder self
      */
-    public abstract function withHostnameResolution($enabled);
+    public function withHostnameResolution($enabled) { }
 
     /**
-     * Enable/Disables Randomized Contact Points
+     * Enables/disables Randomized Contact Points.
      *
      * If enabled this allows the driver randomly use contact points in order
      * to evenly spread the load across the cluster and prevent
@@ -203,10 +301,10 @@ abstract class Builder implements Cassandra\Cluster\Builder {
      *
      * Note: This setting should only be disabled for debugging and testing.
      *
-     * param bool $enabled True to enable randomized contact points; false otherwise.
+     * @param bool $enabled whether the driver uses randomized contact points.
      * @return Builder self
      */
-    public abstract function withRandomizedContactPoints($enabled);
+    public function withRandomizedContactPoints($enabled) { }
 
     /**
      * Specify interval in seconds that the driver should wait before attempting
@@ -214,9 +312,38 @@ abstract class Builder implements Cassandra\Cluster\Builder {
      * must be idle before sending heartbeat messages. This is useful for
      * preventing intermediate network devices from dropping connections.
      *
-     * param int|float $interval Interval in seconds (0 to disable)
+     * @param float $interval interval in seconds (0 to disable heartbeat).
      * @return Builder self
      */
-    public abstract function withConnectionHeartbeatInterval($interval);
+    public function withConnectionHeartbeatInterval($interval) { }
+
+    /**
+     * Enable authentication with a plaintext username and password. This is for use
+     * with DSE's builtin authentication and LDAP authentication.
+     *
+     * @param string $username The username to use with DSE's plaintext authentication
+     * @param string $password The password to use with DSE's plaintext authentication
+     * @return Builder self
+     */
+    public function withPlaintextAuthenticator($username, $password) { }
+
+    /**
+     * Enable authentication for use with Kerberos. By default the driver uses the connecting host's
+     * IP address to construct the full service name (e.g. <service>@<IP address>). To use the host's
+     * DNS name enable hostname resolution using Dse\Cluster\Builder::withHostnameResolution().
+     * @see Dse\Cluster\Builder::withHostnameResolution()
+     *
+     * @param string $service The name of the Kerberos service
+     * @param string $principal The principal whose credentials are used to authenticate. If not provided then the first
+     *                          principal in the Kerberos ticket cache will be used.
+     * @return Builder self
+     */
+    public function withGssapiAuthenticator($service, $principal) { }
+
+    /**
+     * @param mixed $options
+     * @return Builder self
+     */
+    public function withGraphOptions($options) { }
 
 }

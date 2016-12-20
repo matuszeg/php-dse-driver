@@ -9,52 +9,81 @@
 namespace Dse;
 
 /**
+ * A session is used to prepare and execute statements.
+ *
+ * @see Cluster::connect()
  */
-abstract class Session implements Cassandra\Session {
+interface Session {
 
     /**
-     * @return mixed
+     * Executes a given statement and returns a result.
+     *
+     * @throws Exception
+     *
+     * @param Cassandra\Statement $statement statement to be executed
+     * @param Cassandra\ExecutionOptions $options execution options (optional)
+     * @return Rows execution result
      */
-    public abstract function executeGraph($statement, $options);
+    public function execute($statement, $options);
 
     /**
-     * @return mixed
+     * Executes a given statement and returns a future result.
+     *
+     * Note that this method ignores timeout specified in the ExecutionOptions,
+     * you can provide one to Future::get() instead.
+     *
+     * @param Cassandra\Statement $statement statement to be executed
+     * @param Cassandra\ExecutionOptions $options execution options (optional)
+     * @return Future future result
      */
-    public abstract function executeGraphAsync($statement, $options);
+    public function executeAsync($statement, $options);
 
     /**
-     * @return mixed
+     * Creates a prepared statement from a given CQL string.
+     *
+     * Note that this method only uses the ExecutionOptions::$timeout option,
+     * all other options will be ignored.
+     *
+     * @throws Exception
+     *
+     * @param string $cql CQL statement string
+     * @param Cassandra\ExecutionOptions $options execution options (optional)
+     * @return PreparedStatement prepared statement
      */
-    public abstract function execute($statement, $options);
+    public function prepare($cql, $options);
 
     /**
-     * @return mixed
+     * Asynchronously prepares a statement and returns a future prepared statement.
+     *
+     * Note that all options passed to this method will be ignored.
+     *
+     * @param string $cql CQL string to be prepared
+     * @param Cassandra\ExecutionOptions $options preparation options
+     * @return Future statement
      */
-    public abstract function executeAsync($statement, $options);
+    public function prepareAsync($cql, $options);
 
     /**
-     * @return mixed
+     * Closes current session and all of its connections.
+     * @param float|null $timeout Timeout to wait for closure in seconds
+     * @return void
      */
-    public abstract function prepare($cql, $options);
+    public function close($timeout);
 
     /**
-     * @return mixed
+     * Asynchronously closes current session once all pending requests have finished.
+     * @return Future future
      */
-    public abstract function prepareAsync($cql, $options);
+    public function closeAsync();
 
     /**
-     * @return mixed
+     * Returns current schema.
+     *
+     * NOTE: the returned Schema instance will not be updated as the actual
+     *       schema changes, instead an updated instance should be requested by
+     *       calling Session::schema() again.
+     * @return Schema current schema.
      */
-    public abstract function close($timeout);
-
-    /**
-     * @return mixed
-     */
-    public abstract function closeAsync();
-
-    /**
-     * @return mixed
-     */
-    public abstract function schema();
+    public function schema();
 
 }

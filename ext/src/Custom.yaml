@@ -1,0 +1,10 @@
+---
+Dse\Custom:
+  comment: ""
+  methods:
+    type:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+...

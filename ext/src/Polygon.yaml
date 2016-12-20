@@ -1,69 +1,71 @@
 ---
 Dse\Polygon:
   comment: |
-      Encapsulates a polygon consisting of a set of linear-rings in the xy-plane. It corresponds to the
-      `org.apache.cassandra.db.marshal.PolygonType` column type in DSE.
+    Encapsulates a polygon consisting of a set of linear-rings in the xy-plane. It corresponds to the
+    `org.apache.cassandra.db.marshal.PolygonType` column type in DSE.
 
-      A linear-ring is a LineString whose last point is the same as its first point. The first ring specified
-      in a polygon defines the outer edges of the polygon and is called the _exterior ring_. A polygon may also have
-      _holes_ within it, specified by other linear-rings, and those holes may contain linear-rings indicating
-      _islands_. All such rings are called _interior rings_.
+    A linear-ring is a LineString whose last point is the same as its first point. The first ring specified
+    in a polygon defines the outer edges of the polygon and is called the _exterior ring_. A polygon may also have
+    _holes_ within it, specified by other linear-rings, and those holes may contain linear-rings indicating
+    _islands_. All such rings are called _interior rings_.
 
-      @see https://en.wikipedia.org/wiki/Well-known_text
+    @see https://en.wikipedia.org/wiki/Well-known_text
   methods:
     __construct:
       comment: |
-          To construct an empty Polygon:
-          @code
-            $polygon = new Dse\Polygon();
-          @endcode
-          To construct a Polygon with LineString objects:
-          @code
-            $exterior_ring = new Dse\LineString(new Dse\Point(0, 0), new Dse\Point(10, 0), new Dse\Point(10, 10), new Dse\Point(0, 0));
-            $interior_ring = new Dse\LineString(new Dse\Point(1, 1), new Dse\Point(1, 5), new Dse\Point(5, 1), new Dse\Point(1, 1));
-            $polygon = new Dse\Polygon.new($exterior_ring, $interior_ring);
-          @endcode
+        To construct an empty Polygon:
+        @code
+          $polygon = new Dse\Polygon();
+        @endcode
+        To construct a Polygon with LineString objects:
+        @code
+          $exterior_ring = new Dse\LineString(new Dse\Point(0, 0), new Dse\Point(10, 0), new Dse\Point(10, 10), new Dse\Point(0, 0));
+          $interior_ring = new Dse\LineString(new Dse\Point(1, 1), new Dse\Point(1, 5), new Dse\Point(5, 1), new Dse\Point(1, 1));
+          $polygon = new Dse\Polygon.new($exterior_ring, $interior_ring);
+        @endcode
       params:
         rings:
-          comment: "varargs-style array of LineStrings"
+          comment: varargs-style array of LineStrings
           type: array
     type:
       comment: ""
       return:
-        comment: "the Cassandra custom type for Polygon"
+        comment: the Cassandra custom type for Polygon
         type: Cassandra\Type\Custom
     exteriorRing:
       comment: ""
       return:
-        comment: "the linear-ring characterizing the exterior of this Polygon. `null` for empty polygon."
+        comment: the linear-ring characterizing the exterior of this Polygon. `null`
+          for empty polygon.
         type: LineString
     rings:
       comment: ""
       return:
-        comment: "LineStrings that constitute this Polygon"
+        comment: LineStrings that constitute this Polygon
         type: array
     interiorRings:
       comment: ""
       return:
-        comment: "LineStrings that constitute the interior rings of this Polygon"
+        comment: LineStrings that constitute the interior rings of this Polygon
         type: array
     ring:
       comment: ""
       params:
         index:
-          comment: "index of the desired LineString in this Polygon"
+          comment: index of the desired LineString in this Polygon
           type: int
       return:
-        comment: "the index'th LineString in this Polygon; `null` if there is no such element"
+        comment: the index'th LineString in this Polygon; `null` if there is no such
+          element
         type: LineString
     wkt:
       comment: ""
       return:
-        comment: "the well-known-text representation of this Polygon"
+        comment: the well-known-text representation of this Polygon
         type: string
     __toString:
       comment: ""
       return:
-        comment: "a human-readable string representation of this Polygon"
+        comment: a human-readable string representation of this Polygon
         type: string
 ...

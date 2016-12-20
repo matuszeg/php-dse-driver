@@ -1,0 +1,4 @@
+---
+Dse\RetryPolicy:
+  comment: Interface for retry policies.
+...

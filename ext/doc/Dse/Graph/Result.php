@@ -12,8 +12,6 @@ namespace Dse\Graph;
  */
 final class Result implements Iterator, ArrayAccess {
 
-    /**
-     */
     private final function __construct() { }
 
     /**
@@ -52,21 +50,26 @@ final class Result implements Iterator, ArrayAccess {
     public function valid() { }
 
     /**
+     * @param mixed $offset
      * @return mixed
      */
     public function offsetExists($offset) { }
 
     /**
+     * @param mixed $offset
      * @return mixed
      */
     public function offsetGet($offset) { }
 
     /**
+     * @param mixed $offset
+     * @param mixed $value
      * @return mixed
      */
     public function offsetSet($offset, $value) { }
 
     /**
+     * @param mixed $offset
      * @return mixed
      */
     public function offsetUnset($offset) { }
@@ -90,6 +93,21 @@ final class Result implements Iterator, ArrayAccess {
      * @return mixed
      */
     public function isObject() { }
+
+    /**
+     * @return mixed
+     */
+    public function isBool() { }
+
+    /**
+     * @return mixed
+     */
+    public function isNumber() { }
+
+    /**
+     * @return mixed
+     */
+    public function isString() { }
 
     /**
      * @return mixed

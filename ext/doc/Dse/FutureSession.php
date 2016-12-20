@@ -9,11 +9,20 @@
 namespace Dse;
 
 /**
+ * A future that resolves with `Cassandra\Session`.
+ *
+ * @see Cluster::connectAsync()
  */
-final class FutureSession implements Cassandra\Future {
+final class FutureSession implements Future {
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @throws Exception\InvalidArgumentException
+     * @throws Exception\TimeoutException
+     *
+     * @param float|null $timeout
+     * @return mixed a value that the future has been resolved with
      */
     public function get($timeout) { }
 

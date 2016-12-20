@@ -1,0 +1,36 @@
+---
+Dse\Type\Collection:
+  comment: ""
+  methods:
+    name:
+      comment: Returns "list"
+      return:
+        comment: '"list"'
+        type: string
+    __toString:
+      comment: Returns type representation in CQL, e.g. `list<varchar>`
+      return:
+        comment: Type representation in CQL
+        type: string
+    valueType:
+      comment: Returns type of values
+      return:
+        comment: Type of values
+        type: Type
+    create:
+      comment: |-
+        Creates a new Cassandra\Collection from the given values.
+
+        @throws Exception\InvalidArgumentException when values given are of a
+                                                   different type than what this
+                                                   list type expects.
+
+                                      When no values given, creates an empty list.
+      params:
+        value:
+          comment: ',...      One or more values to be added to the list.'
+          type: mixed
+      return:
+        comment: ' A list with given values.'
+        type: Cassandra\Collection
+...

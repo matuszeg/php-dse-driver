@@ -12,8 +12,6 @@ namespace Dse\Graph;
  */
 final class DefaultProperty implements Property {
 
-    /**
-     */
     private final function __construct() { }
 
     /**

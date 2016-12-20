@@ -1,0 +1,7 @@
+---
+Dse\SSLOptions:
+  comment: |-
+    SSL options for Cassandra\Cluster.
+
+    @see SSLOptions\Builder
+...

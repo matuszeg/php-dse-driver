@@ -1,0 +1,107 @@
+---
+Dse\DefaultSession:
+  comment: |-
+    Actual session implementation.
+
+    @see Cassandra\Session
+  methods:
+    schema:
+      comment: '{@inheritDoc}'
+      return:
+        comment: current schema.
+        type: Schema
+    execute:
+      comment: |
+        {@inheritDoc}
+
+        @throws Exception
+      params:
+        statement:
+          comment: statement to be executed
+          type: Cassandra\Statement
+        options:
+          comment: execution options (optional)
+          type: Cassandra\ExecutionOptions
+      return:
+        comment: execution result
+        type: Rows
+    executeAsync:
+      comment: |
+        {@inheritDoc}
+      params:
+        statement:
+          comment: statement to be executed
+          type: Cassandra\Statement
+        options:
+          comment: execution options (optional)
+          type: Cassandra\ExecutionOptions
+      return:
+        comment: future result
+        type: Future
+    prepare:
+      comment: |
+        {@inheritDoc}
+
+        @throws Exception
+      params:
+        cql:
+          comment: CQL statement string
+          type: string
+        options:
+          comment: execution options (optional)
+          type: Cassandra\ExecutionOptions
+      return:
+        comment: prepared statement
+        type: PreparedStatement
+    prepareAsync:
+      comment: |
+        {@inheritDoc}
+      params:
+        cql:
+          comment: CQL string to be prepared
+          type: string
+        options:
+          comment: preparation options
+          type: Cassandra\ExecutionOptions
+      return:
+        comment: statement
+        type: Future
+    close:
+      comment: '{@inheritDoc}'
+      params:
+        timeout:
+          comment: Timeout to wait for closure in seconds
+          type: float|null
+      return:
+        comment: ""
+        type: void
+    closeAsync:
+      comment: '{@inheritDoc}'
+      return:
+        comment: future
+        type: Future
+    executeGraph:
+      comment: ""
+      params:
+        statement:
+          comment: ""
+          type: mixed
+        options:
+          comment: ""
+          type: array
+      return:
+        comment: ""
+        type: mixed
+    executeGraphAsync:
+      comment: ""
+      params:
+        statement:
+          comment: ""
+          type: mixed
+        options:
+          comment: ""
+          type: array
+      return:
+        comment: ""
+        type: mixed
+...

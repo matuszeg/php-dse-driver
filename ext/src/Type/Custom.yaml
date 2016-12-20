@@ -1,0 +1,27 @@
+---
+Dse\Type\Custom:
+  comment: ""
+  methods:
+    name:
+      comment: '{@inheritDoc}'
+      return:
+        comment: The name of this type
+        type: string
+    __toString:
+      comment: '{@inheritDoc}'
+      return:
+        comment: String representation of this type
+        type: string
+    create:
+      comment: |-
+        Creation of custom type instances is not supported
+
+        @throws Cassandra\Exception\LogicException
+      params:
+        value:
+          comment: the value
+          type: mixed
+      return:
+        comment: '        nothing'
+        type: "null"
+...

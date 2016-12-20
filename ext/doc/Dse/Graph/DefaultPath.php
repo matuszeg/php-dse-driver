@@ -12,8 +12,6 @@ namespace Dse\Graph;
  */
 final class DefaultPath {
 
-    /**
-     */
     private final function __construct() { }
 
     /**
@@ -32,6 +30,7 @@ final class DefaultPath {
     public function hasLabel() { }
 
     /**
+     * @param mixed $key
      * @return mixed
      */
     public function object($key) { }

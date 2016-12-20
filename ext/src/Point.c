@@ -188,7 +188,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo__construct, 0, ZEND_RETURN_VALUE, 2)
-  ZEND_ARG_INFO(0, point_spec)
+  ZEND_ARG_INFO(0, pointData)
 ZEND_END_ARG_INFO()
 
 static zend_function_entry php_driver_point_methods[] = {
@@ -272,8 +272,7 @@ void php_driver_define_Point(TSRMLS_D)
   zend_class_entry ce;
 
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Point", php_driver_point_methods);
-  php_driver_point_ce = zend_register_internal_class(&ce TSRMLS_CC);
-  zend_class_implements(php_driver_point_ce TSRMLS_CC, 1, php_driver_custom_ce);
+  php_driver_point_ce = php5to7_zend_register_internal_class_ex(&ce, php_driver_custom_ce);
   php_driver_point_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   php_driver_point_ce->create_object = php_driver_point_new;
 

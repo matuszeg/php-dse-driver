@@ -454,8 +454,7 @@ void php_driver_define_LineString(TSRMLS_D)
   zend_class_entry ce;
 
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\LineString", php_driver_line_string_methods);
-  php_driver_line_string_ce = zend_register_internal_class(&ce TSRMLS_CC);
-  zend_class_implements(php_driver_line_string_ce TSRMLS_CC, 1, php_driver_custom_ce);
+  php_driver_line_string_ce = php5to7_zend_register_internal_class_ex(&ce, php_driver_custom_ce);
   php_driver_line_string_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   php_driver_line_string_ce->create_object = php_driver_line_string_new;
 

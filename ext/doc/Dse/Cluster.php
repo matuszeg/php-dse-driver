@@ -9,17 +9,24 @@
 namespace Dse;
 
 /**
+ * Cluster object is used to create Sessions.
  */
-abstract class Cluster implements Cassandra\Cluster {
+interface Cluster {
 
     /**
-     * @return mixed
+     * Creates a new Session instance.
+     *
+     * @param string $keyspace Optional keyspace name
+     * @return Session Session instance
      */
-    public abstract function connect($keyspace);
+    public function connect($keyspace);
 
     /**
-     * @return mixed
+     * Creates a new Session instance.
+     *
+     * @param string $keyspace Optional keyspace name
+     * @return Future A Future Session instance
      */
-    public abstract function connectAsync($keyspace);
+    public function connectAsync($keyspace);
 
 }

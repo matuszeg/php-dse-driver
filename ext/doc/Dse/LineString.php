@@ -14,7 +14,7 @@ namespace Dse;
  *
  * @see https://en.wikipedia.org/wiki/Well-known_text
  */
-final class LineString implements Cassandra\Custom {
+final class LineString extends Custom  {
 
     /**
      * Construct a LineString with some Point's.
@@ -35,7 +35,7 @@ final class LineString implements Cassandra\Custom {
      *     $lineString = new Dse\LineString(...$points);
      * @endcode
      *
-     * param array $points varargs-style array of Point's
+     * @param array $points varargs-style array of Point's
      */
     public function __construct($points) { }
 
@@ -50,7 +50,7 @@ final class LineString implements Cassandra\Custom {
     public function points() { }
 
     /**
-     * param int $index index of the desired Point in this LineString
+     * @param int $index index of the desired Point in this LineString
      * @return Point the index'th Point in this LineString; `null` if there is no such element
      */
     public function point($index) { }

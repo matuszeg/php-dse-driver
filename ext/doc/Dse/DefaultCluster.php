@@ -9,16 +9,26 @@
 namespace Dse;
 
 /**
+ * Default cluster implementation.
+ *
+ * @see Cassandra\Cluster
  */
-final class DefaultCluster extends Cluster  {
+final class DefaultCluster implements Cluster {
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @param string $keyspace Optional keyspace name
+     * @param int $timeout Optional timeout
+     * @return Session Session instance
      */
     public function connect($keyspace, $timeout) { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @param string $keyspace Optional keyspace name
+     * @return Future A Future Session instance
      */
     public function connectAsync($keyspace) { }
 

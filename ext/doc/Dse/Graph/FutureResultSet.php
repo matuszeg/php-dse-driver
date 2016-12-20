@@ -10,9 +10,10 @@ namespace Dse\Graph;
 
 /**
  */
-final class FutureResultSet implements Cassandra\Future {
+final class FutureResultSet implements Dse\Future {
 
     /**
+     * @param mixed $timeout
      * @return mixed
      */
     public function get($timeout) { }

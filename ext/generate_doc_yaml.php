@@ -4,121 +4,122 @@ function logWarning($message) {
     fwrite(STDERR, "Warning: $message\n");
 }
 
-function writeDocYaml($yamlFileName, $overwrite, $class) {
-    $classDoc = array();
-    $classDoc["comment"] = "";
-    $methods = $class->getMethods();
+function doesParentHaveMethod($class, $method) {
+    $parent = $class->getParentClass();
+    if ($parent) {
+        if ($parent->hasMethod($method->getName())) {
+            return true;
+        }
+        return doesParentHaveMethod($parent, $method);
+    }
+    return false;
+}
+
+function writeDocYaml($yamlFileName, $class) {
+    $classDoc = yaml_parse_file($yamlFileName);
+    if ($classDoc === false) {
+        $fullClassName = $class->getName();
+        echo "Generating doc yaml file for '$fullClassName' ($yamlFileName)\n";
+        $classDoc = array();
+    } else if (isset($classDoc[$class->getName()])){
+        $classDoc = $classDoc[$class->getName()];
+    } else {
+        logWarning( "Unable to find top level class in '$yamlFileName'\n");
+        return;
+    }
+    if (!isset($classDoc["comment"])) {
+        $classDoc["comment"] = "";
+    }
+
+    $constants = $class->getConstants();
+    if ($constants) {
+        $constantsDoc = isset($classDoc["constants"]) ? $classDoc["constants"] : array();
+        foreach($constants as $name => $notused) {
+            $constantDoc = isset($constantsDoc[$name]) ? $constantsDoc[$name] : array();
+            if (!isset($constantDoc["comment"])) {
+                $constantDoc["comment"] = "";
+            }
+            $constantsDoc[$name] = $constantDoc;
+        }
+        $classDoc["constants"] = $constantsDoc;
+    }
+
+    $methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
     if ($methods) {
-        $methodsDoc = array();
+        $methodsDoc = isset($classDoc["methods"]) ? $classDoc["methods"] : array();
         foreach($methods as $method) {
-            $methodDoc = array();
-            $methodDoc["comment"] = "";
+            if (doesParentHaveMethod($class, $method) && ($method->isStatic() || $method->isFinal())) {
+                continue;
+            }
+            $methodDoc = isset($methodsDoc[$method->getShortName()]) ? $methodsDoc[$method->getShortName()] : array();
+            if (!isset($methodDoc["comment"])) {
+                $methodDoc["comment"] = "";
+            }
             $parameters = $method->getParameters();
             if ($parameters) {
-                $paramsDoc = array();
+                $paramsDoc = isset($methodDoc["params"]) ? $methodDoc["params"] : array();
                 foreach ($parameters as $parameter) {
-                    $paramDoc = array();
-                    $paramDoc["comment"] = "";
-                    $parameterType = $parameter->getType();
-                    $paramDoc["type"] = $parameterType ? "$parameterType" : "mixed";
+                    $paramDoc = isset($paramsDoc[$parameter->getName()]) ? $paramsDoc[$parameter->getName()] : array();
+                    if (!isset($paramDoc["comment"])) {
+                        $paramDoc["comment"] = "";
+                    }
+                    if (!isset($paramDoc["type"])) {
+                        $parameterType = $parameter->getType();
+                        $paramDoc["type"] = $parameterType ? "$parameterType" : "mixed";
+                    }
                     $paramsDoc[$parameter->getName()] = $paramDoc;
                 }
                 $methodDoc["params"] = $paramsDoc;
             }
             if (!$method->isConstructor() && !$method->isDestructor()) {
-                $returnDoc = array();
-                $returnDoc["comment"] = "";
-                $returnDoc["type"] = "mixed";
-                $methodDoc["return"] = $returnDoc;
+                if (!isset($methodDoc["return"])) {
+                    $returnDoc = array();
+                    $returnDoc["comment"] = "";
+                    $returnDoc["type"] = "mixed";
+                    $methodDoc["return"] = $returnDoc;
+                }
             }
             $methodsDoc[$method->getShortName()] = $methodDoc;
         }
         $classDoc["methods"] = $methodsDoc;
     }
 
-    if (!$overwrite && file_exists($yamlFileName)) {
-        logWarning("$yamlFileName already exists. Not overwriting.");
-        return;
-    }
-
     yaml_emit_file($yamlFileName, array($class->getName() => $classDoc));
 }
 
 function usage() {
-    die("Usage: {$argv[0]} [-y] -d <directory> OR {$argv[0]} [-y] <className>\n");
+    die("Usage: {$argv[0]} <directory>\n");
 }
 
-if (count($argv) < 2) {
+if (count($argv) < 1) {
     usage();
 }
 
-$overwrite = false;
+define("BASEDIR", $argv[1]);
+define("SRCDIR", BASEDIR . "/src");
 
-for ($i = 1; $i < count($argv); $i++) {
-    $arg = $argv[$i];
-    switch($arg) {
-    case "-y":
-        $overwrite = true;
-        break;
-    case "-d":
-        if ($i + 1 >= count($argv)) {
-            die("'-d' requires directory argument\n");
-        }
-        $directory = $argv[$i + 1];
-        $i++;
-        break;
-    case "-o":
-        if ($i + 1 >= count($argv)) {
-            die("'-o' requires directory argument\n");
-        }
-        $yamlFileName = $argv[$i + 1];
-        $i++;
-        break;
-    default:
-        $fullClassName = $arg;
-        break;
-    }
-}
+define("INPUT_NAMESPACE", "Dse");
 
-if ($directory) {
-    define("BASEDIR", $directory);
-    define("SRCDIR", BASEDIR . "/src");
+$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(SRCDIR));
+$regex = new RegexIterator($iterator, '/^.+\.c$/i', RecursiveRegexIterator::GET_MATCH);
 
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(SRCDIR));
-    $regex = new RegexIterator($iterator, '/^.+\.c$/i', RecursiveRegexIterator::GET_MATCH);
+foreach ($regex as $fileName => $notused) {
+    $yamlFileName = preg_replace("/(.+)\.c$/", "$1.yaml", $fileName);
+    $fileName = substr($fileName, strlen(SRCDIR));
+    $fileName = preg_replace("/(.+)\.c$/", "$1", $fileName);
 
-    foreach ($regex as $fileName => $notused) {
-        $yamlFileName = preg_replace("/(.+)\.c$/", "$1.yaml", $fileName);
-        $fileName = substr($fileName, strlen(SRCDIR));
-        $fileName = preg_replace("/(.+)\.c$/", "$1", $fileName);
-
+    if ($fileName == "/Core") {
+        $fileName = "/" . INPUT_NAMESPACE;
         $fullClassName = str_replace("/", "\\", $fileName);
-
-        try {
-            $class = new ReflectionClass($fullClassName);
-
-            echo "Generating doc yaml file for '$fullClassName' ($yamlFileName)\n";
-
-            writeDocYaml($yamlFileName, $overwrite, $class);
-        } catch(ReflectionException $e) {
-            logWarning("Ignoring '$fullClassName': $e");
-        }
+    } else {
+        $fullClassName = INPUT_NAMESPACE . str_replace("/", "\\", $fileName);
     }
-} else if ($fullClassName) {
+
     try {
         $class = new ReflectionClass($fullClassName);
 
-        if (!$yamlFileName) {
-            $className = $class->getShortName();
-            $yamlFileName = "$className.yaml";
-        }
-
-        echo "Generating doc yaml file for '$fullClassName' ($yamlFileName)\n";
-
-        writeDocYaml($yamlFileName, $overwrite, $class);
+        writeDocYaml($yamlFileName, $class);
     } catch(ReflectionException $e) {
-        logWarning("Unable to reflect class '$fullClassName': $e");
+        logWarning("Ignoring '$fullClassName': $e");
     }
-} else {
-    usage();
 }
