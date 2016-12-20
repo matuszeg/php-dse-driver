@@ -85,7 +85,7 @@ PHP_METHOD(ClusterBuilder, build)
     }
   }
 
-  cluster->cluster = cass_cluster_new();
+  cluster->cluster = cass_cluster_new_dse();
 
   if (self->load_balancing_policy == LOAD_BALANCING_ROUND_ROBIN) {
     cass_cluster_set_load_balance_round_robin(cluster->cluster);
@@ -152,6 +152,18 @@ PHP_METHOD(ClusterBuilder, build)
     php_driver_retry_policy *retry_policy =
         PHP_DRIVER_GET_RETRY_POLICY(PHP5TO7_ZVAL_MAYBE_P(self->retry_policy));
     cass_cluster_set_retry_policy(cluster->cluster, retry_policy->policy);
+  }
+
+  if (self->plaintext_username) {
+    cass_cluster_set_dse_plaintext_authenticator(cluster->cluster,
+                                                 self->plaintext_username,
+                                                 SAFE_STR(self->plaintext_password));
+  }
+
+  if (self->gssapi_service) {
+    cass_cluster_set_dse_gssapi_authenticator(cluster->cluster,
+                                              self->gssapi_service,
+                                              SAFE_STR(self->gssapi_principal));
   }
 
   if (self->persist) {
