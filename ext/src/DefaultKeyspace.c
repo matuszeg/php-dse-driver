@@ -58,6 +58,9 @@ PHP_METHOD(DefaultKeyspace, replicationClassName)
   self = PHP_DRIVER_GET_KEYSPACE(getThis());
 
   php_driver_get_keyspace_field(self->meta, "strategy_class", &value TSRMLS_CC);
+  if (PHP5TO7_ZVAL_IS_NULL_P(PHP5TO7_ZVAL_MAYBE_P(value))) {
+    php_driver_get_keyspace_field(self->meta, "replication", &value TSRMLS_CC);
+  }
   RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value), 0, 1);
 }
 
@@ -72,6 +75,9 @@ PHP_METHOD(DefaultKeyspace, replicationOptions)
   self = PHP_DRIVER_GET_KEYSPACE(getThis());
 
   php_driver_get_keyspace_field(self->meta, "strategy_options", &value TSRMLS_CC);
+  if (PHP5TO7_ZVAL_IS_NULL_P(PHP5TO7_ZVAL_MAYBE_P(value))) {
+    php_driver_get_keyspace_field(self->meta, "replication", &value TSRMLS_CC);
+  }
   RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(value), 0, 1);
 }
 

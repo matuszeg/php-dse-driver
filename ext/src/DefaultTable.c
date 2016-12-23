@@ -293,6 +293,9 @@ PHP_METHOD(DefaultTable, compactionStrategyClassName)
   self = PHP_DRIVER_GET_TABLE(getThis());
 
   php_driver_table_get_option(self, "compaction_strategy_class", return_value TSRMLS_CC);
+  if (PHP5TO7_ZVAL_IS_FALSE_P(return_value)) {
+    php_driver_table_get_option(self, "compaction", return_value TSRMLS_CC);
+  }
 }
 
 PHP_METHOD(DefaultTable, compactionStrategyOptions)
@@ -305,6 +308,9 @@ PHP_METHOD(DefaultTable, compactionStrategyOptions)
   self = PHP_DRIVER_GET_TABLE(getThis());
 
   php_driver_table_get_option(self, "compaction_strategy_options", return_value TSRMLS_CC);
+  if (PHP5TO7_ZVAL_IS_FALSE_P(return_value)) {
+    php_driver_table_get_option(self, "compaction", return_value TSRMLS_CC);
+  }
 }
 
 PHP_METHOD(DefaultTable, compressionParameters)
@@ -317,6 +323,9 @@ PHP_METHOD(DefaultTable, compressionParameters)
   self = PHP_DRIVER_GET_TABLE(getThis());
 
   php_driver_table_get_option(self, "compression_parameters", return_value TSRMLS_CC);
+  if (PHP5TO7_ZVAL_IS_FALSE_P(return_value)) {
+    php_driver_table_get_option(self, "compression", return_value TSRMLS_CC);
+  }
 }
 
 PHP_METHOD(DefaultTable, populateIOCacheOnFlush)

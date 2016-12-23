@@ -239,6 +239,7 @@ php5to7_string_compare(php5to7_string s1, php5to7_string s2)
   (Z_TYPE_P(zv) == IS_TRUE  || Z_TYPE_P(zv) == IS_FALSE)
 #define PHP5TO7_ZVAL_IS_FALSE_P(zv) (Z_TYPE_P(zv) == IS_FALSE)
 #define PHP5TO7_ZVAL_IS_TRUE_P(zv) (Z_TYPE_P(zv) == IS_TRUE)
+#define PHP5TO7_ZVAL_IS_NULL_P(zv) (Z_TYPE_P(zv) == IS_NULL)
 
 #define PHP5TO7_ZVAL_UNDEF(zv) ZVAL_UNDEF(&(zv));
 #define PHP5TO7_ZVAL_MAYBE_MAKE(zv) ((void)0)
@@ -416,6 +417,7 @@ php5to7_string_compare(php5to7_string s1, php5to7_string s2)
 #define PHP5TO7_ZVAL_IS_BOOL_P(zv) (Z_TYPE_P(zv) == IS_BOOL)
 #define PHP5TO7_ZVAL_IS_FALSE_P(zv) (Z_TYPE_P(zv) == IS_BOOL && !Z_BVAL_P(zv))
 #define PHP5TO7_ZVAL_IS_TRUE_P(zv) (Z_TYPE_P(zv) == IS_BOOL && Z_BVAL_P(zv))
+#define PHP5TO7_ZVAL_IS_NULL_P(zv) (Z_TYPE_P(zv) == IS_NULL)
 
 #define PHP5TO7_ZVAL_UNDEF(zv) (zv) = NULL;
 #define PHP5TO7_ZVAL_MAYBE_MAKE(zv) MAKE_STD_ZVAL(zv)

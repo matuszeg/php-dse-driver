@@ -34,7 +34,7 @@ php_driver_table_build_options(CassIterator* iterator TSRMLS_DC) {
       if (strncmp(name, "keyspace_name", name_length) == 0 ||
           strncmp(name, "table_name", name_length) == 0 ||
           strncmp(name, "columnfamily_name", name_length) == 0) {
-        break;
+        continue;
       }
       value = cass_iterator_get_meta_field_value(iterator);
       if (value) {
