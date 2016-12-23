@@ -4,10 +4,9 @@ Feature: SSL encryption
   PHP Driver supports SSL encryption.
 
   Scenario: Connecting without SSL encryption
-    Given a running cassandra cluster with SSL encryption
+    Given a running Cassandra cluster with SSL encryption
     And the following example:
       """php
-      <?php
       $cluster = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -15,7 +14,7 @@ Feature: SSL encryption
       try {
           $session = $cluster->connect();
       } catch (Cassandra\Exception\RuntimeException $e) {
-          echo "Connection failure\n";
+          echo "Connection failure" . PHP_EOL;
       }
       """
     When it is executed
@@ -25,10 +24,9 @@ Feature: SSL encryption
       """
 
   Scenario: Connecting with basic SSL encryption
-    Given a running cassandra cluster with SSL encryption
+    Given a running Cassandra cluster with SSL encryption
     And the following example:
       """php
-      <?php
       $ssl     = Cassandra::ssl()
                      ->withVerifyFlags(Cassandra::VERIFY_NONE)
                      ->build();
@@ -39,9 +37,9 @@ Feature: SSL encryption
 
       try {
           $session = $cluster->connect();
-          echo "Connection success\n";
+          echo "Connection success" . PHP_EOL;
       } catch (Cassandra\Exception\RuntimeException $e) {
-          echo "Connection failure\n";
+          echo "Connection failure" . PHP_EOL;
       }
       """
     When it is executed
@@ -51,13 +49,12 @@ Feature: SSL encryption
       """
 
   Scenario: Connecting with certificate verification
-    Given a running cassandra cluster with SSL encryption
+    Given a running Cassandra cluster with SSL encryption
     And the following example:
       """php
-      <?php
       $ssl     = Cassandra::ssl()
                      ->withVerifyFlags(Cassandra::VERIFY_PEER_CERT)
-                     ->withTrustedCerts(getenv('SERVER_CERT'))
+                     ->withTrustedCerts($_SERVER['SERVER_CERT'])
                      ->build();
       $cluster = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
@@ -66,27 +63,26 @@ Feature: SSL encryption
 
       try {
           $session = $cluster->connect();
-          echo "Connection success\n";
+          echo "Connection success" . PHP_EOL;
       } catch (Cassandra\Exception\RuntimeException $e) {
-          echo "Connection failure\n";
+          echo "Connection failure" . PHP_EOL;
       }
       """
-    When it is executed with trusted cert in the env
+    When it is executed with proper SSL credentials
     Then its output should contain:
       """
       Connection success
       """
 
   Scenario: Connecting with client certificate verification
-    Given a running cassandra cluster with client certificate verification
+    Given a running Cassandra cluster with SSL encryption and client authentication
     And the following example:
       """php
-      <?php
       $ssl     = Cassandra::ssl()
                      ->withVerifyFlags(Cassandra::VERIFY_PEER_CERT)
-                     ->withTrustedCerts(getenv('SERVER_CERT'))
-                     ->withClientCert(getenv('CLIENT_CERT'))
-                     ->withPrivateKey(getenv('PRIVATE_KEY'), getenv('PASSPHRASE'))
+                     ->withTrustedCerts($_SERVER['SERVER_CERT'])
+                     ->withClientCert($_SERVER['CLIENT_CERT'])
+                     ->withPrivateKey($_SERVER['PRIVATE_KEY'], $_SERVER['PASSPHRASE'])
                      ->build();
       $cluster = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
@@ -95,12 +91,12 @@ Feature: SSL encryption
 
       try {
           $session = $cluster->connect();
-          echo "Connection success\n";
+          echo "Connection success" . PHP_EOL;
       } catch (Cassandra\Exception\RuntimeException $e) {
-          echo "Connection failure\n";
+          echo "Connection failure" . PHP_EOL;
       }
       """
-    When it is executed with trusted and client certs, private key and passphrase in the env
+    When it is executed with proper SSL credentials
     Then its output should contain:
       """
       Connection success

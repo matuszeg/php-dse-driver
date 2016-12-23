@@ -19,7 +19,6 @@ Feature: Materialized View Metadata
   Scenario: Getting a materialized view
     Given the following example:
       """php
-      <?php
       $cluster = Cassandra::cluster()
                         ->withContactPoints('127.0.0.1')
                         ->build();
@@ -27,39 +26,22 @@ Feature: Materialized View Metadata
       $schema = $session->schema();
       $view = $schema->keyspace("simplex")->materializedView("users_view");
 
-      echo "Name: " . $view->name() . "\n";
-      echo "BaseTable: " . $view->baseTable()->name() . "\n";
-      echo "DefaultTimeToLive: " . $view->option("default_time_to_live") . "\n";
-      echo "Compression: " . var_export($view->option("compression"), true) . "\n";
+      echo "Name => {$view->name()}" . PHP_EOL;
+      echo "Base Table => {$view->baseTable()->name()}" . PHP_EOL;
+      echo "Default Time To Live => {$view->option("default_time_to_live")}" . PHP_EOL;
+      echo "Compression:" . PHP_EOL;
+      foreach ($view->option("compression") as $key => $value) {
+          echo "  {$key} => {$value}" . PHP_EOL;
+      }
       """
     When it is executed
     Then its output should contain:
       """
-      Name: users_view
-      BaseTable: users
-      DefaultTimeToLive: 0
-      Compression: Cassandra\Map::__set_state(array(
-         'type' =>
-        Cassandra\Type\Map::__set_state(array(
-           'keyType' =>
-          Cassandra\Type\Scalar::__set_state(array(
-             'name' => 'varchar',
-          )),
-           'valueType' =>
-          Cassandra\Type\Scalar::__set_state(array(
-             'name' => 'varchar',
-          )),
-        )),
-         'keys' =>
-        array (
-          0 => 'chunk_length_in_kb',
-          1 => 'class',
-        ),
-         'values' =>
-        array (
-          0 => '64',
-          1 => 'org.apache.cassandra.io.compress.LZ4Compressor',
-        ),
-      ))
+      Name => users_view
+      Base Table => users
+      Default Time To Live => 0
+      Compression:
+        chunk_length_in_kb => 64
+        class => org.apache.cassandra.io.compress.LZ4Compressor
       """
 

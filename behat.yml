@@ -1,19 +1,81 @@
 default:
     formatters:
         pretty: true
+    gherkin:
+            filters:
+                tags: "~@cassandra-version-less-2.1&&~@cassandra-version-only-2.0"
     suites:
         authentication:
-            paths: [ %paths.base%/features/authentication ]
+            paths: [ %paths.base%/features/Dse/authentication ]
             contexts:
                 - AuthenticationContext:
                     dse_version: 5.0.4
+        core:
+            paths: [ %paths.base%/features/Cassandra ]
+            contexts:
+                - FeatureContext:
+                    dse_version: 5.0.4
 
-dse-version-4.8:
+dse-4.8:
     gherkin:
         filters:
-            tags: "~@dse-version-5.0"
+            tags: "~@dse-version-5.0&&~@cassandra-version-3.x&&~@cassandra-version-3.4&&~@cassandra-version-3.0.4&&~@cassandra-version-3.0&&~@cassandra-version-2.2&&~@cassandra-version-less-2.1&&~@cassandra-version-only-2.0"
     suites:
         authentication:
             contexts:
                 - AuthenticationContext:
                     dse_version: 4.8.11
+        core:
+            contexts:
+                - FeatureContext:
+                    dse_version: 4.8.11
+
+cassandra-3.x:
+    gherkin:
+        filters:
+            tags: "~@cassandra-version-less-2.1&&~@cassandra-version-only-2.0"
+    suites:
+        core:
+            contexts:
+                - FeatureContext:
+                    cassandra_version: 3.9
+
+cassandra-3.0:
+    gherkin:
+        filters:
+            tags: "~@cassandra-version-less-2.1&&~@cassandra-version-only-2.0"
+    suites:
+        core:
+            contexts:
+                - FeatureContext:
+                    cassandra_version: 3.0.10
+
+cassandra-2.2:
+    gherkin:
+        filters:
+            tags: "~@cassandra-version-3.x&&~@cassandra-version-3.4&&~@cassandra-version-3.0.4&&~@cassandra-version-3.0&&~@cassandra-version-less-2.1&&~@cassandra-version-only-2.0"
+    suites:
+        core:
+            contexts:
+                - FeatureContext:
+                    cassandra_version: 2.2.8
+
+cassandra-2.1:
+    gherkin:
+        filters:
+            tags: "~@cassandra-version-3.x&&~@cassandra-version-3.4&&~@cassandra-version-3.0.4&&~@cassandra-version-3.0&&~@cassandra-version-2.2&&~@cassandra-version-less-2.1&&~@cassandra-version-only-2.0"
+    suites:
+        core:
+            contexts:
+                - FeatureContext:
+                    cassandra_version: 2.1.16
+
+cassandra-2.0:
+    gherkin:
+        filters:
+            tags: "~@cassandra-version-3.x&&~@cassandra-version-3.4&&~@cassandra-version-3.0.4&&~@cassandra-version-3.0&&~@cassandra-version-2.2&&~@cassandra-version-2.1"
+    suites:
+        core:
+            contexts:
+                - FeatureContext:
+                    cassandra_version: 2.0.17

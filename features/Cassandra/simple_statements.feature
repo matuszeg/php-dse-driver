@@ -24,14 +24,13 @@ Feature: Simple Statements
   Scenario: Simple statements are initialized with a CQL string
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
       $session   = $cluster->connect("simplex");
       $statement = new Cassandra\SimpleStatement("SELECT * FROM playlists");
       $result    = $session->execute($statement);
-      echo "Result contains " . $result->count() . " rows";
+      echo "Result contains {$result->count()} rows" . PHP_EOL;
       """
     When it is executed
     Then its output should contain:
@@ -43,7 +42,6 @@ Feature: Simple Statements
   Scenario: Simple statements support positional arguments
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -83,7 +81,7 @@ Feature: Simple Statements
       $result    = $session->execute($statement);
 
       foreach ($result as $row) {
-        echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . "\n";
+          echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
       }
       """
     When it is executed
@@ -104,7 +102,6 @@ Feature: Simple Statements
   Scenario: Simple statements also support named arguments
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -144,7 +141,7 @@ Feature: Simple Statements
       $result    = $session->execute($statement);
 
       foreach ($result as $row) {
-        echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . "\n";
+          echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
       }
       """
     When it is executed
@@ -165,7 +162,6 @@ Feature: Simple Statements
   Scenario: Simple statements also supports ":name" arguments
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -208,7 +204,7 @@ Feature: Simple Statements
       $result = $session->execute($statement, $options);
 
       $row = $result->first();
-      echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . "\n";
+      echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
       """
     When it is executed
     Then its output should contain:

@@ -34,7 +34,6 @@ Feature: Client-side timestamps
   Scenario: Create a simple statement with a client-side timestamp
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -57,11 +56,11 @@ Feature: Client-side timestamps
       $session->execute($simple, $options);
 
       $statement = new Cassandra\SimpleStatement(
-        "SELECT artist, title, album, WRITETIME(song_id) FROM simplex.playlists");
+          "SELECT artist, title, album, WRITETIME(song_id) FROM simplex.playlists");
       $result    = $session->execute($statement);
 
       foreach ($result as $row) {
-        echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . " (". $row['writetime(song_id)'] . ")\n";
+          echo "{$row['artist']}: {$row['title']} / {$row['album']} ({$row['writetime(song_id)']})" . PHP_EOL;
       }
       """
     When it is executed
@@ -73,7 +72,6 @@ Feature: Client-side timestamps
   Scenario: Create a batch with a client-side timestamp
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -110,11 +108,11 @@ Feature: Client-side timestamps
       $session->execute($batch, $options);
 
       $statement = new Cassandra\SimpleStatement(
-        "SELECT artist, title, album, WRITETIME(song_id) FROM simplex.playlists");
+          "SELECT artist, title, album, WRITETIME(song_id) FROM simplex.playlists");
       $result    = $session->execute($statement);
 
       foreach ($result as $row) {
-        echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . " (". $row['writetime(song_id)'] . ")\n";
+          echo "{$row['artist']}: {$row['title']} / {$row['album']} ({$row['writetime(song_id)']})" . PHP_EOL;
       }
       """
     When it is executed
@@ -134,7 +132,6 @@ Feature: Client-side timestamps
   Scenario: Create a new session using a timestamp generator
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->withTimestampGenerator(new Cassandra\TimestampGenerator\Monotonic())
@@ -160,11 +157,11 @@ Feature: Client-side timestamps
       }
 
       $statement = new Cassandra\SimpleStatement(
-        "SELECT artist, title, album, song_id FROM simplex.playlists");
+          "SELECT artist, title, album, song_id FROM simplex.playlists");
       $result    = $session->execute($statement);
 
       foreach ($result as $row) {
-        echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . " (". $row['song_id'] . ")\n";
+          echo "{$row['artist']}: {$row['title']} / {$row['album']} ({$row['song_id']})" . PHP_EOL;
       }
       """
     When it is executed

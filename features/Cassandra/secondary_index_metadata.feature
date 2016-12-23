@@ -18,7 +18,6 @@ Feature: Secondary Index Metadata
   Scenario: Getting a index metadata
     Given the following example:
       """php
-      <?php
       $cluster = Cassandra::cluster()
                         ->withContactPoints('127.0.0.1')
                         ->build();
@@ -26,10 +25,10 @@ Feature: Secondary Index Metadata
       $schema = $session->schema();
       $index = $schema->keyspace("simplex")->table("users")->index("name_index");
 
-      echo "Name: " . $index->name() . "\n";
-      echo "Kind: " . $index->kind() . "\n";
-      echo "Target: " . $index->target() . "\n";
-      echo "IsCustom: " . ($index->isCustom() ? "true" : "false") . "\n";
+      echo "Name: {$index->name()}" . PHP_EOL;
+      echo "Kind: {$index->kind()}" . PHP_EOL;
+      echo "Target: {$index->target()}" . PHP_EOL;
+      echo "IsCustom: " . ($index->isCustom() ? "true" : "false") . PHP_EOL;
       """
     When it is executed
     Then its output should contain:
@@ -41,10 +40,9 @@ Feature: Secondary Index Metadata
       """
 
   @cassandra-version-3.0
-  Scenario: Getting a index metadata w/ options
+  Scenario: Getting a index metadata with options
     Given the following example:
       """php
-      <?php
       $cluster  = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->build();
@@ -54,11 +52,14 @@ Feature: Secondary Index Metadata
 
       $index = $schema->keyspace("simplex")->table("users")->index("name_index");
 
-      echo "Name: " . $index->name() . "\n";
-      echo "Kind: " . $index->kind() . "\n";
-      echo "Target: " . $index->target() . "\n";
-      echo "IsCustom: " . ($index->isCustom() ? "true" : "false") . "\n";
-      echo "Options: " . var_export($index->options(), true) . "\n";
+      echo "Name: {$index->name()}" . PHP_EOL;
+      echo "Kind: {$index->kind()}" . PHP_EOL;
+      echo "Target: {$index->target()}" . PHP_EOL;
+      echo "IsCustom: " . ($index->isCustom() ? "true" : "false") . PHP_EOL;
+      echo "Options:" . PHP_EOL;
+      foreach ($index->options() as $key => $value) {
+          echo "  {$key} => {$value}" . PHP_EOL;
+      }
       """
     When it is executed
     Then its output should contain:
@@ -67,20 +68,21 @@ Feature: Secondary Index Metadata
       Kind: composites
       Target: name
       IsCustom: false
-      Options: array (
-        'target' => 'name',
-      )
+      Options:
+        target => name
       """
 
-  @cassandra-version-3.0
+  @cassandra-version-3.0.4
+  @cassandra-version-3.4
   Scenario: Getting a custom index metadata
-    Given additional schema:
+    Given the following schema:
       """
-      CREATE CUSTOM INDEX name_custom_index ON users (name) USING 'org.apache.cassandra.index.internal.composites.ClusteringColumnIndex';
+      CREATE CUSTOM INDEX name_custom_index ON simplex.users (name)
+        USING
+          'org.apache.cassandra.index.internal.composites.ClusteringColumnIndex';
       """
     And the following example:
       """php
-      <?php
       $cluster  = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->build();
@@ -90,12 +92,15 @@ Feature: Secondary Index Metadata
 
       $index = $schema->keyspace("simplex")->table("users")->index("name_custom_index");
 
-      echo "Name: " . $index->name() . "\n";
-      echo "Kind: " . $index->kind() . "\n";
-      echo "Target: " . $index->target() . "\n";
-      echo "IsCustom: " . ($index->isCustom() ? "true" : "false") . "\n";
-      echo "ClassName: " . $index->className() . "\n";
-      echo "Options: " . var_export($index->options(), true) . "\n";
+      echo "Name: {$index->name()}" . PHP_EOL;
+      echo "Kind: {$index->kind()}" . PHP_EOL;
+      echo "Target: {$index->target()}" . PHP_EOL;
+      echo "IsCustom: " . ($index->isCustom() ? "true" : "false") . PHP_EOL;
+      echo "ClassName: {$index->className()}" . PHP_EOL;
+      echo "Options:" . PHP_EOL;
+      foreach ($index->options() as $key => $value) {
+          echo "  {$key} => {$value}" . PHP_EOL;
+      }
       """
     When it is executed
     Then its output should contain:
@@ -105,8 +110,7 @@ Feature: Secondary Index Metadata
       Target: name
       IsCustom: true
       ClassName: org.apache.cassandra.index.internal.composites.ClusteringColumnIndex
-      Options: array (
-        'class_name' => 'org.apache.cassandra.index.internal.composites.ClusteringColumnIndex',
-        'target' => 'name',
-      )
+      Options:
+        class_name => org.apache.cassandra.index.internal.composites.ClusteringColumnIndex
+        target => name
       """

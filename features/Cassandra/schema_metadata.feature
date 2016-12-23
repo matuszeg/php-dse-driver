@@ -1,4 +1,3 @@
-@skip-ci
 Feature: Schema Metadata
 
   PHP Driver exposes the Cassandra Schema Metadata for keyspaces, tables, and
@@ -22,33 +21,27 @@ Feature: Schema Metadata
         int_value int,
         varint_value varint,
         ascii_value ascii,
-        text_value text,
-        varchar_value varchar,
         timestamp_value timestamp,
         blob_value blob,
         uuid_value uuid,
         timeuuid_value timeuuid,
         inet_value inet,
-        list_value List<text>,
+        list_value List<bigint>,
         map_value Map<timestamp, double>,
         set_value Set<float>
       ) WITH
           bloom_filter_fp_chance=0.5 AND
-          caching='ALL' AND
           comment='Schema Metadata Feature' AND
           compaction={'class': 'LeveledCompactionStrategy', 'sstable_size_in_mb' : 37} AND
           compression={'sstable_compression': 'DeflateCompressor'} AND
           dclocal_read_repair_chance=0.25 AND
           gc_grace_seconds=3600 AND
-          populate_io_cache_on_flush='true' AND
-          read_repair_chance=0.75 AND
-          replicate_on_write='false';
+          read_repair_chance=0.75;
       """
 
   Scenario: Getting keyspace metadata
     Given the following example:
       """php
-      <?php
       $cluster  = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->build();
@@ -57,12 +50,26 @@ Feature: Schema Metadata
       $schema   = $session->schema();
       $keyspace = $schema->keyspace("simplex");
 
-      echo "Name: " . $keyspace->name() . "\n";
-      echo "Replication Class: " . $keyspace->replicationClassName() . "\n";
-      foreach ($keyspace->replicationOptions() as $key => $value) {
-        echo "  " . $key . ":" . $value . "\n";
+      echo "Name: {$keyspace->name()}" . PHP_EOL;
+
+      /*
+       * For Cassandra 2.2+ the replication class name and replication options have
+       * been combined into a Map<varchar, varchar> inside the metadata 'replication'
+       * instead of two metadata fields 'strategy_class' and 'strategy_options'.
+       */
+      $replication_options = $keyspace->replicationOptions();
+      if ($replication_options instanceof Cassandra\Map &&
+          count($replication_options) > 1) {
+          echo "Replication Class: {$replication_options["class"]}" . PHP_EOL;
+          echo "  replication_factor:{$replication_options["replication_factor"]}" . PHP_EOL;
+      } else {
+          echo "Replication Class: {$keyspace->replicationClassName()}" . PHP_EOL;
+          foreach ($replication_options as $name => $value) {
+              echo "  {$name}:{$value}" . PHP_EOL;
+          }
       }
-      echo "Has Durable Writes: " . ($keyspace->hasDurableWrites() ? "True" : "False" ). "\n";
+
+      echo "Has Durable Writes: " . ($keyspace->hasDurableWrites() ? "True" : "False" ). PHP_EOL;
       """
     When it is executed
     Then its output should contain:
@@ -76,7 +83,6 @@ Feature: Schema Metadata
     Scenario: Getting table metadata
     Given the following example:
       """php
-      <?php
       $cluster = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->build();
@@ -85,43 +91,61 @@ Feature: Schema Metadata
       $schema  = $session->schema();
       $table   = $schema->keyspace("simplex")->table("values");
 
-      echo "Name: " . $table->name() . "\n";
-      echo "Bloom Filter: " . $table->bloomFilterFPChance() . "\n";
-      $patterns = array('/{/', '/"/', '/:/', '/keys/');
-      $table_caching = explode(",", $table->caching());
-      echo "Caching: " . preg_replace($patterns, "", $table_caching[0]) . "\n";
-      echo "Comment: " . $table->comment() . "\n";
-      echo "Compaction Class: " . $table->compactionStrategyClassName() . "\n";
-      foreach ($table->compactionStrategyOptions() as $key => $value) {
-        echo "  " . $key . ":" . $value . "\n";
+      echo "Name: {$table->name()}" . PHP_EOL;
+      echo "Bloom Filter: {$table->bloomFilterFPChance()}" . PHP_EOL;
+      echo "Comment: {$table->comment()}" . PHP_EOL;
+
+      /*
+       * For Cassandra 2.2+ the compaction strategy class name and compaction
+       * strategy options have been combined into a Map<varchar, varchar> inside
+       * the metadata 'compaction' instead of two metadata fields
+       * 'compaction_strategy_class' and 'compaction_strategy_options'.
+       */
+      $compaction_options = $table->compactionStrategyOptions();
+      $compression_parameters = $table->compressionParameters();
+      echo "Compaction Class: ";
+      if ($compaction_options instanceof Cassandra\Map &&
+          count($compaction_options) > 1) {
+          echo $compaction_options["class"] . PHP_EOL;
+          echo "  sstable_size_in_mb: {$compaction_options["sstable_size_in_mb"]}" . PHP_EOL;
+          echo "  sstable_compression: {$compression_parameters["class"]}" . PHP_EOL;
+      } else {
+          echo $table->compactionStrategyClassName() . PHP_EOL;
+          foreach ($compaction_options as $key => $value) {
+              echo "  {$key}: {$value}" . PHP_EOL;
+          }
+          foreach ($compression_parameters as $key => $value) {
+              echo "  {$key}: {$value}" . PHP_EOL;
+          }
       }
-      foreach ($table->compressionParameters() as $key => $value) {
-        echo "  " . $key . ":" . $value . "\n";
-      }
-      echo "DC/Local Read Repair Chance: " . $table->localReadRepairChance() . "\n";
-      echo "Garbage Collection Grace Seconds: " . $table->gcGraceSeconds() . "\n";
-      echo "Read Repair Chance: " . $table->readRepairChance() . "\n";
+
+      echo "Garbage Collection Grace Seconds: {$table->gcGraceSeconds()}" . PHP_EOL;
+      echo "Read Repair Chance: {$table->readRepairChance()}" . PHP_EOL;
       """
     When it is executed
     Then its output should contain:
       """
       Name: values
       Bloom Filter: 0.5
-      Caching: ALL
       Comment: Schema Metadata Feature
       Compaction Class: org.apache.cassandra.db.compaction.LeveledCompactionStrategy
-        sstable_size_in_mb:37
-        sstable_compression:org.apache.cassandra.io.compress.DeflateCompressor
-      DC/Local Read Repair Chance: 0.25
+        sstable_size_in_mb: 37
+        sstable_compression: org.apache.cassandra.io.compress.DeflateCompressor
       Garbage Collection Grace Seconds: 3600
       Read Repair Chance: 0.75
       """
 
     @cassandra-version-less-2.1
     Scenario: Getting table metadata for io cache and replicate on write
-    Given the following example:
+    Given the following schema:
+      """cql
+      ALTER TABLE simplex.values
+        WITH
+          populate_io_cache_on_flush='true' AND
+          replicate_on_write='false';
+      """
+    And the following example:
       """php
-      <?php
       $cluster = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->build();
@@ -130,8 +154,8 @@ Feature: Schema Metadata
       $schema  = $session->schema();
       $table   = $schema->keyspace("simplex")->table("values");
 
-      echo "Populate I/O Cache on Flush: " . ($table->populateIOCacheOnFlush() ? "True" : "False") . "\n";
-      echo "Replicate on Write: " . ($table->replicateOnWrite() ? "True" : "False") . "\n";
+      echo "Populate I/O Cache on Flush: " . ($table->populateIOCacheOnFlush() ? "True" : "False") . PHP_EOL;
+      echo "Replicate on Write: " . ($table->replicateOnWrite() ? "True" : "False") . PHP_EOL;
       """
     When it is executed
     Then its output should contain:
@@ -142,19 +166,22 @@ Feature: Schema Metadata
 
     @cassandra-version-only-2.0
     Scenario: Getting table metadata for index interval
-    Given the following example:
+    Given the following schema:
+      """cql
+      ALTER TABLE simplex.values
+        WITH
+          index_interval = '512';
+      """
+    And the following example:
       """php
-      <?php
       $cluster = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->build();
       $session = $cluster->connect("simplex");
-      $cql = "ALTER TABLE values WITH index_interval = '512'";
-      $session->execute(new Cassandra\SimpleStatement($cql));
       $schema  = $session->schema();
       $table   = $schema->keyspace("simplex")->table("values");
 
-      echo "Index Interval: " . $table->indexInterval() . "\n";
+      echo "Index Interval: {$table->indexInterval()}" . PHP_EOL;
       """
     When it is executed
     Then its output should contain:
@@ -164,23 +191,26 @@ Feature: Schema Metadata
 
     @cassandra-version-2.0
     Scenario: Getting table metadata for default TTL, memtable flush period and speculative retry
-    Given the following example:
+    Given the following schema:
+      """cql
+      ALTER TABLE simplex.values
+        WITH
+          default_time_to_live = '10000' AND
+          memtable_flush_period_in_ms = '100' AND
+          speculative_retry = '10ms';
+      """
+    And the following example:
       """php
-      <?php
       $cluster = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->build();
       $session = $cluster->connect("simplex");
-      $cql = "ALTER TABLE values WITH default_time_to_live = '10000' AND "
-             . "memtable_flush_period_in_ms = '100' AND "
-             . "speculative_retry = '10ms'";
-      $session->execute(new Cassandra\SimpleStatement($cql));
       $schema  = $session->schema();
       $table   = $schema->keyspace("simplex")->table("values");
 
-      echo "Default TTL: " . $table->defaultTTL() . "\n";
-      echo "Memtable Flush Period: " . $table->memtableFlushPeriodMs() . "\n";
-      echo "Speculative Retry: " . intval($table->speculativeRetry()) . "\n";
+      echo "Default TTL: {$table->defaultTTL()}" . PHP_EOL;
+      echo "Memtable Flush Period: {$table->memtableFlushPeriodMs()}" . PHP_EOL;
+      echo "Speculative Retry: " . intval($table->speculativeRetry()) . PHP_EOL;
       """
     When it is executed
     Then its output should contain:
@@ -192,21 +222,24 @@ Feature: Schema Metadata
 
     @cassandra-version-2.1
     Scenario: Getting table metadata for max and min index intervals
-    Given the following example:
+    Given the following schema:
+      """cql
+      ALTER TABLE simplex.values
+        WITH
+          max_index_interval = '16' AND
+          min_index_interval = '4';
+      """
+    And the following example:
       """php
-      <?php
       $cluster = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->build();
       $session = $cluster->connect("simplex");
-      $cql = "ALTER TABLE values WITH max_index_interval = '16' AND "
-             . "min_index_interval = '4'";
-      $session->execute(new Cassandra\SimpleStatement($cql));
       $schema  = $session->schema();
       $table   = $schema->keyspace("simplex")->table("values");
 
-      echo "Maximum Index Interval: " . $table->maxIndexInterval() . "\n";
-      echo "Minimum Index Interval: " . $table->minIndexInterval() . "\n";
+      echo "Maximum Index Interval: {$table->maxIndexInterval()}" . PHP_EOL;
+      echo "Minimum Index Interval: {$table->minIndexInterval()}" . PHP_EOL;
       """
     When it is executed
     Then its output should contain:
@@ -219,7 +252,6 @@ Feature: Schema Metadata
     Scenario: Getting metadata for column and types
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->build();
@@ -227,11 +259,11 @@ Feature: Schema Metadata
       $schema    = $session->schema();
       $table     = $schema->keyspace("simplex")->table("values");
       foreach ($table->columns() as $column) {
-          echo $column->name() . ': ' . $column->type() . "\n";
+          echo "{$column->name()}: {$column->type()}" . PHP_EOL;
       }
       """
     When it is executed
-    Then its output should contain these lines in any order:
+    Then its output should contain disregarding order:
       """
       ascii_value: ascii
       bigint_value: bigint
@@ -242,14 +274,12 @@ Feature: Schema Metadata
       id: int
       inet_value: inet
       int_value: int
-      list_value: list<varchar>
+      list_value: list<bigint>
       map_value: map<timestamp, double>
       set_value: set<float>
-      text_value: varchar
       timestamp_value: timestamp
       timeuuid_value: timeuuid
       uuid_value: uuid
-      varchar_value: varchar
       varint_value: varint
       """
 
@@ -257,18 +287,12 @@ Feature: Schema Metadata
     Scenario: Getting metadata for user types
     Given the following schema:
       """php
-      CREATE KEYSPACE simplex WITH replication = {
-        'class': 'SimpleStrategy',
-        'replication_factor': 1
-      };
-      USE simplex;
-      CREATE TYPE type1 (a int, b text);
-      CREATE TYPE type2 (a map<text, int>, b bigint);
-      CREATE TYPE type3 (a map<text, frozen<set<varint>>>, b list<uuid>);
+      CREATE TYPE simplex.type1 (a int, b text);
+      CREATE TYPE simplex.type2 (a map<timeuuid, int>, b bigint);
+      CREATE TYPE simplex.type3 (a map<blob, frozen<set<varint>>>, b list<uuid>);
       """
     And the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->build();
@@ -277,91 +301,43 @@ Feature: Schema Metadata
       $keyspace  = $schema->keyspace("simplex");
 
       foreach ($keyspace->userTypes() as $name => $type) {
-        print "Name: $type\n";
-        print "Type: " . var_export($type, true) . "\n";
+          echo "Name: {$name}" . PHP_EOL;
+          echo "Type:" . PHP_EOL;
+          foreach ($type->types() as $key => $data_type) {
+              echo "  {$key} => {$data_type}" . PHP_EOL;
+          }
       }
       """
     When it is executed
     Then its output should contain:
       """
-      Name: simplex.type1
-      Type: Cassandra\Type\UserType::__set_state(array(
-         'types' =>
-        array (
-          'a' =>
-          Cassandra\Type\Scalar::__set_state(array(
-             'name' => 'int',
-          )),
-          'b' =>
-          Cassandra\Type\Scalar::__set_state(array(
-             'name' => 'varchar',
-          )),
-        ),
-      ))
-      Name: simplex.type2
-      Type: Cassandra\Type\UserType::__set_state(array(
-         'types' =>
-        array (
-          'a' =>
-          Cassandra\Type\Map::__set_state(array(
-             'keyType' =>
-            Cassandra\Type\Scalar::__set_state(array(
-               'name' => 'varchar',
-            )),
-             'valueType' =>
-            Cassandra\Type\Scalar::__set_state(array(
-               'name' => 'int',
-            )),
-          )),
-          'b' =>
-          Cassandra\Type\Scalar::__set_state(array(
-             'name' => 'bigint',
-          )),
-        ),
-      ))
-      Name: simplex.type3
-      Type: Cassandra\Type\UserType::__set_state(array(
-         'types' =>
-        array (
-          'a' =>
-          Cassandra\Type\Map::__set_state(array(
-             'keyType' =>
-            Cassandra\Type\Scalar::__set_state(array(
-               'name' => 'varchar',
-            )),
-             'valueType' =>
-            Cassandra\Type\Set::__set_state(array(
-               'valueType' =>
-              Cassandra\Type\Scalar::__set_state(array(
-                 'name' => 'int',
-              )),
-            )),
-          )),
-          'b' =>
-          Cassandra\Type\Collection::__set_state(array(
-             'valueType' =>
-            Cassandra\Type\Scalar::__set_state(array(
-               'name' => 'uuid',
-            )),
-          )),
-        ),
-      ))
+      Name: type1
+      Type:
+        a => int
+        b => text
+      Name: type2
+      Type:
+        a => map<timeuuid, int>
+        b => bigint
+      Name: type3
+      Type:
+        a => map<blob, set<varint>>
+        b => list<uuid>
       """
 
     Scenario: Disable schema metadata
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                          ->withContactPoints('127.0.0.1')
                          ->withSchemaMetadata(false)
                          ->build();
       $session   = $cluster->connect("simplex");
       $schema    = $session->schema();
-      print count($schema->keyspaces()) . "\n";
+      echo count($schema->keyspaces()) . PHP_EOL;
       """
     When it is executed
-    Then its output should contain these lines in any order:
+    Then its output should contain:
       """
       0
       """

@@ -3,7 +3,7 @@ Feature: Consistency Level
   PHP Driver supports consistency levels when executing statements.
 
   Background:
-    Given a running Cassandra cluster with "3" nodes
+    Given a running Cassandra cluster with 3 nodes
     And the following schema:
       """cql
       CREATE KEYSPACE simplex WITH replication = {
@@ -25,7 +25,6 @@ Feature: Consistency Level
     Given tracing is enabled
     And the following example:
       """php
-      <?php
       $cluster     = Cassandra::cluster()
                        ->withContactPoints('127.0.0.1')
                        ->build();
@@ -49,13 +48,13 @@ Feature: Consistency Level
           array_push($sources, (string) $row['source']);
       }
       $sources = array_unique($sources);
-      asort($sources);
+
       foreach ($sources as $source) {
-          echo $source . "\n";
+          echo $source . PHP_EOL;
       }
       """
     When it is executed
-    Then its output should contain:
+    Then its output should contain disregarding order:
       """
       127.0.0.1
       127.0.0.2

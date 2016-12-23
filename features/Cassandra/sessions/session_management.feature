@@ -8,7 +8,6 @@ Feature: Session management
   Scenario: Session can only be closed once
     Given the following example:
       """php
-      <?php
       $cluster = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->withPersistentSessions(false)
@@ -19,13 +18,13 @@ Feature: Session management
       try {
           $session->close();
       } catch (Cassandra\Exception $e) {
-          echo get_class($e) . ": " . $e->getMessage() . "\n";
+          echo $e->getMessage() . PHP_EOL;
       }
       """
     When it is executed
     Then its output should contain:
       """
-      Cassandra\Exception\RuntimeException: Already closing or closed
+      Already closing or closed
       """
 
   Scenario: Session closes after outstanding requests are completed
@@ -71,7 +70,6 @@ Feature: Session management
       """
     And the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -80,7 +78,7 @@ Feature: Session management
       $future    = $session->executeAsync($statement);
       $session->close();
 
-      echo "Result contains " . $future->get()->count() . " rows";
+      echo "Result contains {$future->get()->count()} rows" . PHP_EOL;
       """
     When it is executed
     Then its output should contain:

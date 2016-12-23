@@ -3,21 +3,24 @@
 set -ex
 
 basedir=$(dirname $0)
+tmpdir=$(dirname $(mktemp -u -t tmp.XXXXXXXXXX))
 
-server_cert="$basedir/cassandra.pem"
+server_cert="$basedir/cassandra.crt"
+server_cert_pem="$basedir/cassandra.pem"
 client_cert="$basedir/driver.pem"
 private_key="$basedir/driver.key"
-passphrase="php-driver"
+passphrase="cassandra"
 
-skeystore="$basedir/.keystore"
-skstorepass="php-driver"
-struststore="$basedir/.truststore"
-ststorepass="php-driver"
-ckeystore="$TMPDIR/driver.keystore"
-ckstorepass="php-driver"
-ckeystorep12="$TMPDIR/driver-keystore.p12"
+skeystore="$basedir/keystore.jks"
+skstorepass="cassandra"
+struststore="$basedir/truststore.jks"
+ststorepass="cassandra"
+ckeystore="$tmpdir/driver.keystore"
+ckstorepass="cassandra"
+ckeystorep12="$tmpdir/driver-keystore.p12"
 
-rm -f "$server_cert" "$client_cert" "$private_key" "$skeystore" \
+rm -f "$server_cert" "$server_cert_pem" "$client_cert" \
+  "$private_key" "$skeystore" \
   "$struststore" "$ckeystore" "$ckeystorep12"
 
 keytool -genkeypair -noprompt \
@@ -29,13 +32,19 @@ keytool -genkeypair -noprompt \
   -dname "CN=Cassandra Server, OU=PHP Driver Tests, O=DataStax Inc., L=Santa Clara, ST=California, C=US"
 
 keytool -exportcert -noprompt \
-  -rfc \
   -alias cassandra \
   -keystore "$skeystore" \
   -storepass "$skstorepass" \
   -file "$server_cert"
 
-chmod 400 "$server_cert"
+keytool -exportcert -noprompt \
+  -rfc \
+  -alias cassandra \
+  -keystore "$skeystore" \
+  -storepass "$skstorepass" \
+  -file "$server_cert_pem"
+
+chmod 400 "$server_cert_pem"
 
 keytool -genkeypair -noprompt \
   -keyalg RSA \

@@ -8,12 +8,11 @@ Feature: Logging
   Scenario: Changing PHP driver logging configuration
      Given the following logger settings:
       """ini
-      cassandra.log=feature-logging.log
-      cassandra.log_level=TRACE
+      dse.log=feature-logging.log
+      dse.log_level=TRACE
       """
     And the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();

@@ -3,11 +3,11 @@ Feature: Retry Policies
   PHP Driver supports consistency levels when executing statements.
 
   Background:
-    Given a running Cassandra cluster with "1" nodes
+    Given a running Cassandra cluster
     Given the following logger settings:
       """ini
-      cassandra.log=feature-retry-policy.log
-      cassandra.log_level=INFO
+      dse.log=feature-retry-policy.log
+      dse.log_level=INFO
       """
     And the following schema:
       """cql
@@ -30,7 +30,6 @@ Feature: Retry Policies
     Given tracing is enabled
     And the following example:
       """php
-      <?php
       $retry_policy = new Cassandra\RetryPolicy\DowngradingConsistency();
       $cluster     = Cassandra::cluster()
                        ->withContactPoints('127.0.0.1')
@@ -54,7 +53,7 @@ Feature: Retry Policies
       $result    = $session->execute($statement);
 
       foreach ($result as $row) {
-        echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . "\n";
+        echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
       }
       """
     When it is executed
@@ -70,7 +69,6 @@ Feature: Retry Policies
     Given tracing is enabled
     And the following example:
       """php
-      <?php
       $retry_policy = new Cassandra\RetryPolicy\DowngradingConsistency();
       $cluster     = Cassandra::cluster()
                        ->withContactPoints('127.0.0.1')
@@ -94,7 +92,7 @@ Feature: Retry Policies
       $result    = $session->execute($statement);
 
       foreach ($result as $row) {
-        echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . "\n";
+          echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
       }
       """
     When it is executed
@@ -106,15 +104,10 @@ Feature: Retry Policies
     And the log file "feature-retry-policy.log" should contain "Retrying on unavailable error at consistency ONE"
 
 
-  # This scenario is broken because cpp-driver <= 2.2.2 fails to retry with
-  # a downgraded consistency when using batches. Fix:
-  # https://github.com/datastax/cpp-driver/commit/ddb21b9878dff83049dc494b5f3ecfa58bdadce5
-  @broken
   Scenario: Retry policy can be set when executing a batch
     Given tracing is enabled
     And the following example:
       """php
-      <?php
       $retry_policy = new Cassandra\RetryPolicy\DowngradingConsistency();
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
@@ -158,7 +151,7 @@ Feature: Retry Policies
       $result    = $session->execute($statement);
 
       foreach ($result as $row) {
-        echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . "\n";
+          echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
       }
       """
     When it is executed

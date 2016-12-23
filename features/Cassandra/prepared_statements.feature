@@ -25,7 +25,6 @@ Feature: Prepared Statements
   Scenario: Prepared statements support named arguments
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -65,7 +64,7 @@ Feature: Prepared Statements
       $result    = $session->execute($statement);
 
       foreach ($result as $row) {
-        echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . "\n";
+        echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
       }
       """
     When it is executed

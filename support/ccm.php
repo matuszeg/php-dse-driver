@@ -517,7 +517,9 @@ class Bridge {
             }
             $create_command[] = "-b";
             if ($cluster->ssl) {
-                $create_command[] = "--ssl=ssl";
+                $ssl_path = realpath(__DIR__ . DIRECTORY_SEPARATOR
+                    . "ssl" . DIRECTORY_SEPARATOR);
+                $create_command[] = "--ssl={$ssl_path}";
                 if ($cluster->client_authentication) {
                     $create_command[] = "--require_client_auth";
                 }
@@ -764,7 +766,7 @@ class Bridge {
      * @param bool $enable (Optional) True if traceuld be enabled; false
      *                                otherwise (default: true)
      */
-    public function node_trace($node, $enable = true) {
+    public function node_trace($node = -1, $enable = true) {
         $trace_command = array();
         $trace_command[] = "node{$node}";
         $trace_command[] = "nodetool";
@@ -1031,14 +1033,14 @@ class Bridge {
     /**
      * Apply the base/default configuration for Cassandra/DSE cluster
      *
-     * @param mixed $version \Cassandra\Version or Dse\Version to apply base
-     *                       configuration against
+     * @param \Cassandra\Version|\Dse\Version $version Version to apply base
+     *                                                 configuration against
      */
     private function apply_base_configuration($version) {
         $configuration = array();
 
         // Do not perform standard configurations for DSE clusters
-        if (!($version instanceof Dse\Version)) {
+        if (!($version instanceof \Dse\Version)) {
             // Standard configuration elements for all Cassandra versions
             $configuration[] = "--rt=10000";
             $configuration[] = "read_request_timeout_in_ms:10000";

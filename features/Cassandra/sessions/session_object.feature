@@ -72,7 +72,6 @@ Feature: Session Object
       """
     And the following example:
       """php
-      <?php
       $cluster          = Cassandra::cluster()
                             ->withContactPoints('127.0.0.1')
                             ->build();
@@ -82,11 +81,11 @@ Feature: Session Object
       $statement = new Cassandra\SimpleStatement("SELECT * FROM playlists");
 
       $row = $french_session->execute($statement);
-      echo "French session contains " . $row->count() . " rows\n";
+      echo "French session contains {$row->count()} rows" . PHP_EOL;
       $row = $german_session->execute($statement);
-      echo "German session contains " . $row->count() . " rows\n";
+      echo "German session contains {$row->count()} rows" . PHP_EOL;
       $row = $uk_session->execute($statement);
-      echo "UK session contains " . $row->count() . " rows";
+      echo "UK session contains {$row->count()} rows" . PHP_EOL;
       """
     When it is executed
     Then its output should contain:

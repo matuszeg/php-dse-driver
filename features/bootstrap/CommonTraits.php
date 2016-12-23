@@ -8,16 +8,29 @@
  */
 
 use Behat\Gherkin\Node\PyStringNode;
+use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Behat\Hook\Scope\BeforeFeatureScope;
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Testwork\Hook\Scope\HookScope;
+use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\PhpProcess;
+use Symfony\Component\Process\ProcessBuilder;
 
 /**
  * Defines the common traits that will be used in various feature contexts
  */
 trait CommonTraits {
+    /**
+     * @var string Regular expression to retrieve keyspace name
+     */
+    private static $KEYSPACE_REGEX = "/create keyspace\\s+([a-zA-Z][a-zA-Z0-9_]+)\\s+/i";
+    /**
+     * @var string Prefix to use for CCM clusters
+     */
+    private static $CCM_CLUSTER_PREFIX = "php-driver_features";
     /**
      * @var CCM\Bridge CCM bridge to stand up Cassandra/DSE instances
      */
@@ -27,6 +40,11 @@ trait CommonTraits {
      */
     private static $configuration;
     /**
+     * @var bool Flag to determine if the configuration settings should be
+     *           displayed or not
+     */
+    private static $display_configuration = true;
+    /**
      * @var string Example code to execute
      */
     private $example;
@@ -34,6 +52,14 @@ trait CommonTraits {
      * @var string Normalized output from executing the example code
      */
     private $example_output;
+    /**
+     * @var array INI settings to apply with example code
+     */
+    private $example_ini_settings = array();
+    /**
+     * @var PhpProcess PHP web server process
+     */
+    private $web_server_process;
 
     /**
      * Handle feature setup
@@ -48,6 +74,64 @@ trait CommonTraits {
     }
 
     /**
+     * Handle scenario setup for scenarios that will utilize a web server
+     *
+     * @param BeforeScenarioScope $scope The scope before the scenario has
+     *                                  started
+     * @BeforeScenario @web_server
+     * @throws Exception If PHP executable could not be found
+     */
+    public function setup_scenario_web_server(BeforeScenarioScope $scope) {
+        // Ensure the PHP process can be found
+        $executableFinder = new PhpExecutableFinder();
+        $php = $executableFinder->find();
+        if ($php) {
+            // Create the web server command
+            $php_command = array();
+            /**
+             * Add `exec` to the PHP command to properly terminate process chain.
+             *
+             * NOTE: Due to some limitations in PHP, if you want to get the pid of a
+             *       symfony Process, you may have to prefix your commands with exec.
+             *       Please read Symfony Issue #5759 to understand why this is
+             *       happening.
+             *       https://github.com/symfony/symfony/issues/5759
+             */
+            if (strtoupper(substr(PHP_OS, 0, 3)) !== "WIN") {
+                $php_command[] = "exec";
+            }
+            $php_command[] = $php;
+            $php_command[] = "-S";
+            $php_command[] = "127.0.0.1:10000";
+
+            // Create the PHP web server process
+            $process_builder = ProcessBuilder::create($php_command)
+                ->setWorkingDirectory(sys_get_temp_dir());
+            $this->web_server_process = $process_builder->getProcess();
+
+            // Start the PHP web server
+            $this->web_server_process->start(function ($type, $buffer) {
+                if (self::$configuration->verbose) {
+                    echo $buffer;
+                }
+            });
+        } else {
+            throw new \Exception("Unable to Start Web Server: PHP could not be found");
+        }
+    }
+
+    /**
+     * Handle scenario teardown for scenarios that utilize a web server
+     *
+     * @param AfterScenarioScope $scope The scope after the scenario has
+     *                                 completed
+     * @AfterScenario @web_server
+     */
+    public function teardown_scenario_web_server(AfterScenarioScope $scope) {
+        $this->web_server_process->stop(0);
+    }
+
+    /**
      * Handle feature setup
      *
      * @param BeforeFeatureScope $scope The scope before the feature has
@@ -56,7 +140,7 @@ trait CommonTraits {
      */
     public static function setup_feature(BeforeFeatureScope $scope) {
         // Initialize the CCM instance
-        self::initialize_ccm("feature");
+        self::initialize_ccm();
     }
 
     /**
@@ -71,24 +155,62 @@ trait CommonTraits {
     }
 
     /**
+     * Create a file with the given filename and contents
+     *
+     * NOTE: These files will be created in the system temp directory
+     *
+     * @param string $filename Filename to create
+     * @param string $contents Contents of the file
+     * @Given a file named :filename with:
+     */
+    public function a_file($filename, $contents) {
+        // Create the pathing structure based on the filename
+        $path = realpath(sys_get_temp_dir() . DIRECTORY_SEPARATOR
+            . dirname($filename));
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        // Create the file
+        $path .= DIRECTORY_SEPARATOR . basename($filename);
+        file_put_contents($path, $contents);
+    }
+
+    /**
      * Create a Cassandra/DSE cluster with a single node
      *
-     * @Given a running (Cassandra|DSE) cluster
+     * @param string $server_type Server type (e.g. Cassandra/DSE)
+     * @Given /^a running (Cassandra|DSE) cluster$/
      */
-    public function a_running_cluster() {
-        $this->a_running_cluster_with_nodes(1);
+    public function a_running_cluster($server_type) {
+        $this->a_running_cluster_with_nodes($server_type, 1);
     }
 
     /**
      * Create a Cassandra/DSE cluster with the given number of nodes
      *
+     * @param string $server_type Server type (e.g. Cassandra/DSE)
      * @param int $nodes
      * @param array $configuration Cassandra/DSE cluster configuration to apply
-     * @Given a running (Cassandra|DSE) cluster with :nodes nodes
+     * @Given /^a running (Cassandra|DSE) cluster with (\d+) nodes$/
      */
-    public function a_running_cluster_with_nodes($nodes, $configuration = array()) {
-        if (self::$ccm->create_cluster(self::$ccm->default_cluster()
-            ->add_data_center($nodes))) {
+    public function a_running_cluster_with_nodes($server_type, $nodes,
+                                                 $configuration = array()) {
+        // Get the default CCM cluster configuration with the proper nodes
+        $cluster = self::$ccm->default_cluster()
+            ->add_data_center($nodes);
+
+        // Determine if SSL needs to be enabled
+        if (array_key_exists("ssl", $configuration)) {
+            $cluster->with_ssl($configuration["ssl"]);
+
+            // Determine if client authentication needs to be enabled
+            if (array_key_exists("client_authentication", $configuration)) {
+                $cluster->with_client_authentication($configuration["client_authentication"]);
+            }
+        }
+
+        if (self::$ccm->create_cluster($cluster)) {
             if (array_key_exists("cassandra", $configuration)) {
                 self::$ccm->update_cluster_configuration($configuration["cassandra"]);
             }
@@ -106,18 +228,119 @@ trait CommonTraits {
     }
 
     /**
-     * Create a PHP file with the example code
+     * Create a Cassandra/DSE cluster with SSL encryption enabled on a single
+     * node
+     *
+     * @param string $server_type Server type (e.g. Cassandra/DSE)
+     * @param string|null $client_authentication (Optional) If not null client
+     *                                                      will be enabled
+     *                                                      authentication
+     * @Given /^a running (Cassandra|DSE) cluster with SSL encryption( and client authentication)?$/
+     */
+    public function a_running_cluster_with_ssl($server_type, $client_authentication = null) {
+        // Create and update the configuration elements for SSL
+        $configuration = array(
+            "ssl" => true
+        );
+
+        // Determine if client authentication should be enabled
+        if (!is_null($client_authentication)) {
+            $configuration["client_authentication"] = true;
+        }
+
+        // Start the cluster with SSL enabled configuration
+        $this->a_running_cluster_with_nodes($server_type, 1, $configuration);
+    }
+
+    /**
+     * Create a web page with the given URI and contents
+     *
+     * @param string $uri URI to create
+     * @param string $contents Contents of the web page
+     * @Given a URI :uri with:
+     */
+    public function a_uri($uri, $contents) {
+        // Prepare the contents of the web page
+        $preparation = "include \"" . realpath(__DIR__ . "/../../vendor/autoload.php") . "\";";
+        if (class_exists("Dse")) {
+            $preparation .= PHP_EOL . "use \\Dse as Cassandra;";
+        }
+        foreach ($this->example_ini_settings as $setting => $value) {
+            $preparation .= PHP_EOL . "ini_set(\"{$setting}\", \"{$value}\");";
+        }
+        $contents = "<?php " . PHP_EOL
+            . $preparation . PHP_EOL
+            . $contents;
+
+        // Create the web page
+        $this->a_file($uri, $contents);
+    }
+
+    /**
+     * Create a PHP example  to be executed from the example code
      *
      * @param PyStringNode $example Example code to use for isolated PHP
      *                              instance
      * @Given /^the following example:$/
      */
     public function given_example(PyStringNode $example) {
-        $include = "include \"" . realpath(__DIR__ . "/../../vendor/autoload.php") . "\";";
+        $preparation = "include \"" . realpath(__DIR__ . "/../../vendor/autoload.php") . "\";";
+        if (class_exists("Dse")) {
+            $preparation .= PHP_EOL . "use \\Dse as Cassandra;";
+        }
+        foreach ($this->example_ini_settings as $setting => $value) {
+            $preparation .= PHP_EOL . "ini_set(\"{$setting}\", \"{$value}\");";
+        }
         $this->example = "<?php " . PHP_EOL
-            . $include . PHP_EOL
+            . $preparation . PHP_EOL
             . $example;
-        echo $this->example . PHP_EOL;
+    }
+
+    /**
+     * Create/Execute the given schema definition; if the keyspace can be
+     * determined from the schema a DROP CQL statement will be executed on the
+     * keyspace
+     *
+     * @param PyStringNode $schema CQL/Schema code to execute via CCM
+     * @Given /^the following schema:$/
+     */
+    public function given_schema($schema) {
+        // Get the keyspace from the schema and drop the keyspace
+        if (preg_match(self::$KEYSPACE_REGEX, (string) $schema, $matches)) {
+            self::$ccm->execute_cql_on_node(1,
+                "DROP KEYSPACE IF EXISTS {$matches[1]}");
+        }
+
+        // Create the schema using CQLSH
+        self::$ccm->execute_cql_on_node(1, (string) $schema);
+    }
+
+    /**
+     * Assign INI settings before the example code is executed
+     *
+     * @param string $setting_type Setting type to apply (e.g. INI/logger)
+     * @param PyStringNode $settings INI settings to apply before executing
+     *                               example code
+     * @Given /^the following (INI|logger) settings:$/
+     */
+    public function given_settings($setting_type, PyStringNode $settings) {
+        foreach ($settings->getStrings() as $setting) {
+            $key_value = explode("=", $setting);
+            if (count($key_value) == 2) {
+                $this->example_ini_settings[$key_value[0]] = $key_value[1];
+            }
+        }
+    }
+
+    /**
+     * Enable tracing on all nodes in the active cluster
+     *
+     * @Given /^tracing is enabled$/
+     */
+    public function given_tracing_enabled() {
+        foreach (range(1, self::$ccm->cluster_status()["nodes"]) as $node) {
+            self::$ccm->node_trace($node, true);
+        }
     }
 
     /**
@@ -130,6 +353,7 @@ trait CommonTraits {
     public function when_executed($configuration = array()) {
         // Create the process and apply the optional configurations
         $process = new PhpProcess($this->example);
+        $process->setWorkingDirectory(sys_get_temp_dir());
         if (array_key_exists("timeout", $configuration)) {
             $process->setTimeout($configuration["timeout"]);
         }
@@ -142,17 +366,118 @@ trait CommonTraits {
             if (self::$configuration->verbose) {
                 echo $buffer;
             }
-
-            // Normalize the line endings in the output
-            $output = $buffer;
-            if (PHP_EOL !== "\n") {
-                $output = str_replace(PHP_EOL, "\n", $buffer);
-            }
-            $output = trim(preg_replace('/ +$/m', '', $output));
-
-            // Append the output to the example output
-            $this->example_output .= $output;
         });
+
+        // Get the output and normalize the line endings
+        $this->example_output = $process->getOutput();
+        if (PHP_EOL !== "\n") {
+            $this->example_output = str_replace(PHP_EOL, "\n", $this->example_output);
+        }
+        $this->example_output = trim(preg_replace("/ +$/m", "", $this->example_output));
+    }
+
+    /**
+     * Execute the PHP example code with proper SSL credentials
+     *
+     * @When /^it is executed with proper SSL credentials$/
+     */
+    public function when_executed_with_proper_ssl_credentials() {
+        // Assign the location of the SSL configuration file(s)
+        $ssl_path = realpath(__DIR__ . DIRECTORY_SEPARATOR
+            . ".." . DIRECTORY_SEPARATOR. ".." . DIRECTORY_SEPARATOR
+            . "support" . DIRECTORY_SEPARATOR . "ssl") .  DIRECTORY_SEPARATOR;
+        $server_certificate = $ssl_path . "cassandra.pem";
+        $client_certificate = $ssl_path . "driver.pem";
+        $private_key = $ssl_path . "driver.key";
+        $passphrase = "cassandra";
+
+        // Execute the example with the proper SSL credentials
+        $this->when_executed(array("environment" => array(
+            "SERVER_CERT={$server_certificate}",
+            "CLIENT_CERT={$client_certificate}",
+            "PRIVATE_KEY={$private_key}",
+            "PASSPHRASE={$passphrase}"
+        )));
+    }
+
+    /**
+     * Get the contents at the given URI
+     *
+     * @param string $uri URI to get contents
+     * @param int $repeat Number of times to repeat navigation
+     * @When /^I go to "(.*)"( \d+ times)?$/
+     */
+    public function when_i_go_to($uri, $repeat = 1) {
+        $url = "http://127.0.0.1:10000" . str_replace("\"", "", $uri);
+        foreach (range(1, intval($repeat)) as $i) {
+            $this->example_output = file_get_contents($url);
+        }
+    }
+
+    /**
+     * Check to ensure that contents of a web URI contain all the elements in
+     * the table
+     *
+     * @param TableNode $table Table to validate
+     * @Then I should see:
+     */
+    public function then_i_should_see(TableNode $table) {
+        // Determine which module we are looking for
+        if (class_exists("Dse")) {
+            $module = "dse";
+        } else {
+            $module = "cassandra";
+        }
+
+        // Parse the HTML for the loaded driver module
+        $document = new DOMDocument();
+        $document->loadHTML($this->example_output);
+        $path = new DOMXpath($document);
+        $nodes = $path->query("//h2/a[@name='module_${module}']/../following-sibling::*[position()=1][name()='table']");
+        $html  = $nodes->item(0);
+
+        // Validate each element in the table
+        $table = $table->getRowsHash();
+        foreach ($html->childNodes as $tr) {
+            $name  = trim($tr->childNodes->item(0)->textContent);
+            $value = trim($tr->childNodes->item(1)->textContent);
+            if (isset($table[$name])) {
+                PHPUnit_Framework_Assert::assertEquals($value, $table[$name],
+                    "{$value} != {$table[$name]}");
+                unset($table[$name]);
+            }
+        }
+
+        // Ensure all the values have been found in the table
+        if (!empty($table)) {
+            PHPUnit_Framework_Assert::fail("Unable to Find Value: "
+                . var_export($table, true));
+        }
+    }
+
+    /**
+     * Check to ensure a log file exists with the given name
+     *
+     * @param string $filename Name of log file expected to be found
+     * @Then a log file :filename should exist
+     */
+    public function then_log_exists($filename) {
+        PHPUnit_Framework_Assert::assertFileExists(
+            sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename);
+    }
+
+    /**
+     * Check to ensure a log file exists with the given name and that it
+     * contains an expected value
+     *
+     * @param string $filename Name of log file expected to be found
+     * @param string $expected Expected content(s) to be found in log filename
+     * @Then the log file :filename should contain :log_level
+     */
+    public function then_log_contains($filename, $expected) {
+        $this->then_log_exists($filename);
+        PHPUnit_Framework_Assert::assertContains($expected,
+            file_get_contents(sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename));
     }
 
     /**
@@ -167,10 +492,28 @@ trait CommonTraits {
     }
 
     /**
+     * Compare the output of the example disregarding the order
+     *
+     * @param PyStringNode $expected Expected output
+     * @Then /^its output should contain disregarding order:$/
+     */
+    public function then_output_contains_disregarding_error(PyStringNode $expected) {
+        // Sort the expected and actual output values
+        $expected = $expected->getStrings();
+        $actual = explode(PHP_EOL, $this->example_output);
+        sort($expected);
+        sort($actual);
+        $expected = implode(PHP_EOL, $expected);
+        $actual = implode(PHP_EOL, $actual);
+
+        PHPUnit_Framework_Assert::assertContains($expected, $actual);
+    }
+
+    /**
      * Compare the output of the example using regular expression pattern
      *
      * @param PyStringNode $expected Expected output
-     * @Then its output should contain pattern:
+     * @Then /^its output should contain pattern:$/
      */
     public function then_output_contains_pattern(PyStringNode $expected) {
         PHPUnit_Framework_Assert::assertRegExp("/" . (string) $expected . "/",
@@ -213,6 +556,12 @@ trait CommonTraits {
     private static function initialize(HookScope $scope) {
         // Get the environmental configurations
         self::$configuration = new Configuration();
+        self::$configuration->prefix = self::$CCM_CLUSTER_PREFIX;
+        // Override the verbose setting if certain PHPUnit arguments are used
+        if (in_array("-v", $_SERVER['argv']) ||
+            in_array("--verbose", $_SERVER['argv'])) {
+            self::$configuration->verbose = true;
+        }
 
         // Get the version from the feature and update the configuration
         $settings = $scope->getEnvironment()
@@ -229,22 +578,36 @@ trait CommonTraits {
         } else {
             throw new \Exception("Cassandra/DSE version has not been assigned");
         }
+
+        // Print the current settings (will be performed only once)
+        self::print_settings();
     }
 
     /**
      * Initialize the CCM instance
-     *
-     * @param string|null $prefix Prefix to assign for CCM clusters
      */
-    private static function initialize_ccm($prefix = null) {
+    private static function initialize_ccm() {
         // Initialize CCM instance
-        if (!is_null($prefix) &&
-            substr(self::$configuration->prefix, -strlen($prefix)) !== $prefix) {
-            self::$configuration->prefix .= "_{$prefix}";
-        }
         self::$ccm = new CCM\Bridge(self::$configuration);
 
         // Clear any clusters that may have been left over from previous tests
         self::$ccm->remove_clusters();
+    }
+
+    /**
+     * Display the current configuration settings
+     *
+     * NOTE: This will only be displayed once and only if verbosity is enabled
+     */
+    private static function print_settings() {
+        if (self::$display_configuration && self::$configuration->verbose) {
+            // Display information about the current setup for the tests being run
+            echo "Starting DataStax PHP Driver Feature Test" . PHP_EOL
+                . "  PHP v" . phpversion() . PHP_EOL;
+            self::$configuration->print_settings();
+
+            // Indicate the configuration settings have been displayed
+            self::$display_configuration = false;
+        }
     }
 }

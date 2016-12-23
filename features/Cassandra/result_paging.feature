@@ -42,7 +42,6 @@ Feature: Result paging
   Scenario: Paging through results synchronously
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -52,44 +51,41 @@ Feature: Result paging
       $rows      = $session->execute($statement, $options);
 
       while (true) {
-          echo "entries in page: " . $rows->count() . "\n";
-
+          echo "Entries in Page: {$rows->count()}" . PHP_EOL;
           foreach ($rows as $row) {
-              echo "key: " . $row['key'] . ", value: " . $row['value'] . "\n";
+              echo "  key: {$row['key']}, value: {$row['value']}" . PHP_EOL;
           }
 
           if ($rows->isLastPage()) {
               break;
           }
-
           $rows = $rows->nextPage();
       }
       """
     When it is executed
     Then its output should contain:
       """
-      entries in page: 5
-      key: a, value: 0
-      key: c, value: 2
-      key: m, value: 12
-      key: f, value: 5
-      key: g, value: 6
-      entries in page: 5
-      key: e, value: 4
-      key: d, value: 3
-      key: h, value: 7
-      key: l, value: 11
-      key: j, value: 9
-      entries in page: 3
-      key: i, value: 8
-      key: k, value: 10
-      key: b, value: 1
+      Entries in Page: 5
+        key: a, value: 0
+        key: c, value: 2
+        key: m, value: 12
+        key: f, value: 5
+        key: g, value: 6
+      Entries in Page: 5
+        key: e, value: 4
+        key: d, value: 3
+        key: h, value: 7
+        key: l, value: 11
+        key: j, value: 9
+      Entries in Page: 3
+        key: i, value: 8
+        key: k, value: 10
+        key: b, value: 1
       """
 
   Scenario: Accessing page info after loading next one
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -99,30 +95,29 @@ Feature: Result paging
       $rows      = $session->execute($statement, $options);
 
       $firstPageRows = $session->execute($statement, $options);
-      echo $firstPageRows->isLastPage() ? "1: last\n" : "1: not last\n";
+      echo "Page 1: " . ($firstPageRows->isLastPage() ? "last" : "not last") . PHP_EOL;
 
       $secondPageRows = $firstPageRows->nextPage();
-      echo $firstPageRows->isLastPage() ? "1: last\n" : "1: not last\n";
-      echo $secondPageRows->isLastPage() ? "2: last\n" : "2: not last\n";
+      echo "Page 1: " . ($firstPageRows->isLastPage() ? "last" : "not last") . PHP_EOL;
+      echo "Page 2: " . ($secondPageRows->isLastPage() ? "last" : "not last") . PHP_EOL;
 
-      echo "entries in page 1: " . $firstPageRows->count() . "\n";
-      echo "entries in page 2: " . $secondPageRows->count() . "\n";
+      echo "Entries in Page 1: {$firstPageRows->count()}" . PHP_EOL;
+      echo "Entries in Page 2: {$secondPageRows->count()}" . PHP_EOL;
       """
     When it is executed
     Then its output should contain:
       """
-      1: not last
-      1: not last
-      2: last
-      entries in page 1: 10
-      entries in page 2: 3
+      Page 1: not last
+      Page 1: not last
+      Page 2: last
+      Entries in Page 1: 10
+      Entries in Page 2: 3
       """
 
   @paging_state_token
   Scenario: Use paging state token to get next result
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -132,7 +127,7 @@ Feature: Result paging
       $result = $session->execute($statement, new Cassandra\ExecutionOptions($options));
 
       foreach ($result as $row) {
-        printf("key: '%s' value: %d\n", $row['key'], $row['value']);
+          echo "key: {$row['key']}, value: {$row['value']}" . PHP_EOL;
       }
 
       while ($result->pagingStateToken()) {
@@ -142,26 +137,25 @@ Feature: Result paging
           );
 
           $result = $session->execute($statement, new Cassandra\ExecutionOptions($options));
-
           foreach ($result as $row) {
-            printf("key: '%s' value: %d\n", $row['key'], $row['value']);
+            echo "key: {$row['key']}, value: {$row['value']}" . PHP_EOL;
           }
       }
       """
     When it is executed
     Then its output should contain:
       """
-      key: 'a' value: 0
-      key: 'c' value: 2
-      key: 'm' value: 12
-      key: 'f' value: 5
-      key: 'g' value: 6
-      key: 'e' value: 4
-      key: 'd' value: 3
-      key: 'h' value: 7
-      key: 'l' value: 11
-      key: 'j' value: 9
-      key: 'i' value: 8
-      key: 'k' value: 10
-      key: 'b' value: 1
+      key: a, value: 0
+      key: c, value: 2
+      key: m, value: 12
+      key: f, value: 5
+      key: g, value: 6
+      key: e, value: 4
+      key: d, value: 3
+      key: h, value: 7
+      key: l, value: 11
+      key: j, value: 9
+      key: i, value: 8
+      key: k, value: 10
+      key: b, value: 1
       """

@@ -35,7 +35,6 @@ Feature: Batch statements
   Scenario: Batch statements can contain simple and prepared statements
     Given the following example:
       """php
-      <?php
       $cluster   = Cassandra::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
@@ -73,7 +72,7 @@ Feature: Batch statements
       $result    = $session->execute($statement);
 
       foreach ($result as $row) {
-        echo $row['artist'] . ": " . $row['title'] . " / " . $row['album'] . "\n";
+          echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
       }
       """
     When it is executed

@@ -75,7 +75,7 @@ class AuthenticationContext implements Context {
         );
 
         // Start the DSE cluster
-        $this->a_running_cluster_with_nodes(1, $configuration);
+        $this->a_running_cluster_with_nodes("DSE", 1, $configuration);
     }
 
     /**
@@ -107,7 +107,7 @@ class AuthenticationContext implements Context {
         $jvm[] = "-Djava.security.krb5.conf=" . self::$ads->configuration_file;
 
         // Start the DSE cluster
-        $this->a_running_cluster_with_nodes(1, array(
+        $this->a_running_cluster_with_nodes("DSE", 1, array(
             "cassandra" => $cassandra,
             "dse" => $dse,
             "jvm" => $jvm
@@ -141,7 +141,7 @@ class AuthenticationContext implements Context {
         $jvm[] = "-Dcassandra.superuser_setup_delay_ms=0";
 
         // Start the DSE cluster
-        $this->a_running_cluster_with_nodes(1, array(
+        $this->a_running_cluster_with_nodes("DSE", 1, array(
             "cassandra" => $cassandra,
             "dse" => $dse,
             "jvm" => $jvm
