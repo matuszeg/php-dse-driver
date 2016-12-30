@@ -1,0 +1,22 @@
+Source: php-dse-driver
+Section: php
+Priority: optional
+Maintainer: Michael Penick <michael.penick@datastax.com>
+Build-Depends: debhelper (>= 9~),
+               dh-php (>= 0.12~),
+               php-all-dev,
+               pkg-config,
+               dse-cpp-driver-dev (>= 1.1.0),
+               libuv-dev (>= 1.0.0),
+               libssl-dev
+Homepage: http://datastax.github.io/php-driver-dse/
+
+Package: php-dse-driver
+Architecture: any
+Depends: ${misc:Depends},
+         ${php:Depends},
+         ${shlibs:Depends}
+Provides: ${php:Provides}
+Description: PHP client driver for DataStax Enterprise
+  A driver built on top of the PHP driver for Apache Cassandra, with specific
+  extensions for DataStax Enterprise.

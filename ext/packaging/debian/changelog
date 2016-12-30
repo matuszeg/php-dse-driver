@@ -1,0 +1,5 @@
+php-dse-driver (1.0.0-1) stable; urgency=low
+
+  * Initial release
+
+ -- Michael Penick <michael.penick@datastax.com>  Fri, 30 Dec 2016 15:15:00 -0500

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package version="2.1" xmlns="http://pear.php.net/dtd/package-2.1" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0     http://pear.php.net/dtd/tasks-1.0.xsd     http://pear.php.net/dtd/package-2.1     http://pear.php.net/dtd/package-2.1.xsd">
-  <name>cassandra</name>
+  <name>dse</name>
   <channel>pecl.php.net</channel>
-  <summary>DataStax PHP Driver for Apache Cassandra</summary>
+  <summary>DataStax PHP Driver for DataStax Enterprise</summary>
   <description>
-A modern, feature-rich and highly tunable PHP client library for Apache
-Cassandra and DataStax Enterprise using exclusively Cassandra's binary
-protocol and Cassandra Query Language v3.
+A driver built on top of the PHP driver for Apache Cassandra, with specific
+extensions for DataStax Enterprise.
   </description>
   <lead>
     <name>Michael Penick</name>
@@ -14,158 +13,199 @@ protocol and Cassandra Query Language v3.
     <email>michael.penick@datastax.com</email>
     <active>yes</active>
   </lead>
-  <date>2016-08-08</date>
-  <time>11:25:32</time>
+  <date>2016-12-30</date>
+  <time>00:00:00</time>
   <version>
-    <release>1.2.2</release>
-    <api>1.2.2</api>
+    <release>1.0.0</release>
+    <api>1.0.0</api>
   </version>
   <stability>
-    <release>stable</release>
-    <api>stable</api>
+    <release>rc1</release>
+    <api>rc1</api>
   </stability>
-  <license uri="http://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</license>
+  <license>Proprietary</license>
   <notes>
-# 1.2.2
-
-Bug Fixes:
-
-* [PHP-88] \Cassandra\Timestamp::toDateTime segfault with PHP7
-* [PHP-112] Freeing a null future as result of a failure in \Cassandra\DefaultSession::executeAsync()
-* [PHP-115] \Cassandra\UUID returning duplicate UUIDs
+# 1.0.0-rc1
   </notes>
   <contents>
     <dir name="/">
       <file role="src" name="config.m4" />
       <file role="src" name="config.w32" />
-      <file role="src" name="php_cassandra.c" />
-      <file role="src" name="php_cassandra.h" />
-      <file role="src" name="php_cassandra_types.h" />
-      <file role="src" name="src/Cassandra.c" />
-      <file role="src" name="src/Cassandra/Aggregate.c" />
-      <file role="src" name="src/Cassandra/BatchStatement.c" />
-      <file role="src" name="src/Cassandra/Bigint.c" />
-      <file role="src" name="src/Cassandra/Bigint.h" />
-      <file role="src" name="src/Cassandra/Blob.c" />
-      <file role="src" name="src/Cassandra/Blob.h" />
-      <file role="src" name="src/Cassandra/Cluster.c" />
-      <file role="src" name="src/Cassandra/Cluster/Builder.c" />
-      <file role="src" name="src/Cassandra/Collection.c" />
-      <file role="src" name="src/Cassandra/Collection.h" />
-      <file role="src" name="src/Cassandra/Column.c" />
-      <file role="src" name="src/Cassandra/Date.c" />
-      <file role="src" name="src/Cassandra/Date.h" />
-      <file role="src" name="src/Cassandra/Decimal.c" />
-      <file role="src" name="src/Cassandra/Decimal.h" />
-      <file role="src" name="src/Cassandra/DefaultAggregate.c" />
-      <file role="src" name="src/Cassandra/DefaultCluster.c" />
-      <file role="src" name="src/Cassandra/DefaultColumn.c" />
-      <file role="src" name="src/Cassandra/DefaultColumn.h" />
-      <file role="src" name="src/Cassandra/DefaultFunction.c" />
-      <file role="src" name="src/Cassandra/DefaultFunction.h" />
-      <file role="src" name="src/Cassandra/DefaultIndex.c" />
-      <file role="src" name="src/Cassandra/DefaultIndex.h" />
-      <file role="src" name="src/Cassandra/DefaultKeyspace.c" />
-      <file role="src" name="src/Cassandra/DefaultMaterializedView.c" />
-      <file role="src" name="src/Cassandra/DefaultMaterializedView.h" />
-      <file role="src" name="src/Cassandra/DefaultSchema.c" />
-      <file role="src" name="src/Cassandra/DefaultSession.c" />
-      <file role="src" name="src/Cassandra/DefaultTable.c" />
-      <file role="src" name="src/Cassandra/DefaultTable.h" />
-      <file role="src" name="src/Cassandra/Exception.c" />
-      <file role="src" name="src/Cassandra/Exception/AlreadyExistsException.c" />
-      <file role="src" name="src/Cassandra/Exception/AuthenticationException.c" />
-      <file role="src" name="src/Cassandra/Exception/ConfigurationException.c" />
-      <file role="src" name="src/Cassandra/Exception/DivideByZeroException.c" />
-      <file role="src" name="src/Cassandra/Exception/DomainException.c" />
-      <file role="src" name="src/Cassandra/Exception/ExecutionException.c" />
-      <file role="src" name="src/Cassandra/Exception/InvalidArgumentException.c" />
-      <file role="src" name="src/Cassandra/Exception/InvalidQueryException.c" />
-      <file role="src" name="src/Cassandra/Exception/InvalidSyntaxException.c" />
-      <file role="src" name="src/Cassandra/Exception/IsBootstrappingException.c" />
-      <file role="src" name="src/Cassandra/Exception/LogicException.c" />
-      <file role="src" name="src/Cassandra/Exception/OverloadedException.c" />
-      <file role="src" name="src/Cassandra/Exception/ProtocolException.c" />
-      <file role="src" name="src/Cassandra/Exception/RangeException.c" />
-      <file role="src" name="src/Cassandra/Exception/ReadTimeout.c" />
-      <file role="src" name="src/Cassandra/Exception/RuntimeException.c" />
-      <file role="src" name="src/Cassandra/Exception/ServerException.c" />
-      <file role="src" name="src/Cassandra/Exception/TimeoutException.c" />
-      <file role="src" name="src/Cassandra/Exception/TruncateException.c" />
-      <file role="src" name="src/Cassandra/Exception/UnauthorizedException.c" />
-      <file role="src" name="src/Cassandra/Exception/UnavailableException.c" />
-      <file role="src" name="src/Cassandra/Exception/UnpreparedException.c" />
-      <file role="src" name="src/Cassandra/Exception/ValidationException.c" />
-      <file role="src" name="src/Cassandra/Exception/WriteTimeoutException.c" />
-      <file role="src" name="src/Cassandra/ExecutionOptions.c" />
-      <file role="src" name="src/Cassandra/Float.c" />
-      <file role="src" name="src/Cassandra/Float.h" />
-      <file role="src" name="src/Cassandra/Function.c" />
-      <file role="src" name="src/Cassandra/Future.c" />
-      <file role="src" name="src/Cassandra/FutureClose.c" />
-      <file role="src" name="src/Cassandra/FuturePreparedStatement.c" />
-      <file role="src" name="src/Cassandra/FutureRows.c" />
-      <file role="src" name="src/Cassandra/FutureRows.h" />
-      <file role="src" name="src/Cassandra/FutureSession.c" />
-      <file role="src" name="src/Cassandra/FutureValue.c" />
-      <file role="src" name="src/Cassandra/Index.c" />
-      <file role="src" name="src/Cassandra/Inet.c" />
-      <file role="src" name="src/Cassandra/Inet.h" />
-      <file role="src" name="src/Cassandra/Keyspace.c" />
-      <file role="src" name="src/Cassandra/Map.c" />
-      <file role="src" name="src/Cassandra/Map.h" />
-      <file role="src" name="src/Cassandra/MaterializedView.c" />
-      <file role="src" name="src/Cassandra/Numeric.c" />
-      <file role="src" name="src/Cassandra/PreparedStatement.c" />
-      <file role="src" name="src/Cassandra/RetryPolicy.c" />
-      <file role="src" name="src/Cassandra/RetryPolicy/DefaultPolicy.c" />
-      <file role="src" name="src/Cassandra/RetryPolicy/DowngradingConsistency.c" />
-      <file role="src" name="src/Cassandra/RetryPolicy/Fallthrough.c" />
-      <file role="src" name="src/Cassandra/RetryPolicy/Logging.c" />
-      <file role="src" name="src/Cassandra/Rows.c" />
-      <file role="src" name="src/Cassandra/SSLOptions.c" />
-      <file role="src" name="src/Cassandra/SSLOptions/Builder.c" />
-      <file role="src" name="src/Cassandra/Schema.c" />
-      <file role="src" name="src/Cassandra/Session.c" />
-      <file role="src" name="src/Cassandra/Set.c" />
-      <file role="src" name="src/Cassandra/Set.h" />
-      <file role="src" name="src/Cassandra/SimpleStatement.c" />
-      <file role="src" name="src/Cassandra/Smallint.c" />
-      <file role="src" name="src/Cassandra/Smallint.h" />
-      <file role="src" name="src/Cassandra/Statement.c" />
-      <file role="src" name="src/Cassandra/Table.c" />
-      <file role="src" name="src/Cassandra/Table.h" />
-      <file role="src" name="src/Cassandra/Time.c" />
-      <file role="src" name="src/Cassandra/Time.h" />
-      <file role="src" name="src/Cassandra/Timestamp.c" />
-      <file role="src" name="src/Cassandra/Timestamp.h" />
-      <file role="src" name="src/Cassandra/TimestampGenerator.c" />
-      <file role="src" name="src/Cassandra/TimestampGenerator/Monotonic.c" />
-      <file role="src" name="src/Cassandra/TimestampGenerator/ServerSide.c" />
-      <file role="src" name="src/Cassandra/Timeuuid.c" />
-      <file role="src" name="src/Cassandra/Timeuuid.h" />
-      <file role="src" name="src/Cassandra/Tinyint.c" />
-      <file role="src" name="src/Cassandra/Tinyint.h" />
-      <file role="src" name="src/Cassandra/Tuple.c" />
-      <file role="src" name="src/Cassandra/Tuple.h" />
-      <file role="src" name="src/Cassandra/Type.c" />
-      <file role="src" name="src/Cassandra/Type/Collection.c" />
-      <file role="src" name="src/Cassandra/Type/Custom.c" />
-      <file role="src" name="src/Cassandra/Type/Map.c" />
-      <file role="src" name="src/Cassandra/Type/Scalar.c" />
-      <file role="src" name="src/Cassandra/Type/Set.c" />
-      <file role="src" name="src/Cassandra/Type/Tuple.c" />
-      <file role="src" name="src/Cassandra/Type/Tuple.h" />
-      <file role="src" name="src/Cassandra/Type/UserType.c" />
-      <file role="src" name="src/Cassandra/Type/UserType.h" />
-      <file role="src" name="src/Cassandra/UserTypeValue.c" />
-      <file role="src" name="src/Cassandra/UserTypeValue.h" />
-      <file role="src" name="src/Cassandra/Uuid.c" />
-      <file role="src" name="src/Cassandra/Uuid.h" />
-      <file role="src" name="src/Cassandra/UuidInterface.c" />
-      <file role="src" name="src/Cassandra/Value.c" />
-      <file role="src" name="src/Cassandra/Varint.c" />
-      <file role="src" name="src/Cassandra/Varint.h" />
+      <file role="src" name="src/Aggregate.c" />
+      <file role="src" name="src/BatchStatement.c" />
+      <file role="src" name="src/Bigint.c" />
+      <file role="src" name="src/Bigint.h" />
+      <file role="src" name="src/Blob.c" />
+      <file role="src" name="src/Blob.h" />
+      <file role="src" name="src/Cluster" />
+      <file role="src" name="src/Cluster/Builder.c" />
+      <file role="src" name="src/Cluster.c" />
+      <file role="src" name="src/Collection.c" />
+      <file role="src" name="src/Collection.h" />
+      <file role="src" name="src/Column.c" />
+      <file role="src" name="src/Core.c" />
+      <file role="src" name="src/Custom.c" />
+      <file role="src" name="src/Date.c" />
+      <file role="src" name="src/Date.h" />
+      <file role="src" name="src/Decimal.c" />
+      <file role="src" name="src/Decimal.h" />
+      <file role="src" name="src/DefaultAggregate.c" />
+      <file role="src" name="src/DefaultCluster.c" />
+      <file role="src" name="src/DefaultColumn.c" />
+      <file role="src" name="src/DefaultColumn.h" />
+      <file role="src" name="src/DefaultFunction.c" />
+      <file role="src" name="src/DefaultFunction.h" />
+      <file role="src" name="src/DefaultIndex.c" />
+      <file role="src" name="src/DefaultIndex.h" />
+      <file role="src" name="src/DefaultKeyspace.c" />
+      <file role="src" name="src/DefaultMaterializedView.c" />
+      <file role="src" name="src/DefaultMaterializedView.h" />
+      <file role="src" name="src/DefaultSchema.c" />
+      <file role="src" name="src/DefaultSession.c" />
+      <file role="src" name="src/DefaultTable.c" />
+      <file role="src" name="src/DefaultTable.h" />
+      <file role="src" name="src/Exception" />
+      <file role="src" name="src/Exception/AuthenticationException.c" />
+      <file role="src" name="src/Exception/InvalidArgumentException.c" />
+      <file role="src" name="src/Exception/UnavailableException.c" />
+      <file role="src" name="src/Exception/TimeoutException.c" />
+      <file role="src" name="src/Exception/ConfigurationException.c" />
+      <file role="src" name="src/Exception/LogicException.c" />
+      <file role="src" name="src/Exception/IsBootstrappingException.c" />
+      <file role="src" name="src/Exception/ServerException.c" />
+      <file role="src" name="src/Exception/TruncateException.c" />
+      <file role="src" name="src/Exception/DomainException.c" />
+      <file role="src" name="src/Exception/OverloadedException.c" />
+      <file role="src" name="src/Exception/AlreadyExistsException.c" />
+      <file role="src" name="src/Exception/InvalidSyntaxException.c" />
+      <file role="src" name="src/Exception/RuntimeException.c" />
+      <file role="src" name="src/Exception/WriteTimeoutException.c" />
+      <file role="src" name="src/Exception/UnauthorizedException.c" />
+      <file role="src" name="src/Exception/RangeException.c" />
+      <file role="src" name="src/Exception/UnpreparedException.c" />
+      <file role="src" name="src/Exception/ExecutionException.c" />
+      <file role="src" name="src/Exception/ProtocolException.c" />
+      <file role="src" name="src/Exception/DivideByZeroException.c" />
+      <file role="src" name="src/Exception/ValidationException.c" />
+      <file role="src" name="src/Exception/InvalidQueryException.c" />
+      <file role="src" name="src/Exception/ReadTimeoutException.c" />
+      <file role="src" name="src/Exception.c" />
+      <file role="src" name="src/ExecutionOptions.c" />
+      <file role="src" name="src/Float.c" />
+      <file role="src" name="src/Float.h" />
+      <file role="src" name="src/Function.c" />
+      <file role="src" name="src/Future.c" />
+      <file role="src" name="src/FutureClose.c" />
+      <file role="src" name="src/FuturePreparedStatement.c" />
+      <file role="src" name="src/FutureRows.c" />
+      <file role="src" name="src/FutureRows.h" />
+      <file role="src" name="src/FutureSession.c" />
+      <file role="src" name="src/FutureValue.c" />
+      <file role="src" name="src/Graph" />
+      <file role="src" name="src/Graph/DefaultElement.h" />
+      <file role="src" name="src/Graph/DefaultVertex.c" />
+      <file role="src" name="src/Graph/Result.h" />
+      <file role="src" name="src/Graph/Element.h" />
+      <file role="src" name="src/Graph/FutureResultSet.c" />
+      <file role="src" name="src/Graph/DefaultElement.c" />
+      <file role="src" name="src/Graph/ResultSet.h" />
+      <file role="src" name="src/Graph/Edge.c" />
+      <file role="src" name="src/Graph/SimpleStatement.c" />
+      <file role="src" name="src/Graph/Result.c" />
+      <file role="src" name="src/Graph/Options.c" />
+      <file role="src" name="src/Graph/Element.c" />
+      <file role="src" name="src/Graph/ResultSet.c" />
+      <file role="src" name="src/Graph/Property.c" />
+      <file role="src" name="src/Graph/DefaultPath.c" />
+      <file role="src" name="src/Graph/DefaultVertex.h" />
+      <file role="src" name="src/Graph/Statement.c" />
+      <file role="src" name="src/Graph/DefaultProperty.c" />
+      <file role="src" name="src/Graph/DefaultEdge.h" />
+      <file role="src" name="src/Graph/DefaultPath.h" />
+      <file role="src" name="src/Graph/Vertex.c" />
+      <file role="src" name="src/Graph/Path.c" />
+      <file role="src" name="src/Graph/DefaultVertexProperty.c" />
+      <file role="src" name="src/Graph/VertexProperty.c" />
+      <file role="src" name="src/Graph/DefaultEdge.c" />
+      <file role="src" name="src/Graph/Options" />
+      <file role="src" name="src/Graph/Options/Builder.c" />
+      <file role="src" name="src/Graph/Property.h" />
+      <file role="src" name="src/Index.c" />
+      <file role="src" name="src/Inet.c" />
+      <file role="src" name="src/Inet.h" />
+      <file role="src" name="src/Keyspace.c" />
+      <file role="src" name="src/LineString.c" />
+      <file role="src" name="src/LineString.h" />
+      <file role="src" name="src/Map.c" />
+      <file role="src" name="src/Map.h" />
+      <file role="src" name="src/MaterializedView.c" />
+      <file role="src" name="src/Numeric.c" />
+      <file role="src" name="src/Point.c" />
+      <file role="src" name="src/Point.h" />
+      <file role="src" name="src/Polygon.c" />
+      <file role="src" name="src/Polygon.h" />
+      <file role="src" name="src/PreparedStatement.c" />
+      <file role="src" name="src/RetryPolicy" />
+      <file role="src" name="src/RetryPolicy/Logging.c" />
+      <file role="src" name="src/RetryPolicy/DefaultPolicy.c" />
+      <file role="src" name="src/RetryPolicy/Fallthrough.c" />
+      <file role="src" name="src/RetryPolicy/DowngradingConsistency.c" />
+      <file role="src" name="src/RetryPolicy.c" />
+      <file role="src" name="src/Rows.c" />
+      <file role="src" name="src/Schema.c" />
+      <file role="src" name="src/Session.c" />
+      <file role="src" name="src/Set.c" />
+      <file role="src" name="src/Set.h" />
+      <file role="src" name="src/SimpleStatement.c" />
+      <file role="src" name="src/Smallint.c" />
+      <file role="src" name="src/Smallint.h" />
+      <file role="src" name="src/SSLOptions" />
+      <file role="src" name="src/SSLOptions/Builder.c" />
+      <file role="src" name="src/SSLOptions.c" />
+      <file role="src" name="src/Statement.c" />
+      <file role="src" name="src/Table.c" />
+      <file role="src" name="src/Table.h" />
+      <file role="src" name="src/Time.c" />
+      <file role="src" name="src/Time.h" />
+      <file role="src" name="src/Timestamp.c" />
+      <file role="src" name="src/TimestampGenerator" />
+      <file role="src" name="src/TimestampGenerator/ServerSide.c" />
+      <file role="src" name="src/TimestampGenerator/Monotonic.c" />
+      <file role="src" name="src/TimestampGenerator.c" />
+      <file role="src" name="src/Timestamp.h" />
+      <file role="src" name="src/Timeuuid.c" />
+      <file role="src" name="src/Timeuuid.h" />
+      <file role="src" name="src/Tinyint.c" />
+      <file role="src" name="src/Tinyint.h" />
+      <file role="src" name="src/Tuple.c" />
+      <file role="src" name="src/Tuple.h" />
+      <file role="src" name="src/Type" />
+      <file role="src" name="src/Type/Tuple.c" />
+      <file role="src" name="src/Type/Tuple.h" />
+      <file role="src" name="src/Type/Collection.c" />
+      <file role="src" name="src/Type/UserType.h" />
+      <file role="src" name="src/Type/UserType.c" />
+      <file role="src" name="src/Type/Scalar.c" />
+      <file role="src" name="src/Type/Map.c" />
+      <file role="src" name="src/Type/Set.c" />
+      <file role="src" name="src/Type/Custom.c" />
+      <file role="src" name="src/Type.c" />
+      <file role="src" name="src/UserTypeValue.c" />
+      <file role="src" name="src/UserTypeValue.h" />
+      <file role="src" name="src/Uuid.c" />
+      <file role="src" name="src/Uuid.h" />
+      <file role="src" name="src/UuidInterface.c" />
+      <file role="src" name="src/Value.c" />
+      <file role="src" name="src/Varint.c" />
+      <file role="src" name="src/Varint.h" />
+      <file role="src" name="config.m4" />
+      <file role="src" name="config.w32" />
+      <file role="src" name="php_driver.c" />
+      <file role="src" name="php_driver_globals.h" />
+      <file role="src" name="php_driver.h" />
+      <file role="src" name="php_driver_types.h" />
+      <file role="src" name="version.h" />
+
       <file role="src" name="util/bytes.c" />
       <file role="src" name="util/bytes.h" />
       <file role="src" name="util/collections.c" />
@@ -189,122 +229,152 @@ Bug Fixes:
       <file role="src" name="util/uthash.h" />
       <file role="src" name="util/uuid_gen.c" />
       <file role="src" name="util/uuid_gen.h" />
-      <file role="src" name="version.h" />
+
       <file role="doc" name="LICENSE" />
-      <file role="doc" name="doc/Cassandra.php" />
-      <file role="doc" name="doc/Cassandra/Aggregate.php" />
-      <file role="doc" name="doc/Cassandra/BatchStatement.php" />
-      <file role="doc" name="doc/Cassandra/Bigint.php" />
-      <file role="doc" name="doc/Cassandra/Blob.php" />
-      <file role="doc" name="doc/Cassandra/Cluster.php" />
-      <file role="doc" name="doc/Cassandra/Cluster/Builder.php" />
-      <file role="doc" name="doc/Cassandra/Collection.php" />
-      <file role="doc" name="doc/Cassandra/Column.php" />
-      <file role="doc" name="doc/Cassandra/Date.php" />
-      <file role="doc" name="doc/Cassandra/Decimal.php" />
-      <file role="doc" name="doc/Cassandra/DefaultAggregate.php" />
-      <file role="doc" name="doc/Cassandra/DefaultCluster.php" />
-      <file role="doc" name="doc/Cassandra/DefaultColumn.php" />
-      <file role="doc" name="doc/Cassandra/DefaultFunction.php" />
-      <file role="doc" name="doc/Cassandra/DefaultIndex.php" />
-      <file role="doc" name="doc/Cassandra/DefaultKeyspace.php" />
-      <file role="doc" name="doc/Cassandra/DefaultMaterialzedView.php" />
-      <file role="doc" name="doc/Cassandra/DefaultSchema.php" />
-      <file role="doc" name="doc/Cassandra/DefaultSession.php" />
-      <file role="doc" name="doc/Cassandra/DefaultTable.php" />
-      <file role="doc" name="doc/Cassandra/Exception.php" />
-      <file role="doc" name="doc/Cassandra/Exception/AlreadyExistsException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/AuthenticationException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/ConfigurationException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/DivideByZeroException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/DomainException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/ExecutionException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/InvalidArgumentException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/InvalidQueryException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/InvalidSyntaxException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/IsBootstrappingException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/LogicException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/OverloadedException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/ProtocolException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/RangeException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/ReadTimeoutException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/RuntimeException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/ServerException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/TimeoutException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/TruncateException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/UnauthorizedException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/UnavailableException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/UnpreparedException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/ValidationException.php" />
-      <file role="doc" name="doc/Cassandra/Exception/WriteTimeoutException.php" />
-      <file role="doc" name="doc/Cassandra/ExecutionOptions.php" />
-      <file role="doc" name="doc/Cassandra/Float.php" />
-      <file role="doc" name="doc/Cassandra/Function.php" />
-      <file role="doc" name="doc/Cassandra/Future.php" />
-      <file role="doc" name="doc/Cassandra/FutureClose.php" />
-      <file role="doc" name="doc/Cassandra/FutureException.php" />
-      <file role="doc" name="doc/Cassandra/FuturePreparedStatement.php" />
-      <file role="doc" name="doc/Cassandra/FutureRows.php" />
-      <file role="doc" name="doc/Cassandra/FutureSession.php" />
-      <file role="doc" name="doc/Cassandra/FutureValue.php" />
-      <file role="doc" name="doc/Cassandra/Index.php" />
-      <file role="doc" name="doc/Cassandra/Inet.php" />
-      <file role="doc" name="doc/Cassandra/Keyspace.php" />
-      <file role="doc" name="doc/Cassandra/Map.php" />
-      <file role="doc" name="doc/Cassandra/MaterializedView.php" />
-      <file role="doc" name="doc/Cassandra/Numeric.php" />
-      <file role="doc" name="doc/Cassandra/PreparedStatement.php" />
-      <file role="doc" name="doc/Cassandra/RetryPolicy.php" />
-      <file role="doc" name="doc/Cassandra/RetryPolicy/DefaultPolicy.php" />
-      <file role="doc" name="doc/Cassandra/RetryPolicy/DowngradingConsistency.php" />
-      <file role="doc" name="doc/Cassandra/RetryPolicy/Fallthrough.php" />
-      <file role="doc" name="doc/Cassandra/RetryPolicy/Logging.php" />
-      <file role="doc" name="doc/Cassandra/Rows.php" />
-      <file role="doc" name="doc/Cassandra/SSLOptions.php" />
-      <file role="doc" name="doc/Cassandra/SSLOptions/Builder.php" />
-      <file role="doc" name="doc/Cassandra/Schema.php" />
-      <file role="doc" name="doc/Cassandra/Session.php" />
-      <file role="doc" name="doc/Cassandra/Set.php" />
-      <file role="doc" name="doc/Cassandra/SimpleStatement.php" />
-      <file role="doc" name="doc/Cassandra/Smallint.php" />
-      <file role="doc" name="doc/Cassandra/Statement.php" />
-      <file role="doc" name="doc/Cassandra/Table.php" />
-      <file role="doc" name="doc/Cassandra/Time.php" />
-      <file role="doc" name="doc/Cassandra/Timestamp.php" />
-      <file role="doc" name="doc/Cassandra/TimestampGenerator.php" />
-      <file role="doc" name="doc/Cassandra/TimestampGenerator/Monotonic.php" />
-      <file role="doc" name="doc/Cassandra/TimestampGenerator/ServerSide.php" />
-      <file role="doc" name="doc/Cassandra/Timeuuid.php" />
-      <file role="doc" name="doc/Cassandra/Tinyint.php" />
-      <file role="doc" name="doc/Cassandra/Tuple.php" />
-      <file role="doc" name="doc/Cassandra/Type.php" />
-      <file role="doc" name="doc/Cassandra/Type/Collection.php" />
-      <file role="doc" name="doc/Cassandra/Type/Custom.php" />
-      <file role="doc" name="doc/Cassandra/Type/Map.php" />
-      <file role="doc" name="doc/Cassandra/Type/Scalar.php" />
-      <file role="doc" name="doc/Cassandra/Type/Set.php" />
-      <file role="doc" name="doc/Cassandra/Type/Tuple.php" />
-      <file role="doc" name="doc/Cassandra/Type/UserType.php" />
-      <file role="doc" name="doc/Cassandra/UserTypeValue.php" />
-      <file role="doc" name="doc/Cassandra/Uuid.php" />
-      <file role="doc" name="doc/Cassandra/UuidInterface.php" />
-      <file role="doc" name="doc/Cassandra/Value.php" />
-      <file role="doc" name="doc/Cassandra/Varint.php" />
-      <file role="doc" name="doc/README.md" />
-      <file role="test" name="tests/statements/init.phpt" />
+      <file role="doc" name="doc/Dse.php" />
+      <file role="doc" name="doc/Dse" />
+      <file role="doc" name="doc/Dse/Schema.php" />
+      <file role="doc" name="doc/Dse/Timestamp.php" />
+      <file role="doc" name="doc/Dse/DefaultFunction.php" />
+      <file role="doc" name="doc/Dse/UserTypeValue.php" />
+      <file role="doc" name="doc/Dse/RetryPolicy.php" />
+      <file role="doc" name="doc/Dse/Value.php" />
+      <file role="doc" name="doc/Dse/Cluster.php" />
+      <file role="doc" name="doc/Dse/Blob.php" />
+      <file role="doc" name="doc/Dse/TimestampGenerator" />
+      <file role="doc" name="doc/Dse/TimestampGenerator/Monotonic.php" />
+      <file role="doc" name="doc/Dse/TimestampGenerator/ServerSide.php" />
+      <file role="doc" name="doc/Dse/DefaultTable.php" />
+      <file role="doc" name="doc/Dse/FutureClose.php" />
+      <file role="doc" name="doc/Dse/LineString.php" />
+      <file role="doc" name="doc/Dse/ExecutionOptions.php" />
+      <file role="doc" name="doc/Dse/Smallint.php" />
+      <file role="doc" name="doc/Dse/Function.php" />
+      <file role="doc" name="doc/Dse/Future.php" />
+      <file role="doc" name="doc/Dse/Set.php" />
+      <file role="doc" name="doc/Dse/Cluster" />
+      <file role="doc" name="doc/Dse/Cluster/Builder.php" />
+      <file role="doc" name="doc/Dse/Cluster/DefaultBuilder.php" />
+      <file role="doc" name="doc/Dse/Custom.php" />
+      <file role="doc" name="doc/Dse/SimpleStatement.php" />
+      <file role="doc" name="doc/Dse/Time.php" />
+      <file role="doc" name="doc/Dse/Polygon.php" />
+      <file role="doc" name="doc/Dse/Rows.php" />
+      <file role="doc" name="doc/Dse/Timeuuid.php" />
+      <file role="doc" name="doc/Dse/SSLOptions" />
+      <file role="doc" name="doc/Dse/SSLOptions/Builder.php" />
+      <file role="doc" name="doc/Dse/UuidInterface.php" />
+      <file role="doc" name="doc/Dse/Exception" />
+      <file role="doc" name="doc/Dse/Exception/RuntimeException.php" />
+      <file role="doc" name="doc/Dse/Exception/UnavailableException.php" />
+      <file role="doc" name="doc/Dse/Exception/ProtocolException.php" />
+      <file role="doc" name="doc/Dse/Exception/ServerException.php" />
+      <file role="doc" name="doc/Dse/Exception/TruncateException.php" />
+      <file role="doc" name="doc/Dse/Exception/UnauthorizedException.php" />
+      <file role="doc" name="doc/Dse/Exception/UnpreparedException.php" />
+      <file role="doc" name="doc/Dse/Exception/ValidationException.php" />
+      <file role="doc" name="doc/Dse/Exception/ExecutionException.php" />
+      <file role="doc" name="doc/Dse/Exception/DivideByZeroException.php" />
+      <file role="doc" name="doc/Dse/Exception/IsBootstrappingException.php" />
+      <file role="doc" name="doc/Dse/Exception/InvalidArgumentException.php" />
+      <file role="doc" name="doc/Dse/Exception/LogicException.php" />
+      <file role="doc" name="doc/Dse/Exception/InvalidSyntaxException.php" />
+      <file role="doc" name="doc/Dse/Exception/RangeException.php" />
+      <file role="doc" name="doc/Dse/Exception/AuthenticationException.php" />
+      <file role="doc" name="doc/Dse/Exception/DomainException.php" />
+      <file role="doc" name="doc/Dse/Exception/ConfigurationException.php" />
+      <file role="doc" name="doc/Dse/Exception/InvalidQueryException.php" />
+      <file role="doc" name="doc/Dse/Exception/WriteTimeoutException.php" />
+      <file role="doc" name="doc/Dse/Exception/AlreadyExistsException.php" />
+      <file role="doc" name="doc/Dse/Exception/TimeoutException.php" />
+      <file role="doc" name="doc/Dse/Exception/OverloadedException.php" />
+      <file role="doc" name="doc/Dse/Exception/ReadTimeoutException.php" />
+      <file role="doc" name="doc/Dse/Keyspace.php" />
+      <file role="doc" name="doc/Dse/FuturePreparedStatement.php" />
+      <file role="doc" name="doc/Dse/Column.php" />
+      <file role="doc" name="doc/Dse/Tuple.php" />
+      <file role="doc" name="doc/Dse/Graph" />
+      <file role="doc" name="doc/Dse/Graph/DefaultVertexProperty.php" />
+      <file role="doc" name="doc/Dse/Graph/Path.php" />
+      <file role="doc" name="doc/Dse/Graph/Edge.php" />
+      <file role="doc" name="doc/Dse/Graph/VertexProperty.php" />
+      <file role="doc" name="doc/Dse/Graph/DefaultVertex.php" />
+      <file role="doc" name="doc/Dse/Graph/Element.php" />
+      <file role="doc" name="doc/Dse/Graph/SimpleStatement.php" />
+      <file role="doc" name="doc/Dse/Graph/DefaultPath.php" />
+      <file role="doc" name="doc/Dse/Graph/DefaultProperty.php" />
+      <file role="doc" name="doc/Dse/Graph/FutureResultSet.php" />
+      <file role="doc" name="doc/Dse/Graph/Vertex.php" />
+      <file role="doc" name="doc/Dse/Graph/ResultSet.php" />
+      <file role="doc" name="doc/Dse/Graph/Options.php" />
+      <file role="doc" name="doc/Dse/Graph/Statement.php" />
+      <file role="doc" name="doc/Dse/Graph/DefaultEdge.php" />
+      <file role="doc" name="doc/Dse/Graph/Property.php" />
+      <file role="doc" name="doc/Dse/Graph/DefaultElement.php" />
+      <file role="doc" name="doc/Dse/Graph/Options" />
+      <file role="doc" name="doc/Dse/Graph/Options/Builder.php" />
+      <file role="doc" name="doc/Dse/Graph/Result.php" />
+      <file role="doc" name="doc/Dse/MaterializedView.php" />
+      <file role="doc" name="doc/Dse/BatchStatement.php" />
+      <file role="doc" name="doc/Dse/TimestampGenerator.php" />
+      <file role="doc" name="doc/Dse/FutureValue.php" />
+      <file role="doc" name="doc/Dse/Uuid.php" />
+      <file role="doc" name="doc/Dse/Decimal.php" />
+      <file role="doc" name="doc/Dse/DefaultMaterializedView.php" />
+      <file role="doc" name="doc/Dse/Varint.php" />
+      <file role="doc" name="doc/Dse/Table.php" />
+      <file role="doc" name="doc/Dse/Collection.php" />
+      <file role="doc" name="doc/Dse/Map.php" />
+      <file role="doc" name="doc/Dse/DefaultColumn.php" />
+      <file role="doc" name="doc/Dse/DefaultKeyspace.php" />
+      <file role="doc" name="doc/Dse/Tinyint.php" />
+      <file role="doc" name="doc/Dse/Type" />
+      <file role="doc" name="doc/Dse/Type/UserType.php" />
+      <file role="doc" name="doc/Dse/Type/Scalar.php" />
+      <file role="doc" name="doc/Dse/Type/Set.php" />
+      <file role="doc" name="doc/Dse/Type/Custom.php" />
+      <file role="doc" name="doc/Dse/Type/Tuple.php" />
+      <file role="doc" name="doc/Dse/Type/Collection.php" />
+      <file role="doc" name="doc/Dse/Type/Map.php" />
+      <file role="doc" name="doc/Dse/Type.php" />
+      <file role="doc" name="doc/Dse/Float.php" />
+      <file role="doc" name="doc/Dse/DefaultCluster.php" />
+      <file role="doc" name="doc/Dse/SSLOptions.php" />
+      <file role="doc" name="doc/Dse/Aggregate.php" />
+      <file role="doc" name="doc/Dse/Exception.php" />
+      <file role="doc" name="doc/Dse/Statement.php" />
+      <file role="doc" name="doc/Dse/RetryPolicy" />
+      <file role="doc" name="doc/Dse/RetryPolicy/DefaultPolicy.php" />
+      <file role="doc" name="doc/Dse/RetryPolicy/DowngradingConsistency.php" />
+      <file role="doc" name="doc/Dse/RetryPolicy/Fallthrough.php" />
+      <file role="doc" name="doc/Dse/RetryPolicy/Logging.php" />
+      <file role="doc" name="doc/Dse/FutureSession.php" />
+      <file role="doc" name="doc/Dse/Bigint.php" />
+      <file role="doc" name="doc/Dse/DefaultSchema.php" />
+      <file role="doc" name="doc/Dse/Date.php" />
+      <file role="doc" name="doc/Dse/Index.php" />
+      <file role="doc" name="doc/Dse/DefaultIndex.php" />
+      <file role="doc" name="doc/Dse/Point.php" />
+      <file role="doc" name="doc/Dse/Numeric.php" />
+      <file role="doc" name="doc/Dse/Session.php" />
+      <file role="doc" name="doc/Dse/PreparedStatement.php" />
+      <file role="doc" name="doc/Dse/Inet.php" />
+      <file role="doc" name="doc/Dse/DefaultAggregate.php" />
+      <file role="doc" name="doc/Dse/DefaultSession.php" />
+      <file role="doc" name="doc/Dse/FutureRows.php" />
     </dir>
   </contents>
   <dependencies>
   <required>
    <php>
     <min>5.5.0</min>
-    <max>7.0.99</max>
+    <max>7.1.0</max>
    </php>
    <pearinstaller>
     <min>1.4.8</min>
    </pearinstaller>
   </required>
   </dependencies>
-  <providesextension>cassandra</providesextension>
+  <providesextension>dse</providesextension>
   <extsrcrelease/>
 </package>
