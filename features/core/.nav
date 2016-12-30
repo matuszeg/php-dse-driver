@@ -1,0 +1,17 @@
+batch_statements
+client_side_timestamps
+collections
+consistency_level
+datatypes
+function_and_aggregate_metadata
+logging
+materialized_view_metadata
+prepared_statements
+result_paging
+retry_polices
+schema_metadata
+secondary_index_metadata
+simple_statements
+ssl_encryption
+tuples
+user_defined_types

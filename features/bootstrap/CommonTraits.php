@@ -262,9 +262,6 @@ trait CommonTraits {
     public function a_uri($uri, $contents) {
         // Prepare the contents of the web page
         $preparation = "include \"" . realpath(__DIR__ . "/../../vendor/autoload.php") . "\";";
-        if (class_exists("Dse")) {
-            $preparation .= PHP_EOL . "use \\Dse as Cassandra;";
-        }
         foreach ($this->example_ini_settings as $setting => $value) {
             $preparation .= PHP_EOL . "ini_set(\"{$setting}\", \"{$value}\");";
         }
@@ -285,9 +282,6 @@ trait CommonTraits {
      */
     public function given_example(PyStringNode $example) {
         $preparation = "include \"" . realpath(__DIR__ . "/../../vendor/autoload.php") . "\";";
-        if (class_exists("Dse")) {
-            $preparation .= PHP_EOL . "use \\Dse as Cassandra;";
-        }
         foreach ($this->example_ini_settings as $setting => $value) {
             $preparation .= PHP_EOL . "ini_set(\"{$setting}\", \"{$value}\");";
         }
@@ -570,7 +564,7 @@ trait CommonTraits {
         if (self::get_value("cassandra_version", $settings)) {
             self::$configuration->dse = false;
             self::$configuration->version =
-                new Cassandra\Version(self::get_value("cassandra_version", $settings));
+                new Dse\Version(self::get_value("cassandra_version", $settings));
         } else if (self::get_value("dse_version", $settings)) {
             self::$configuration->dse = true;
             self::$configuration->version =

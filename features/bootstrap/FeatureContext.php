@@ -19,7 +19,7 @@ class FeatureContext implements Context {
     /**
      * Initializes context
      *
-     * @param Cassandra\Version $cassandra_version (Optional) Cassandra version
+     * @param Dse\Version $cassandra_version (Optional) Cassandra version
      *                                                        to use
      * @param DSE\Version $dse_version (Optional) DSE version to use
      */
