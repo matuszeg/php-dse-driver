@@ -4,8 +4,8 @@ PHP_ARG_WITH(dse, Enable DSE extension,
 AC_MSG_CHECKING([for supported PHP version])
 PHP_DSE_FOUND_PHP_VERSION=`${PHP_CONFIG} --version`
 PHP_DSE_FOUND_PHP_VERSION_NUMBER=`echo "${PHP_DSE_FOUND_PHP_VERSION}" | $AWK 'BEGIN { FS = "."; } { printf "%d", ([$]1 * 100 + [$]2) * 100 + [$]3;}'`
-if test "$PHP_DSE_FOUND_PHP_VERSION_NUMBER" -lt "50500"; then
-  AC_MSG_ERROR([not supported. PHP version 5.5.0+ required (found $PHP_DSE_FOUND_PHP_VERSION)])
+if test "$PHP_DSE_FOUND_PHP_VERSION_NUMBER" -lt "50600"; then
+  AC_MSG_ERROR([not supported. PHP version 5.6.0+ required (found $PHP_DSE_FOUND_PHP_VERSION)])
 else
   AC_MSG_RESULT([supported ($PHP_DSE_FOUND_PHP_VERSION)])
 fi

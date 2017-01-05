@@ -636,9 +636,19 @@ PHP_MINFO_FUNCTION(php_driver)
   php_info_print_table_header(2, PHP_DRIVER_NAMESPACE " support", "enabled");
 
   snprintf(buf, sizeof(buf), "%d.%d.%d%s",
+           DSE_VERSION_MAJOR, DSE_VERSION_MINOR, DSE_VERSION_PATCH,
+           strlen(DSE_VERSION_SUFFIX) > 0 ? "-" DSE_VERSION_SUFFIX : "");
+  php_info_print_table_row(2, "C/C++ DSE driver version", buf);
+
+  snprintf(buf, sizeof(buf), "%d.%d.%d%s",
            CASS_VERSION_MAJOR, CASS_VERSION_MINOR, CASS_VERSION_PATCH,
            strlen(CASS_VERSION_SUFFIX) > 0 ? "-" CASS_VERSION_SUFFIX : "");
-  php_info_print_table_row(2, "C/C++ (" PHP_DRIVER_NAMESPACE ") driver version", buf);
+  php_info_print_table_row(2, "C/C++ Cassandra driver version", buf);
+
+  snprintf(buf, sizeof(buf), "%d.%d.%d%s",
+           PHP_DRIVER_MAJOR, PHP_DRIVER_MINOR, PHP_DRIVER_RELEASE,
+           strcmp("stable", PHP_DRIVER_STABILITY) != 0 ? "-" PHP_DRIVER_STABILITY : "");
+  php_info_print_table_row(2, "PHP DSE driver version", buf);
 
   snprintf(buf, sizeof(buf), "%d", PHP_DRIVER_G(persistent_clusters));
   php_info_print_table_row(2, "Persistent Clusters", buf);
