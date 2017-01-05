@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
 class MapIntegrationTest extends CollectionsIntegrationTest
 {
@@ -39,7 +40,7 @@ class MapIntegrationTest extends CollectionsIntegrationTest
      */
     public function mapWithScalarTypes() {
         $mapKeyTypes = array_map(function ($cassandraType) {
-            $mapType = Type::map($cassandraType[0], Type::int());
+            $mapType = Cassandra\Type::map($cassandraType[0], Cassandra\Type::int());
             $values = $cassandraType[1];
             $map = $mapType->create();
             for ($i = 0; $i < count($cassandraType[1]); $i++) {
@@ -49,7 +50,7 @@ class MapIntegrationTest extends CollectionsIntegrationTest
         }, $this->scalarCassandraTypes());
 
         $mapValueTypes = array_map(function ($cassandraType) {
-            $mapType = Type::map(Type::int(), $cassandraType[0]);
+            $mapType = Cassandra\Type::map(Cassandra\Type::int(), $cassandraType[0]);
             $values = $cassandraType[1];
             $map = $mapType->create();
             for ($i = 0; $i < count($cassandraType[1]); $i++) {
@@ -83,7 +84,7 @@ class MapIntegrationTest extends CollectionsIntegrationTest
      */
     public function mapWithCompositeTypes() {
         $mapKeyTypes = array_map(function ($cassandraType) {
-            $mapType = Type::map($cassandraType[0], Type::int());
+            $mapType = Cassandra\Type::map($cassandraType[0], Cassandra\Type::int());
             $values = $cassandraType[1];
             $map = $mapType->create();
             for ($i = 0; $i < count($cassandraType[1]); $i++) {
@@ -93,7 +94,7 @@ class MapIntegrationTest extends CollectionsIntegrationTest
         }, $this->compositeCassandraTypes());
 
         $mapValueTypes = array_map(function ($cassandraType) {
-            $mapType = Type::map(Type::int(), $cassandraType[0]);
+            $mapType = Cassandra\Type::map(Cassandra\Type::int(), $cassandraType[0]);
             $values = $cassandraType[1];
             $map = $mapType->create();
             for ($i = 0; $i < count($cassandraType[1]); $i++) {
@@ -127,7 +128,7 @@ class MapIntegrationTest extends CollectionsIntegrationTest
      */
     public function mapWithNestedTypes() {
         $mapKeyTypes = array_map(function ($cassandraType) {
-            $mapType = Type::map($cassandraType[0], Type::int());
+            $mapType = Cassandra\Type::map($cassandraType[0], Cassandra\Type::int());
             $values = $cassandraType[1];
             $map = $mapType->create();
             for ($i = 0; $i < count($cassandraType[1]); $i++) {
@@ -137,7 +138,7 @@ class MapIntegrationTest extends CollectionsIntegrationTest
         }, $this->nestedCassandraTypes());
 
         $mapValueTypes = array_map(function ($cassandraType) {
-            $mapType = Type::map(Type::int(), $cassandraType[0]);
+            $mapType = Cassandra\Type::map(Cassandra\Type::int(), $cassandraType[0]);
             $values = $cassandraType[1];
             $map = $mapType->create();
             for ($i = 0; $i < count($cassandraType[1]); $i++) {
@@ -153,7 +154,7 @@ class MapIntegrationTest extends CollectionsIntegrationTest
      * Bind statement with an empty map
      */
     public function testNull() {
-        $mapType = Type::map(Type::int(), Type::int());
+        $mapType = Cassandra\Type::map(Cassandra\Type::int(), Cassandra\Type::int());
         $this->createTableInsertAndVerifyValueByIndex($mapType, $mapType->create());
         $this->createTableInsertAndVerifyValueByName($mapType, $mapType->create());
     }
@@ -162,7 +163,7 @@ class MapIntegrationTest extends CollectionsIntegrationTest
      * Bind statement with an null map
      */
     public function testEmpty() {
-        $mapType = Type::map(Type::int(), Type::int());
+        $mapType = Cassandra\Type::map(Cassandra\Type::int(), Cassandra\Type::int());
         $this->createTableInsertAndVerifyValueByIndex($mapType, null);
         $this->createTableInsertAndVerifyValueByName($mapType, null);
     }

@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
 /**
  * Schema metadata integration tests.
  */
-class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
+class SchemaMetadataIntegrationTest extends IntegrationTest {
     /**
      * Schema snapshot associated with the $this->session connection.
      *
@@ -33,12 +34,6 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * Setup the schema metadata for the schema metadata tests.
      */
     public function setUp() {
-        // Determine if UDA/UDF functionality should be enabled
-        $testName = $this->getName();
-        if (strpos($testName, "UserDefined") !== false) {
-            $this->isUserDefinedAggregatesFunctions = true;
-        }
-
         // Process parent setup steps
         parent::setUp();
 
@@ -46,12 +41,21 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
         $this->schema = $this->session->schema();
     }
 
+    /**
+     * @inheritdoc
+     */
+    protected function default_cluster($all = true) {
+        return $this->default_cluster_builder($all)
+            ->withSchemaMetadata(true)
+            ->build();
+    }
+
     protected static function generateKeyspaceName($prefix) {
         return substr(uniqid($prefix), 0, 48);
     }
 
     protected function createKeyspace($keyspaceName, $replicationFactor = 1) {
-        $statement = new SimpleStatement(
+        $statement = new Cassandra\SimpleStatement(
             "CREATE KEYSPACE $keyspaceName " .
             "WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : $replicationFactor }"
         );
@@ -61,7 +65,7 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
     protected function createKeyspaceWithSchema($keyspaceName, $tableSchemas) {
         $this->createKeyspace($keyspaceName);
         foreach ($tableSchemas as $tableName => $tableSchema) {
-            $query = sprintf("CREATE TABLE $keyspaceName.$tableName (%s, PRIMARY KEY(%s))",
+            $query = sprintf("CREATE TABLE {$keyspaceName}.{$tableName} (%s, PRIMARY KEY(%s))",
                 implode(", ",
                     array_map(function ($key, $value) { return "$key $value"; },
                     array_keys($tableSchema), array_values($tableSchema))),
@@ -69,7 +73,7 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
                     array_filter(array_keys($tableSchema),
                     function ($columnName) { return strpos($columnName, "key") === 0; }))
             );
-            $this->session->execute(new SimpleStatement($query));
+            $this->session->execute(new Cassandra\SimpleStatement($query));
         }
     }
 
@@ -77,8 +81,8 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * Create the table for the secondary indexes
      */
     protected function createTableForSecondaryIndexes() {
-        $statement = new SimpleStatement(
-            "CREATE TABLE {$this->tableNamePrefix} (key1 text, value1 int, value2 map<text, text>, PRIMARY KEY(key1))"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table} (key1 text, value1 int, value2 map<text, text>, PRIMARY KEY(key1))"
         );
         $this->session->execute($statement);
     }
@@ -87,8 +91,8 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * Create the simple secondary index using the table
      */
     protected function createSimpleSecondaryIndex() {
-        $statement = new SimpleStatement(
-            "CREATE INDEX simple ON {$this->tableNamePrefix} (value1)"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE INDEX simple ON {$this->keyspace}.{$this->table} (value1)"
         );
         $this->session->execute($statement);
     }
@@ -97,8 +101,8 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * Create the collections secondary index using the table
      */
     protected function createCollectionSecondaryIndex() {
-        $statement = new SimpleStatement(
-            "CREATE INDEX collection ON {$this->tableNamePrefix} (KEYS(value2))"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE INDEX collection ON {$this->keyspace}.{$this->table} (KEYS(value2))"
         );
         $this->session->execute($statement);
     }
@@ -113,6 +117,12 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * @param $isCustom Value of index->isCustom() to assert
      */
     protected function assertIndex($index, $kind, $target, $className, $isCustom) {
+        // Get the Cassandra version
+        $version = $this->server_version;
+        if ($version instanceof Dse\Version) {
+            $version = $version->cassandra_version;
+        }
+
         $this->assertEquals($kind, $index->kind());
         $this->assertEquals($target, $index->target());
         $this->assertEquals($isCustom, $index->isCustom());
@@ -121,7 +131,8 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
         } else {
             $this->assertFalse($index->className());
         }
-        if (version_compare($this->serverVersion, "3.0.0", ">=")) {
+
+        if ($version->compare("3.0.0") >= 0) {
             $this->assertCount(1, $index->options());
             $this->assertEquals($target, $index->option("target"));
         }
@@ -131,12 +142,12 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * Create the tables for the materialized views
      */
     protected function createTablesForMaterializedViews() {
-        $statement = new SimpleStatement(
-            "CREATE TABLE {$this->tableNamePrefix}_1 (key1 text, value1 int, PRIMARY KEY(key1))"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table}_1 (key1 text, value1 int, PRIMARY KEY(key1))"
         );
         $this->session->execute($statement);
-        $statement = new SimpleStatement(
-            "CREATE TABLE {$this->tableNamePrefix}_2 (key1 text, key2 int, value1 int, PRIMARY KEY(key1, key2))"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table}_2 (key1 text, key2 int, value1 int, PRIMARY KEY(key1, key2))"
         );
         $this->session->execute($statement);
     }
@@ -145,9 +156,9 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * Create the simple materialized view using the first table
      */
     protected function createSimpleMaterializedView() {
-        $statement = new SimpleStatement(
-            "CREATE MATERIALIZED VIEW simple AS " .
-            "SELECT key1 FROM {$this->tableNamePrefix}_1 WHERE value1 IS NOT NULL " .
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE MATERIALIZED VIEW {$this->keyspace}.simple AS " .
+            "SELECT key1 FROM {$this->keyspace}.{$this->table}_1 WHERE value1 IS NOT NULL " .
             "PRIMARY KEY(value1, key1)"
         );
         $this->session->execute($statement);
@@ -157,9 +168,9 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * Create the primary key materialized view using the second table
      */
     protected function createPrimaryKeyMaterializedView() {
-        $statement = new SimpleStatement(
-            "CREATE MATERIALIZED VIEW primary_key AS " .
-            "SELECT key1 FROM {$this->tableNamePrefix}_2 WHERE key2 IS NOT NULL AND value1 IS NOT NULL " .
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE MATERIALIZED VIEW {$this->keyspace}.primary_key AS " .
+            "SELECT key1 FROM {$this->keyspace}.{$this->table}_2 WHERE key2 IS NOT NULL AND value1 IS NOT NULL " .
             "PRIMARY KEY((value1, key2), key1)"
         );
         $this->session->execute($statement);
@@ -169,9 +180,9 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * Create the primary key materialized view using the second table
      */
     protected function createClusteringKeyMaterializedView() {
-        $statement = new SimpleStatement(
-            "CREATE MATERIALIZED VIEW clustering_key AS " .
-            "SELECT key1 FROM {$this->tableNamePrefix}_2 WHERE key2 IS NOT NULL AND value1 IS NOT NULL " .
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE MATERIALIZED VIEW {$this->keyspace}.clustering_key AS " .
+            "SELECT key1 FROM {$this->keyspace}.{$this->table}_2 WHERE key2 IS NOT NULL AND value1 IS NOT NULL " .
             "PRIMARY KEY(value1, key2, key1) " .
             "WITH CLUSTERING ORDER BY (key2 DESC)"
         );
@@ -245,21 +256,45 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
     }
 
     /**
+     * Wait for the function to exist in the current keyspace schema
+     *
+     * @param string $name Function name to look for
+     * @param int $retries (Optional) Number of retries (default: 100)
+     * @return bool True if function was found; false otherwise
+     */
+    private function waitForFunction($name, $retries = 100) {
+        // Determine if the function should be searched for
+        if ($retries > 0) {
+            // Get the list of functions from the current keyspace
+            $functions = $this->session->schema()->keyspace($this->keyspace)->functions();
+
+            // Iterate over each function and determine if expected function exists
+            foreach ($functions as $function) {
+                if ($name == $function->simpleName()) {
+                    return true;
+                }
+            }
+
+            // Take a nap and attempt to retry the search
+            usleep(100000); // 100ms
+            $this->waitForFunction($name, --$retries);
+        }
+
+        // Unable to find function
+        return false;
+    }
+
+    /**
      * Create the user defined function
      */
     protected function createUserDefinedFunction() {
-        $statement = new SimpleStatement(
-          "CREATE OR REPLACE FUNCTION user_defined_function(rhs int, lhs int) " .
+        $statement = new Cassandra\SimpleStatement(
+          "CREATE OR REPLACE FUNCTION {$this->keyspace}.user_defined_function(rhs int, lhs int) " .
           "RETURNS NULL ON NULL INPUT " .
-          "RETURNS int LANGUAGE javascript AS 'lhs + rhs'"
+          "RETURNS int LANGUAGE java AS 'return lhs + rhs;'"
         );
         $this->session->execute($statement);
-
-        $cluster = \Cassandra::cluster()
-            ->withContactPoints("127.0.0.1")
-            ->withPersistentSessions(false)
-            ->build();
-        $session = $cluster->connect();
+        $this->waitForFunction("user_defined_function");
     }
 
     /**
@@ -267,9 +302,9 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      */
     protected function assertUserDefinedFunction() {
         // Get the UDF from the current keyspace
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $function = $keyspace->function("user_defined_function",
-            Type::int(), Type::int());
+            Cassandra\Type::int(), Cassandra\Type::int());
         $expectedArguments = array(
             "rhs" => "int",
             "lhs" => "int"
@@ -284,8 +319,8 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
         $this->assertEquals($expectedArguments, $arguments);
         $this->assertEquals("int", $function->returnType());
         $this->assertEquals("user_defined_function(int,int)", $function->signature());
-        $this->assertEquals("javascript", $function->language());
-        $this->assertEquals("lhs + rhs", $function->body());
+        $this->assertEquals("java", $function->language());
+        $this->assertEquals("return lhs + rhs;", $function->body());
         $this->assertEquals(false, $function->isCalledOnNullInput());
     }
 
@@ -297,7 +332,7 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      */
     protected function assertUserDefinedFunctionsEqual($name, $function) {
         // Get the UDF from the current keyspace
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $expectedFunction = null;
         foreach ($keyspace->functions() as $compareFunction) {
             if ($compareFunction->simpleName() == $name) {
@@ -326,6 +361,35 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
     }
 
     /**
+     * Wait for the aggregate to exist in the current keyspace schema
+     *
+     * @param string $name Aggregate name to look for
+     * @param int $retries (Optional) Number of retries (default: 100)
+     * @return bool True if aggregate was found; false otherwise
+     */
+    private function waitForAggregate($name, $retries = 100) {
+        // Determine if the aggregate should be searched for
+        if ($retries > 0) {
+            // Get the list of aggregates from the current keyspace
+            $aggregates = $this->session->schema()->keyspace($this->keyspace)->aggregates();
+
+            // Iterate over each function and determine if expected function exists
+            foreach ($aggregates as $aggregate) {
+                if ($name == $aggregate->simpleName()) {
+                    return true;
+                }
+            }
+
+            // Take a nap and attempt to retry the search
+            usleep(100000); // 100ms
+            $this->waitForFunction($name, --$retries);
+        }
+
+        // Unable to find aggregate
+        return false;
+    }
+
+    /**
      * Create the user defined aggregate and two user defined functions for the
      * associated aggregate
      */
@@ -334,20 +398,22 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
         $this->createUserDefinedFunction();
 
         // Create the UDA
-        $statement = new SimpleStatement(
-            "CREATE OR REPLACE FUNCTION uda_udf_final(val int) " .
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE OR REPLACE FUNCTION {$this->keyspace}.uda_udf_final(val int) " .
             "RETURNS NULL ON NULL INPUT " .
-            "RETURNS int LANGUAGE javascript AS 'val * val'"
+            "RETURNS int LANGUAGE java AS 'return val * val;'"
         );
         $this->session->execute($statement);
-        $statement = new SimpleStatement(
-            "CREATE OR REPLACE AGGREGATE user_defined_aggregate(int) " .
+        $this->waitForFunction("uda_udf_final");
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE OR REPLACE AGGREGATE {$this->keyspace}.user_defined_aggregate(int) " .
             "SFUNC user_defined_function " .
             "STYPE int " .
             "FINALFUNC uda_udf_final " .
             "INITCOND 0"
         );
         $this->session->execute($statement);
+        $this->waitForAggregate("user_defined_aggregate");
     }
 
     /**
@@ -355,8 +421,8 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      */
     protected function assertAggregateUserDefinedFunction() {
         // Get the UDF from the current keyspace
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
-        $function = $keyspace->function("uda_udf_final", Type::int());
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
+        $function = $keyspace->function("uda_udf_final", Cassandra\Type::int());
         $expectedArguments = array(
             "val" => "int"
         );
@@ -370,8 +436,8 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
         $this->assertEquals($expectedArguments, $arguments);
         $this->assertEquals("int", $function->returnType());
         $this->assertEquals("uda_udf_final(int)", $function->signature());
-        $this->assertEquals("javascript", $function->language());
-        $this->assertEquals("val * val", $function->body());
+        $this->assertEquals("java", $function->language());
+        $this->assertEquals("return val * val;", $function->body());
         $this->assertEquals(false, $function->isCalledOnNullInput());
     }
 
@@ -380,8 +446,8 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      */
     protected function assertUserDefinedAggregate() {
         // Get the UDA from the current keyspace
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
-        $function = $keyspace->aggregate("user_defined_aggregate", Type::int());
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
+        $function = $keyspace->aggregate("user_defined_aggregate", Cassandra\Type::int());
         $expectedArgumentTypes = array("int");
 
         // Assert the UDA
@@ -415,8 +481,7 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
         $this->assertGreaterThan(0, count($this->schema));
 
         // Ensure the test class session contains the test keyspace
-        $this->assertArrayHasKey($this->keyspaceName, $this->schema->keyspaces());
-        $keyspace = $this->schema->keyspace($this->keyspaceName);
+        $this->assertArrayHasKey($this->keyspace, $this->schema->keyspaces());
     }
 
     /**
@@ -430,8 +495,7 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      */
     public function testDisableSchemaMetadata() {
         // Create a new session with schema metadata disabled
-        $cluster = \Cassandra::cluster()
-            ->withContactPoints(Integration::IP_ADDRESS)//TODO: Need to use configured value when support added
+        $cluster = $this->default_cluster_builder()
             ->withSchemaMetadata(false)
             ->build();
         $session = $cluster->connect();
@@ -583,36 +647,40 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * an indexed column.
      *
      * @test
+     *
+     * @requires Cassandra < 3.0.0
+     * @unstable Sleep added as schema is slow to propagate after creating index
      */
     public function testGetColumnIndexOptions() {
-        $statement = new SimpleStatement(
-            "CREATE TABLE {$this->tableNamePrefix}_with_index (key int PRIMARY KEY, value map<text, frozen<map<int, int>>>)"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table}_with_index (key int PRIMARY KEY, value map<text, frozen<map<int, int>>>)"
         );
         $this->session->execute($statement);
 
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertNotNull($keyspace);
 
-        $table = $keyspace->table("{$this->tableNamePrefix}_with_index");
+        $table = $keyspace->table("{$this->table}_with_index");
         $this->assertNotNull($table);
 
         $indexOptions = $table->column("value")->indexOptions();
         $this->assertNull($indexOptions);
 
-        $statement = new SimpleStatement(
-            "CREATE INDEX ON {$this->tableNamePrefix}_with_index (value)"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE INDEX ON {$this->keyspace}.{$this->table}_with_index (value)"
         );
         $this->session->execute($statement);
+        sleep(10);
 
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertNotNull($keyspace);
 
-        $table = $keyspace->table("{$this->tableNamePrefix}_with_index");
+        $table = $keyspace->table("{$this->table}_with_index");
         $this->assertNotNull($table);
 
         $indexOptions = $table->column("value")->indexOptions();
         $this->assertNotNull($indexOptions);
-        $this->assertInstanceOf('Cassandra\Map', $indexOptions);
+        $this->assertInstanceOf('Dse\Map', $indexOptions);
     }
 
     /**
@@ -624,14 +692,14 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * @test
      */
     public function testSchemaMetadataWithNullFields() {
-        $statement = new SimpleStatement(
-            "CREATE TABLE {$this->tableNamePrefix}_null_comment (key int PRIMARY KEY, value int)"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table}_null_comment (key int PRIMARY KEY, value int)"
         );
         $this->session->execute($statement);
 
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
-        $table = $keyspace->table("{$this->tableNamePrefix}_null_comment");
-        $this->assertNull($table->comment());
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
+        $table = $keyspace->table("{$this->table}_null_comment");
+        $this->assertFalse($table->comment());
 
         $column = $table->column("value");
         $this->assertNull($column->indexName());
@@ -649,30 +717,30 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * @ticket PHP-62
      */
     public function testSchemaMetadataWithNestedColumnTypes() {
-        $statement = new SimpleStatement(
-            "CREATE TABLE {$this->tableNamePrefix}_nested1 (key int PRIMARY KEY, value map<frozen<list<int>>, int>)"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table}_nested1 (key int PRIMARY KEY, value map<frozen<list<int>>, int>)"
         );
         $this->session->execute($statement);
 
-        $statement = new SimpleStatement(
-            "CREATE TABLE {$this->tableNamePrefix}_nested2 (key int PRIMARY KEY, value map<int, frozen<list<int>>>)"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table}_nested2 (key int PRIMARY KEY, value map<int, frozen<list<int>>>)"
         );
         $this->session->execute($statement);
 
-        $statement = new SimpleStatement(
-            "CREATE TABLE {$this->tableNamePrefix}_nested3 (key int PRIMARY KEY, value list<frozen<map<int, frozen<set<int>>>>>)"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table}_nested3 (key int PRIMARY KEY, value list<frozen<map<int, frozen<set<int>>>>>)"
         );
         $this->session->execute($statement);
 
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
 
-        $table1 = $keyspace->table("{$this->tableNamePrefix}_nested1");
+        $table1 = $keyspace->table("{$this->table}_nested1");
         $this->assertEquals((string)$table1->column("value")->type(), "map<list<int>, int>");
 
-        $table2 = $keyspace->table("{$this->tableNamePrefix}_nested2");
+        $table2 = $keyspace->table("{$this->table}_nested2");
         $this->assertEquals((string)$table2->column("value")->type(), "map<int, list<int>>");
 
-        $table3 = $keyspace->table("{$this->tableNamePrefix}_nested3");
+        $table3 = $keyspace->table("{$this->table}_nested3");
         $this->assertEquals((string)$table3->column("value")->type(), "list<map<int, set<int>>>");
     }
 
@@ -684,12 +752,14 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-80
-     * @cassandra-version-1.2
+     *
+     * @unstable Sleep added as schema is slow to propagate after creating secondary index
      */
     public function testNoSecondaryIndexes() {
         // Create the table and validate no indexes exist
         $this->createTableForSecondaryIndexes();
-        $table = $this->session->schema()->keyspace($this->keyspaceName)->table($this->tableNamePrefix);
+        sleep(10);
+        $table = $this->session->schema()->keyspace($this->keyspace)->table($this->table);
         $this->assertCount(0, $table->indexes());
         $this->assertFalse($table->index("invalid"));
     }
@@ -702,15 +772,17 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-80
-     * @cassandra-version-1.2
+     *
+     * @unstable Sleep added as schema is slow to propagate after creating secondary index
      */
     public function testSecondaryIndexes() {
         // Create the table and secondary index
         $this->createTableForSecondaryIndexes();
         $this->createSimpleSecondaryIndex();
+        sleep(10);
 
         // Validate the schema metadata (no indexes exist)
-        $table = $this->session->schema()->keyspace($this->keyspaceName)->table($this->tableNamePrefix);
+        $table = $this->session->schema()->keyspace($this->keyspace)->table($this->table);
         $this->assertCount(1, $table->indexes());
         $index = $table->index("simple");
         $this->assertIndex($index, "composites", "value1", false, false);
@@ -724,15 +796,18 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-80
-     * @cassandra-version-2.1
+     *
+     * @requires Cassandra >= 2.1.0
+     * @unstable Sleep added as schema is slow to propagate after creating secondary index
      */
     public function testCollectionSecondaryIndexes() {
         // Create the table and secondary index
         $this->createTableForSecondaryIndexes();
         $this->createCollectionSecondaryIndex();
+        sleep(10);
 
         // Validate the schema metadata
-        $table = $this->session->schema()->keyspace($this->keyspaceName)->table($this->tableNamePrefix);
+        $table = $this->session->schema()->keyspace($this->keyspace)->table($this->table);
         $this->assertCount(1, $table->indexes());
         $index = $table->index("collection");
         $this->assertIndex($index, "composites", "keys(value2)", false, false);
@@ -746,16 +821,19 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-80
-     * @cassandra-version-2.1
+     *
+     * @requires Cassandra >= 2.1.
+     * @unstable Sleep added as schema is slow to propagate after creating secondary index
      */
     public function testIteratorSecondaryIndexes() {
         // Create the table and secondary indexes
         $this->createTableForSecondaryIndexes();
         $this->createSimpleSecondaryIndex();
         $this->createCollectionSecondaryIndex();
+        sleep(10);
 
         // Validate the schema metadata
-        $table = $this->session->schema()->keyspace($this->keyspaceName)->table($this->tableNamePrefix);
+        $table = $this->session->schema()->keyspace($this->keyspace)->table($this->table);
         $indexes = $table->indexes();
         $this->assertCount(2, $indexes);
         foreach ($indexes as $index) {
@@ -771,20 +849,23 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-79
-     * @cassandra-3.0
+     *
+     * @requires Cassandra >= 3.0.0
+     * @unstable Sleep added as schema is slow to propagate after creating materialized views
      */
     public function testNoMaterializedViews() {
         // Create the tables
         $this->createTablesForMaterializedViews();
+        sleep(10);
 
         // Validate the schema metadata (no materialized views exist)
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(0, $keyspace->materializedViews());
         $this->assertFalse($keyspace->materializedView("invalid"));
-        $table = $this->session->schema()->keyspace($this->keyspaceName)->table("{$this->tableNamePrefix}_1");
+        $table = $this->session->schema()->keyspace($this->keyspace)->table("{$this->table}_1");
         $this->assertCount(0, $table->materializedViews());
         $this->assertFalse($table->materializedView("invalid"));
-        $table = $this->session->schema()->keyspace($this->keyspaceName)->table("{$this->tableNamePrefix}_2");
+        $table = $this->session->schema()->keyspace($this->keyspace)->table("{$this->table}_2");
         $this->assertCount(0, $table->materializedViews());
         $this->assertFalse($table->materializedView("invalid"));
     }
@@ -797,7 +878,9 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-79
-     * @cassandra-3.0
+     *
+     * @requires Cassandra >= 3.0.0
+     * @unstable Sleep added as schema is slow to propagate after creating materialized views
      */
     public function testMaterializedViews() {
         // Create the tables
@@ -805,15 +888,16 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
 
         // Create the materialized view
         $this->createSimpleMaterializedView();
+        sleep(10);
 
         // Validate the schema metadata (a single materialized views exist)
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(1, $keyspace->materializedViews());
-        $table = $keyspace->table("{$this->tableNamePrefix}_1");
+        $table = $keyspace->table("{$this->table}_1");
         $this->assertCount(1, $table->materializedViews());
         $materializedView = $keyspace->materializedView("simple");
         $this->assertMaterializedViewsEqual($materializedView, $table->materializedView("simple"));
-        $this->assertMaterializedView($materializedView, "simple", "{$this->tableNamePrefix}_1",
+        $this->assertMaterializedView($materializedView, "simple", "{$this->table}_1",
             array("value1", "key1"), array("value1", "key1"), array("key1"));
     }
 
@@ -826,7 +910,9 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-79
-     * @cassandra-3.0
+     *
+     * @requires Cassandra >= 3.0.0
+     * @unstable Sleep added as schema is slow to propagate after creating materialized views
      */
     public function testPrimaryKeyMaterializedViews() {
         // Create the tables
@@ -834,15 +920,16 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
 
         // Create the materialized view
         $this->createPrimaryKeyMaterializedView();
+        sleep(10);
 
         // Validate the schema metadata (two materialized views should exist now)
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(1, $keyspace->materializedViews());
-        $table = $keyspace->table("{$this->tableNamePrefix}_2");
+        $table = $keyspace->table("{$this->table}_2");
         $this->assertCount(1, $table->materializedViews());
         $materializedView = $keyspace->materializedView("primary_key");
         $this->assertMaterializedViewsEqual($materializedView, $table->materializedView("primary_key"));
-        $this->assertMaterializedView($materializedView, "primary_key", "{$this->tableNamePrefix}_2",
+        $this->assertMaterializedView($materializedView, "primary_key", "{$this->table}_2",
             array("value1", "key2", "key1"), array("value1", "key2"), array("key1"));
     }
 
@@ -855,7 +942,9 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-79
-     * @cassandra-3.0
+     *
+     * @requires Cassandra >= 3.0.0
+     * @unstable Sleep added as schema is slow to propagate after creating materialized views
      */
     public function testClusteringKeyMaterializedViews() {
         // Create the tables
@@ -863,15 +952,16 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
 
         // Create the materialized view
         $this->createClusteringKeyMaterializedView();
+        sleep(10);
 
         // Validate the schema metadata (three materialized views should exist now as well as two in table 2)
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(1, $keyspace->materializedViews());
-        $table = $keyspace->table("{$this->tableNamePrefix}_2");
+        $table = $keyspace->table("{$this->table}_2");
         $this->assertCount(1, $table->materializedViews());
         $materializedView = $keyspace->materializedView("clustering_key");
         $this->assertMaterializedViewsEqual($materializedView, $table->materializedView("clustering_key"));
-        $this->assertMaterializedView($materializedView, "clustering_key", "{$this->tableNamePrefix}_2",
+        $this->assertMaterializedView($materializedView, "clustering_key", "{$this->table}_2",
             array("value1", "key2", "key1"), array("value1"), array("key2", "key1"));
     }
 
@@ -883,7 +973,9 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-79
-     * @cassandra-version-3.0
+     *
+     * @requires Cassandra >= 3.0.0
+     * @unstable Sleep added as schema is slow to propagate after creating materialized views
      */
     public function testIteratorMaterializedViews() {
         // Create the tables
@@ -893,33 +985,34 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
         $this->createSimpleMaterializedView();
         $this->createPrimaryKeyMaterializedView();
         $this->createClusteringKeyMaterializedView();
+        sleep(10);
 
         // Validate the materialized views
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(3, $keyspace->materializedViews());
-        $table = $keyspace->table("{$this->tableNamePrefix}_1");
+        $table = $keyspace->table("{$this->table}_1");
         $materializedViews = $table->materializedViews();
         foreach ($materializedViews as $materializedView) {
             if ($materializedView->name() == "simple") {
                 $this->assertMaterializedView($materializedView, "simple",
-                    "{$this->tableNamePrefix}_1", array("value1", "key1"),
+                    "{$this->table}_1", array("value1", "key1"),
                     array("value1"), array("key1"));
             } else {
                 $this->fail("Invalid Materialized View Name: {$materializedView->name()}");
             }
         }
         $this->assertCount(1, $materializedViews);
-        $table = $keyspace->table("{$this->tableNamePrefix}_2");
+        $table = $keyspace->table("{$this->table}_2");
         $materializedViews = $table->materializedViews();
         $this->assertCount(2, $materializedViews);
         foreach ($materializedViews as $materializedView) {
             if ($materializedView->name() == "primary_key") {
                 $this->assertMaterializedView($materializedView, "primary_key",
-                    "{$this->tableNamePrefix}_2", array("value1", "key2", "key1"),
+                    "{$this->table}_2", array("value1", "key2", "key1"),
                     array("value1", "key2"), array("key1"));
             } else if ($materializedView->name() == "clustering_key") {
                 $this->assertMaterializedView($materializedView, "clustering_key",
-                    "{$this->tableNamePrefix}_2", array("value1", "key2", "key1"),
+                    "{$this->table}_2", array("value1", "key2", "key1"),
                     array("value1"), array("key2", "key1"));
             } else {
                 $this->fail("Invalid Materialized View Name: {$materializedView->name()}");
@@ -935,7 +1028,9 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-79
-     * @cassandra-version-3.0
+     *
+     * @requires Cassandra >= 3.0.0
+     * @unstable Sleep added as schema is slow to propagate after creating materialized views
      */
     public function testDropMaterializedViews() {
         // Create the tables
@@ -943,16 +1038,17 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
 
         // Create the materialized views
         $this->createSimpleMaterializedView();
+        sleep(10);
 
         // Validate the materialized view exists
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(1, $keyspace->materializedViews());
         $this->assertNotEmpty($keyspace->materializedView("simple"));
 
         // Drop the materialized view and validate it no longer exists
-        $statement = new SimpleStatement("DROP MATERIALIZED VIEW simple");
+        $statement = new Cassandra\SimpleStatement("DROP MATERIALIZED VIEW {$this->keyspace}.simple");
         $this->session->execute($statement);
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(0, $keyspace->materializedViews());
         $this->assertEmpty($keyspace->materializedView("simple"));
     }
@@ -964,10 +1060,11 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-66
-     * @cassandra-version-2.2
+     *
+     * @requires Cassandra >= 2.2.0
      */
     public function testNoUserDefinedFunctions() {
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(0, $keyspace->functions());
         $this->assertFalse($keyspace->function("invalid"));
     }
@@ -979,14 +1076,15 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-66
-     * @cassandra-2.2
+     *
+     * @requires Cassandra >= 2.2.0
      */
     public function testUserDefinedFunctions() {
         // Create the UDF
         $this->createUserDefinedFunction();
 
         // Validate the UDF exists
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(1, $keyspace->functions());
         $this->assertUserDefinedFunction();
     }
@@ -998,14 +1096,15 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-66
-     * @cassandra-version-2.2
+     *
+     * @requires Cassandra >= 2.2.0
      */
     public function testIteratorUserDefinedFunctions() {
         // Create the UDFs (createUserDefinedAggregate creates both functions)
         $this->createUserDefinedAggregate();
 
         // Validate the UDFs exists
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(2, $keyspace->functions());
         foreach ($keyspace->functions() as $function) {
             if ($function->simpleName() == "user_defined_function") {
@@ -1025,21 +1124,22 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-66
-     * @cassandra-version-2.2
+     *
+     * @requires Cassandra >= 2.2.0
      */
     public function testDropUserDefinedFunctions() {
         // Create the UDF
         $this->createUserDefinedFunction();
 
         // Validate the UDF exists
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(1, $keyspace->functions());
         $this->assertUserDefinedFunction();
 
         // Drop the UDF and validate it no longer exists
-        $statement = new SimpleStatement("DROP FUNCTION user_defined_function");
+        $statement = new Cassandra\SimpleStatement("DROP FUNCTION {$this->keyspace}.user_defined_function");
         $this->session->execute($statement);
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(0, $keyspace->functions());
         $this->assertEmpty($keyspace->function("user_defined_function"));
     }
@@ -1051,10 +1151,11 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-66
-     * @cassandra-version-2.2
+     *
+     * @requires Cassandra >= 2.2.0
      */
     public function testNoUserDefinedAggregates() {
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(0, $keyspace->aggregates());
         $this->assertFalse($keyspace->aggregate("invalid"));
     }
@@ -1066,14 +1167,15 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-66
-     * @cassandra-2.2
+     *
+     * @requires Cassandra >= 2.2.0
      */
     public function testUserDefinedAggregates() {
         // Create the UDA
         $this->createUserDefinedAggregate();
 
         // Validate the UDA exists
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(1, $keyspace->aggregates());
         $this->assertCount(2, $keyspace->functions());
         $this->assertUserDefinedAggregate();
@@ -1086,22 +1188,24 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-66
-     * @cassandra-version-2.2
+     *
+     * @requires Cassandra >= 2.2.0
      */
     public function testIteratorUserDefinedAggregates() {
         // Create the UDAs (the same UDA with a different name)
         $this->createUserDefinedAggregate();
-        $statement = new SimpleStatement(
-            "CREATE OR REPLACE AGGREGATE user_defined_aggregate_repeat(int) " .
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE OR REPLACE AGGREGATE {$this->keyspace}.user_defined_aggregate_repeat(int) " .
             "SFUNC user_defined_function " .
             "STYPE int " .
             "FINALFUNC uda_udf_final " .
             "INITCOND 0"
         );
         $this->session->execute($statement);
+        $this->waitForAggregate("user_defined_aggregate_repeat");
 
         // Validate the UDAs exists
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(2, $keyspace->aggregates());
         $count = 0;
         foreach ($keyspace->aggregates() as $aggregate) {
@@ -1124,22 +1228,23 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-66
-     * @cassandra-version-2.2
+     *
+     * @requires Cassandra >= 2.2.0
      */
     public function testDropUserDefinedAggregates() {
         // Create the UDA
         $this->createUserDefinedAggregate();
 
         // Validate the UDA exists
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(1, $keyspace->aggregates());
         $this->assertCount(2, $keyspace->functions());
         $this->assertUserDefinedAggregate();
 
         // Drop the UDA and validate it no longer exists
-        $statement = new SimpleStatement("DROP AGGREGATE user_defined_aggregate");
+        $statement = new Cassandra\SimpleStatement("DROP AGGREGATE {$this->keyspace}.user_defined_aggregate");
         $this->session->execute($statement);
-        $keyspace = $this->session->schema()->keyspace($this->keyspaceName);
+        $keyspace = $this->session->schema()->keyspace($this->keyspace);
         $this->assertCount(0, $keyspace->aggregates());
         $this->assertEmpty($keyspace->function("user_defined_aggregate"));
         $this->assertCount(2, $keyspace->functions());
@@ -1152,6 +1257,8 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
      * quickly determine if one schema is different than another.
      *
      * @test
+     *
+     * @unstable Sleep added as schema is slow to propagate
      */
     public function testVersion() {
         // Ensure the version information is available
@@ -1159,7 +1266,8 @@ class SchemaMetadataIntegrationTest extends BasicIntegrationTest {
         $this->assertGreaterThan(0, $version);
 
         // Ensure the version is incremented by forcing a keyspace created event
-        $this->createKeyspace("{$this->keyspaceName}_new");
+        $this->createKeyspace("{$this->keyspace}_new");
+        sleep(10);
         $this->assertEquals($version + 1, $this->session->schema()->version());
 
         // Ensure the version is not incremented (no changes occurred)

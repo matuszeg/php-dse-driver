@@ -16,23 +16,24 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
-class PagingIntegrationTest extends BasicIntegrationTest {
+class PagingIntegrationTest extends IntegrationTest {
     public function setUp() {
         parent::setUp();
 
-        $statement = new SimpleStatement(
-            "CREATE TABLE {$this->tableNamePrefix} (key int PRIMARY KEY, value int)"
+        $statement = new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table} (key int PRIMARY KEY, value int)"
         );
         $this->session->execute($statement);
 
-        $statement = new SimpleStatement(
-            "INSERT INTO {$this->tableNamePrefix} (key, value) VALUES (?, ?)"
+        $statement = new Cassandra\SimpleStatement(
+            "INSERT INTO {$this->keyspace}.{$this->table} (key, value) VALUES (?, ?)"
         );
 
         for ($i = 0; $i < 10; $i++) {
-            $options = new ExecutionOptions(array(
+            $options = new Cassandra\ExecutionOptions(array(
                 "arguments" => array($i, $i)
             ));
             $this->session->execute($statement, $options);
@@ -87,7 +88,7 @@ class PagingIntegrationTest extends BasicIntegrationTest {
     private function validatePageResults($rows) {
         // Get the starting memory usage
         $start = memory_get_usage() / 1024;
-        if (Integration::isDebug() && Integration::isVerbose()) {
+        if (self::$configuration->verbose) {
             fprintf(STDOUT, "Start Usage: %dkb" . PHP_EOL, $start);
         }
 
@@ -96,7 +97,7 @@ class PagingIntegrationTest extends BasicIntegrationTest {
         while ($rows = $rows->nextPage()) {
             if ($rows->count() != 0) {
                 $count += $rows->count();
-                if (Integration::isDebug() && Integration::isVerbose()) {
+                if (self::$configuration->verbose) {
                     fprintf(STDOUT, "Page %d: Current memory usage is %dkb" . PHP_EOL,
                     ($count / 2), ((memory_get_usage() / 1024) - $start));
                 }
@@ -105,7 +106,7 @@ class PagingIntegrationTest extends BasicIntegrationTest {
 
         // Get the final memory usage (and apply a tolerance to compensate for GC)
         $end = memory_get_usage() / 1024;
-        if (Integration::isDebug() && Integration::isVerbose()) {
+        if (self::$configuration->verbose) {
             fprintf(STDOUT, "End Usage: %dkb [%dkb]" . PHP_EOL, $end, ($end - $start));
         }
         $difference = ($end - $start) - 20; // 20KB tolerance
@@ -127,8 +128,8 @@ class PagingIntegrationTest extends BasicIntegrationTest {
     public function testPagingToken() {
         $results = array();
 
-        $statement = new SimpleStatement(
-            "SELECT * FROM {$this->tableNamePrefix}"
+        $statement = new Cassandra\SimpleStatement(
+            "SELECT * FROM {$this->keyspace}.{$this->table}"
         );
 
         for ($i = 0; $i < 10; $i++) {
@@ -136,7 +137,7 @@ class PagingIntegrationTest extends BasicIntegrationTest {
             if (isset($result)) {
                 $options["paging_state_token"] = $result->pagingStateToken();
             }
-            $result = $this->session->execute($statement, new ExecutionOptions($options));
+            $result = $this->session->execute($statement, new Cassandra\ExecutionOptions($options));
             $this->assertEquals(1, count($result));
 
             $row = $result->first();
@@ -156,15 +157,15 @@ class PagingIntegrationTest extends BasicIntegrationTest {
      * @test
      * @ticket PHP-46
      *
-     * @expectedException Cassandra\Exception\ProtocolException
+     * @expectedException Dse\Exception\ProtocolException
      * @expectedExceptionMessage Invalid value for the paging state
      */
     public function testInvalidToken() {
-        $statement = new SimpleStatement(
-            "SELECT * FROM {$this->tableNamePrefix}"
+        $statement = new Cassandra\SimpleStatement(
+            "SELECT * FROM {$this->keyspace}.{$this->table}"
         );
 
-        $options = new ExecutionOptions(array(
+        $options = new Cassandra\ExecutionOptions(array(
             "paging_state_token" => "invalid"
         ));
 
@@ -180,15 +181,15 @@ class PagingIntegrationTest extends BasicIntegrationTest {
      * @test
      * @ticket PHP-46
      *
-     * @expectedException Cassandra\Exception\InvalidArgumentException
+     * @expectedException Dse\Exception\InvalidArgumentException
      * @expectedExceptionMessageRegExp |paging_state_token must be a string.*|
      */
     public function testNullToken() {
-        $statement = new SimpleStatement(
-            "SELECT * FROM {$this->tableNamePrefix}"
+        $statement = new Cassandra\SimpleStatement(
+            "SELECT * FROM {$this->keyspace}.{$this->table}"
         );
 
-        $options = new ExecutionOptions(array(
+        $options = new Cassandra\ExecutionOptions(array(
             "paging_state_token" => null
         ));
 
@@ -206,12 +207,12 @@ class PagingIntegrationTest extends BasicIntegrationTest {
         $pageSize = 2;
 
         $options = array("page_size" => $pageSize);
-        $statement = new SimpleStatement(
-            "SELECT * FROM {$this->tableNamePrefix}"
+        $statement = new Cassandra\SimpleStatement(
+            "SELECT * FROM {$this->keyspace}.{$this->table}"
         );
 
         // Get first page
-        $rows = $this->session->execute($statement, new ExecutionOptions($options));
+        $rows = $this->session->execute($statement, new Cassandra\ExecutionOptions($options));
         $this->assertEquals($rows->count(), $pageSize);
         $values = self::convertRowsToArray($rows, "value");
 
@@ -251,12 +252,12 @@ class PagingIntegrationTest extends BasicIntegrationTest {
         $pageSize = 2;
 
         $options = array("page_size" => $pageSize);
-        $statement = new SimpleStatement(
-            "SELECT * FROM {$this->tableNamePrefix}"
+        $statement = new Cassandra\SimpleStatement(
+            "SELECT * FROM {$this->keyspace}.{$this->table}"
         );
 
         // Get first page
-        $rows = $this->session->execute($statement, new ExecutionOptions($options));
+        $rows = $this->session->execute($statement, new Cassandra\ExecutionOptions($options));
         $this->assertEquals($rows->count(), $pageSize);
         $values = self::convertRowsToArray($rows, "value");
 
@@ -296,55 +297,55 @@ class PagingIntegrationTest extends BasicIntegrationTest {
      */
     public function testNoPagingMemoryLeak() {
         // Create the user types and table for the test
-        $this->session->execute(new SimpleStatement(
-            "DROP TABLE {$this->tableNamePrefix}"
+        $this->session->execute(new Cassandra\SimpleStatement(
+            "DROP TABLE {$this->keyspace}.{$this->table}"
         ));
-        $this->session->execute(new SimpleStatement(
-            "CREATE TYPE price_history (time timestamp, price float)"
+        $this->session->execute(new Cassandra\SimpleStatement(
+            "CREATE TYPE {$this->keyspace}.price_history (time timestamp, price float)"
         ));
-        $priceHistory = Type::userType(
-            "time", Type::timestamp(),
-            "price", Type::float());
-        $this->session->execute(new SimpleStatement(
-            "CREATE TYPE purchase_stats (day_of_week int, total_purchases int)"
+        $priceHistory = Cassandra\Type::userType(
+            "time", Cassandra\Type::timestamp(),
+            "price", Cassandra\Type::float());
+        $this->session->execute(new Cassandra\SimpleStatement(
+            "CREATE TYPE {$this->keyspace}.purchase_stats (day_of_week int, total_purchases int)"
         ));
-        $purchaseStats = Type::userType(
-            "day_of_week", Type::int(),
-            "total_purchases", Type::int());
-        $this->session->execute(new SimpleStatement(
-            "CREATE TABLE {$this->tableNamePrefix} (id uuid PRIMARY KEY,
+        $purchaseStats = Cassandra\Type::userType(
+            "day_of_week", Cassandra\Type::int(),
+            "total_purchases", Cassandra\Type::int());
+        $this->session->execute(new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table} (id uuid PRIMARY KEY,
                 history frozen<price_history>, stats frozen<purchase_stats>,
                 comments text)"
         ));
 
         // Populate the table with some random data
         $totalInserts = 500;
-        $statement = $this->session->prepare("INSERT INTO {$this->tableNamePrefix}
+        $statement = $this->session->prepare("INSERT INTO {$this->keyspace}.{$this->table}
             (id, history, stats, comments) VALUES (?, ?, ?, ?)");
         foreach (range(1, $totalInserts) as $i) {
             // Create the values for the insert
             $history = $priceHistory->create(
-                "time", new Timestamp(mt_rand(1270094400000, 1459483200000)), // 04-01-2010 - 04-01-2016
-                "price", new Float((mt_rand(1, 1000) / 100))
+                "time", new Cassandra\Timestamp(mt_rand(1270094400000, 1459483200000)), // 04-01-2010 - 04-01-2016
+                "price", new Cassandra\Float((mt_rand(1, 1000) / 100))
             );
             $stats = $purchaseStats->create(
                 "day_of_week", mt_rand(0, 6),
                 "total_purchases", mt_rand(0, 1000)
             );
             $values = array(
-                new Uuid(),
+                new Cassandra\Uuid(),
                 $history,
                 $stats,
                 $this->randomString()
             );
 
-            $options = new ExecutionOptions(array("arguments" => $values));
+            $options = new Cassandra\ExecutionOptions(array("arguments" => $values));
             $this->session->execute($statement, $options);
         }
 
         // Select all the rows in the table using paging
-        $statement = new SimpleStatement("SELECT * FROM {$this->tableNamePrefix}");
-        $options = new ExecutionOptions(array("page_size" => 2));
+        $statement = new Cassandra\SimpleStatement("SELECT * FROM {$this->keyspace}.{$this->table}");
+        $options = new Cassandra\ExecutionOptions(array("page_size" => 2));
         $rows = $this->session->execute($statement, $options);
 
 

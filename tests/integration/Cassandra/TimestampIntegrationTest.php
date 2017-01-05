@@ -16,14 +16,15 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
 /**
  * Timestamp integration tests.
  *
- * @cassandra-version-2.1
+ * @requires Cassandra >= 2.1.0
  */
-class TimestampIntegrationTest extends BasicIntegrationTest {
+class TimestampIntegrationTest extends IntegrationTest {
     /**
      * Session connection configured for client side timestamps.
      *
@@ -52,19 +53,18 @@ class TimestampIntegrationTest extends BasicIntegrationTest {
         parent::setUp();
 
         // Create the table
-        $query = "CREATE TABLE {$this->tableNamePrefix} (key int PRIMARY KEY, value_int int)";
-        $this->session->execute(new SimpleStatement($query));
+        $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key int PRIMARY KEY, value_int int)";
+        $this->session->execute(new Cassandra\SimpleStatement($query));
 
         // Generate the insert and select queries
-        $this->insertQuery = "INSERT INTO {$this->tableNamePrefix} (key, value_int) VALUES (?, ?)";
-        $this->selectQuery = "SELECT writeTime(value_int) FROM {$this->tableNamePrefix} WHERE key = ?";
+        $this->insertQuery = "INSERT INTO {$this->keyspace}.{$this->table} (key, value_int) VALUES (?, ?)";
+        $this->selectQuery = "SELECT writeTime(value_int) FROM {$this->keyspace}.{$this->table} WHERE key = ?";
 
         // Create the connection for client side timestamps
-        $cluster = \Cassandra::cluster()
-            ->withContactPoints(Integration::IP_ADDRESS)
-            ->withTimestampGenerator(new TimestampGenerator\Monotonic())
+        $cluster = $this->default_cluster_builder()
+            ->withTimestampGenerator(new Cassandra\TimestampGenerator\Monotonic())
             ->build();
-        $this->clientSideTimestampSession = $cluster->connect($this->keyspaceName);
+        $this->clientSideTimestampSession = $cluster->connect();
     }
 
     /**
@@ -84,7 +84,7 @@ class TimestampIntegrationTest extends BasicIntegrationTest {
     private function serverNow() {
         // Query the server for the current time
         $query = "SELECT dateOf(now()) FROM system.local";
-        $statement = new SimpleStatement($query);
+        $statement = new Cassandra\SimpleStatement($query);
         $rows = $this->session->execute($statement);
 
         // Return the server time in microseconds
@@ -97,14 +97,14 @@ class TimestampIntegrationTest extends BasicIntegrationTest {
      *
      * NOTE: For batch statement the key and value should be null.
      *
-     * @param Session $session Session to use when executing statement
-     * @param Statement $statement Statement to execute
+     * @param Cassandra\Session $session Session to use when executing statement
+     * @param Cassandra\Statement $statement Statement to execute
      * @param int $key Key to insert value into (default: null)
      * @param int $value Value being set (default: null)
      * @param mixed $timestamp Timestamp to set in execution options
      *                         (default: null)
      */
-    private function insert(Session $session, Statement $statement, $key = null, $value = null, $timestamp = null) {
+    private function insert(Cassandra\Session $session, Cassandra\Statement $statement, $key = null, $value = null, $timestamp = null) {
         // Create the parameters that make up the execution options
         $parameters = array();
 
@@ -129,7 +129,7 @@ class TimestampIntegrationTest extends BasicIntegrationTest {
         }
 
         // Insert values into the table
-        $options = new ExecutionOptions($parameters);
+        $options = new Cassandra\ExecutionOptions($parameters);
         $session->execute($statement, $options);
     }
 
@@ -141,8 +141,8 @@ class TimestampIntegrationTest extends BasicIntegrationTest {
      */
     private function getTimestamp($key) {
         // Select the timestamp from the table
-        $statement = new SimpleStatement($this->selectQuery);
-        $options = new ExecutionOptions(array(
+        $statement = new Cassandra\SimpleStatement($this->selectQuery);
+        $options = new Cassandra\ExecutionOptions(array(
             "arguments" => array(
                 "key" => $key
             )
@@ -186,12 +186,10 @@ class TimestampIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-59
-     *
-     * @cassandra-version-2.1
      */
     public function testSimpleStatement() {
         // Using integer value (assigned timestamp)
-        $statement = new SimpleStatement($this->insertQuery);
+        $statement = new Cassandra\SimpleStatement($this->insertQuery);
         $this->insert($this->session, $statement, 0, 1, 12345);
         $this->assert(0, 12345);
 
@@ -213,7 +211,7 @@ class TimestampIntegrationTest extends BasicIntegrationTest {
 
         // Using forced timestamp
         $query = "{$this->insertQuery} USING TIMESTAMP 30";
-        $statement = new SimpleStatement($query);
+        $statement = new Cassandra\SimpleStatement($query);
         $this->insert($this->session, $statement, 4, 5, 12345);
         $this->assert(4, 30);
     }
@@ -227,8 +225,6 @@ class TimestampIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-59
-     *
-     * @cassandra-version-2.1
      */
     public function testPreparedStatement() {
         // Using integer value
@@ -268,13 +264,11 @@ class TimestampIntegrationTest extends BasicIntegrationTest {
      *
      * @test
      * @ticket PHP-59
-     *
-     * @cassandra-version-2.1
      */
     public function testBatchStatement() {
         // Create the batch statement
-        $batch = new BatchStatement(\Cassandra::BATCH_UNLOGGED);
-        $simple = new SimpleStatement($this->insertQuery);
+        $batch = new Cassandra\BatchStatement(Cassandra::BATCH_UNLOGGED);
+        $simple = new Cassandra\SimpleStatement($this->insertQuery);
         $prepare = $this->session->prepare($this->insertQuery);
 
         // Simple statement
@@ -289,7 +283,7 @@ class TimestampIntegrationTest extends BasicIntegrationTest {
         ));
         // Forced timestamp (simple)
         $query = "{$this->insertQuery} USING TIMESTAMP 90";
-        $simple = new SimpleStatement($query);
+        $simple = new Cassandra\SimpleStatement($query);
         $batch->add($simple, array(
             2,
             3

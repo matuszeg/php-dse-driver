@@ -6,7 +6,10 @@
             <directory>./tests/unit/</directory>
         </testsuite>
         <!-- TODO: Update test suite name as Cassandra and SCassandra suites are added -->
-        <testsuite name="integration">
+        <testsuite name="cassandra-integration">
+            <directory>./tests/integration/Cassandra/</directory>
+        </testsuite>
+        <testsuite name="dse-integration">
             <directory>./tests/integration/Dse/</directory>
         </testsuite>
     </testsuites>

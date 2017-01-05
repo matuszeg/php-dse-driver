@@ -2,6 +2,7 @@
 
 // Create an alias for DSE extension to share core test framework
 use \Dse as Cassandra;
+use \Cassandra\Version as CassandraVersion;
 use const \Dse\VERSION;
 use const \Dse\CPP_DRIVER_DSE_VERSION as CPP_DRIVER_VERSION;
 
@@ -81,11 +82,11 @@ class IntegrationTestFixture {
             echo "  Cassandra";
         }
         echo " v" . Cassandra::VERSION . PHP_EOL
-            .  "  C/C++ ";
+            . "  C/C++ ";
         if (class_exists("Dse")) {
-            echo "DSE";
+            echo "DSE v" . Dse::CPP_DRIVER_DSE_VERSION . "/";
         }
-        echo " driver v" . Cassandra::CPP_DRIVER_VERSION . PHP_EOL;
+        echo "v" . Cassandra::CPP_DRIVER_VERSION . PHP_EOL;
         $this->configuration->print_settings();
         echo PHP_EOL;
 
@@ -137,6 +138,14 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      * Replication strategy format
      */
     const REPLICATION_STRATEGY_FORMAT = "{ 'class': %s }";
+    /**
+     * Conversion value for seconds to milliseconds.
+     */
+    const SECONDS_TO_MILLISECONDS = 1000;
+    /**
+     * Conversion value for seconds to microseconds.
+     */
+    const SECONDS_TO_MICROSECONDS = 1000000;
     /**
      * Select format for the data types (select cql query)
      */
@@ -262,8 +271,12 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * Add custom @requires for specific Cassandra/DSE version requirements and
-     * additional annotations for skipping tests (@skip) and also marking tests
-     * incomplete (@incomplete)
+     * C/C++ driver version requirements along with additional annotations for
+     * skipping tests (@skip), marking tests incomplete (@incomplete), and also
+     * marking tests as unstable (@unstable)
+     *
+     * NOTE: Unstable tests can still be executed if enabled via environmental
+     *       configuration option
      *
      * NOTE: If server configuration is using DSE and requirement is for
      *       Cassandra, the internal Cassandra version of DSE will be utilized
@@ -271,7 +284,9 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      *
      * Example (>=): @requires Cassandra 3.0.0
      * Example (>=): @requires DSE >= 5.0.0
-     * Example (==): @requires DSE == 4.8.
+     * Example (==): @requires DSE == 4.8.0
+     * Example (>=): @requires cpp-driver >= 2.5.0
+     * Example (>=): @requires cpp-driver-dse >= 1.2.0
      *
      * @inheritdoc
      */
@@ -284,7 +299,8 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             // Short circuit if no annotation are available
             if (empty($annotations[$depth]["incomplete"]) &&
                 empty($annotations[$depth]["requires"]) &&
-                empty($annotations[$depth]["skip"])) {
+                empty($annotations[$depth]["skip"]) &&
+                empty($annotations[$depth]["unstable"])) {
                 continue;
             }
 
@@ -302,7 +318,8 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                     // Ensure the server type is Cassandra or DSE and gather the requirements
                     $requires = explode(" ", $annotation);
                     $type = $requires[0];
-                    if ($type == "Cassandra" || $type == "DSE") {
+                    if ($type == "Cassandra" || $type == "DSE" ||
+                        $type == "cpp-driver" || $type == "cpp-driver-dse") {
                         // Handle default comparison operator
                         if (count($requires) == 2) {
                             $operator = ">=";
@@ -314,22 +331,49 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                             continue;
                         }
 
-                        // Get the version information from the configuration
-                        $server_type = "Cassandra";
-                        $server_version = self::$configuration->version;
-                        if (self::$configuration->dse) {
-                            $server_type = "DSE";
-                            if ($type == "Cassandra") {
-                                $server_version =
-                                    self::$configuration->version->cassandra_version;
+                        // Determine if server type is being checked or driver
+                        if ($type == "Cassandra" || $type == "DSE") {
+                            // Get the version information from the configuration
+                            $server_type = "Cassandra";
+                            $server_version = self::$configuration->version;
+                            if (self::$configuration->dse) {
+                                if ($type == "Cassandra") {
+                                    $server_version =
+                                        self::$configuration->version->cassandra_version;
+                                } else {
+                                    $server_type = "DSE";
+                                }
                             }
-                        }
 
-                        // Determine if the test should be skipped
-                        if (!version_compare($server_version, $version, $operator)) {
-                            $this->markTestSkipped("{$type} {$operator} v{$version} "
-                                . "is Required; {$server_type} v{$server_version} "
-                                . "is in Use: Skipping {$this->toString()}");
+                            // Determine if the test should be skipped
+                            if (!version_compare($server_version, $version, $operator)) {
+                                $this->markTestSkipped("{$type} {$operator} v{$version} "
+                                    . "is Required; {$server_type} v{$server_version} "
+                                    . "is in Use: Skipping {$this->toString()}");
+                            }
+                        } else {
+                            // Get the version information from the driver
+                            $driver_version = Cassandra::CPP_DRIVER_VERSION;
+
+                            // Determine if the driver type is valid the requirement
+                            $driver_type = "C/C++";
+                            if (class_exists("Dse")) {
+                                if ($type == "cpp-driver-dse") {
+                                    $driver_type .= " DSE";
+                                    $driver_version = Dse::CPP_DRIVER_DSE_VERSION;
+                                }
+                            } else {
+                                if ($type == "cpp-driver-dse") {
+                                    continue;
+                                }
+                            }
+
+                            // Determine if the test should be skipped
+                            if (!version_compare($driver_version, $version, $operator)) {
+                                $this->markTestSkipped("{$type} {$operator} v{$version} "
+                                    . "is Required; {$driver_type} v{$driver_version} "
+                                    . "is in Use: Skipping {$this->toString()}");
+                            }
                         }
                     }
                 }
@@ -337,9 +381,27 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
             // Go through each of the annotations and parse the skip annotation
             if (!empty($annotations[$depth]["skip"])) {
-                foreach ($annotations[$depth]["skip"] as $annotation) {
+                foreach ($annotations[$depth]["skip"] as $reason) {
+                    if (!empty(trim($reason))) {
+                        $reason = " [{$reason}]";
+                    }
                     $this->markTestSkipped("Annotation @skip Found: Skipping "
-                        . $this->toString());
+                        . $this->toString()
+                        . $reason);
+                }
+            }
+
+            // Go through each of the annotations and parse the unstable annotation
+            if (!self::$configuration->unstable) {
+                if (!empty($annotations[$depth]["unstable"])) {
+                    foreach ($annotations[$depth]["unstable"] as $reason) {
+                        if (!empty(trim($reason))) {
+                            $reason = " [{$reason}]";
+                        }
+                        $this->markTestSkipped("Annotation @unstable Found: Skipping "
+                            . $this->toString()
+                            . $reason);
+                    }
                 }
             }
         }
@@ -479,13 +541,13 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
         // Get the composite data types that should be used
         $composite_data_types = $this->composite_data_types_1_2();
-        if ($version->compare("2.1.0")) {
+        if ($version->compare("2.1.0") >= 0) {
             $composite_data_types = array_merge(
                 $composite_data_types,
                 $this->composite_data_types_2_1()
             );
         }
-        if ($version->compare("2.2.0")) {
+        if ($version->compare("2.2.0") >= 0) {
             $composite_data_types = array_merge(
                 $composite_data_types,
                 $this->composite_data_types_2_2()
@@ -686,7 +748,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         if (self::$configuration->dse) {
             $version = Dse\Version::from_server($session);
         } else {
-            $version = Cassandra\Version::from_server($session);
+            $version = CassandraVersion::from_server($session);
         }
 
         // Create the keyspace
@@ -991,11 +1053,17 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
         // Get the nested composite data types that should be used
         $nested_composite_data_types = $this->nested_composite_data_types_1_2();
-        if ($version->compare("2.1.0")) {
-            $nested_composite_data_types[] = $this->nested_composite_data_types_2_1();
+        if ($version->compare("2.1.0") >= 0) {
+            $nested_composite_data_types = array_merge(
+                $nested_composite_data_types,
+                $this->nested_composite_data_types_2_1()
+            );
         }
-        if ($version->compare("2.2.0")) {
-            $nested_composite_data_types[] = $this->nested_composite_data_types_2_2();
+        if ($version->compare("2.2.0") >= 0) {
+            $nested_composite_data_types = array_merge(
+                $nested_composite_data_types,
+                $this->nested_composite_data_types_2_2()
+            );
         }
 
         // Return the composite data types

@@ -16,37 +16,49 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
 /**
  * A base class for data type integration tests
  */
-abstract class DatatypeIntegrationTests extends BasicIntegrationTest {
+abstract class DatatypeIntegrationTests extends IntegrationTest {
+    /**
+     * @inheritdoc
+     */
+    public function setUp() {
+        // Indicate data provider is in use
+        $this->using_data_provider = true;
+
+        // Call the parent function
+        parent::setUp();
+    }
+
     /**
      * Scalar Cassandra types to be used by data providers
      */
     public function scalarCassandraTypes() {
         return array(
-            array(Type::ascii(), array("a", "b", "c")),
-            array(Type::bigint(), array(new Bigint("1"), new Bigint("2"), new Bigint("3"))),
-            array(Type::blob(), array(new Blob("x"), new Blob("y"), new Blob("z"))),
-            array(Type::boolean(), array(true, false, true, false)),
-            array(Type::date(), array(new Date(), new Date(0), new Date(-86400), new Date(86400))),
-            array(Type::decimal(), array(new Decimal(1.1), new Decimal(2.2), new Decimal(3.3))),
-            array(Type::double(), array(1.1, 2.2, 3.3, 4.4)),
-            array(Type::float(), array(new Float(1.0), new Float(2.2), new Float(2.2))),
-            array(Type::inet(), array(new Inet("127.0.0.1"), new Inet("127.0.0.2"), new Inet("127.0.0.3"))),
-            array(Type::smallint(), array(Smallint::min(), Smallint::max(), new Smallint(0), new Smallint(74))),
-            array(Type::text(), array("a", "b", "c", "x", "y", "z")),
-            array(Type::time(), array(new Time(), new Time(0), new Time(1234567890))),
-            array(Type::tinyint(), array(Tinyint::min(), Tinyint::max(), new Tinyint(0), new Tinyint(37))),
-            array(Type::timestamp(), array(new Timestamp(123), new Timestamp(456), new Timestamp(789))),
-            array(Type::timeuuid(), array(new Timeuuid(0), new Timeuuid(1), new Timeuuid(2))),
-            array(Type::uuid(),  array(new Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2"),
-                                       new Uuid("03398c99-c635-4fad-b30a-3b2c49f785c3"),
-                                       new Uuid("03398c99-c635-4fad-b30a-3b2c49f785c4"))),
-            array(Type::varchar(), array("a", "b", "c", "x", "y", "z")),
-            array(Type::varint(), array(new Varint(1), new Varint(2), new Varint(3))),
+            array(Cassandra\Type::ascii(), array("a", "b", "c")),
+            array(Cassandra\Type::bigint(), array(new Cassandra\Bigint("1"), new Cassandra\Bigint("2"), new Cassandra\Bigint("3"))),
+            array(Cassandra\Type::blob(), array(new Cassandra\Blob("x"), new Cassandra\Blob("y"), new Cassandra\Blob("z"))),
+            array(Cassandra\Type::boolean(), array(true, false, true, false)),
+            array(Cassandra\Type::date(), array(new Cassandra\Date(), new Cassandra\Date(0), new Cassandra\Date(-86400), new Cassandra\Date(86400))),
+            array(Cassandra\Type::decimal(), array(new Cassandra\Decimal(1.1), new Cassandra\Decimal(2.2), new Cassandra\Decimal(3.3))),
+            array(Cassandra\Type::double(), array(1.1, 2.2, 3.3, 4.4)),
+            array(Cassandra\Type::float(), array(new Cassandra\Float(1.0), new Cassandra\Float(2.2), new Cassandra\Float(2.2))),
+            array(Cassandra\Type::inet(), array(new Cassandra\Inet("127.0.0.1"), new Cassandra\Inet("127.0.0.2"), new Cassandra\Inet("127.0.0.3"))),
+            array(Cassandra\Type::smallint(), array(Cassandra\Smallint::min(), Cassandra\Smallint::max(), new Cassandra\Smallint(0), new Cassandra\Smallint(74))),
+            array(Cassandra\Type::text(), array("a", "b", "c", "x", "y", "z")),
+            array(Cassandra\Type::time(), array(new Cassandra\Time(), new Cassandra\Time(0), new Cassandra\Time(1234567890))),
+            array(Cassandra\Type::tinyint(), array(Cassandra\Tinyint::min(), Cassandra\Tinyint::max(), new Cassandra\Tinyint(0), new Cassandra\Tinyint(37))),
+            array(Cassandra\Type::timestamp(), array(new Cassandra\Timestamp(123), new Cassandra\Timestamp(456), new Cassandra\Timestamp(789))),
+            array(Cassandra\Type::timeuuid(), array(new Cassandra\Timeuuid(0), new Cassandra\Timeuuid(1), new Cassandra\Timeuuid(2))),
+            array(Cassandra\Type::uuid(),  array(new Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2"),
+                                                 new Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c3"),
+                                                 new Cassandra\Uuid("03398c99-c635-4fad-b30a-3b2c49f785c4"))),
+            array(Cassandra\Type::varchar(), array("a", "b", "c", "x", "y", "z")),
+            array(Cassandra\Type::varint(), array(new Cassandra\Varint(1), new Cassandra\Varint(2), new Cassandra\Varint(3))),
         );
     }
 
@@ -59,7 +71,7 @@ abstract class DatatypeIntegrationTests extends BasicIntegrationTest {
      */
     public function createTableInsertAndVerifyValueByIndex($type, $value) {
         $key = "key";
-        $options = new ExecutionOptions(array('arguments' => array($key, $value)));
+        $options = new Cassandra\ExecutionOptions(array('arguments' => array($key, $value)));
         $this->createTableInsertAndVerifyValue($type, $options, $key, $value);
     }
 
@@ -72,7 +84,7 @@ abstract class DatatypeIntegrationTests extends BasicIntegrationTest {
      */
     public function createTableInsertAndVerifyValueByName($type, $value) {
         $key = "key";
-        $options = new ExecutionOptions(array('arguments' => array("key" => $key, "value" => $value)));
+        $options = new Cassandra\ExecutionOptions(array('arguments' => array("key" => $key, "value" => $value)));
         $this->createTableInsertAndVerifyValue($type, $options, $key, $value);
     }
 
@@ -82,12 +94,12 @@ abstract class DatatypeIntegrationTests extends BasicIntegrationTest {
      * @param $userType Cassandra\Type\UserType
      */
     public function createUserType($userType) {
-        $query  = "CREATE TYPE IF NOT EXISTS %s (%s)";
+        $query  = "CREATE TYPE IF NOT EXISTS %s.%s (%s)";
         $fieldsString = implode(", ", array_map(function ($name, $type) {
             return "$name " . self::typeString($type);
         }, array_keys($userType->types()), $userType->types()));
-        $query = sprintf($query, $this->userTypeString($userType), $fieldsString);
-        $this->session->execute(new SimpleStatement($query));
+        $query = sprintf($query, $this->keyspace, $this->userTypeString($userType), $fieldsString);
+        $this->session->execute(new Cassandra\SimpleStatement($query));
     }
 
     /**
@@ -97,14 +109,14 @@ abstract class DatatypeIntegrationTests extends BasicIntegrationTest {
      * @return string Table name generated from $type
      */
     public function createTable($type) {
-        $query = "CREATE TABLE IF NOT EXISTS %s (key text PRIMARY KEY, value %s)";
+        $query = "CREATE TABLE IF NOT EXISTS %s.%s (key text PRIMARY KEY, value %s)";
 
         $cqlType = $this->typeString($type);
-        $tableName = "table_" . str_replace(array("-"), "", (string)(new Uuid()));
+        $tableName = "table_" . str_replace(array("-"), "", (string)(new Cassandra\Uuid()));
 
-        $query = sprintf($query, $tableName, $cqlType);
+        $query = sprintf($query, $this->keyspace, $tableName, $cqlType);
 
-        $this->session->execute(new SimpleStatement($query));
+        $this->session->execute(new Cassandra\SimpleStatement($query));
 
         return $tableName;
     }
@@ -132,9 +144,9 @@ abstract class DatatypeIntegrationTests extends BasicIntegrationTest {
      * @param $options Cassandra\ExecutionOptions
      */
     protected function insertValue($tableName, $options) {
-        $insertQuery = "INSERT INTO $tableName (key, value) VALUES (?, ?)";
+        $insertQuery = "INSERT INTO $this->keyspace.$tableName (key, value) VALUES (?, ?)";
 
-        $this->session->execute(new SimpleStatement($insertQuery), $options);
+        $this->session->execute(new Cassandra\SimpleStatement($insertQuery), $options);
     }
 
     /**
@@ -146,11 +158,11 @@ abstract class DatatypeIntegrationTests extends BasicIntegrationTest {
      * @param $value mixed
      */
     protected function verifyValue($tableName, $type, $key, $value) {
-        $selectQuery = "SELECT * FROM $tableName WHERE key = ?";
+        $selectQuery = "SELECT * FROM $this->keyspace.$tableName WHERE key = ?";
 
-        $options = new ExecutionOptions(array('arguments' => array($key)));
+        $options = new Cassandra\ExecutionOptions(array('arguments' => array($key)));
 
-        $result = $this->session->execute(new SimpleStatement($selectQuery), $options);
+        $result = $this->session->execute(new Cassandra\SimpleStatement($selectQuery), $options);
 
         $this->assertEquals(count($result), 1);
 
@@ -174,9 +186,9 @@ abstract class DatatypeIntegrationTests extends BasicIntegrationTest {
      * @return string String representation of type
      */
     public static function typeString($type) {
-        if ($type instanceof Type\Tuple || $type instanceof Type\Collection ||
-            $type instanceof Type\Map || $type instanceof Type\Set ||
-            $type instanceof Type\UserType) {
+        if ($type instanceof Cassandra\Type\Tuple || $type instanceof Cassandra\Type\Collection ||
+            $type instanceof Cassandra\Type\Map || $type instanceof Cassandra\Type\Set ||
+            $type instanceof Cassandra\Type\UserType) {
             return sprintf("frozen<%s>", $type);
         } else {
             return (string)$type;

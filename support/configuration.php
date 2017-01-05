@@ -28,7 +28,7 @@ class Configuration {
     /**
      * Default DSE version to be used
      */
-    const DEFAULT_DSE_VERSION = "5.0.4";
+    const DEFAULT_DSE_VERSION = "5.0.5";
 
     /**
      * @var bool Flag to determine if DSE is being used
@@ -46,6 +46,10 @@ class Configuration {
      * @var string Cluster prefix
      */
     private $prefix = "php-driver";
+    /**
+     * @var bool Flag to determine if unstable tests should run
+     */
+    private $unstable = false;
     /**
      * @var bool True if verbose output should be enable; false otherwise
      */
@@ -93,7 +97,8 @@ class Configuration {
         } else {
             echo "  Cassandra Version: {$this->version}" . PHP_EOL;
         }
-        echo "  CCM Cluster Prefix: {$this->prefix}" . PHP_EOL;
+        echo "  CCM Cluster Prefix: {$this->prefix}" . PHP_EOL
+            . "  Executing Unstable Tests: " . ($this->unstable ? "True" : "False") . PHP_EOL;
     }
 
     /**
@@ -102,20 +107,25 @@ class Configuration {
     private function configure() {
         // Determine if Cassandra or DSE is to be used
         if (isset($_SERVER["DSE"])) {
-            $this->dse = boolval($_SERVER["DSE"]);
+            $this->dse = filter_var($_SERVER["DSE"], FILTER_VALIDATE_BOOLEAN);
         }
 
         // Determine if the DSE download authentication credentials are required
         $this->dse_authentication_credentials();
 
-        // Determine if Cluster prefix is to be overridden
+        // Determine if cluster prefix is to be overridden
         if (isset($_SERVER["PREFIX"])) {
             $this->prefix = $_SERVER["PREFIX"];
         }
 
+        // Determine if unstable tests should be run
+        if (isset($_SERVER["UNSTABLE"])) {
+            $this->unstable = filter_var($_SERVER["UNSTABLE"], FILTER_VALIDATE_BOOLEAN);
+        }
+
         // Determine the verbose output should be enabled
         if (isset($_SERVER["VERBOSE"])) {
-            $this->verbose = boolval($_SERVER["VERBOSE"]);
+            $this->verbose = filter_var($_SERVER["VERBOSE"], FILTER_VALIDATE_BOOLEAN);
         }
 
         // Determine the version of Cassandra or DSE to be used

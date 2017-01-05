@@ -766,7 +766,7 @@ class Bridge {
      * @param bool $enable (Optional) True if traceuld be enabled; false
      *                                otherwise (default: true)
      */
-    public function node_trace($node = -1, $enable = true) {
+    public function node_trace($node, $enable = true) {
         $trace_command = array();
         $trace_command[] = "node{$node}";
         $trace_command[] = "nodetool";
@@ -1037,47 +1037,47 @@ class Bridge {
      *                                                 configuration against
      */
     private function apply_base_configuration($version) {
-        $configuration = array();
-
-        // Do not perform standard configurations for DSE clusters
-        if (!($version instanceof \Dse\Version)) {
-            // Standard configuration elements for all Cassandra versions
-            $configuration[] = "--rt=10000";
-            $configuration[] = "read_request_timeout_in_ms:10000";
-            $configuration[] = "write_request_timeout_in_ms:10000";
-            $configuration[] = "request_timeout_in_ms:10000";
-            $configuration[] = "phi_convict_threshold:16";
-            $configuration[] = "hinted_handoff_enabled:false";
-            $configuration[] = "dynamic_snitch_update_interval_in_ms:1000";
-            $configuration[] = "native_transport_max_threads:1";
-            $configuration[] = "rpc_min_threads:1";
-            $configuration[] = "rpc_max_threads:1";
-            $configuration[] = "concurrent_reads:2";
-            $configuration[] = "concurrent_writes:2";
-            $configuration[] = "concurrent_compactors:1";
-            $configuration[] = "compaction_throughput_mb_per_sec:0";
-            $configuration[] = "key_cache_size_in_mb:0";
-            $configuration[] = "key_cache_save_period:0";
-            $configuration[] = "memtable_flush_writers:1";
-            $configuration[] = "max_hints_delivery_threads:1";
-
-            // Create Cassandra version specific updates (C* v1.2.x)
-            if ($version->compare("2.0.0") < 0) {
-                $configuration[] = "reduce_cache_sizes_at:0";
-                $configuration[] = "reduce_cache_capacity_to:0";
-                $configuration[] = "flush_largest_memtables_at:0";
-                $configuration[] = "index_interval:512";
-            } else {
-                $configuration[] = "cas_contention_timeout_in_ms:10000";
-                $configuration[] = "file_cache_size_in_mb:0";
-            }
-
-            // Create Cassandra version specific updates (C* < v2.1)
-            if ($version->compare("2.1.0") < 0) {
-                $configuration[] = "in_memory_compaction_limit_in_mb:1";
-            }
-        } else {
+        // Get the Cassandra version
+        if ($version instanceof \Dse\Version) {
+            $dse_version = $version;
             $version = $version->cassandra_version;
+        }
+
+        // Standard configuration elements for all Cassandra versions
+        $configuration = array();
+        $configuration[] = "--rt=10000";
+        $configuration[] = "read_request_timeout_in_ms:10000";
+        $configuration[] = "write_request_timeout_in_ms:10000";
+        $configuration[] = "request_timeout_in_ms:10000";
+        $configuration[] = "phi_convict_threshold:16";
+        $configuration[] = "hinted_handoff_enabled:false";
+        $configuration[] = "dynamic_snitch_update_interval_in_ms:1000";
+        //$configuration[] = "native_transport_max_threads:1";
+        $configuration[] = "rpc_min_threads:1";
+        $configuration[] = "rpc_max_threads:1";
+        $configuration[] = "concurrent_reads:2";
+        $configuration[] = "concurrent_writes:2";
+        $configuration[] = "concurrent_compactors:1";
+        $configuration[] = "compaction_throughput_mb_per_sec:0";
+        $configuration[] = "key_cache_size_in_mb:0";
+        $configuration[] = "key_cache_save_period:0";
+        $configuration[] = "memtable_flush_writers:1";
+        $configuration[] = "max_hints_delivery_threads:1";
+
+        // Create Cassandra version specific updates (C* v1.2.x)
+        if ($version->compare("2.0.0") < 0) {
+            $configuration[] = "reduce_cache_sizes_at:0";
+            $configuration[] = "reduce_cache_capacity_to:0";
+            $configuration[] = "flush_largest_memtables_at:0";
+            $configuration[] = "index_interval:512";
+        } else {
+            $configuration[] = "cas_contention_timeout_in_ms:10000";
+            $configuration[] = "file_cache_size_in_mb:0";
+        }
+
+        // Create Cassandra version specific updates (C* < v2.1)
+        if ($version->compare("2.1.0") < 0) {
+            $configuration[] = "in_memory_compaction_limit_in_mb:1";
         }
 
         // Create Cassandra version specific updated (C* 2.2+)

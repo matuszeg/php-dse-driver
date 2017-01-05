@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
 /**
  * User type integration tests.
  *
- * @cassandra-version-2.1
+ * @requires Cassandra >= 2.1.0
  */
 class UserTypeIntegrationTest extends CollectionsIntegrationTest {
     /**
@@ -52,19 +53,23 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
     /**
      * Setup the database for the user type tests.
      */
-    protected function setUp() {
+    public function setUp() {
         // Process parent setup steps
         parent::setUp();
 
+        // Ensure we are using the current keyspace
+        $query = "USE {$this->keyspace}";
+        $this->session->execute(new Cassandra\SimpleStatement($query));
+
         // Create the user types
-        $this->session->execute(new SimpleStatement(self::PHONE_USER_TYPE_CQL));
-        $this->session->execute(new SimpleStatement(self::ADDRESS_USER_TYPE_CQL));
+        $this->session->execute(new Cassandra\SimpleStatement(self::PHONE_USER_TYPE_CQL));
+        $this->session->execute(new Cassandra\SimpleStatement(self::ADDRESS_USER_TYPE_CQL));
 
         // Create the table
-        $query = "CREATE TABLE {$this->tableNamePrefix}
+        $query = "CREATE TABLE {$this->table}
             (key timeuuid PRIMARY KEY, value
             frozen<address>)";
-        $this->session->execute(new SimpleStatement($query));
+        $this->session->execute(new Cassandra\SimpleStatement($query));
     }
 
     /**
@@ -73,9 +78,9 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      * @return \Cassandra\UserTypeValue Phone user type
      */
     public static function getPhoneUserType() {
-        return new UserTypeValue(array(
-            "alias" => \Cassandra::TYPE_TEXT,
-            "number" => \Cassandra::TYPE_TEXT));
+        return new Cassandra\UserTypeValue(array(
+            "alias" => Cassandra::TYPE_TEXT,
+            "number" => Cassandra::TYPE_TEXT));
     }
 
     /**
@@ -84,10 +89,10 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      * @return \Cassandra\UserTypeValue Address user type
      */
     public static function getAddressUserType() {
-        $phoneNumbers = new Set(self::getPhoneUserType()->type());
-        return new UserTypeValue(array(
-            "street" => \Cassandra::TYPE_TEXT,
-            "zip" => \Cassandra::TYPE_INT,
+        $phoneNumbers = new Cassandra\Set(self::getPhoneUserType()->type());
+        return new Cassandra\UserTypeValue(array(
+            "street" => Cassandra::TYPE_TEXT,
+            "zip" => Cassandra::TYPE_INT,
             "phone_numbers" => $phoneNumbers->type()
         ));
     }
@@ -106,7 +111,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
         $workPhone = UserTypeIntegrationTest::getPhoneUserType();
         $workPhone->set("alias", "Work");
         $workPhone->set("number", self::PHONE_WORK_NUMBER);
-        $phoneNumbers = new Set($homePhone->type());
+        $phoneNumbers = new Cassandra\Set($homePhone->type());
         $phoneNumbers->add($homePhone);
         $phoneNumbers->add($workPhone);
 
@@ -128,7 +133,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      *                                           value
      *                                           (DEFAULT: self::generateAddressValue())
      */
-    public static function assertAddressValue(UserTypeValue $address, UserTypeValue $expected = null) {
+    public static function assertAddressValue(Cassandra\UserTypeValue $address, Cassandra\UserTypeValue $expected = null) {
         // Determine if the expected value should be defaulted
         if (is_null($expected)) {
             $expected = self::generateAddressValue();
@@ -142,7 +147,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
         $expectedPhoneNumbers = $address->get("phone_numbers");
         $phoneNumbers = $address->get("phone_numbers");
         if (!is_null($phoneNumbers)) {
-            self::assertInstanceOf('Cassandra\Set', $phoneNumbers);
+            self::assertInstanceOf('Dse\Set', $phoneNumbers);
             $expectedNumberOfPhoneNumbers = count($expectedPhoneNumbers);
             self::assertCount($expectedNumberOfPhoneNumbers, $phoneNumbers);
 
@@ -153,7 +158,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
                     $expectedNumber = $expectedPhoneNumbers->values()[$i];
                 $number = $phoneNumbers->values()[$i];
                 self::assertCount(count($expectedNumber), $number);
-                self::assertInstanceOf('Cassandra\UserTypeValue', $number);
+                self::assertInstanceOf('Dse\UserTypeValue', $number);
                 self::assertEquals($expectedNumber->get("alias"), $number->get("alias"));
                 self::assertEquals($expectedNumber->get("number"), $number->get("number"));
             }
@@ -169,16 +174,16 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      */
     private function insertAddress($address) {
         // Assign the values for the statement
-        $key = new Timeuuid();
+        $key = new Cassandra\Timeuuid();
         $values = array(
             $key,
             $address
         );
 
         // Insert the value into the table
-        $query = "INSERT INTO {$this->tableNamePrefix}  (key, value) VALUES (?, ?)";
-        $statement = new SimpleStatement($query);
-        $options = new ExecutionOptions(array("arguments" => $values));
+        $query = "INSERT INTO {$this->table}  (key, value) VALUES (?, ?)";
+        $statement = new Cassandra\SimpleStatement($query);
+        $options = new Cassandra\ExecutionOptions(array("arguments" => $values));
         $this->session->execute($statement, $options);
 
         // Return the key for asserting the user type
@@ -193,9 +198,9 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      */
     private function selectAddress($key) {
         // Select the user type
-        $query = "SELECT value FROM {$this->tableNamePrefix}  WHERE key=?";
-        $statement = new SimpleStatement($query);
-        $options = new ExecutionOptions(array("arguments" => array($key)));
+        $query = "SELECT value FROM {$this->table}  WHERE key=?";
+        $statement = new Cassandra\SimpleStatement($query);
+        $options = new Cassandra\ExecutionOptions(array("arguments" => array($key)));
         $rows = $this->session->execute($statement, $options);
 
         // Ensure the user type is valid
@@ -204,7 +209,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
         $this->assertNotNull($row);
         $this->assertArrayHasKey("value", $row);
         $userType = $row["value"];
-        $this->assertInstanceOf('Cassandra\UserTypeValue', $userType);
+        $this->assertInstanceOf('Dse\UserTypeValue', $userType);
 
         // Return the user type
         return $userType;
@@ -231,7 +236,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      */
     public function userTypeWithScalarTypes() {
         $result = array_map(function ($cassandraType) {
-            $userType = Type::userType("a", $cassandraType[0]);
+            $userType = Cassandra\Type::userType("a", $cassandraType[0]);
             $userType = $userType->withName(self::userTypeString($userType));
             $user = $userType->create();
             $user->set("a", $cassandraType[1][0]);
@@ -261,7 +266,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      */
     public function userTypeWithCompositeTypes() {
         return array_map(function ($cassandraType) {
-            $userType = Type::userType("a", $cassandraType[0]);
+            $userType = Cassandra\Type::userType("a", $cassandraType[0]);
             $userType = $userType->withName(self::userTypeString($userType));
             $user = $userType->create();
             $user->set("a", $cassandraType[1][0]);
@@ -291,7 +296,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      */
     public function userTypeWithNestedTypes() {
         return array_map(function ($cassandraType) {
-            $userType = Type::userType("a", $cassandraType[0]);
+            $userType = Cassandra\Type::userType("a", $cassandraType[0]);
             $userType = $userType->withName(self::userTypeString($userType));
             $user = $userType->create();
             $user->set("a", $cassandraType[1][0]);
@@ -324,7 +329,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
             for ($i = 0; $i < $size; $i++) {
                 $types["field$i"] = $cassandraTypes[$i][0];
             }
-            $user = new UserTypeValue($types);
+            $user = new Cassandra\UserTypeValue($types);
             $userType = $user->type()->withName(self::userTypeString($user->type()));
             for ($i = 0; $i < $size; $i++) {
                 $user->set("field$i", $cassandraTypes[$i][1][0]);
@@ -354,7 +359,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
             for ($i = 0; $i < $size; $i++) {
                 $types["field$i"] = $scalarCassandraTypes[$i][0];
             }
-            $user = new UserTypeValue($types);
+            $user = new Cassandra\UserTypeValue($types);
             $userType = $user->type()->withName(self::userTypeString($user->type()));
             return array($userType, $user);
         }, $sizes);
@@ -366,8 +371,8 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      * @test
      * @ticket PHP-58
      */
-    public function testNull() {
-        $userType = Type::userType("a", Type::int());
+    public function testNullValue() {
+        $userType = Cassandra\Type::userType("a", Cassandra\Type::int());
         $userType = $userType->withName(self::userTypeString($userType));
         $this->createUserType($userType);
         $this->createTableInsertAndVerifyValueByIndex($userType, null);
@@ -383,7 +388,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      * @ticket PHP-58
      */
     public function testPartial() {
-        $userType = Type::userType("a", Type::int(), "b", Type::varchar(), "c", Type::bigint());
+        $userType = Cassandra\Type::userType("a", Cassandra\Type::int(), "b", Cassandra\Type::varchar(), "c", Cassandra\Type::bigint());
         $userType = $userType->withName(self::userTypeString($userType));
         $this->createUserType($userType);
 
@@ -396,7 +401,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
         $this->createTableInsertAndVerifyValueByIndex($userType, $user);
 
         $user = $userType->create();
-        $user->set("c", new Bigint("999999999999"));
+        $user->set("c", new Cassandra\Bigint("999999999999"));
         $this->createTableInsertAndVerifyValueByIndex($userType, $user);
     }
 
@@ -428,7 +433,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
         // Alias missing from a single number
         $phone = $this->getPhoneUserType();
         $phone->set("number", "000-000-0000");
-        $numbers = new Set($phone->type());
+        $numbers = new Cassandra\Set($phone->type());
         $numbers->add($phone);
         $address = UserTypeIntegrationTest::getAddressUserType();
         $address->set("street", "123 Missing Alias Street");
@@ -455,13 +460,14 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      *
      * @test
      * @ticket PHP-57
-     * @expectedException \Cassandra\Exception\InvalidQueryException
+     * @expectedException \Dse\Exception\InvalidQueryException
      * @expectedExceptionMessage Non-frozen User-Defined types are not
      *                           supported, please use frozen<>
-     * @cassandra-version-less-3
+     *
+     * @requires Cassandra < 3.0.0
      */
     public function testFrozenRequired() {
-        $statement = new SimpleStatement("CREATE TYPE frozen_required (id uuid, address address)");
+        $statement = new Cassandra\SimpleStatement("CREATE TYPE frozen_required (id uuid, address address)");
         $this->session->execute($statement);
     }
 
@@ -473,11 +479,11 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      *
      * @test
      * @ticket PHP-57
-     * @expectedException \Cassandra\Exception\InvalidQueryException
+     * @expectedException \Dse\Exception\InvalidQueryException
      * @expectedExceptionMessageRegExp |Unknown type .*.user_type_unavailable|
      */
     public function testUnavailableUserType() {
-        $statement = new SimpleStatement("CREATE TABLE unavailable (id uuid PRIMARY KEY, unavailable frozen<user_type_unavailable>)");
+        $statement = new Cassandra\SimpleStatement("CREATE TABLE unavailable (id uuid PRIMARY KEY, unavailable frozen<user_type_unavailable>)");
         $this->session->execute($statement);
     }
 
@@ -489,7 +495,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      *
      * @test
      * @ticket PHP-57
-     * @expectedException \Cassandra\Exception\InvalidQueryException
+     * @expectedException \Dse\Exception\InvalidQueryException
      */
     public function testInvalidAddressUserTypeAssignedValue() {
         $invalidValue = $this->getPhoneUserType();
@@ -506,11 +512,11 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      *
      * @test
      * @ticket PHP-57
-     * @expectedException \Cassandra\Exception\InvalidQueryException
+     * @expectedException \Dse\Exception\InvalidQueryException
      */
     public function testInvalidPhoneUserTypeAssignedValue() {
         // Create a new table
-        $this->session->execute(new SimpleStatement("CREATE TABLE invalidphone (key int PRIMARY KEY, value frozen<phone>)"));
+        $this->session->execute(new Cassandra\SimpleStatement("CREATE TABLE invalidphone (key int PRIMARY KEY, value frozen<phone>)"));
         $invalidValue = $this->generateAddressValue();
 
         // Bind and insert the invalid phone value
@@ -519,8 +525,8 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
             $invalidValue
         );
         $query = "INSERT INTO invalidphone (key, value) VALUES (?, ?)";
-        $statement = new SimpleStatement($query);
-        $options = new ExecutionOptions(array("arguments" => $values));
+        $statement = new Cassandra\SimpleStatement($query);
+        $options = new Cassandra\ExecutionOptions(array("arguments" => $values));
         $this->session->execute($statement, $options);
     }
 }

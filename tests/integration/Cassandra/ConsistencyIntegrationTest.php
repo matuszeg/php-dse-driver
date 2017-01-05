@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
 /**
  * Consistency level integration tests.
  */
-class ConsistencyIntegrationTest extends BasicIntegrationTest {
+class ConsistencyIntegrationTest extends IntegrationTest {
     /**
      * Default consistency level (string value)
      */
@@ -38,21 +39,21 @@ class ConsistencyIntegrationTest extends BasicIntegrationTest {
      */
     public function testDefaultConsistencyLevel() {
         // Create a new table
-        $query = "CREATE TABLE {$this->tableNamePrefix} (key int PRIMARY KEY)";
-        $statement = new SimpleStatement($query);
+        $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key int PRIMARY KEY)";
+        $statement = new Cassandra\SimpleStatement($query);
         $this->session->execute($statement);
 
         // Enable tracing
-        $this->ccm->enableTracing(true);
+        self::$ccm->node_trace(1);
 
         // Insert a value into the table
-        $insertQuery = "INSERT INTO {$this->tableNamePrefix} (key) VALUES (1)";
-        $statement = new SimpleStatement($insertQuery);
+        $insertQuery = "INSERT INTO {$this->keyspace}.{$this->table} (key) VALUES (1)";
+        $statement = new Cassandra\SimpleStatement($insertQuery);
         $this->session->execute($statement);
 
         // Check the trace logs to determine the consistency level used
         $query = "SELECT parameters FROM system_traces.sessions";
-        $statement = new SimpleStatement($query);
+        $statement = new Cassandra\SimpleStatement($query);
         $rows = $this->session->execute($statement);
         $isAsserted = false;
         foreach ($rows as $row) {

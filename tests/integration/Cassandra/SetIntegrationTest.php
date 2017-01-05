@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
 class SetIntegrationTest extends CollectionsIntegrationTest
 {
@@ -39,7 +40,7 @@ class SetIntegrationTest extends CollectionsIntegrationTest
      */
     public function setWithScalarTypes() {
         return array_map(function ($cassandraType) {
-            $setType = Type::set($cassandraType[0]);
+            $setType = Cassandra\Type::set($cassandraType[0]);
             $set = $setType->create();
             foreach ($cassandraType[1] as $value) {
                 $set->add($value);
@@ -70,7 +71,7 @@ class SetIntegrationTest extends CollectionsIntegrationTest
      */
     public function setWithCompositeTypes() {
         return array_map(function ($cassandraType) {
-            $setType = Type::set($cassandraType[0]);
+            $setType = Cassandra\Type::set($cassandraType[0]);
             $set = $setType->create();
             foreach ($cassandraType[1] as $value) {
                 $set->add($value);
@@ -101,7 +102,7 @@ class SetIntegrationTest extends CollectionsIntegrationTest
      */
     public function setWithNestedTypes() {
         return array_map(function ($cassandraType) {
-            $setType = Type::set($cassandraType[0]);
+            $setType = Cassandra\Type::set($cassandraType[0]);
             $set = $setType->create();
             foreach ($cassandraType[1] as $value) {
                 $set->add($value);
@@ -114,7 +115,7 @@ class SetIntegrationTest extends CollectionsIntegrationTest
      * Bind statement with an empty set
      */
     public function testEmpty() {
-        $setType = Type::set(Type::int());
+        $setType = Cassandra\Type::set(Cassandra\Type::int());
         $this->createTableInsertAndVerifyValueByIndex($setType, $setType->create());
         $this->createTableInsertAndVerifyValueByName($setType, $setType->create());
     }
@@ -123,7 +124,7 @@ class SetIntegrationTest extends CollectionsIntegrationTest
      * Bind statement with an null set
      */
     public function testNull() {
-        $setType = Type::set(Type::int());
+        $setType = Cassandra\Type::set(Cassandra\Type::int());
         $this->createTableInsertAndVerifyValueByIndex($setType, null);
         $this->createTableInsertAndVerifyValueByName($setType, null);
     }

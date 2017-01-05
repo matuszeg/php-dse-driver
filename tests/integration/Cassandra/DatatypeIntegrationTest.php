@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
 /**
  * Datatype integration tests.
@@ -64,31 +65,31 @@ class DatatypeIntegrationTest extends DatatypeIntegrationTests {
      */
     public function testByteBoundaryDecimalVarint() {
         // Create the table
-        $query = "CREATE TABLE {$this->tableNamePrefix} (key timeuuid PRIMARY KEY, value_decimal decimal, value_varint varint)";
-        $this->session->execute(new SimpleStatement($query));
+        $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key timeuuid PRIMARY KEY, value_decimal decimal, value_varint varint)";
+        $this->session->execute(new Cassandra\SimpleStatement($query));
 
         // Iterate through a few byte boundary positive values
         foreach (range(1, 20) as $i) {
             // Assign the values for the statement
-            $key = new Timeuuid();
+            $key = new Cassandra\Timeuuid();
             $value_varint = pow(2, (8 * $i)) - 1;
             $value_decimal = $value_varint / 100;
             $values = array(
                 $key,
-                new Decimal($value_decimal),
-                new Varint($value_varint)
+                new Cassandra\Decimal($value_decimal),
+                new Cassandra\Varint($value_varint)
             );
 
             // Insert the value into the table
-            $query = "INSERT INTO {$this->tableNamePrefix} (key, value_decimal, value_varint) VALUES (?, ?, ?)";
-            $statement = new SimpleStatement($query);
-            $options = new ExecutionOptions(array("arguments" => $values));
+            $query = "INSERT INTO {$this->keyspace}.{$this->table} (key, value_decimal, value_varint) VALUES (?, ?, ?)";
+            $statement = new Cassandra\SimpleStatement($query);
+            $options = new Cassandra\ExecutionOptions(array("arguments" => $values));
             $this->session->execute($statement, $options);
 
             // Select the decimal and varint
-            $query = "SELECT value_decimal, value_varint FROM {$this->tableNamePrefix} WHERE key=?";
-            $statement = new SimpleStatement($query);
-            $options = new ExecutionOptions(array("arguments" => array($key)));
+            $query = "SELECT value_decimal, value_varint FROM {$this->keyspace}.{$this->table} WHERE key=?";
+            $statement = new Cassandra\SimpleStatement($query);
+            $options = new Cassandra\ExecutionOptions(array("arguments" => array($key)));
             $rows = $this->session->execute($statement, $options);
 
             // Ensure the decimal and varint are valid

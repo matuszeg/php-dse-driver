@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
 class CollectionIntegrationTest extends CollectionsIntegrationTest
 {
@@ -39,7 +40,7 @@ class CollectionIntegrationTest extends CollectionsIntegrationTest
      */
     public function collectionWithScalarTypes() {
         return array_map(function ($cassandraType) {
-            $listType = Type::collection($cassandraType[0]);
+            $listType = Cassandra\Type::collection($cassandraType[0]);
             $list = $listType->create();
             foreach ($cassandraType[1] as $value) {
                 $list->add($value);
@@ -70,7 +71,7 @@ class CollectionIntegrationTest extends CollectionsIntegrationTest
      */
     public function collectionWithCompositeTypes() {
         return array_map(function ($cassandraType) {
-            $listType = Type::collection($cassandraType[0]);
+            $listType = Cassandra\Type::collection($cassandraType[0]);
             $list = $listType->create();
             foreach ($cassandraType[1] as $value) {
                 $list->add($value);
@@ -101,7 +102,7 @@ class CollectionIntegrationTest extends CollectionsIntegrationTest
      */
     public function collectionWithNestedTypes() {
         return array_map(function ($cassandraType) {
-            $listType = Type::collection($cassandraType[0]);
+            $listType = Cassandra\Type::collection($cassandraType[0]);
             $list = $listType->create();
             foreach ($cassandraType[1] as $value) {
                 $list->add($value);
@@ -116,7 +117,7 @@ class CollectionIntegrationTest extends CollectionsIntegrationTest
      * @test
      */
     public function testEmpty() {
-        $listType = Type::Collection(Type::int());
+        $listType = Cassandra\Type::Collection(Cassandra\Type::int());
         $this->createTableInsertAndVerifyValueByIndex($listType, $listType->create());
         $this->createTableInsertAndVerifyValueByName($listType, $listType->create());
     }
@@ -127,7 +128,7 @@ class CollectionIntegrationTest extends CollectionsIntegrationTest
      * @test
      */
     public function testNull() {
-        $listType = Type::Collection(Type::int());
+        $listType = Cassandra\Type::Collection(Cassandra\Type::int());
         $this->createTableInsertAndVerifyValueByIndex($listType, null);
         $this->createTableInsertAndVerifyValueByName($listType, null);
     }

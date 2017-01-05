@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
-namespace Cassandra;
+// Create an alias for DSE extension to share core test framework
+use \Dse as Cassandra;
 
 /**
  * Tuple integration tests.
  *
- * @cassandra-version-2.1
+ * @requires Cassandra >= 2.1.0
  */
 class TupleIntegrationTest extends CollectionsIntegrationTest {
     /**
@@ -44,7 +45,7 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
      */
     public function tupleWithScalarTypes() {
         return array_map(function ($cassandraType) {
-            $tupleType = Type::tuple($cassandraType[0]);
+            $tupleType = Cassandra\Type::tuple($cassandraType[0]);
             $tuple = $tupleType->create();
             $tuple->set(0, $cassandraType[1][0]);
             return array($tupleType, $tuple);
@@ -72,7 +73,7 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
      */
     public function tupleWithCompositeTypes() {
         return array_map(function ($cassandraType) {
-            $tupleType = Type::tuple($cassandraType[0]);
+            $tupleType = Cassandra\Type::tuple($cassandraType[0]);
             $tuple = $tupleType->create();
             $tuple->set(0, $cassandraType[1][0]);
             return array($tupleType, $tuple);
@@ -100,7 +101,7 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
      */
     public function tupleWithNestedTypes() {
         return array_map(function ($cassandraType) {
-            $tupleType = Type::tuple($cassandraType[0]);
+            $tupleType = Cassandra\Type::tuple($cassandraType[0]);
             $tuple = $tupleType->create();
             $tuple->set(0, $cassandraType[1][0]);
             return array($tupleType, $tuple);
@@ -131,7 +132,7 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
             for ($i = 0; $i < $size; $i++) {
                 $types[] = $cassandraTypes[$i][0];
             }
-            $tuple = new Tuple($types);
+            $tuple = new Cassandra\Tuple($types);
             for ($i = 0; $i < $size; $i++) {
                 $tuple->set($i, $cassandraTypes[$i][1][0]);
             }
@@ -163,7 +164,7 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
             for ($i = 0; $i < $size; $i++) {
                 $types[] = $scalarCassandraTypes[$i][0];
             }
-            $tuple = new Tuple($types);
+            $tuple = new Cassandra\Tuple($types);
             return array($tuple->type(), $tuple);
         }, $sizes);
     }
@@ -175,7 +176,7 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
      * @ticket PHP-58
      */
     public function testNull() {
-        $tupleType = Type::tuple(Type::int());
+        $tupleType = Cassandra\Type::tuple(Cassandra\Type::int());
         $this->createTableInsertAndVerifyValueByIndex($tupleType, null);
         $this->createTableInsertAndVerifyValueByName($tupleType, null);
     }
@@ -189,7 +190,7 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
      * @ticket PHP-58
      */
     public function testPartial() {
-        $tupleType = Type::tuple(Type::int(), Type::varchar(), Type::bigint());
+        $tupleType = Cassandra\Type::tuple(Cassandra\Type::int(), Cassandra\Type::varchar(), Cassandra\Type::bigint());
 
         $tuple = $tupleType->create();
         $tuple->set(0, 99);
@@ -200,7 +201,7 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
         $this->createTableInsertAndVerifyValueByIndex($tupleType, $tuple);
 
         $tuple = $tupleType->create();
-        $tuple->set(2, new Bigint("999999999999"));
+        $tuple->set(2, new Cassandra\Bigint("999999999999"));
         $this->createTableInsertAndVerifyValueByIndex($tupleType, $tuple);
     }
 
@@ -212,15 +213,15 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
      *
      * @test
      * @ticket PHP-58
-     * @expectedException \Cassandra\Exception\InvalidQueryException
+     * @expectedException \Dse\Exception\InvalidQueryException
      */
     public function testInvalidType() {
-        $validType = Type::tuple(Type::int());
-        $invalidType = Type::tuple(Type::varchar());
+        $validType = Cassandra\Type::tuple(Cassandra\Type::int());
+        $invalidType = Cassandra\Type::tuple(Cassandra\Type::varchar());
 
         $tableName = $this->createTable($validType);
 
-        $options = new ExecutionOptions(array(
+        $options = new Cassandra\ExecutionOptions(array(
             'arguments' => array("key", $invalidType->create("value")))
         );
 
@@ -238,38 +239,42 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
      * @ticket PHP-58
      */
     public function testUserType() {
+        // Ensure we are using the current keyspace
+        $query = "USE {$this->keyspace}";
+        $this->session->execute(new Cassandra\SimpleStatement($query));
+
         // Create the user types
-        $this->session->execute(new SimpleStatement(UserTypeIntegrationTest::PHONE_USER_TYPE_CQL));
-        $this->session->execute(new SimpleStatement(UserTypeIntegrationTest::ADDRESS_USER_TYPE_CQL));
+        $this->session->execute(new Cassandra\SimpleStatement(UserTypeIntegrationTest::PHONE_USER_TYPE_CQL));
+        $this->session->execute(new Cassandra\SimpleStatement(UserTypeIntegrationTest::ADDRESS_USER_TYPE_CQL));
 
         // Create the table
-        $query = "CREATE TABLE " . $this->tableNamePrefix .
+        $query = "CREATE TABLE " . $this->table .
             " (key timeuuid PRIMARY KEY, value " .
             "frozen<tuple<address>>)";
-        $this->session->execute(new SimpleStatement($query));
+        $this->session->execute(new Cassandra\SimpleStatement($query));
 
         // Generate a valid address user type and assign it to a tuple
         $address = UserTypeIntegrationTest::generateAddressValue();
-        $tuple = new Tuple(array($address->type()));
+        $tuple = new Cassandra\Tuple(array($address->type()));
         $tuple->set(0, $address);
 
         // Assign the values for the statement
-        $key = new Timeuuid();
+        $key = new Cassandra\Timeuuid();
         $values = array(
             $key,
             $tuple
         );
 
         // Insert the value into the table
-        $query = "INSERT INTO " . $this->tableNamePrefix . " (key, value) VALUES (?, ?)";
-        $statement = new SimpleStatement($query);
-        $options = new ExecutionOptions(array("arguments" => $values));
+        $query = "INSERT INTO " . $this->table . " (key, value) VALUES (?, ?)";
+        $statement = new Cassandra\SimpleStatement($query);
+        $options = new Cassandra\ExecutionOptions(array("arguments" => $values));
         $this->session->execute($statement, $options);
 
         // Select the tuple
-        $query = "SELECT value FROM " . $this->tableNamePrefix . " WHERE key=?";
-        $statement = new SimpleStatement($query);
-        $options = new ExecutionOptions(array("arguments" => array($key)));
+        $query = "SELECT value FROM " . $this->table . " WHERE key=?";
+        $statement = new Cassandra\SimpleStatement($query);
+        $options = new Cassandra\ExecutionOptions(array("arguments" => array($key)));
         $rows = $this->session->execute($statement, $options);
 
         // Ensure the tuple collection is valid
@@ -278,7 +283,7 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
         $this->assertNotNull($row);
         $this->assertArrayHasKey("value", $row);
         $tuple = $row["value"];
-        $this->assertInstanceOf('Cassandra\Tuple', $tuple);
+        $this->assertInstanceOf('Dse\Tuple', $tuple);
         $this->assertCount(1, $tuple);
 
         // Verify the value can be read from the table

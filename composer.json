@@ -49,6 +49,8 @@
       "support/embedded_ads.php",
       "support/version.php",
       "tests/integration/IntegrationTest.php",
+      "tests/integration/Cassandra/DatatypeIntegrationTests.php",
+      "tests/integration/Cassandra/CollectionsIntegrationTest.php",
       "tests/integration/Dse/DseIntegrationTest.php"
     ],
     "psr-4": {
@@ -57,7 +59,7 @@
         "tests/integration/Dse/"
       ],
       "Cassandra\\": [
-        "tests/unit/Cassandra/", 
+        "tests/unit/Cassandra/",
         "tests/integration/Cassandra/"
       ]
     }
