@@ -323,6 +323,7 @@ PHP_METHOD(LineString, point)
   ulong index;
   php_driver_line_string *self = NULL;
   php5to7_zval *value;
+  HashTable *points;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &index) == FAILURE) {
     return;
@@ -330,7 +331,7 @@ PHP_METHOD(LineString, point)
 
   self = PHP_DRIVER_GET_LINE_STRING(getThis());
 
-  HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(self->points);
+  points = PHP5TO7_Z_ARRVAL_MAYBE_P(self->points);
 
   if (PHP5TO7_ZEND_HASH_INDEX_FIND(points, index, value)) {
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(*value), 1, 0);
@@ -389,27 +390,33 @@ php_driver_line_string_properties(zval *object TSRMLS_DC)
 static int
 php_driver_line_string_compare(zval *obj1, zval *obj2 TSRMLS_DC)
 {
-  if (Z_OBJCE_P(obj1) != Z_OBJCE_P(obj2))
-    return 1; /* different classes */
-
-  php_driver_line_string *left = PHP_DRIVER_GET_LINE_STRING(obj1);
-  php_driver_line_string *right = PHP_DRIVER_GET_LINE_STRING(obj2);
-
-  HashTable *left_points = PHP5TO7_Z_ARRVAL_MAYBE_P(left->points);
-  HashTable *right_points = PHP5TO7_Z_ARRVAL_MAYBE_P(right->points);
-  unsigned left_num_points = zend_hash_num_elements(left_points);
-  unsigned right_num_points = zend_hash_num_elements(right_points);
-
-  // The line-string with fewer points is the "lesser" of the two.
-  if (left_num_points != right_num_points) {
-    return left_num_points < right_num_points ? -1 : 1;
-  }
-
+  php_driver_line_string *left;
+  php_driver_line_string *right;
+  HashTable *left_points;
+  HashTable *right_points;
+  unsigned left_num_points;
+  unsigned right_num_points;
   HashPosition pos1;
   HashPosition pos2;
   php5to7_zval *current1;
   php5to7_zval *current2;
   int result;
+
+  if (Z_OBJCE_P(obj1) != Z_OBJCE_P(obj2))
+    return 1; /* different classes */
+
+  left = PHP_DRIVER_GET_LINE_STRING(obj1);
+  right = PHP_DRIVER_GET_LINE_STRING(obj2);
+
+  left_points = PHP5TO7_Z_ARRVAL_MAYBE_P(left->points);
+  right_points = PHP5TO7_Z_ARRVAL_MAYBE_P(right->points);
+  left_num_points = zend_hash_num_elements(left_points);
+  right_num_points = zend_hash_num_elements(right_points);
+
+  // The line-string with fewer points is the "lesser" of the two.
+  if (left_num_points != right_num_points) {
+    return left_num_points < right_num_points ? -1 : 1;
+  }
 
   zend_hash_internal_pointer_reset_ex(left_points, &pos1);
   zend_hash_internal_pointer_reset_ex(right_points, &pos2);

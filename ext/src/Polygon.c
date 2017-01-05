@@ -298,6 +298,9 @@ PHP_METHOD(Polygon, __construct)
 
     // Every arg must be a LineString, and each LineString must have at least three points.
     for (i = 0; i < num_args; ++i) {
+      php_driver_line_string *ring;
+      HashTable *points;
+
       zval* ring_obj = PHP5TO7_ZVAL_ARG(args[i]);
       if (Z_TYPE_P(ring_obj) != IS_OBJECT || Z_OBJCE_P(ring_obj) != php_driver_line_string_ce) {
         char *object_name;
@@ -309,8 +312,8 @@ PHP_METHOD(Polygon, __construct)
       }
 
       // Verify that the ring (linestring) has at least three points.
-      php_driver_line_string *ring = PHP_DRIVER_GET_LINE_STRING(ring_obj);
-      HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(ring->points);
+      ring = PHP_DRIVER_GET_LINE_STRING(ring_obj);
+      points = PHP5TO7_Z_ARRVAL_MAYBE_P(ring->points);
       if (zend_hash_num_elements(points) < 3) {
         char *object_name;
         spprintf(&object_name, 0, "Argument %d", i+1);
@@ -357,13 +360,14 @@ PHP_METHOD(Polygon, exteriorRing)
 {
   php_driver_polygon *self = NULL;
   php5to7_zval *value;
+  HashTable *rings;
 
   if (zend_parse_parameters_none() == FAILURE)
     return;
 
   self = PHP_DRIVER_GET_POLYGON(getThis());
 
-  HashTable *rings = PHP5TO7_Z_ARRVAL_MAYBE_P(self->rings);
+  rings = PHP5TO7_Z_ARRVAL_MAYBE_P(self->rings);
 
   if (PHP5TO7_ZEND_HASH_INDEX_FIND(rings, 0, value)) {
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(*value), 1, 0);
@@ -411,6 +415,7 @@ PHP_METHOD(Polygon, ring)
   ulong index;
   php_driver_polygon *self = NULL;
   php5to7_zval *value;
+  HashTable *rings;
 
   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &index) == FAILURE) {
     return;
@@ -418,7 +423,7 @@ PHP_METHOD(Polygon, ring)
 
   self = PHP_DRIVER_GET_POLYGON(getThis());
 
-  HashTable *rings = PHP5TO7_Z_ARRVAL_MAYBE_P(self->rings);
+  rings = PHP5TO7_Z_ARRVAL_MAYBE_P(self->rings);
 
   if (PHP5TO7_ZEND_HASH_INDEX_FIND(rings, index, value)) {
     RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(*value), 1, 0);
@@ -479,27 +484,33 @@ php_driver_polygon_properties(zval *object TSRMLS_DC)
 static int
 php_driver_polygon_compare(zval *obj1, zval *obj2 TSRMLS_DC)
 {
+  php_driver_polygon *left;
+  php_driver_polygon *right;
+  HashTable *left_rings;
+  HashTable *right_rings;
+  unsigned left_num_rings;
+  unsigned right_num_rings;
+  HashPosition pos1;
+  HashPosition pos2;
+  php5to7_zval *current1;
+  php5to7_zval *current2;
+
   if (Z_OBJCE_P(obj1) != Z_OBJCE_P(obj2))
     return 1; /* different classes */
 
-  php_driver_polygon *left = PHP_DRIVER_GET_POLYGON(obj1);
-  php_driver_polygon *right = PHP_DRIVER_GET_POLYGON(obj2);
+  left = PHP_DRIVER_GET_POLYGON(obj1);
+  right = PHP_DRIVER_GET_POLYGON(obj2);
 
   // Compare ring's
-  HashTable *left_rings = PHP5TO7_Z_ARRVAL_MAYBE_P(left->rings);
-  HashTable *right_rings = PHP5TO7_Z_ARRVAL_MAYBE_P(right->rings);
-  unsigned left_num_rings = zend_hash_num_elements(left_rings);
-  unsigned right_num_rings = zend_hash_num_elements(right_rings);
+  left_rings = PHP5TO7_Z_ARRVAL_MAYBE_P(left->rings);
+  right_rings = PHP5TO7_Z_ARRVAL_MAYBE_P(right->rings);
+  left_num_rings = zend_hash_num_elements(left_rings);
+  right_num_rings = zend_hash_num_elements(right_rings);
 
   // The polygon with fewer rings is the "lesser" of the two.
   if (left_num_rings != right_num_rings) {
     return left_num_rings < right_num_rings ? -1 : 1;
   }
-
-  HashPosition pos1;
-  HashPosition pos2;
-  php5to7_zval *current1;
-  php5to7_zval *current2;
 
   zend_hash_internal_pointer_reset_ex(left_rings, &pos1);
   zend_hash_internal_pointer_reset_ex(right_rings, &pos2);

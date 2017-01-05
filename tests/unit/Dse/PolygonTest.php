@@ -51,9 +51,9 @@ class PolygonTest extends \PHPUnit_Framework_TestCase
 
     public function polygonFromWkt()
     {
-        $polyString = 'Exterior ring: 2,3 to 3,4 to 4,5
-Interior rings:
-    0,0 to 1,0 to 1,1 to 0,1 to 0,0';
+        $polyString = "Exterior ring: 2,3 to 3,4 to 4,5"
+            . "\nInterior rings:"
+            . "\n    0,0 to 1,0 to 1,1 to 0,1 to 0,0";
         return array(
             array("POLYGON ((2 3, 3 4, 4 5), (0 0, 1 0, 1 1, 0 1, 0 0))", $polyString)
         );
@@ -71,9 +71,9 @@ Interior rings:
     public function polygonStrings()
     {
         $polyString1 = 'Exterior ring: 2,3 to 3,4 to 4,5';
-        $polyString2 = 'Exterior ring: 2,3 to 3,4 to 4,5
-Interior rings:
-    0,0 to 1,0 to 1,1 to 0,1 to 0,0';
+        $polyString2 = "Exterior ring: 2,3 to 3,4 to 4,5"
+            . "\nInterior rings:"
+            . "\n    0,0 to 1,0 to 1,1 to 0,1 to 0,0";
 
         return array(
             array(array(array(2, 3, 3, 4, 4, 5)), $polyString1),

@@ -223,11 +223,14 @@ php_driver_point_properties(zval *object TSRMLS_DC)
 static int
 php_driver_point_compare(zval *obj1, zval *obj2 TSRMLS_DC)
 {
+  php_driver_point *left;
+  php_driver_point *right;
+
   if (Z_OBJCE_P(obj1) != Z_OBJCE_P(obj2))
     return 1; /* different classes */
 
-  php_driver_point  *left = PHP_DRIVER_GET_POINT(obj1);
-  php_driver_point  *right = PHP_DRIVER_GET_POINT(obj2);
+  left = PHP_DRIVER_GET_POINT(obj1);
+  right = PHP_DRIVER_GET_POINT(obj2);
 
   // Comparisons compare x, then y.
 

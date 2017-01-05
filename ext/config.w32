@@ -94,9 +94,9 @@ if (PHP_DSE != "no") {
         if (CHECK_LIB("mpir_a.lib", "dse") &&
           CHECK_HEADER_ADD_INCLUDE("gmp.h", "CFLAGS_DSE", PHP_GMP +  ";" + PHP_PHP_BUILD + "/include/mpir")) {
           if (ADD_EXTENSION_DEP("dse", "spl")) {
-            EXTENSION("dse", "php_dse.c");
+            EXTENSION("dse", "php_driver.c");
 
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src",
+            ADD_SOURCES(configure_module_dirname + "/src",
                 "Aggregate.c " +
                 "BatchStatement.c " +
                 "Bigint.c " +
@@ -104,6 +104,7 @@ if (PHP_DSE != "no") {
                 "Cluster.c " +
                 "Collection.c " +
                 "Column.c " +
+                "Core.c " +
                 "Custom.c " +
                 "Date.c " +
                 "Decimal.c " +
@@ -159,10 +160,9 @@ if (PHP_DSE != "no") {
                 "UuidInterface.c " +
                 "Value.c " +
                 "Varint.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Cluster",
-                "Builder.c " +
-                "DefaultBuilder.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Exception",
+            ADD_SOURCES(configure_module_dirname + "/src/Cluster",
+                "Builder.c", "dse");
+            ADD_SOURCES(configure_module_dirname + "/src/Exception",
                 "AlreadyExistsException.c " +
                 "AuthenticationException.c " +
                 "ConfigurationException.c " +
@@ -187,47 +187,15 @@ if (PHP_DSE != "no") {
                 "UnpreparedException.c " +
                 "ValidationException.c " +
                 "WriteTimeoutException.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/RetryPolicy",
-                "DefaultPolicy.c " +
-                "DowngradingConsistency.c " +
-                "Fallthrough.c " +
-                "Logging.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/SSLOptions",
-                "Builder.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/TimestampGenerator",
-                "Monotonic.c " +
-                "ServerSide.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/src/Type",
-                "Collection.c " +
-                "Custom.c " +
-                "Map.c " +
-                "Scalar.c " +
-                "Set.c " +
-                "Tuple.c " +
-                "UserType.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/php-driver/ext/util",
-                "bytes.c " +
-                "collections.c " +
-                "consistency.c " +
-                "future.c " +
-                "hash.c " +
-                "inet.c " +
-                "math.c " +
-                "ref.c " +
-                "result.c " +
-                "types.c " +
-                "uuid_gen.c", "dse");
-            ADD_SOURCES(configure_module_dirname + "/src/Cluster",
-                "Builder.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Graph",
-                "DefaultElement.c " +
                 "DefaultEdge.c " +
+                "DefaultElement.c " +
                 "DefaultPath.c " +
                 "DefaultProperty.c " +
                 "DefaultVertex.c " +
                 "DefaultVertexProperty.c " +
-                "Element.c " +
                 "Edge.c " +
+                "Element.c " +
                 "FutureResultSet.c " +
                 "Options.c " +
                 "Path.c " +
@@ -240,6 +208,37 @@ if (PHP_DSE != "no") {
                 "VertexProperty.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Graph/Options",
                 "Builder.c", "dse");
+            ADD_SOURCES(configure_module_dirname + "/src/RetryPolicy",
+                "DefaultPolicy.c " +
+                "DowngradingConsistency.c " +
+                "Fallthrough.c " +
+                "Logging.c", "dse");
+            ADD_SOURCES(configure_module_dirname + "/src/SSLOptions",
+                "Builder.c", "dse");
+            ADD_SOURCES(configure_module_dirname + "/src/TimestampGenerator",
+                "Monotonic.c " +
+                "ServerSide.c", "dse");
+            ADD_SOURCES(configure_module_dirname + "/src/Type",
+                "Collection.c " +
+                "Custom.c " +
+                "Map.c " +
+                "Scalar.c " +
+                "Set.c " +
+                "Tuple.c " +
+                "UserType.c", "dse");
+
+            ADD_SOURCES(configure_module_dirname + "/util",
+                "bytes.c " +
+                "collections.c " +
+                "consistency.c " +
+                "future.c " +
+                "hash.c " +
+                "inet.c " +
+                "math.c " +
+                "ref.c " +
+                "result.c " +
+                "types.c " +
+                "uuid_gen.c", "dse");
 
             ADD_FLAG("LDFLAGS_DSE",
                 "/INCREMENTAL:NO " +
@@ -253,9 +252,6 @@ if (PHP_DSE != "no") {
                 "/I " + PHP_DSE_CPP_DRIVER + "/include/dse " +
                 "/I " + PHP_PHP_BUILD + "/include/dse " +
                 "/I " + PHP_LIBUV + "/include " +
-                "/I " + configure_module_dirname + "/src " +
-                "/I " + configure_module_dirname + "/php-driver/ext " +
-                "/I " + configure_module_dirname + "/php-driver/ext/src " +
                 "/DCASS_STATIC " +
                 "/wd4267");
 
