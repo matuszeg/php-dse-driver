@@ -33,12 +33,12 @@ BEGIN
   BEGIN
     BLOCK "040904b0"
     BEGIN
-      VALUE "Comments", "Licensed under the Apache License, Version 2.0 (the 'License'); you may not use this file except in compliance with the License"
+      VALUE "Comments", "This software can be used solely with DataStax Enterprise. Please consult the license at http://www.datastax.com/terms/datastax-dse-driver-license-terms"
       VALUE "CompanyName", "DataStax, Inc."
       VALUE "FileDescription", "PHP extension for Cassandra " BUILD_INFORMATION
       VALUE "FileVersion", PHP_DRIVER_MAJOR,PHP_DRIVER_MINOR,PHP_DRIVER_RELEASE,0
       VALUE "InternalName", FILE_NAME
-      VALUE "LegalCopyright", "Copyright © 2015-2016 DataStax, Inc."
+      VALUE "LegalCopyright", "Copyright © 2017 DataStax, Inc."
       VALUE "OriginalFilename", FILE_NAME
       VALUE "ProductName", "Cassandra PHP driver " BUILD_INFORMATION
       VALUE "ProductVersion", PHP_DRIVER_VERSION
