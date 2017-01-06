@@ -35,6 +35,11 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_execute_graph, 0, ZEND_RETURN_VALUE, 1)
+  ZEND_ARG_INFO(0, statement)
+  ZEND_ARG_ARRAY_INFO(0, options, 1)
+ZEND_END_ARG_INFO()
+
 static zend_function_entry php_driver_session_methods[] = {
   PHP_ABSTRACT_ME(Session, execute, arginfo_execute)
   PHP_ABSTRACT_ME(Session, executeAsync, arginfo_execute)
@@ -43,6 +48,8 @@ static zend_function_entry php_driver_session_methods[] = {
   PHP_ABSTRACT_ME(Session, close, arginfo_timeout)
   PHP_ABSTRACT_ME(Session, closeAsync, arginfo_none)
   PHP_ABSTRACT_ME(Session, schema, arginfo_none)
+  PHP_ABSTRACT_ME(Session, executeGraph, arginfo_execute_graph)
+  PHP_ABSTRACT_ME(Session, executeGraphAsync, arginfo_execute_graph)
   PHP_FE_END
 };
 

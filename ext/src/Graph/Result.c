@@ -447,6 +447,18 @@ PHP_METHOD(GraphResult, isString)
   RETURN_BOOL(self->type == DSE_GRAPH_RESULT_TYPE_STRING)
 }
 
+PHP_METHOD(GraphResult, value)
+{
+  php_driver_graph_result *self = NULL;
+
+  if (zend_parse_parameters_none() == FAILURE)
+    return;
+
+  self = PHP_DRIVER_GET_GRAPH_RESULT(getThis());
+
+  RETVAL_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
+}
+
 PHP_METHOD(GraphResult, asInt)
 {
   php_driver_graph_result *self = NULL;
@@ -645,6 +657,7 @@ static zend_function_entry php_driver_graph_result_methods[] = {
   PHP_ME(GraphResult, isNumber,     arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(GraphResult, isString,     arginfo_none,   ZEND_ACC_PUBLIC)
   /* Basic types */
+  PHP_ME(GraphResult, value,        arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(GraphResult, asInt,        arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(GraphResult, asBool,       arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(GraphResult, asDouble,     arginfo_none,   ZEND_ACC_PUBLIC)

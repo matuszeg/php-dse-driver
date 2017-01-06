@@ -409,11 +409,13 @@ Dse\Cluster\Builder:
         comment: self
         type: Builder
     withGraphOptions:
-      comment: ""
+      comment: |
+        Sets graph options to be used to control graph queries. This options
+        can be overridden by per query graph options.
       params:
         options:
-          comment: ""
-          type: mixed
+          comment: Cluster-level graph options
+          type: Graph\Options
       return:
         comment: self
         type: Builder

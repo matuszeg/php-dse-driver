@@ -1,14 +1,20 @@
 ---
 Dse\Graph\FutureResultSet:
-  comment: ""
+  comment: |
+    A future result set of an asynchronously running graph query.
+
+    @see \Dse\Session::executeGraphAsync()
   methods:
     get:
-      comment: ""
+      comment: |
+        Get the result set of an asynchronously executed graph query.
+
+        @throws Exception
       params:
         timeout:
-          comment: ""
-          type: mixed
+          comment: The amount of time to wait for the graph query to return in seconds.
+          type: double
       return:
-        comment: ""
-        type: mixed
+        comment: A result set of arbitrary graph results.
+        type: Graph\ResultSet
 ...

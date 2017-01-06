@@ -1,20 +1,20 @@
 ---
 Dse\Graph\Property:
-  comment: ""
+  comment: A property or sub-property of a graph element.
   methods:
     name:
-      comment: ""
+      comment: Gets the name of the property.
       return:
-        comment: ""
-        type: mixed
+        comment: The string name of a property.
+        type: string
     value:
-      comment: ""
+      comment: Gets the value of the property.
       return:
-        comment: ""
-        type: mixed
+        comment: The value of the property.
+        type: Graph\Result
     parent:
-      comment: ""
+      comment: Gets The graph element that contains this property.
       return:
-        comment: ""
-        type: mixed
+        comment: The parent graph element of this property.
+        type: Graph\Result
 ...

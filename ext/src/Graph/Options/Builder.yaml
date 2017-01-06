@@ -1,64 +1,80 @@
 ---
 Dse\Graph\Options\Builder:
-  comment: ""
+  comment: |
+    A builder for fluent configuration of graph options;
+
+    @see \Cassandra::graphOptions()
+    @see \Cassandra\Cluster\Builder::withGraphOptions()
   methods:
     build:
-      comment: ""
+      comment: |
+        Constructs a graph options object that can be used to construct
+        a cluster with graph support.
+
+        @see \Cassandra\Cluster\Builder::withGraphOptions()
       return:
         comment: ""
-        type: mixed
+        type: Dse\Graph\Options
     withGraphLanguage:
-      comment: ""
+      comment: |
+        Set the graph language. Default: "gremlin-groovy"
       params:
         language:
-          comment: ""
-          type: mixed
+          comment: Graph language
+          type: string
       return:
-        comment: ""
-        type: mixed
+        comment: self
+        type: Graph\Options\Builder
     withGraphSource:
-      comment: ""
+      comment: |
+        Set the graph source. This should use the default: "g" unless running
+        analytics (OLAP) query then it should use "a".
       params:
         source:
-          comment: ""
-          type: mixed
+          comment: Graph source
+          type: string
       return:
-        comment: ""
-        type: mixed
+        comment: self
+        type: Graph\Options\Builder
     withGraphName:
-      comment: ""
+      comment: |
+        Set the graph name. This is required unless a per query graph name is
+        used.
       params:
         name:
-          comment: ""
-          type: mixed
+          comment: Graph name
+          type: string
       return:
-        comment: ""
-        type: mixed
+        comment: self
+        type: Graph\Options\Builder
     withReadConsistency:
-      comment: ""
+      comment: |
+        Set the read consistency of graph queries. Default: `Dse::CONSISTENCY_ONE`
       params:
         consistency:
-          comment: ""
-          type: mixed
+          comment: Read consistency
+          type: consistency
       return:
-        comment: ""
-        type: mixed
+        comment: self
+        type: Graph\Options\Builder
     withWriteConsistency:
-      comment: ""
+      comment: |
+        Set the write consistency of graph queries. Default: `Dse::CONSISTENCY_QUORUM`
       params:
         consistency:
-          comment: ""
-          type: mixed
+          comment: Write consistency
+          type: consistency constant
       return:
-        comment: ""
-        type: mixed
+        comment: self
+        type: Graph\Options\Builder
     withRequestTimeout:
-      comment: ""
+      comment: |
+        Set the request time of graph queries in seconds. Default: `0` (no timeout)
       params:
         request_timeout:
-          comment: ""
-          type: mixed
+          comment: Request timeout in seconds
+          type: double
       return:
-        comment: ""
-        type: mixed
+        comment: self
+        type: Graph\Options\Builder
 ...

@@ -9,22 +9,27 @@
 namespace Dse\Graph;
 
 /**
+ * Arbitrary data returned from a graph query. It can respresent several primitive types as well as composite types and graph elements.
+ * @see \Dse\Graph\ResultSet
  */
 final class Result implements Iterator, ArrayAccess {
 
     private final function __construct() { }
 
     /**
-     * @return mixed
+     * Gets the string representation of the contained data.
+     * @return string A string representation of the data.
      */
     public function __toString() { }
 
     /**
-     * @return mixed
+     * Gets the number of elements in the result if it is a composite types such as an array or object.
+     * @return int The number of elements.
      */
     public function count() { }
 
     /**
+     * Resets the internal iterator of this result if it is a composite type such as an array or object.
      * @return mixed
      */
     public function rewind() { }
@@ -108,6 +113,11 @@ final class Result implements Iterator, ArrayAccess {
      * @return mixed
      */
     public function isString() { }
+
+    /**
+     * @return mixed
+     */
+    public function value() { }
 
     /**
      * @return mixed

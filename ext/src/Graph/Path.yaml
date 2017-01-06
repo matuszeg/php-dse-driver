@@ -1,53 +1,37 @@
 ---
 Dse\Graph\Path:
-  comment: ""
+  comment: |
+    A sequence of graph elements that represents a path between two vertices.
+
+    @see \Dse\Graph\Edge
+    @see \Dse\Graph\Vertex
   methods:
     labels:
-      comment: ""
+      comment: |
+        A sequence of string labels representing the path of graph elements
+        between two vertices.
       return:
-        comment: ""
-        type: mixed
+        comment: An array of arrays of string labels.
+        type: array
     objects:
-      comment: ""
+      comment: Gets an array of graph elements between the two vertices.
       return:
-        comment: ""
-        type: mixed
+        comment: An array of graph results between the two vertices.
+        type: array
     hasLabel:
-      comment: ""
+      comment: Determines if the following path contains a label.
       return:
         comment: ""
-        type: mixed
+        type: boolean
     object:
-      comment: ""
+      comment: Get an object in the path with a particular label.
       params:
         key:
-          comment: ""
-          type: mixed
+          comment: A string label of an object.
+          type: string
       return:
-        comment: ""
-        type: mixed
-    id:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    label:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    properties:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    property:
-      comment: ""
-      params:
-        key:
-          comment: ""
-          type: mixed
-      return:
-        comment: ""
-        type: mixed
+        comment: |
+          The graph element as a graph result or `false` if the label is not in
+          the path.
+        type: Graph\Result|false
 ...

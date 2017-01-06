@@ -1,29 +1,29 @@
 ---
 Dse\Graph\Element:
-  comment: ""
+  comment: A base interface for graph elements.
   methods:
     id:
-      comment: ""
+      comment: Gets the element's unique identifier.
       return:
-        comment: ""
-        type: mixed
+        comment: The element's identifier as a graph result.
+        type: Graph\Result
     label:
-      comment: ""
+      comment: Get's the element's label.
       return:
-        comment: ""
-        type: mixed
+        comment: The element's label.
+        type: string
     properties:
-      comment: ""
+      comment: Gets an array of the element's properties.
       return:
-        comment: ""
-        type: mixed
+        comment: An array of graph results.
+        type: array
     property:
-      comment: ""
+      comment: Gets the element's property at the specified key.
       params:
         key:
-          comment: ""
-          type: mixed
+          comment: The name of the element's property.
+          type: string
       return:
-        comment: ""
-        type: mixed
+        comment: The element's property as a graph result.
+        type: Graph\Result
 ...

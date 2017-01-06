@@ -24,6 +24,5 @@ void php_driver_define_GraphPath(TSRMLS_D)
 
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Graph\\Path", php_driver_graph_path_methods);
   php_driver_graph_path_ce = zend_register_internal_class(&ce TSRMLS_CC);
-  zend_class_implements(php_driver_graph_path_ce TSRMLS_CC, 1, php_driver_graph_element_ce);
   php_driver_graph_path_ce->ce_flags |= ZEND_ACC_ABSTRACT;
 }

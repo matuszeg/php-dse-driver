@@ -1,44 +1,53 @@
 ---
 Dse\Graph\Result:
-  comment: ""
+  comment: Arbitrary data returned from a graph query. It can respresent
+    several primitive types as well as composite types and graph elements.
+
+    @see \Dse\Graph\ResultSet
   methods:
-    __construct:
-      comment: ""
     __toString:
-      comment: ""
+      comment: Gets the string representation of the contained data.
       return:
-        comment: ""
-        type: mixed
+        comment: A string representation of the data.
+        type: string
     count:
-      comment: ""
+      comment: Gets the number of elements in the result if it is a composite
+        types such as an array or object.
       return:
-        comment: ""
-        type: mixed
+        comment: The number of elements.
+        type: int
     rewind:
-      comment: ""
+      comment: |
+        Resets the internal iterator of this result if it is a composite type
+        such as an array or object.
       return:
         comment: ""
-        type: mixed
+        type: "null"
     current:
-      comment: ""
+      comment: |
+        Gets the element of the composite result at the current position of the
+        iterator.
       return:
-        comment: ""
-        type: mixed
+        comment: The current element.
+        type: Graph\Result
     key:
-      comment: ""
+      comment: |
+        Gets the key of an object result at the current posistion of the
+        iterator.
       return:
-        comment: ""
-        type: mixed
+        comment: The current key.
+        type: string
     next:
-      comment: ""
+      comment: Moves the iterator to the next position if a composite result
+        such as an array or object.
       return:
         comment: ""
-        type: mixed
+        type: "null"
     valid:
-      comment: ""
+      comment: Determines if the iterator is currently in a valid position.
       return:
-        comment: ""
-        type: mixed
+        comment: `true` if the current iterator position is valid.
+        type: boolean
     offsetExists:
       comment: ""
       params:
@@ -159,6 +168,11 @@ Dse\Graph\Result:
         comment: ""
         type: mixed
     isString:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    value:
       comment: ""
       return:
         comment: ""

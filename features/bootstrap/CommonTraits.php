@@ -151,7 +151,9 @@ trait CommonTraits {
      * @AfterFeature
      */
     public static function teardown_feature(AfterFeatureScope $scope) {
-        self::$ccm->remove_clusters();
+        if (!isset($_SERVER["KEEP_CLUSTERS"]) || !$_SERVER["KEEP_CLUSTERS"]) {
+            self::$ccm->remove_clusters();
+        }
     }
 
     /**
@@ -207,6 +209,12 @@ trait CommonTraits {
             // Determine if client authentication needs to be enabled
             if (array_key_exists("client_authentication", $configuration)) {
                 $cluster->with_client_authentication($configuration["client_authentication"]);
+            }
+        }
+
+        if (array_key_exists("workloads", $configuration)) {
+            foreach ($configuration["workloads"] as $workload) {
+                $cluster->add_workload($workload);
             }
         }
 
@@ -481,8 +489,12 @@ trait CommonTraits {
      * @Then its output should contain:
      */
     public function then_output_contains(PyStringNode $expected) {
-        PHPUnit_Framework_Assert::assertContains((string) $expected,
-            $this->example_output);
+        if (empty((string)$expected)) {
+            PHPUnit_Framework_Assert::assertEmpty($this->example_output, $this->example_output);
+        } else {
+            PHPUnit_Framework_Assert::assertContains((string) $expected,
+                $this->example_output);
+        }
     }
 
     /**
@@ -585,7 +597,9 @@ trait CommonTraits {
         self::$ccm = new CCM\Bridge(self::$configuration);
 
         // Clear any clusters that may have been left over from previous tests
-        self::$ccm->remove_clusters();
+        if (!isset($_SERVER["KEEP_CLUSTERS"]) || !$_SERVER["KEEP_CLUSTERS"]) {
+            self::$ccm->remove_clusters();
+        }
     }
 
     /**

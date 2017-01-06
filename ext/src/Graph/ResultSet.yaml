@@ -1,9 +1,10 @@
 ---
 Dse\Graph\ResultSet:
-  comment: ""
+  comment: A set of arbitrary data returned from a graph query. It is iterable
+    and indexable.
+
+    @see \Dse\Graph\Result
   methods:
-    __construct:
-      comment: ""
     count:
       comment: ""
       return:

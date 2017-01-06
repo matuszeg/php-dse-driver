@@ -9,49 +9,38 @@
 namespace Dse\Graph;
 
 /**
+ * A sequence of graph elements that represents a path between two vertices.
+ *
+ * @see \Dse\Graph\Edge
+ * @see \Dse\Graph\Vertex
  */
-abstract class Path implements Element {
+abstract class Path {
 
     /**
-     * @return mixed
+     * A sequence of string labels representing the path of graph elements
+     * between two vertices.
+     * @return array An array of arrays of string labels.
      */
     public abstract function labels();
 
     /**
-     * @return mixed
+     * Gets an array of graph elements between the two vertices.
+     * @return array An array of graph results between the two vertices.
      */
     public abstract function objects();
 
     /**
-     * @return mixed
+     * Determines if the following path contains a label.
+     * @return boolean
      */
     public abstract function hasLabel();
 
     /**
-     * @param mixed $key
-     * @return mixed
+     * Get an object in the path with a particular label.
+     * @param string $key A string label of an object.
+     * @return Graph\Result|false The graph element as a graph result or `false` if the label is not in
+the path.
      */
     public abstract function object($key);
-
-    /**
-     * @return mixed
-     */
-    public abstract function id();
-
-    /**
-     * @return mixed
-     */
-    public abstract function label();
-
-    /**
-     * @return mixed
-     */
-    public abstract function properties();
-
-    /**
-     * @param mixed $key
-     * @return mixed
-     */
-    public abstract function property($key);
 
 }

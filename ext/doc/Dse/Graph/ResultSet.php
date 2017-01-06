@@ -9,6 +9,8 @@
 namespace Dse\Graph;
 
 /**
+ * A set of arbitrary data returned from a graph query. It is iterable and indexable.
+ * @see \Dse\Graph\Result
  */
 final class ResultSet implements Iterator, ArrayAccess {
 

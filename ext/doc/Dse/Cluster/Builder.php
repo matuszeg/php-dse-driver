@@ -341,7 +341,10 @@ final class Builder {
     public function withGssapiAuthenticator($service, $principal) { }
 
     /**
-     * @param mixed $options
+     * Sets graph options to be used to control graph queries. This options
+     * can be overridden by per query graph options.
+     *
+     * @param Graph\Options $options Cluster-level graph options
      * @return Builder self
      */
     public function withGraphOptions($options) { }

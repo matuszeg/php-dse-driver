@@ -1,97 +1,96 @@
 ---
 Dse\Session:
-  comment: |-
-    A session is used to prepare and execute statements.
-
-    @see Cluster::connect()
+  comment: ""
   methods:
-    schema:
-      comment: |-
-        Returns current schema.
-
-        NOTE: the returned Schema instance will not be updated as the actual
-              schema changes, instead an updated instance should be requested by
-              calling Session::schema() again.
-      return:
-        comment: current schema.
-        type: Schema
     execute:
-      comment: |
-        Executes a given statement and returns a result.
-
-        @throws Exception
+      comment: ""
       params:
         statement:
-          comment: statement to be executed
-          type: Cassandra\Statement
+          comment: ""
+          type: Dse\Statement
         options:
-          comment: execution options (optional)
-          type: Cassandra\ExecutionOptions
-      return:
-        comment: execution result
-        type: Rows
-    executeAsync:
-      comment: |
-        Executes a given statement and returns a future result.
-
-        Note that this method ignores timeout specified in the ExecutionOptions,
-        you can provide one to Future::get() instead.
-      params:
-        statement:
-          comment: statement to be executed
-          type: Cassandra\Statement
-        options:
-          comment: execution options (optional)
-          type: Cassandra\ExecutionOptions
-      return:
-        comment: future result
-        type: Future
-    prepare:
-      comment: |
-        Creates a prepared statement from a given CQL string.
-
-        Note that this method only uses the ExecutionOptions::$timeout option,
-        all other options will be ignored.
-
-        @throws Exception
-      params:
-        cql:
-          comment: CQL statement string
-          type: string
-        options:
-          comment: execution options (optional)
-          type: Cassandra\ExecutionOptions
-      return:
-        comment: prepared statement
-        type: PreparedStatement
-    prepareAsync:
-      comment: |
-        Asynchronously prepares a statement and returns a future prepared statement.
-
-        Note that all options passed to this method will be ignored.
-      params:
-        cql:
-          comment: CQL string to be prepared
-          type: string
-        options:
-          comment: preparation options
-          type: Cassandra\ExecutionOptions
-      return:
-        comment: statement
-        type: Future
-    close:
-      comment: Closes current session and all of its connections.
-      params:
-        timeout:
-          comment: Timeout to wait for closure in seconds
-          type: float|null
+          comment: ""
+          type: Dse\ExecutionOptions
       return:
         comment: ""
-        type: void
-    closeAsync:
-      comment: Asynchronously closes current session once all pending requests have
-        finished.
+        type: mixed
+    executeAsync:
+      comment: ""
+      params:
+        statement:
+          comment: ""
+          type: Dse\Statement
+        options:
+          comment: ""
+          type: Dse\ExecutionOptions
       return:
-        comment: future
-        type: Future
+        comment: ""
+        type: mixed
+    prepare:
+      comment: ""
+      params:
+        cql:
+          comment: ""
+          type: mixed
+        options:
+          comment: ""
+          type: Dse\ExecutionOptions
+      return:
+        comment: ""
+        type: mixed
+    prepareAsync:
+      comment: ""
+      params:
+        cql:
+          comment: ""
+          type: mixed
+        options:
+          comment: ""
+          type: Dse\ExecutionOptions
+      return:
+        comment: ""
+        type: mixed
+    close:
+      comment: ""
+      params:
+        timeout:
+          comment: ""
+          type: mixed
+      return:
+        comment: ""
+        type: mixed
+    closeAsync:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    schema:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
+    executeGraph:
+      comment: ""
+      params:
+        statement:
+          comment: ""
+          type: mixed
+        options:
+          comment: ""
+          type: array
+      return:
+        comment: ""
+        type: mixed
+    executeGraphAsync:
+      comment: ""
+      params:
+        statement:
+          comment: ""
+          type: mixed
+        options:
+          comment: ""
+          type: array
+      return:
+        comment: ""
+        type: mixed
 ...

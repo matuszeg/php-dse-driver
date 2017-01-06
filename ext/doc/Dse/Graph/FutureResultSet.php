@@ -9,12 +9,19 @@
 namespace Dse\Graph;
 
 /**
+ * A future result set of an asynchronously running graph query.
+ *
+ * @see \Dse\Session::executeGraphAsync()
  */
 final class FutureResultSet implements Dse\Future {
 
     /**
-     * @param mixed $timeout
-     * @return mixed
+     * Get the result set of an asynchronously executed graph query.
+     *
+     * @throws Exception
+     *
+     * @param double $timeout The amount of time to wait for the graph query to return in seconds.
+     * @return Graph\ResultSet A result set of arbitrary graph results.
      */
     public function get($timeout) { }
 

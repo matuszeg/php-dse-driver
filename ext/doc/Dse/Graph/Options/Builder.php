@@ -9,47 +9,69 @@
 namespace Dse\Graph\Options;
 
 /**
+ * A builder for fluent configuration of graph options;
+ *
+ * @see \Cassandra::graphOptions()
+ * @see \Cassandra\Cluster\Builder::withGraphOptions()
  */
 final class Builder {
 
     /**
-     * @return mixed
+     * Constructs a graph options object that can be used to construct
+     * a cluster with graph support.
+     *
+     * @see \Cassandra\Cluster\Builder::withGraphOptions()
+     * @return Dse\Graph\Options
      */
     public function build() { }
 
     /**
-     * @param mixed $language
-     * @return mixed
+     * Set the graph language. Default: "gremlin-groovy"
+     *
+     * @param string $language Graph language
+     * @return Graph\Options\Builder self
      */
     public function withGraphLanguage($language) { }
 
     /**
-     * @param mixed $source
-     * @return mixed
+     * Set the graph source. This should use the default: "g" unless running
+     * analytics (OLAP) query then it should use "a".
+     *
+     * @param string $source Graph source
+     * @return Graph\Options\Builder self
      */
     public function withGraphSource($source) { }
 
     /**
-     * @param mixed $name
-     * @return mixed
+     * Set the graph name. This is required unless a per query graph name is
+     * used.
+     *
+     * @param string $name Graph name
+     * @return Graph\Options\Builder self
      */
     public function withGraphName($name) { }
 
     /**
-     * @param mixed $consistency
-     * @return mixed
+     * Set the read consistency of graph queries. Default: `Dse::CONSISTENCY_ONE`
+     *
+     * @param consistency $consistency Read consistency
+     * @return Graph\Options\Builder self
      */
     public function withReadConsistency($consistency) { }
 
     /**
-     * @param mixed $consistency
-     * @return mixed
+     * Set the write consistency of graph queries. Default: `Dse::CONSISTENCY_QUORUM`
+     *
+     * @param consistency constant $consistency Write consistency
+     * @return Graph\Options\Builder self
      */
     public function withWriteConsistency($consistency) { }
 
     /**
-     * @param mixed $request_timeout
-     * @return mixed
+     * Set the request time of graph queries in seconds. Default: `0` (no timeout)
+     *
+     * @param double $request_timeout Request timeout in seconds
+     * @return Graph\Options\Builder self
      */
     public function withRequestTimeout($request_timeout) { }
 

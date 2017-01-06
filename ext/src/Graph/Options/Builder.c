@@ -146,6 +146,8 @@ PHP_METHOD(GraphOptionsBuilder, withRequestTimeout)
     return;
   }
 
+  convert_to_double(timeout);
+
   if (Z_TYPE_P(timeout) != IS_DOUBLE || Z_DVAL_P(timeout) < 0) {
     INVALID_ARGUMENT(timeout, "a positive number");
   }
