@@ -46,7 +46,8 @@ Dse\Graph\Result:
     valid:
       comment: Determines if the iterator is currently in a valid position.
       return:
-        comment: `true` if the current iterator position is valid.
+        comment: |
+          `true` if the current iterator position is valid.
         type: boolean
     offsetExists:
       comment: ""

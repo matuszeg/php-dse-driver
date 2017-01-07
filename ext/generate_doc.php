@@ -338,6 +338,8 @@ function writeClass($doc, $file, $class) {
         $parentClassName = $parentClass->getName();
         if (startsWith($parentClassName, $namespace)) {
             $parentClassName = $parentClass->getShortName();
+        } else {
+            $parentClassName = "\\" . $parentClassName;
         }
         $parentClassName = replaceKeyword($parentClassName);
         fwrite($file, "extends $parentClassName ");
@@ -353,7 +355,10 @@ function writeClass($doc, $file, $class) {
             $interfaceName = $interface->getName();
             if (startsWith($interfaceName, $namespace)) {
                 $interfaceName = $interface->getShortName();
+            } else {
+                $interfaceName = "\\" . $interfaceName;
             }
+
             if ($first) {
                 fwrite($file, "implements ");
             } else {
