@@ -3,7 +3,7 @@ Dse\DefaultSession:
   comment: |-
     Actual session implementation.
 
-    @see Cassandra\Session
+    @see Dse\Session
   methods:
     schema:
       comment: '{@inheritDoc}'
@@ -18,10 +18,10 @@ Dse\DefaultSession:
       params:
         statement:
           comment: statement to be executed
-          type: Cassandra\Statement
+          type: Dse\Statement
         options:
           comment: execution options (optional)
-          type: Cassandra\ExecutionOptions
+          type: Dse\ExecutionOptions
       return:
         comment: execution result
         type: Rows
@@ -31,10 +31,10 @@ Dse\DefaultSession:
       params:
         statement:
           comment: statement to be executed
-          type: Cassandra\Statement
+          type: Dse\Statement
         options:
           comment: execution options (optional)
-          type: Cassandra\ExecutionOptions
+          type: Dse\ExecutionOptions
       return:
         comment: future result
         type: Future
@@ -49,7 +49,7 @@ Dse\DefaultSession:
           type: string
         options:
           comment: execution options (optional)
-          type: Cassandra\ExecutionOptions
+          type: Dse\ExecutionOptions
       return:
         comment: prepared statement
         type: PreparedStatement
@@ -62,7 +62,7 @@ Dse\DefaultSession:
           type: string
         options:
           comment: preparation options
-          type: Cassandra\ExecutionOptions
+          type: Dse\ExecutionOptions
       return:
         comment: statement
         type: Future

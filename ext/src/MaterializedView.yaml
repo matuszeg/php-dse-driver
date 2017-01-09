@@ -6,7 +6,7 @@ Dse\MaterializedView:
       comment: Returns the base table of the view
       return:
         comment: Base table of the view
-        type: Cassandra\Table
+        type: Dse\Table
     name:
       comment: Returns the name of this table
       return:
@@ -20,13 +20,13 @@ Dse\MaterializedView:
           type: mixed
       return:
         comment: Value of an option by name
-        type: Cassandra\Value
+        type: Dse\Value
     options:
       comment: |-
         Returns all the table's options
                       view's options.
       return:
-        comment: A dictionary of `string` and `Cassandra\Value pairs of the
+        comment: A dictionary of `string` and `Dse\Value pairs of the
         type: array
     comment:
       comment: Description of the table, if any
@@ -87,12 +87,12 @@ Dse\MaterializedView:
       comment: Returns compaction strategy options
       return:
         comment: Compaction strategy options
-        type: Cassandra\Map
+        type: Dse\Map
     compressionParameters:
       comment: Returns compression parameters
       return:
         comment: Compression parameters
-        type: Cassandra\Map
+        type: Dse\Map
     populateIOCacheOnFlush:
       comment: Returns whether or not the `populate_io_cache_on_flush` is true
       return:
@@ -121,26 +121,26 @@ Dse\MaterializedView:
           type: string
       return:
         comment: Column instance
-        type: Cassandra\Column
+        type: Dse\Column
     columns:
       comment: Returns all columns in this table
       return:
-        comment: A list of `Cassandra\Column` instances
+        comment: A list of `Dse\Column` instances
         type: array
     partitionKey:
       comment: Returns the partition key columns of the table
       return:
-        comment: A list of of `Cassandra\Column` instances
+        comment: A list of of `Dse\Column` instances
         type: array
     primaryKey:
       comment: Returns both the partition and clustering key columns of the table
       return:
-        comment: A list of of `Cassandra\Column` instances
+        comment: A list of of `Dse\Column` instances
         type: array
     clusteringKey:
       comment: Returns the clustering key columns of the table
       return:
-        comment: A list of of `Cassandra\Column` instances
+        comment: A list of of `Dse\Column` instances
         type: array
     clusteringOrder:
       comment: ""

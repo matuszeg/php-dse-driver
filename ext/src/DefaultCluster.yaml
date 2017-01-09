@@ -3,7 +3,7 @@ Dse\DefaultCluster:
   comment: |-
     Default cluster implementation.
 
-    @see Cassandra\Cluster
+    @see Dse\Cluster
   methods:
     connect:
       comment: |

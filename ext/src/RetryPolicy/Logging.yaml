@@ -6,9 +6,9 @@ Dse\RetryPolicy\Logging:
       comment: |-
         Creates a new Logging retry policy.
 
-                                                  Cassandra\Logging
+                                                  Dse\Logging
       params:
         childPolicy:
           comment: Any retry policy other than
-          type: Cassandra\RetryPolicy
+          type: Dse\RetryPolicy
 ...

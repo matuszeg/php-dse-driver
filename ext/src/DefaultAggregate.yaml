@@ -21,27 +21,27 @@ Dse\DefaultAggregate:
       comment: '{@inheritDoc}'
       return:
         comment: Final public function of the aggregate
-        type: Cassandra\Function
+        type: Dse\Function
     stateFunction:
       comment: '{@inheritDoc}'
       return:
         comment: State public function of the aggregate
-        type: Cassandra\Function
+        type: Dse\Function
     initialCondition:
       comment: '{@inheritDoc}'
       return:
         comment: Initial condition of the aggregate
-        type: Cassandra\Value
+        type: Dse\Value
     returnType:
       comment: '{@inheritDoc}'
       return:
         comment: Return type of the aggregate
-        type: Cassandra\Type
+        type: Dse\Type
     stateType:
       comment: '{@inheritDoc}'
       return:
         comment: State type of the aggregate
-        type: Cassandra\Type
+        type: Dse\Type
     signature:
       comment: '{@inheritDoc}'
       return:

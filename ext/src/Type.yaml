@@ -3,111 +3,111 @@ Dse\Type:
   comment: Cluster object is used to create Sessions.
   methods:
     varchar:
-      comment: Get representation of cassandra varchar type
+      comment: Get representation of varchar type
       return:
         comment: varchar type
-        type: Cassandra\Type
+        type: Dse\Type
     text:
-      comment: Get representation of cassandra text type
+      comment: Get representation of text type
       return:
         comment: text type
-        type: Cassandra\Type
+        type: Dse\Type
     blob:
-      comment: Get representation of cassandra blob type
+      comment: Get representation of blob type
       return:
         comment: blob type
-        type: Cassandra\Type
+        type: Dse\Type
     ascii:
-      comment: Get representation of cassandra ascii type
+      comment: Get representation of ascii type
       return:
         comment: ascii type
-        type: Cassandra\Type
+        type: Dse\Type
     bigint:
-      comment: Get representation of cassandra bigint type
+      comment: Get representation of bigint type
       return:
         comment: bigint type
-        type: Cassandra\Type
+        type: Dse\Type
     counter:
-      comment: Get representation of cassandra counter type
+      comment: Get representation of counter type
       return:
         comment: counter type
-        type: Cassandra\Type
+        type: Dse\Type
     int:
-      comment: Get representation of cassandra int type
+      comment: Get representation of int type
       return:
         comment: int type
-        type: Cassandra\Type
+        type: Dse\Type
     varint:
-      comment: Get representation of cassandra varint type
+      comment: Get representation of varint type
       return:
         comment: varint type
-        type: Cassandra\Type
+        type: Dse\Type
     boolean:
-      comment: Get representation of cassandra boolean type
+      comment: Get representation of boolean type
       return:
         comment: boolean type
-        type: Cassandra\Type
+        type: Dse\Type
     decimal:
-      comment: Get representation of cassandra decimal type
+      comment: Get representation of decimal type
       return:
         comment: decimal type
-        type: Cassandra\Type
+        type: Dse\Type
     double:
-      comment: Get representation of cassandra double type
+      comment: Get representation of double type
       return:
         comment: double type
-        type: Cassandra\Type
+        type: Dse\Type
     float:
-      comment: Get representation of cassandra float type
+      comment: Get representation of float type
       return:
         comment: float type
-        type: Cassandra\Type
+        type: Dse\Type
     inet:
-      comment: Get representation of cassandra inet type
+      comment: Get representation of inet type
       return:
         comment: inet type
-        type: Cassandra\Type
+        type: Dse\Type
     timestamp:
-      comment: Get representation of cassandra timestamp type
+      comment: Get representation of timestamp type
       return:
         comment: timestamp type
-        type: Cassandra\Type
+        type: Dse\Type
     uuid:
-      comment: Get representation of cassandra uuid type
+      comment: Get representation of uuid type
       return:
         comment: uuid type
-        type: Cassandra\Type
+        type: Dse\Type
     timeuuid:
-      comment: Get representation of cassandra timeuuid type
+      comment: Get representation of timeuuid type
       return:
         comment: timeuuid type
-        type: Cassandra\Type
+        type: Dse\Type
     smallint:
-      comment: Get representation of cassandra smallint type
+      comment: Get representation of smallint type
       return:
         comment: smallint type
-        type: Cassandra\Type
+        type: Dse\Type
     tinyint:
-      comment: get representation of cassandra tinyint type
+      comment: get representation of tinyint type
       return:
         comment: tinyint type
-        type: Cassandra\Type
+        type: Dse\Type
     date:
-      comment: get representation of cassandra date type
+      comment: get representation of date type
       return:
         comment: date type
-        type: Cassandra\Type
+        type: Dse\Type
     time:
-      comment: get representation of cassandra time type
+      comment: get representation of time type
       return:
         comment: time type
-        type: Cassandra\Type
+        type: Dse\Type
     collection:
       comment: |-
         Initialize a Collection type
         @code{.php}
         <?php
-        use Cassandra\Type;
+        use Dse\Type;
 
         $collection = Type::collection(Type::int())
                           ->create(1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -117,7 +117,7 @@ Dse\Type:
       params:
         type:
           comment: The type of values
-          type: Cassandra\Type
+          type: Dse\Type
       return:
         comment: '      The collection type'
         type: Type
@@ -126,7 +126,7 @@ Dse\Type:
         Initialize a map type
         @code{.php}
         <?php
-        use Cassandra\Type;
+        use Dse\Type;
 
         $map = Type::map(Type::int(), Type::varchar())
                    ->create(1, "a", 2, "b", 3, "c", 4, "d", 5, "e", 6, "f")
@@ -136,19 +136,19 @@ Dse\Type:
       params:
         keyType:
           comment: The type of keys
-          type: Cassandra\Type
+          type: Dse\Type
         valueType:
           comment: The type of values
-          type: Cassandra\Type
+          type: Dse\Type
       return:
         comment: '            The map type'
-        type: Cassandra\Type
+        type: Dse\Type
     set:
       comment: |-
         Initialize a set type
         @code{.php}
         <?php
-        use Cassandra\Type;
+        use Dse\Type;
 
         $set = Type::set(Type::varchar())
                    ->create("a", "b", "c", "d", "e", "f", "g", "h", "i", "j");
@@ -158,7 +158,7 @@ Dse\Type:
       params:
         type:
           comment: The types of values
-          type: Cassandra\Type
+          type: Dse\Type
       return:
         comment: ""
         type: mixed
@@ -167,7 +167,7 @@ Dse\Type:
         Initialize a tuple type
         @code{.php}
         <?php
-        use Cassandra\Type;
+        use Dse\Type;
 
         $tuple = Type::tuple(Type::varchar(), Type::int())
                    ->create("a", 123);
@@ -177,16 +177,16 @@ Dse\Type:
       params:
         types:
           comment: A variadic list of types
-          type: Cassandra\Type
+          type: Dse\Type
       return:
         comment: The tuple type
-        type: Cassandra\Type
+        type: Dse\Type
     userType:
       comment: |-
         Initialize a user type
         @code{.php}
         <?php
-        use Cassandra\Type;
+        use Dse\Type;
 
         $userType = Type::userTupe("a", Type::varchar(), "b", Type::int())
                         ->create("a", "abc", "b", 123);
@@ -196,10 +196,10 @@ Dse\Type:
       params:
         types:
           comment: A variadic list of name/type pairs
-          type: Cassandra\Type
+          type: Dse\Type
       return:
         comment: The user type
-        type: Cassandra\Type
+        type: Dse\Type
     name:
       comment: Returns the name of this type as string.
       return:

@@ -1,13 +1,16 @@
 ---
 Dse\Polygon:
   comment: |
-    Encapsulates a polygon consisting of a set of linear-rings in the xy-plane. It corresponds to the
-    `org.apache.cassandra.db.marshal.PolygonType` column type in DSE.
+    Encapsulates a polygon consisting of a set of linear-rings in the xy-plane.
+    It corresponds to the `org.apache.cassandra.db.marshal.PolygonType` column
+    type in DSE.
 
-    A linear-ring is a LineString whose last point is the same as its first point. The first ring specified
-    in a polygon defines the outer edges of the polygon and is called the _exterior ring_. A polygon may also have
-    _holes_ within it, specified by other linear-rings, and those holes may contain linear-rings indicating
-    _islands_. All such rings are called _interior rings_.
+    A linear-ring is a LineString whose last point is the same as its first
+    point. The first ring specified in a polygon defines the outer edges of the
+    polygon and is called the _exterior ring_. A polygon may also have _holes_
+    within it, specified by other linear-rings, and those holes may contain
+    linear-rings indicating _islands_. All such rings are called _interior
+    rings_.
 
     @see https://en.wikipedia.org/wiki/Well-known_text
   methods:
@@ -30,8 +33,8 @@ Dse\Polygon:
     type:
       comment: ""
       return:
-        comment: the Cassandra custom type for Polygon
-        type: Cassandra\Type\Custom
+        comment: the custom type for Polygon
+        type: Dse\Type\Custom
     exteriorRing:
       comment: ""
       return:

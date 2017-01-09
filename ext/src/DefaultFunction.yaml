@@ -21,7 +21,7 @@ Dse\DefaultFunction:
       comment: '{@inheritDoc}'
       return:
         comment: Return type of the function
-        type: Cassandra\Type
+        type: Dse\Type
     signature:
       comment: '{@inheritDoc}'
       return:

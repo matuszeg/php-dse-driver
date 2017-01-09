@@ -11,7 +11,7 @@ Dse\Decimal:
 
         ~~~{.php}
         <?php
-        $decimal = new Cassandra::Decimal("1313123123.234234234234234234123");
+        $decimal = new Dse::Decimal("1313123123.234234234234234234123");
 
         $this->assertEquals(21, $decimal->scale());
         $this->assertEquals("1313123123234234234234234234123", $decimal->value());
@@ -45,7 +45,7 @@ Dse\Decimal:
       params:
         num:
           comment: a number to add to this one
-          type: Cassandra\Numeric
+          type: Dse\Numeric
       return:
         comment: sum
         type: Numeric
@@ -54,7 +54,7 @@ Dse\Decimal:
       params:
         num:
           comment: a number to subtract from this one
-          type: Cassandra\Numeric
+          type: Dse\Numeric
       return:
         comment: difference
         type: Numeric
@@ -63,7 +63,7 @@ Dse\Decimal:
       params:
         num:
           comment: a number to multiply this one by
-          type: Cassandra\Numeric
+          type: Dse\Numeric
       return:
         comment: product
         type: Numeric
@@ -72,7 +72,7 @@ Dse\Decimal:
       params:
         num:
           comment: a number to divide this one by
-          type: Cassandra\Numeric
+          type: Dse\Numeric
       return:
         comment: quotient
         type: Numeric
@@ -81,7 +81,7 @@ Dse\Decimal:
       params:
         num:
           comment: a number to divide this one by
-          type: Cassandra\Numeric
+          type: Dse\Numeric
       return:
         comment: remainder
         type: Numeric

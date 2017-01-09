@@ -16,7 +16,7 @@ Dse\DefaultKeyspace:
       comment: '{@inheritDoc}'
       return:
         comment: Replication options
-        type: Cassandra\Map
+        type: Dse\Map
     hasDurableWrites:
       comment: '{@inheritDoc}'
       return:
@@ -30,11 +30,11 @@ Dse\DefaultKeyspace:
           type: string
       return:
         comment: '       Table instance or null'
-        type: Cassandra\Table
+        type: Dse\Table
     tables:
       comment: '{@inheritDoc}'
       return:
-        comment: An array of `Cassandra\Table` instances
+        comment: An array of `Dse\Table` instances
         type: array
     userType:
       comment: ""

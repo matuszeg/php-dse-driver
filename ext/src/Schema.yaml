@@ -10,10 +10,10 @@ Dse\Schema:
           type: string
       return:
         comment: '      Keyspace instance or null'
-        type: Cassandra\Keyspace
+        type: Dse\Keyspace
     keyspaces:
       comment: Returns all keyspaces defined in the schema.
       return:
-        comment: An array of `Cassandra\Keyspace` instances.
+        comment: An array of `Dse\Keyspace` instances.
         type: array
 ...

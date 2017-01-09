@@ -3,19 +3,19 @@ Dse\Cluster\Builder:
   comment: |-
     Cluster builder allows fluent configuration of the cluster instance.
 
-    @see \Cassandra::cluster()
+    @see \Dse::cluster()
   methods:
     build:
       comment: Returns a Cluster Instance.
       return:
         comment: Cluster instance
-        type: \Cassandra\Cluster
+        type: \Dse\Cluster
     withDefaultConsistency:
       comment: |
         Configures default consistency for all requests.
       params:
         consistency:
-          comment: A consistency level, must be one of Cassandra::CONSISTENCY_* values
+          comment: A consistency level, must be one of Dse::CONSISTENCY_* values
           type: int
       return:
         comment: self
@@ -57,7 +57,7 @@ Dse\Cluster\Builder:
       comment: |
         Specify a different port to be used when connecting to the cluster.
 
-        @throws \Cassandra\Exception\InvalidArgumentException
+        @throws \Dse\Exception\InvalidArgumentException
       params:
         port:
           comment: a number between 1 and 65535
@@ -99,7 +99,7 @@ Dse\Cluster\Builder:
         type: Builder
     withCredentials:
       comment: |
-        Configures cassandra authentication.
+        Configures plain-text authentication.
       params:
         username:
           comment: Username
@@ -136,7 +136,7 @@ Dse\Cluster\Builder:
       params:
         options:
           comment: a preconfigured ssl context
-          type: Cassandra\SSLOptions
+          type: Dse\SSLOptions
       return:
         comment: self
         type: Builder
@@ -253,7 +253,7 @@ Dse\Cluster\Builder:
       params:
         policy:
           comment: the retry policy to use.
-          type: Cassandra\Cluster\RetryPolicy
+          type: Dse\Cluster\RetryPolicy
       return:
         comment: self
         type: Builder
@@ -265,7 +265,7 @@ Dse\Cluster\Builder:
       params:
         generator:
           comment: A timestamp generator that will be used
-          type: Cassandra\TimestampGenerator
+          type: Dse\TimestampGenerator
       return:
         comment: self
         type: Builder

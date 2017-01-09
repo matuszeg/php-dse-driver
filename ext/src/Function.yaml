@@ -21,7 +21,7 @@ Dse\Function:
       comment: Returns the return type of the function
       return:
         comment: Return type of the function
-        type: Cassandra\Type
+        type: Dse\Type
     signature:
       comment: Returns the signature of the function
       return:

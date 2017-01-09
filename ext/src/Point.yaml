@@ -1,8 +1,8 @@
 ---
 Dse\Point:
   comment: |
-    Encapsulates a 2D point with x,y coordinates. It corresponds to the `org.apache.cassandra.db.marshal.PointType`
-    column type in DSE.
+    Encapsulates a 2D point with x,y coordinates. It corresponds to the
+    `org.apache.cassandra.db.marshal.PointType` column type in DSE.
 
     @see https://en.wikipedia.org/wiki/Well-known_text
   methods:
@@ -15,8 +15,8 @@ Dse\Point:
     type:
       comment: ""
       return:
-        comment: the Cassandra custom type for Point
-        type: Cassandra\Type\Custom
+        comment: the custom type for Point
+        type: Dse\Type\Custom
     x:
       comment: ""
       return:

@@ -1,6 +1,6 @@
 ---
 Dse\Exception\RuntimeException:
-  comment: Cassandra-specific runtime exception.
+  comment: DSE runtime exception.
   methods:
     __construct:
       comment: ""

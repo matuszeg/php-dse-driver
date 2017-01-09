@@ -32,8 +32,8 @@ Dse\LineString:
     type:
       comment: ""
       return:
-        comment: the Cassandra custom type for LineString
-        type: Cassandra\Type\Custom
+        comment: the custom type for LineString
+        type: Dse\Type\Custom
     points:
       comment: ""
       return:

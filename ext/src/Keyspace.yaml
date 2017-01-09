@@ -16,7 +16,7 @@ Dse\Keyspace:
       comment: Returns replication options
       return:
         comment: Replication options
-        type: Cassandra\Map
+        type: Dse\Map
     hasDurableWrites:
       comment: Returns whether the keyspace has durable writes enabled
       return:
@@ -30,11 +30,11 @@ Dse\Keyspace:
           type: string
       return:
         comment: '      Table instance or null'
-        type: Cassandra\Table|null
+        type: Dse\Table|null
     tables:
       comment: Returns all tables defined in this keyspace
       return:
-        comment: An array of `Cassandra\Table` instances
+        comment: An array of `Dse\Table` instances
         type: array
     userType:
       comment: ""

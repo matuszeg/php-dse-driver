@@ -1,6 +1,6 @@
 ---
 Dse\Exception\RangeException:
-  comment: Cassandra-specific domain exception.
+  comment: DSE domain exception.
   methods:
     __construct:
       comment: ""

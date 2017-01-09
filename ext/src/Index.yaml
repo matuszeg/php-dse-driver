@@ -25,13 +25,13 @@ Dse\Index:
           type: mixed
       return:
         comment: Value of an option by name
-        type: Cassandra\Value
+        type: Dse\Value
     options:
       comment: |-
         Returns all the index's options
                       index's options.
       return:
-        comment: A dictionary of `string` and `Cassandra\Value pairs of the
+        comment: A dictionary of `string` and `Dse\Value pairs of the
         type: array
     className:
       comment: Returns the class name of the index

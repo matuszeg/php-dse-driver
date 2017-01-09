@@ -40,6 +40,6 @@ Dse\Date:
     __toString:
       comment: ""
       return:
-        comment: 'this date in string format: Cassandra\Date(seconds=$seconds)'
+        comment: 'this date in string format: Dse\Date(seconds=$seconds)'
         type: string
 ...

@@ -19,7 +19,7 @@ Dse\Type\Collection:
         type: Type
     create:
       comment: |-
-        Creates a new Cassandra\Collection from the given values.
+        Creates a new Dse\Collection from the given values.
 
         @throws Exception\InvalidArgumentException when values given are of a
                                                    different type than what this
@@ -32,5 +32,5 @@ Dse\Type\Collection:
           type: mixed
       return:
         comment: ' A list with given values.'
-        type: Cassandra\Collection
+        type: Dse\Collection
 ...

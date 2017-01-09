@@ -1,6 +1,6 @@
 ---
 Dse\Exception\LogicException:
-  comment: Cassandra-specific logic exception.
+  comment: DSE logic exception.
   methods:
     __construct:
       comment: ""

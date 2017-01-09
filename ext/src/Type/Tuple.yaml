@@ -19,7 +19,7 @@ Dse\Type\Tuple:
         type: array
     create:
       comment: |-
-        Creates a new Cassandra\Tuple from the given values.
+        Creates a new Dse\Tuple from the given values.
 
         @throws Exception\InvalidArgumentException when values given are of a
                                                    different type than what the
@@ -36,5 +36,5 @@ Dse\Type\Tuple:
           type: mixed
       return:
         comment: ' A tuple with given values.'
-        type: Cassandra\Tuple
+        type: Dse\Tuple
 ...

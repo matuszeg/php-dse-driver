@@ -19,7 +19,7 @@ Dse\Type\Set:
         type: Type
     create:
       comment: |-
-        Creates a new Cassandra\Set from the given values.
+        Creates a new Dse\Set from the given values.
 
         @throws Exception\InvalidArgumentException when values given are of a
                                                    different type than what this
@@ -32,5 +32,5 @@ Dse\Type\Set:
           type: mixed
       return:
         comment: '   A set with given values.'
-        type: Cassandra\Set
+        type: Dse\Set
 ...

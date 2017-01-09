@@ -15,14 +15,14 @@ Dse\DefaultTable:
           type: mixed
       return:
         comment: Value of an option by name
-        type: Cassandra\Value
+        type: Dse\Value
     options:
       comment: |-
         {@inheritDoc}
 
                       table's options.
       return:
-        comment: A dictionary of `string` and `Cassandra\Value pairs of the
+        comment: A dictionary of `string` and `Dse\Value pairs of the
         type: array
     comment:
       comment: '{@inheritDoc}'
@@ -83,12 +83,12 @@ Dse\DefaultTable:
       comment: '{@inheritDoc}'
       return:
         comment: Compaction strategy options
-        type: Cassandra\Map
+        type: Dse\Map
     compressionParameters:
       comment: '{@inheritDoc}'
       return:
         comment: Compression parameters
-        type: Cassandra\Map
+        type: Dse\Map
     populateIOCacheOnFlush:
       comment: '{@inheritDoc}'
       return:
@@ -117,26 +117,26 @@ Dse\DefaultTable:
           type: string
       return:
         comment: Column instance
-        type: Cassandra\Column
+        type: Dse\Column
     columns:
       comment: '{@inheritDoc}'
       return:
-        comment: A list of `Cassandra\Column` instances
+        comment: A list of `Dse\Column` instances
         type: array
     partitionKey:
       comment: '{@inheritDoc}'
       return:
-        comment: A list of of `Cassandra\Column` instance
+        comment: A list of of `Dse\Column` instance
         type: array
     primaryKey:
       comment: '{@inheritDoc}'
       return:
-        comment: A list of of `Cassandra\Column` instance
+        comment: A list of of `Dse\Column` instance
         type: array
     clusteringKey:
       comment: '{@inheritDoc}'
       return:
-        comment: A list of of `Cassandra\Column` instances
+        comment: A list of of `Dse\Column` instances
         type: array
     clusteringOrder:
       comment: '{@inheritDoc}'

@@ -26,7 +26,7 @@ Dse\Type\UserType:
         type: array
     create:
       comment: |-
-        Creates a new Cassandra\UserTypeValue from the given name/value pairs.
+        Creates a new Dse\UserTypeValue from the given name/value pairs.
 
         @throws Exception\InvalidArgumentException when values given are of a
                                                    different types than what the
@@ -40,7 +40,7 @@ Dse\Type\UserType:
           type: mixed
       return:
         comment: ' A user type value with given name/value pairs.'
-        type: Cassandra\UserTypeValue
+        type: Dse\UserTypeValue
     withName:
       comment: ""
       params:

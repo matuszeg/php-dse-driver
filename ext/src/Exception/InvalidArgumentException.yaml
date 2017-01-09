@@ -1,6 +1,6 @@
 ---
 Dse\Exception\InvalidArgumentException:
-  comment: Cassandra-specific invalid argument exception.
+  comment: DSE invalid argument exception.
   methods:
     __construct:
       comment: ""
