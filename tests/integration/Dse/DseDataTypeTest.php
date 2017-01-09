@@ -120,7 +120,7 @@ class DseDataTypeTest extends DseIntegrationTest {
     }
 
     /**
-     * Insert a row using a batch statement for a prepared statement
+     * Insert a row using a batch statement for a prepared or simple statement
      *
      * @param mixed $id ID/Primary key to insert
      * @param mixed $value Value to associate with primary key

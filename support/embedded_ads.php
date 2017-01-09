@@ -115,7 +115,7 @@ class EmbeddedAds {
             throw new Exception("ADS Server will not be Created: "
                 . " Must run locally with DSE cluster");
         }
-        //TODO: Add similar error when SSH support is added; until file transfer is implemented
+        //TODO: Use SSH support to copy and execute ADS remotely
 
         // Ensure all application dependencies are available for ADS
         $failures = array();

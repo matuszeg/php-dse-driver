@@ -43,7 +43,9 @@ class IntegrationTestFixture {
     private $configuration;
 
     public function __destruct() {
-        $this->ccm->remove_clusters();
+        if (!is_null($this->ccm)) {
+            $this->ccm->remove_clusters();
+        }
     }
 
     public function __get($property) {
@@ -66,7 +68,11 @@ class IntegrationTestFixture {
 
     private function __construct() {
         // Create the configuration instance for the entire run of the integration tests
-        $this->configuration = new Configuration();
+        try {
+            $this->configuration = new Configuration();
+        } catch (\Exception $e) {
+            exit($e);
+        }
         // Override the verbose setting if certain PHPUnit arguments are used
         if (in_array("--debug", $_SERVER['argv']) ||
             in_array("--verbose", $_SERVER['argv'])) {
@@ -75,13 +81,14 @@ class IntegrationTestFixture {
 
         // Display information about the current setup for the tests being run
         echo PHP_EOL . "Starting DataStax PHP Driver Integration Test" . PHP_EOL
-            . "  PHP v" . phpversion() . PHP_EOL;
+            . "  PHP v" . phpversion() . PHP_EOL
+            . "  PHP ";
         if (class_exists("Dse")) {
-            echo "  DSE";
+            echo "DSE";
         } else {
-            echo "  Cassandra";
+            echo "Cassandra";
         }
-        echo " v" . Cassandra::VERSION . PHP_EOL
+        echo " Extension v" . Cassandra::VERSION . PHP_EOL
             . "  C/C++ ";
         if (class_exists("Dse")) {
             echo "DSE v" . Dse::CPP_DRIVER_DSE_VERSION . "/";
@@ -91,7 +98,11 @@ class IntegrationTestFixture {
         echo PHP_EOL;
 
         // Create the CCM instance for the entire run of the integration tests
-        $this->ccm = new CCM\Bridge($this->configuration);
+        try {
+            $this->ccm = new CCM\Bridge($this->configuration);
+        } catch (\Exception $e) {
+            exit($e->getCode());
+        }
 
         // Clear any clusters that may have been left over from previous tests
         $this->ccm->remove_clusters();
@@ -1575,13 +1586,14 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      */
     private function initialize_logger() {
         // Create the directory for the test class (directory may already exist)
-        $this->log_directory = "logs/{$this->get_short_name()}" . DIRECTORY_SEPARATOR;
+        $this->log_directory = "logs" . DIRECTORY_SEPARATOR
+            . $this->get_short_name() . DIRECTORY_SEPARATOR;
         if ($this->using_data_provider) {
             $this->log_directory .= $this->getName(false) . DIRECTORY_SEPARATOR;
         }
         @mkdir($this->log_directory, 0777, true);
 
-        // Assign the logger filename and update the logger level
+        // Determine the logger filename
         $this->log_filename = "{$this->getName(false)}.log";
         if ($this->using_data_provider) {
             // Determine if we can retrieve the name of the data set
@@ -1591,6 +1603,14 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             }
             $this->log_filename = "{$dataset_name}.log";
         }
+
+        // Simplify the filename and conform to proper file conventions
+        $this->log_filename = str_replace(" ", "", $this->log_filename);
+        $this->log_filename = str_replace(array("<", ">", ",", "#"),
+            "_", $this->log_filename);
+        $this->log_filename = preg_replace("/(.)\\1+/", "_", $this->log_filename);
+
+        // Update the logger filename and level (alter INI)
         ini_alter(LOG_FILENAME_OPTION, "{$this->log_directory}{$this->log_filename}");
         ini_alter(LOG_LEVEL_OPTION, "TRACE");
     }

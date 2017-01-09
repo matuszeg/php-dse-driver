@@ -83,6 +83,11 @@ class Cluster {
      */
     private $dse;
     /**
+     * @var bool True if the DSE INI credentials file should be used for
+     *                download authentication; false otherwise
+     */
+    private $dse_ini = false;
+    /**
      * @var string Username for DSE download authentication
      */
     private $dse_username;
@@ -121,7 +126,7 @@ class Cluster {
      * @return Cluster Cluster instance for builder object
      */
     public static function build() {
-        return new Cluster(false, null, null, null, DEFAULT_CLUSTER_PREFIX);
+        return new Cluster(false, false, null, null, null, DEFAULT_CLUSTER_PREFIX);
     }
 
     public function __get($property) {
@@ -206,6 +211,20 @@ class Cluster {
     }
 
     /**
+     * Enable/Disable DSE INI credentials for download authentication
+     *
+     * NOTE: This will override username/password credentials
+     *
+     * @param bool $enable (Optional) True to enable; false otherwise
+     *                                (default: true)
+     * @return $this Cluster
+     */
+    public function with_dse_ini($enable = true) {
+        $this->dse_ini = $enable;
+        return $this;
+    }
+
+    /**
      * DSE username for download authentication
      *
      * @param string $username DSE username
@@ -277,16 +296,19 @@ class Cluster {
      * Build a cluster instance
      *
      * @param bool $dse True if DSE is requested; false otherwise
+     * @param bool $dse_ini True if DSE INI credentials is requested; false
+     *                      otherwise
      * @param string $dse_username Username for DSE download authentication
      * @param string $dse_password Password for DSE download authentication
      * @param mixed $version Cassandra/DSE version to use
      * @param string $prefix Prefix to use when creating a cluster name
      * @return Cluster Cluster instance
      */
-    private function __construct($dse, $dse_username, $dse_password, $version, $prefix) {
+    private function __construct($dse, $dse_ini, $dse_username, $dse_password, $version, $prefix) {
         $this->data_centers = array();
         $this->dse = $dse;
         if ($dse) {
+            $this->dse_ini = $dse_ini;
             $this->dse_username = $dse_username;
             $this->dse_password = $dse_password;
         }
@@ -338,6 +360,11 @@ class Bridge {
      */
     private $dse = false;
     /**
+     * @var bool|string DSE ini filename if using SSH deployments; true to
+     *                  utilize local INI credentials file
+     */
+    private $dse_ini = false;
+    /**
      * @var string Username for DSE download authentication
      */
     private $dse_username;
@@ -346,9 +373,21 @@ class Bridge {
      */
     private $dse_password;
     /**
+     * @var string EOL marker expected in all CCM command outputs
+     */
+    private $eol = "\n";
+    /**
      * @var string Prefix to use when creating a cluster name
      */
     private $prefix;
+    /**
+     * @var resource SSH session for remote deployment
+     */
+    private $ssh = null;
+    /**
+     * @var string Host/IPv4 address for SSH session
+     */
+    private $ssh_host;
     /**
      * @var mixed Cassandra/DSE version to use
      *
@@ -361,7 +400,6 @@ class Bridge {
      */
     private $verbose = false;
     //TODO: Add the ability to use branch/tags and local installation directory
-    //TODO: Add the ability to perform remote CCM operations
 
     /**
      * Bridge constructor
@@ -369,15 +407,77 @@ class Bridge {
      * @param \Configuration|null $configuration (Optional) Configuration settings
      *                                                      to apply to the CCM
      *                                                      bridge
+     * @throws \Exception If remote deployment is enabled and connection cannot
+     *                    be established
      */
     public function __construct(\Configuration $configuration = null) {
         if (!is_null($configuration)) {
             $this->dse = $configuration->dse;
+            $this->dse_ini = $configuration->dse_ini;
             $this->dse_username = $configuration->dse_username;
             $this->dse_password = $configuration->dse_password;
             $this->prefix = $configuration->prefix;
             $this->version = $configuration->version;
             $this->verbose = $configuration->verbose;
+
+            // Determine if the deployment type is SSH
+            if ($configuration->ssh_host) {
+                if (function_exists("ssh2_connect")) {
+                    $this->ssh = ssh2_connect($configuration->ssh_host,
+                        $configuration->ssh_port);
+                    if ($this->ssh) {
+                        $this->ssh_host = $configuration->ssh_host;
+
+                        // Determine if public/private key or password authentication
+                        if ($configuration->ssh_public_key &&
+                            $configuration->ssh_private_key) {
+                            if (!ssh2_auth_pubkey_file($this->ssh,
+                                $configuration->ssh_username,
+                                $configuration->ssh_public_key,
+                                $configuration->ssh_private_key,
+                                $configuration->ssh_password)) {
+                                throw new \Exception("Unable to establish connection; "
+                                    . "check public/private key credentials");
+                            }
+                        } else {
+                            if (!ssh2_auth_password($this->ssh,
+                                $configuration->ssh_username,
+                                $configuration->ssh_password)) {
+                                throw new \Exception("Unable to establish connection; "
+                                    . "check username/password credentials");
+                            }
+                        }
+
+                        // Determine if DSE INI credentials file should be copied
+                        if ($configuration->dse_ini) {
+                            if (is_string($configuration->dse_ini) &&
+                                !ssh2_scp_send($this->ssh, $configuration->dse_ini,
+                                    ".ccm/.dse.ini")) {
+                                throw \Exception("Unable to copy DSE INI credentials "
+                                    . "file to {$configuration->ssh_host}");
+                            }
+                        }
+                    } else {
+                        throw new \Exception("Unable to establish connection to "
+                            . $configuration->ssh_host);
+                    }
+                } else {
+                    throw new \Exception("SSH2 is not available");
+                }
+            }
+        }
+
+        // Determine the expected EOL marker should be updated (CCM output)
+        if (is_null($this->ssh) &&
+            strtoupper(substr(PHP_OS, 0, 3)) === "WIN") {
+            $this->eol = PHP_EOL;
+        }
+    }
+
+    public function __destruct() {
+        // Terminate the remote deployment (if applicable)
+        if (!is_null($this->ssh)) {
+            unset($this->ssh);
         }
     }
 
@@ -395,6 +495,7 @@ class Bridge {
     public function default_cluster() {
         return Cluster::build()
             ->with_dse($this->dse)
+            ->with_dse_ini($this->dse_ini)
             ->with_dse_username($this->dse_username)
             ->with_dse_password($this->dse_password)
             ->with_version($this->version)
@@ -418,7 +519,7 @@ class Bridge {
      *         "down"           => (array[int]) Node number(s) that are down
      *         "uninitialized"  => (array[int]) Node number(s) that have not be initialized
      *         "up"             => (array[int]) Node number(s) that are up
-     *         "nodes"          => (int) Total numver of nodes in the cluster
+     *         "nodes"          => (int) Total number of nodes in the cluster
      *     ]
      */
     public function cluster_status() {
@@ -427,7 +528,7 @@ class Bridge {
         $uninitialized_nodes = array();
         $up_nodes = array();
         $node_count = 0;
-        foreach (explode(PHP_EOL, $this->execute_ccm_command("status")) as $status) {
+        foreach (explode($this->eol, $this->execute_ccm_command("status")) as $status) {
             if ($this->starts_with("node", $status)) {
                 // Get the node and status from the node status line
                 $key_value = explode(":", $status);
@@ -469,8 +570,7 @@ class Bridge {
      */
     public function contact_points($all = true) {
         if ($all) {
-            //TODO: Handle different IP prefix when SSH support is added
-            $ip_prefix = "127.0.0.";
+            $ip_prefix = $this->ip_prefix();
             $nodes = $this->cluster_status()["nodes"];
             $contact_points = array();
             foreach (range(1, $nodes) as $node) {
@@ -512,8 +612,10 @@ class Bridge {
             $create_command[] = $cluster->version;
             if ($cluster->dse) {
                 $create_command[] = "--dse";
-                $create_command[] = "--dse-username={$cluster->dse_username}";
-                $create_command[] = "--dse-password={$cluster->dse_password}";
+                if (!$cluster->dse_ini) {
+                    $create_command[] = "--dse-username={$cluster->dse_username}";
+                    $create_command[] = "--dse-password={$cluster->dse_password}";
+                }
             }
             $create_command[] = "-b";
             if ($cluster->ssl) {
@@ -534,7 +636,7 @@ class Bridge {
             $populate_command[] = "-n";
             $populate_command[] = implode(":", $cluster->data_centers);
             $populate_command[] = "-i";
-            $populate_command[] = "127.0.0."; //TODO: Allow for remote CCM execution
+            $populate_command[] = $this->ip_prefix();
             if ($cluster->vnodes) {
                 $populate_command[] = "--vnodes";
             }
@@ -581,6 +683,19 @@ class Bridge {
         $ip_addresses = explode(",", $this->contact_points($all));
         sort($ip_addresses);
         return $ip_addresses;
+    }
+
+    /**
+     * Get the IPv4 prefix (local or remote deployment)
+     *
+     * @return string IPv4 prefix
+     */
+    public function ip_prefix() {
+        if (is_null($this->ssh)) {
+            return "127.0.0.";
+        }
+        return substr($this->ssh_host, 0, -1);
+
     }
 
     /**
@@ -639,8 +754,8 @@ class Bridge {
                     $active_cluster = $this->list_clusters()["active"];
                     echo "CCM: Connected to Node {$node} in Cluster {$active_cluster}: "
                         . "Rechecking node down status [{$count}]" . PHP_EOL;
-                    usleep(NAP);
                 }
+                usleep(NAP);
             }
         }
 
@@ -666,8 +781,8 @@ class Bridge {
                     $active_cluster = $this->list_clusters()["active"];
                     echo "CCM: Unable to Connect to Node {$node} in Cluster {$active_cluster}: "
                         . "Rechecking node up status [{$count}]" . PHP_EOL;
-                    usleep(NAP);
                 }
+                usleep(NAP);
             }
         }
 
@@ -688,7 +803,7 @@ class Bridge {
     public function list_clusters() {
         $active = "";
         $clusters = array();
-        foreach (explode(PHP_EOL, $this->execute_ccm_command("list")) as $cluster) {
+        foreach (explode($this->eol, $this->execute_ccm_command("list")) as $cluster) {
             // Remove the extra spaces and active cluster indication
             $cluster_name = trim(substr($cluster, 2, strlen($cluster) - 2));
 
@@ -1108,8 +1223,9 @@ class Bridge {
         }
         unset($arg);
         $command = sprintf("ccm %s", implode(" ", $args));
-        if (strtoupper(substr(PHP_OS, 0, 3)) === "WIN" ||
-            strtoupper(substr(PHP_OS, 0, 6)) === "CYGWIN") {
+        if (is_null($this->ssh) &&
+                (strtoupper(substr(PHP_OS, 0, 3)) === "WIN" ||
+                strtoupper(substr(PHP_OS, 0, 6)) === "CYGWIN")) {
             $keep_window_context = "";
             if ($args[0] != "\"start\"") {
                 $keep_window_context = '/B ';
@@ -1117,23 +1233,77 @@ class Bridge {
             $command = 'START "PHP Driver - CCM" ' . $keep_window_context . '/MIN /WAIT ' . $command;
         }
 
-        // Create the process for the command with a 10 minutes timeout (handles source builds
-        $process = new \Symfony\Component\Process\Process($command, null, null, null, 600);
-
-        // Execute the command and return the output
+        // Output the command (if verbose)
         if ($this->verbose) {
             echo "CCM: {$command}" . PHP_EOL;
         }
-        $process->mustRun(function ($type, $buffer) {
-            if ($this->verbose) {
-                if (\Symfony\Component\Process\Process::ERR === $type) {
-                    echo "CCM: ERROR: {$buffer}";
-                } else {
-                    echo "CCM: {$buffer}";
+
+        // Determine if local or remote deployment is being used
+        if (is_null($this->ssh)) {
+            // Create the process for the command with a 10 minutes timeout (handles source builds
+            $process = new \Symfony\Component\Process\Process($command, null, null, null, 600);
+
+            // Execute the command and return the output
+            $process->mustRun(function ($type, $buffer) {
+                if ($this->verbose) {
+                    if (\Symfony\Component\Process\Process::ERR === $type) {
+                        echo "CCM: ERROR: {$buffer}";
+                    } else {
+                        echo "CCM: {$buffer}";
+                    }
                 }
+            });
+            return $process->getOutput();
+        } else {
+            // Execute the command and return the output
+            $stream = ssh2_exec($this->ssh, $command);
+            if ($stream) {
+                stream_set_blocking($stream, true);
+                $output = "";
+                while ($buffer = fread($stream, 4096)) {
+                    $output .= $buffer;
+                }
+                if ($this->verbose) {
+                    if (!empty(trim($output))) {
+                        echo "CCM: {$output}" . PHP_EOL;
+                    }
+                }
+                return $output;
             }
-        });
-        return $process->getOutput();
+        }
+    }
+
+    /**
+     * Generate the start command
+     *
+     * @param array $jvm_arguments (Optional) JVM arguments to apply with start
+     *                                        command generation
+     *                                        (default: no JVM arguments)
+     * @return array[string] Start command arguments
+     */
+    private function generate_start_command($jvm_arguments = array()) {
+        $start_command[] = "start";
+        $start_command[] = "--wait-other-notice";
+        $start_command[] = "--wait-for-binary-proto";
+        if (is_null($this->ssh) &&
+                (strtoupper(substr(PHP_OS, 0, 3)) === "WIN" ||
+                strtoupper(substr(PHP_OS, 0, 6)) === "CYGWIN")) {
+            $start_command[] = "--quiet-windows";
+        }
+
+        // Determine if the JVM argument(s) should be added
+        if (count($jvm_arguments) > 0) {
+            if (is_array($jvm_arguments)) {
+                foreach ($jvm_arguments as $jvm_argument) {
+                    $start_command[] = "--jvm_arg={$jvm_argument}";
+                }
+                unset($jvm_argument);
+            } else {
+                $start_command[] = "--jvm_arg={$jvm_arguments}";
+            }
+        }
+
+        return $start_command;
     }
 
     /**
@@ -1153,49 +1323,17 @@ class Bridge {
      * @return bool True if node is available; false otherwise
      */
     private function is_node_available($node) {
-        //TODO: Handle remote connections for checking node availability
-        $remote_socket = "tcp://127.0.0.{$node}:" . BINARY_PORT;
+        $ip_prefix = $this->ip_prefix();
+        $remote_socket = "tcp://{$ip_prefix}{$node}:" . BINARY_PORT;
 
         // Attempt to establish connection (timeout = 1s)
-         $connection = @stream_socket_client("{$remote_socket}",
-             $error_code, $error_message, 1);
-         if ($connection) {
-             fclose($connection);
-             return true;
-         }
+        $connection = @stream_socket_client("{$remote_socket}",
+            $error_code, $error_message, 1);
+        if ($connection) {
+            fclose($connection);
+            return true;
+        }
         return false;
-    }
-
-    /**
-     * Generate the start command
-     *
-     * @param array $jvm_arguments (Optional) JVM arguments to apply with start
-     *                                        command generation
-     *                                        (default: no JVM arguments)
-     * @return array[string] Start command arguments
-     */
-    private function generate_start_command($jvm_arguments = array()) {
-        $start_command[] = "start";
-        $start_command[] = "--wait-other-notice";
-        $start_command[] = "--wait-for-binary-proto";
-        if (strtoupper(substr(PHP_OS, 0, 3)) === "WIN" ||
-            strtoupper(substr(PHP_OS, 0, 6)) === "CYGWIN") {
-            $start_command[] = "--quiet-windows";
-        }
-
-        // Determine if the JVM argument(s) should be added
-        if (count($jvm_arguments) > 0) {
-            if (is_array($jvm_arguments)) {
-                foreach ($jvm_arguments as $jvm_argument) {
-                    $start_command[] = "--jvm_arg={$jvm_argument}";
-                }
-                unset($jvm_argument);
-            } else {
-                $start_command[] = "--jvm_arg={$jvm_arguments}";
-            }
-        }
-
-        return $start_command;
     }
 
     /**

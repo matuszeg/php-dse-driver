@@ -1,4 +1,5 @@
 # Directories to ignore
+.idea/
 .libs/
 autom4te.cache/
 bin/
