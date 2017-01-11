@@ -44,7 +44,9 @@ class IntegrationTestFixture {
 
     public function __destruct() {
         if (!is_null($this->ccm)) {
-            $this->ccm->remove_clusters();
+            if (!$this->configuration->keep_clusters) {
+                $this->ccm->remove_clusters();
+            }
         }
     }
 
@@ -105,7 +107,9 @@ class IntegrationTestFixture {
         }
 
         // Clear any clusters that may have been left over from previous tests
-        $this->ccm->remove_clusters();
+        if (!$this->configuration->keep_clusters) {
+            $this->ccm->remove_clusters();
+        }
 
         // Remove the log file(s)
         IntegrationTest::remove_path("logs");

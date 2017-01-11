@@ -22,6 +22,8 @@
  *                               download authentication
  *     "DSE_USERNAME"    | Username for DSE download authentication
  *     "DSE_PASSWORD"    | Password for DSE download authentication
+ *     "KEEP_CLUSTERS"   | If available and true; CCM clusters will not be
+ *                       | removed on startup and shutdown
  *     "PREFIX"          | Cluster prefix to use (default: php-driver)
  *     "SSH_HOST"        | If available; host/IPv4 to use for SSH connection
  *                       | (default: disabled)
@@ -73,6 +75,11 @@ class Configuration {
      * @var string Password for DSE download authentication
      */
     private $dse_password;
+    /**
+     * @var bool Flag to determine if CCM clusters should be removed during
+     *           startup and shutdown of test harness
+     */
+    private $keep_clusters = false;
     /**
      * @var string Cluster prefix
      */
@@ -177,7 +184,8 @@ class Configuration {
             echo "Local";
         }
         echo PHP_EOL . "  CCM Cluster Prefix: {$this->prefix}" . PHP_EOL
-            . "  Executing Unstable Tests: " . ($this->unstable ? "True" : "False") . PHP_EOL;
+            . "  Executing Unstable Tests: " . ($this->unstable ? "True" : "False") . PHP_EOL
+            . "  Keep CCM Clusters: " . ($this->keep_clusters ? "True" : "False") . PHP_EOL;
     }
 
     /**
@@ -187,6 +195,11 @@ class Configuration {
         // Determine if Cassandra or DSE is to be used
         if (isset($_SERVER["DSE"])) {
             $this->dse = filter_var($_SERVER["DSE"], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        // Determine if clusters startup/shutdown settings is to be overridden
+        if (isset($_SERVER["KEEP_CLUSTERS"])) {
+            $this->keep_clusters = filter_var($_SERVER["KEEP_CLUSTERS"], FILTER_VALIDATE_BOOLEAN);
         }
 
         // Determine if cluster prefix is to be overridden

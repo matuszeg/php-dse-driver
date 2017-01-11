@@ -151,7 +151,7 @@ trait CommonTraits {
      * @AfterFeature
      */
     public static function teardown_feature(AfterFeatureScope $scope) {
-        if (!isset($_SERVER["KEEP_CLUSTERS"]) || !$_SERVER["KEEP_CLUSTERS"]) {
+        if (!self::$configuration->keep_clusters) {
             self::$ccm->remove_clusters();
         }
     }
@@ -597,7 +597,7 @@ trait CommonTraits {
         self::$ccm = new CCM\Bridge(self::$configuration);
 
         // Clear any clusters that may have been left over from previous tests
-        if (!isset($_SERVER["KEEP_CLUSTERS"]) || !$_SERVER["KEEP_CLUSTERS"]) {
+        if (!self::$configuration->keep_clusters) {
             self::$ccm->remove_clusters();
         }
     }

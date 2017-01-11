@@ -9,22 +9,22 @@ default:
             paths: [ %paths.base%/features/authentication ]
             contexts:
                 - AuthenticationContext:
-                    dse_version: 5.0.4
+                    dse_version: 5.0.5
         geotypes:
             paths: [ %paths.base%/features/geotypes ]
             contexts:
                 - FeatureContext:
-                    dse_version: 5.0.4
+                    dse_version: 5.0.5
         graph:
             paths: [ %paths.base%/features/graph ]
             contexts:
                 - GraphContext:
-                    dse_version: 5.0.4
+                    dse_version: 5.0.5
         core:
             paths: [ %paths.base%/features/core, %paths.base%/features/sessions, %paths.base%/features/migration ]
             contexts:
                 - FeatureContext:
-                    dse_version: 5.0.4
+                    dse_version: 5.0.5
 
 dse-4.8:
     gherkin:
