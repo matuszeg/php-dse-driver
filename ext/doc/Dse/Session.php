@@ -16,7 +16,7 @@ interface Session {
     /**
      * Execute a query.
      *
-     * @throws Exeception
+     * @throws Exception
      *
      * @param Dse\Statement $statement A statement to be executed.
      * @param Dse\ExecutionOptions $options Options to control execution of the query.
@@ -36,7 +36,7 @@ interface Session {
     /**
      * Prepare a query for execution.
      *
-     * @throws Exeception
+     * @throws Exception
      *
      * @param string $cql The query to be prepared.
      * @param Dse\ExecutionOptions $options Options to control preparing the query.
@@ -55,7 +55,7 @@ interface Session {
     /**
      * Close the session and all its connections.
      *
-     * @throws Exeception
+     * @throws Exception
      *
      * @param double $timeout The amount of time in seconds to wait for the session to close.
      * @return null Nothing.
@@ -76,9 +76,24 @@ interface Session {
 
     /**
      * Execute graph queries.
-     * @throws Exeception
+     * @throws Exception
      * @param string|Graph\Statement $statement A graph statement or query string to be executed.
      * @param array $options Options to control execution of the graph query.
+     *
+     *                       * array["graph_language"]     string       Graph language; default "gremlin-groovy"
+     *                       * array["graph_source"]       string       Graph source; default "g". If running
+     *                                                                  analytics (OLAP) query then it should
+     *                                                                  use "a"
+     *                       * array["graph_name"]         string       Graph name
+     *                       * array["red_consistency"]    consistency  Read consistency of graph queries;
+     *                                                                  default `Dse::CONSISTENCY_ONE`
+     *                       * array["write_consistency"]  consistency  Write consistency of graph queries;
+     *                                                                  default `Dse::CONSISTENCY_QUORUM`
+     *                       * array["request_timeout"]    double|int   Request time of graph queries in
+     *                                                                  seconds; default `0` (no timeout)
+     *                       * array["timestamp"]          int|string   Either an integer or integer string
+     *                                                                  timestamp that represents the number
+     *                                                                  of microseconds since the epoch
      * @return Graph\ResultSet A result set.
      */
     public function executeGraph($statement, $options);
@@ -87,6 +102,7 @@ interface Session {
      * Asynchronously execute a graph query.
      * @param string|Graph\Statement $statement A graph statement or query string to be executed.
      * @param array $options Options to control execution of the graph query.
+     *                       @see Session::executeGraph()
      * @return Graph\FutureResultSet A future that can be used to retrieve the result set.
      */
     public function executeGraphAsync($statement, $options);

@@ -7,7 +7,7 @@ Dse\Session:
       comment: |
         Execute a query.
 
-        @throws Exeception
+        @throws Exception
       params:
         statement:
           comment: A statement to be executed.
@@ -36,7 +36,7 @@ Dse\Session:
       comment: |
         Prepare a query for execution.
 
-        @throws Exeception
+        @throws Exception
       params:
         cql:
           comment: The query to be prepared.
@@ -64,7 +64,7 @@ Dse\Session:
       comment: |
         Close the session and all its connections.
 
-        @throws Exeception
+        @throws Exception
       params:
         timeout:
           comment: |
@@ -87,13 +87,29 @@ Dse\Session:
       comment:
         Execute graph queries.
 
-        @throws Exeception
+        @throws Exception
       params:
         statement:
           comment: A graph statement or query string to be executed.
           type: string|Graph\Statement
         options:
-          comment: Options to control execution of the graph query.
+          comment: |
+            Options to control execution of the graph query.
+
+            * array["graph_language"]     string       Graph language; default "gremlin-groovy"
+            * array["graph_source"]       string       Graph source; default "g". If running
+                                                       analytics (OLAP) query then it should
+                                                       use "a"
+            * array["graph_name"]         string       Graph name
+            * array["red_consistency"]    consistency  Read consistency of graph queries;
+                                                       default `Dse::CONSISTENCY_ONE`
+            * array["write_consistency"]  consistency  Write consistency of graph queries;
+                                                       default `Dse::CONSISTENCY_QUORUM`
+            * array["request_timeout"]    double|int   Request time of graph queries in
+                                                       seconds; default `0` (no timeout)
+            * array["timestamp"]          int|string   Either an integer or integer string
+                                                       timestamp that represents the number
+                                                       of microseconds since the epoch
           type: array
       return:
         comment: A result set.
@@ -105,7 +121,9 @@ Dse\Session:
           comment: A graph statement or query string to be executed.
           type: string|Graph\Statement
         options:
-          comment: Options to control execution of the graph query.
+          comment: |
+            Options to control execution of the graph query.
+            @see Session::executeGraph()
           type: array
       return:
         comment: A future that can be used to retrieve the result set.

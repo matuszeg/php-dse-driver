@@ -132,7 +132,11 @@ function writeParameterDoc($doc, $file, $class, $method, $parameter) {
                 } else {
                     $commentLine = str_pad("", strlen($parameterTypeAndName) + 1, " ") . $line;
                     $commentLine = rtrim($commentLine) . PHP_EOL;
-                    fwrite($file, INDENT . DOC_COMMENT_LINE . $commentLine);
+                    $doc_comment_line = DOC_COMMENT_LINE;
+                    if ($commentLine == PHP_EOL) {
+                        $doc_comment_line = rtrim($doc_comment_line);
+                    }
+                    fwrite($file, INDENT . $doc_comment_line . $commentLine);
                 }
                 $first = false;
             }

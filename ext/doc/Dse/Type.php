@@ -66,7 +66,8 @@ abstract class Type {
     public static final function blob() { }
 
     /**
-     * @return mixed
+     * Get representation of boolean type
+     * @return Dse\Type boolean type
      */
     public static final function boolean() { }
 

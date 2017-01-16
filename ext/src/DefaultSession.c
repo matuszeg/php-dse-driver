@@ -713,21 +713,21 @@ graph_object_add_with_value_type(DseGraphObject *object,
                                  zval *value,
                                  CassValueType type TSRMLS_DC)
 {
-  CassError             rc;
-  php_driver_blob       *blob;
-  php_driver_numeric    *numeric;
-  php_driver_timestamp  *timestamp;
-  php_driver_date       *date;
-  php_driver_time       *time;
-  php_driver_uuid       *uuid;
-  php_driver_inet       *inet;
-  php_driver_collection *coll;
-  php_driver_map        *map;
-  php_driver_set        *set;
-  php_driver_tuple      *tuple;
+  CassError                  rc;
+  php_driver_blob            *blob;
+  php_driver_numeric         *numeric;
+  php_driver_timestamp       *timestamp;
+  php_driver_date            *date;
+  php_driver_time            *time;
+  php_driver_uuid            *uuid;
+  php_driver_inet            *inet;
+  php_driver_collection      *coll;
+  php_driver_map             *map;
+  php_driver_set             *set;
+  php_driver_tuple           *tuple;
   php_driver_user_type_value *user_type_value;
-  DseGraphObject       *sub_object;
-  DseGraphArray        *sub_array;
+  DseGraphObject             *sub_object;
+  DseGraphArray              *sub_array;
 
   if (Z_TYPE_P(value) == IS_NULL) {
     CHECK_RESULT(dse_graph_object_add_null(object, name));
@@ -862,21 +862,21 @@ graph_array_add_with_value_type(DseGraphArray *array,
                                 zval *value,
                                 CassValueType type TSRMLS_DC)
 {
-  CassError             rc;
-  php_driver_blob       *blob;
-  php_driver_numeric    *numeric;
-  php_driver_timestamp  *timestamp;
-  php_driver_date       *date;
-  php_driver_time       *time;
-  php_driver_uuid       *uuid;
-  php_driver_inet       *inet;
-  php_driver_collection *coll;
-  php_driver_map        *map;
-  php_driver_set        *set;
-  php_driver_tuple      *tuple;
+  CassError                  rc;
+  php_driver_blob            *blob;
+  php_driver_numeric         *numeric;
+  php_driver_timestamp       *timestamp;
+  php_driver_date            *date;
+  php_driver_time            *time;
+  php_driver_uuid            *uuid;
+  php_driver_inet            *inet;
+  php_driver_collection      *coll;
+  php_driver_map             *map;
+  php_driver_set             *set;
+  php_driver_tuple           *tuple;
   php_driver_user_type_value *user_type_value;
-  DseGraphObject       *sub_object;
-  DseGraphArray        *sub_array;
+  DseGraphObject             *sub_object;
+  DseGraphArray              *sub_array;
 
   if (Z_TYPE_P(value) == IS_NULL) {
     CHECK_RESULT(dse_graph_array_add_null(array));
@@ -1765,9 +1765,9 @@ build_graph_options(php_driver_session *session,
     }
 
     if ((PHP5TO7_Z_TYPE_MAYBE_P(*value) == IS_LONG && PHP5TO7_Z_LVAL_MAYBE_P(*value) > 0)) {
-      timeout = PHP5TO7_Z_LVAL_MAYBE_P(*value) * 1000000;
+      timeout = PHP5TO7_Z_LVAL_MAYBE_P(*value) * 1000;
     } else if ((PHP5TO7_Z_TYPE_MAYBE_P(*value) == IS_DOUBLE && PHP5TO7_Z_DVAL_MAYBE_P(*value) > 0)) {
-      timeout = ceil(PHP5TO7_Z_DVAL_MAYBE_P(*value) * 1000000);
+      timeout = ceil(PHP5TO7_Z_DVAL_MAYBE_P(*value) * 1000);
     } else {
       throw_invalid_argument(PHP5TO7_ZVAL_MAYBE_DEREF(value), "request_timeout", "a number of seconds greater than zero or null" TSRMLS_CC);
       dse_graph_options_free(graph_options);
@@ -1788,6 +1788,7 @@ create_graph(php_driver_session *session,
   DseGraphObject *graph_arguments = NULL;
   DseGraphStatement *graph_statement = NULL;
   DseGraphOptions *graph_options = NULL;
+  cass_int64_t timestamp;
 
   if (options && PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "arguments", sizeof("arguments"), value)) {
     if (Z_TYPE_P(PHP5TO7_ZVAL_MAYBE_DEREF(value)) != IS_ARRAY) {
@@ -1807,7 +1808,24 @@ create_graph(php_driver_session *session,
     return NULL;
   }
 
+  /* Create the graph statement and check the options for the timestamp */
   graph_statement = dse_graph_statement_new(query, graph_options);
+  if (options && PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "timestamp", sizeof("timestamp"), value)) {
+    if (Z_TYPE_P(PHP5TO7_ZVAL_MAYBE_DEREF(value)) == IS_LONG) {
+      timestamp = Z_LVAL_P(PHP5TO7_ZVAL_MAYBE_DEREF(value));
+    } else if (Z_TYPE_P(PHP5TO7_ZVAL_MAYBE_DEREF(value)) == IS_STRING) {
+      if (!php_driver_parse_bigint(Z_STRVAL_P(PHP5TO7_ZVAL_MAYBE_DEREF(value)),
+                                      Z_STRLEN_P(PHP5TO7_ZVAL_MAYBE_DEREF(value)),
+                                      &timestamp TSRMLS_CC)) {
+        throw_invalid_argument(PHP5TO7_ZVAL_MAYBE_DEREF(value), "timestamp", "unable to convert string to integer" TSRMLS_CC);
+        return NULL;
+      }
+    } else {
+      throw_invalid_argument(PHP5TO7_ZVAL_MAYBE_DEREF(value), "timestamp", "an integer or integer string" TSRMLS_CC);
+      return NULL;
+    }
+    dse_graph_statement_set_timestamp(graph_statement, timestamp);
+  }
 
   if (graph_arguments) {
     ASSERT_SUCCESS_VALUE(dse_graph_statement_bind_values(graph_statement,
