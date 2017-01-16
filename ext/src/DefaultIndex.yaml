@@ -25,14 +25,11 @@ Dse\DefaultIndex:
           type: mixed
       return:
         comment: Value of an option by name
-        type: Dse\Value
+        type: Value
     options:
-      comment: |-
-        {@inheritDoc}
-
-                      index's options.
+      comment: '{@inheritDoc}'
       return:
-        comment: A dictionary of `string` and `Dse\Value pairs of the
+        comment: A dictionary of `string` and `Value` pairs of the
         type: array
     className:
       comment: '{@inheritDoc}'
@@ -43,5 +40,5 @@ Dse\DefaultIndex:
       comment: '{@inheritDoc}'
       return:
         comment: ""
-        type: boolean
+        type: bool
 ...

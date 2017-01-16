@@ -11,7 +11,7 @@ namespace Dse;
 /**
  * A PHP representation of the CQL `tuple` datatype
  */
-final class Tuple implements Value, Countable, Iterator {
+final class Tuple implements Value, \Countable, \Iterator {
 
     /**
      * Creates a new tuple with the given types.

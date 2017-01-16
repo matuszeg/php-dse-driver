@@ -9,7 +9,7 @@
 namespace Dse;
 
 /**
- * A future that resolves with `Cassandra\Session`.
+ * A future that resolves with `Dse\Session`.
  *
  * @see Cluster::connectAsync()
  */

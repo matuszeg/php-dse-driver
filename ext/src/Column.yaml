@@ -16,17 +16,17 @@ Dse\Column:
       comment: Returns whether the column is in descending or ascending order.
       return:
         comment: Whether the column is stored in descending order.
-        type: boolean
+        type: bool
     isStatic:
       comment: Returns true for static columns.
       return:
         comment: Whether the column is static
-        type: boolean
+        type: bool
     isFrozen:
       comment: Returns true for frozen columns.
       return:
         comment: Whether the column is frozen
-        type: boolean
+        type: bool
     indexName:
       comment: Returns name of the index if defined.
       return:

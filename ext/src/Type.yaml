@@ -42,10 +42,10 @@ Dse\Type:
       return:
         comment: varint type
         type: Dse\Type
-    boolean:
-      comment: Get representation of boolean type
+    bool:
+      comment: Get representation of bool type
       return:
-        comment: boolean type
+        comment: bool type
         type: Dse\Type
     decimal:
       comment: Get representation of decimal type

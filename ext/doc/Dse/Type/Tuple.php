@@ -9,6 +9,8 @@
 namespace Dse\Type;
 
 /**
+ * A class that represents the tuple type. The tuple type is able to represent
+ * a composite type of one or more types accessed by index.
  */
 final class Tuple extends Type {
 
@@ -33,16 +35,14 @@ final class Tuple extends Type {
     public function types() { }
 
     /**
-     * Creates a new Cassandra\Tuple from the given values.
+     * Creates a new Dse\Tuple from the given values. When no values given,
+     * creates a tuple with null for the values.
      *
      * @throws Exception\InvalidArgumentException when values given are of a
      *                                            different type than what the
      *                                            tuple expects.
-     *
-     *                               When no values given, creates a tuple with
-     *                               null for the values.
      * @param mixed $values
-     * @return Cassandra\Tuple A tuple with given values.
+     * @return Dse\Tuple A tuple with given values.
      */
     public function create($values) { }
 

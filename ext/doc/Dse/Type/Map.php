@@ -9,6 +9,8 @@
 namespace Dse\Type;
 
 /**
+ * A class that represents the map type. The map type contains two types that
+ * represents the types of the key and value contained in the map.
  */
 final class Map extends Type {
 
@@ -39,12 +41,12 @@ final class Map extends Type {
     public function __toString() { }
 
     /**
-     * Creates a new Cassandra\Map from the given values.
+     * Creates a new Dse\Map from the given values.
      *
      * @code{.php}
      * <?php
-     * use Cassandra\Type;
-     * use Cassandra\Uuid;
+     * use Dse\Type;
+     * use Dse\Uuid;
      *
      * $type = Type::map(Type::uuid(), Type::varchar());
      * $map = $type->create(new Uuid(), 'first uuid',
@@ -62,7 +64,7 @@ final class Map extends Type {
      *                          map, e.g. `create(key, value, key, value)`.
      *                          When no values given, creates an empty map.
      * @param mixed $value ,... An even number of values, where each odd value
-     * @return Cassandra\Map A set with given values.
+     * @return Dse\Map A set with given values.
      */
     public function create($value) { }
 

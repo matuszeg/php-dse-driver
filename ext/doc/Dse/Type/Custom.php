@@ -9,6 +9,7 @@
 namespace Dse\Type;
 
 /**
+ * A class that represents a custom type.
  */
 final class Custom extends Type {
 
@@ -29,9 +30,9 @@ final class Custom extends Type {
     /**
      * Creation of custom type instances is not supported
      *
-     * @throws Cassandra\Exception\LogicException
-     * @param mixed $value the value
-     * @return null nothing
+     * @throws Dse\Exception\LogicException
+     * @param mixed $value The value
+     * @return null
      */
     public function create($value) { }
 

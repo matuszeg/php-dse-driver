@@ -9,6 +9,7 @@
 namespace Dse;
 
 /**
+ * A PHP representation of the CQL `tinyint` datatype.
  */
 final class Tinyint implements Value, Numeric {
 
@@ -36,31 +37,31 @@ final class Tinyint implements Value, Numeric {
     public function value() { }
 
     /**
-     * @param Cassandra\Numeric $num a number to add to this one
+     * @param Dse\Numeric $num a number to add to this one
      * @return Numeric sum
      */
     public function add($num) { }
 
     /**
-     * @param Cassandra\Numeric $num a number to subtract from this one
+     * @param Dse\Numeric $num a number to subtract from this one
      * @return Numeric difference
      */
     public function sub($num) { }
 
     /**
-     * @param Cassandra\Numeric $num a number to multiply this one by
+     * @param Dse\Numeric $num a number to multiply this one by
      * @return Numeric product
      */
     public function mul($num) { }
 
     /**
-     * @param Cassandra\Numeric $num a number to divide this one by
+     * @param Dse\Numeric $num a number to divide this one by
      * @return Numeric quotient
      */
     public function div($num) { }
 
     /**
-     * @param Cassandra\Numeric $num a number to divide this one by
+     * @param Dse\Numeric $num a number to divide this one by
      * @return Numeric remainder
      */
     public function mod($num) { }

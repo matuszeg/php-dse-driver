@@ -9,9 +9,9 @@
 namespace Dse\Exception;
 
 /**
- * Cassandra-specific runtime exception.
+ * DSE runtime exception.
  */
-class RuntimeException extends RuntimeException implements Exception {
+class RuntimeException extends \RuntimeException implements Exception {
 
     /**
      * @param mixed $message

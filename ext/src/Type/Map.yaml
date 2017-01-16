@@ -1,6 +1,8 @@
 ---
 Dse\Type\Map:
-  comment: ""
+  comment: |-
+    A class that represents the map type. The map type contains two types that
+    represents the types of the key and value contained in the map.
   methods:
     name:
       comment: Returns "map"

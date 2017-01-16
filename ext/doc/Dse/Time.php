@@ -37,7 +37,7 @@ final class Time implements Value {
     public static function fromDateTime($datetime) { }
 
     /**
-     * @return string this date in string format: Cassandra\Time(nanoseconds=$nanoseconds)
+     * @return string this date in string format: Dse\Time(nanoseconds=$nanoseconds)
      */
     public function __toString() { }
 

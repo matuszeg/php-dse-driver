@@ -9,8 +9,8 @@
 namespace Dse;
 
 /**
- * A future returned from `Cassandra\Session::prepareAsync()`
- * This future will resolve with a `Cassandra\PreparedStatement` or an exception.
+ * A future returned from `Dse\Session::prepareAsync()`
+ * This future will resolve with a `Dse\PreparedStatement` or an exception.
  *
  * @see Session::prepareAsync()
  */

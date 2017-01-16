@@ -11,8 +11,8 @@ namespace Dse\Graph\Options;
 /**
  * A builder for fluent configuration of graph options;
  *
- * @see \Cassandra::graphOptions()
- * @see \Cassandra\Cluster\Builder::withGraphOptions()
+ * @see \Dse::graphOptions()
+ * @see \Dse\Cluster\Builder::withGraphOptions()
  */
 final class Builder {
 
@@ -20,7 +20,7 @@ final class Builder {
      * Constructs a graph options object that can be used to construct
      * a cluster with graph support.
      *
-     * @see \Cassandra\Cluster\Builder::withGraphOptions()
+     * @see \Dse\Cluster\Builder::withGraphOptions()
      * @return Dse\Graph\Options
      */
     public function build() { }
@@ -54,7 +54,7 @@ final class Builder {
     /**
      * Set the read consistency of graph queries. Default: `Dse::CONSISTENCY_ONE`
      *
-     * @param consistency $consistency Read consistency
+     * @param int $consistency Read consistency
      * @return Graph\Options\Builder self
      */
     public function withReadConsistency($consistency) { }
@@ -62,7 +62,7 @@ final class Builder {
     /**
      * Set the write consistency of graph queries. Default: `Dse::CONSISTENCY_QUORUM`
      *
-     * @param consistency constant $consistency Write consistency
+     * @param int $consistency Write consistency
      * @return Graph\Options\Builder self
      */
     public function withWriteConsistency($consistency) { }

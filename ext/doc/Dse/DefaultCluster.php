@@ -11,7 +11,7 @@ namespace Dse;
 /**
  * Default cluster implementation.
  *
- * @see Cassandra\Cluster
+ * @see Dse\Cluster
  */
 final class DefaultCluster implements Cluster {
 

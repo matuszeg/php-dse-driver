@@ -11,12 +11,12 @@ namespace Dse\Exception;
 /**
  * ValidationException is raised on invalid request, before even attempting to
  * execute it.
- * @see Cassandra\Exception\InvalidSyntaxException
- * @see Cassandra\Exception\UnauthorizedException
- * @see Cassandra\Exception\InvalidQueryException
- * @see Cassandra\Exception\ConfigurationException
- * @see Cassandra\Exception\AlreadyExistsException
- * @see Cassandra\Exception\UnpreparedException
+ * @see Dse\Exception\InvalidSyntaxException
+ * @see Dse\Exception\UnauthorizedException
+ * @see Dse\Exception\InvalidQueryException
+ * @see Dse\Exception\ConfigurationException
+ * @see Dse\Exception\AlreadyExistsException
+ * @see Dse\Exception\UnpreparedException
  */
 class ValidationException extends RuntimeException  {
 

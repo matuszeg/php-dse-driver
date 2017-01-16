@@ -9,7 +9,7 @@
 namespace Dse;
 
 /**
- * A future returned from Cassandra\Session::closeAsync().
+ * A future returned from Dse\Session::closeAsync().
  *
  * @see Session::closeAsync()
  */

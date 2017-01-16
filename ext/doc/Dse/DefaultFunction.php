@@ -33,7 +33,7 @@ final class DefaultFunction implements Function_ {
 
     /**
      * {@inheritDoc}
-     * @return Cassandra\Type Return type of the function
+     * @return Dse\Type Return type of the function
      */
     public function returnType() { }
 
@@ -57,7 +57,7 @@ final class DefaultFunction implements Function_ {
 
     /**
      * {@inheritDoc}
-     * @return boolean
+     * @return bool
      */
     public function isCalledOnNullInput() { }
 

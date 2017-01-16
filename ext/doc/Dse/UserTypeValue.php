@@ -11,7 +11,7 @@ namespace Dse;
 /**
  * A PHP representation of the CQL UDT datatype
  */
-final class UserTypeValue implements Value, Countable, Iterator {
+final class UserTypeValue implements Value, \Countable, \Iterator {
 
     /**
      * Creates a new user type value with the given name/type pairs.

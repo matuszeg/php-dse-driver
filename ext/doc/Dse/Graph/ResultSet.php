@@ -12,53 +12,64 @@ namespace Dse\Graph;
  * A set of arbitrary data returned from a graph query. It is iterable and indexable.
  * @see \Dse\Graph\Result
  */
-final class ResultSet implements Iterator, ArrayAccess {
+final class ResultSet implements \Iterator, \ArrayAccess {
 
     private final function __construct() { }
 
     /**
-     * @return mixed
+     * Gets the number of results contained in the result set.
+     * @return int The number of results.
      */
     public function count() { }
 
     /**
-     * @return mixed
+     * Resets the intenal iterator of the result set to the beginning.
+     * @return null
      */
     public function rewind() { }
 
     /**
+     * Gets the current value at the current position of the internal
+     * iterator.
      * @return mixed
      */
     public function current() { }
 
     /**
-     * @return mixed
+     * Gets the current key or offset of the current position of the
+     * internal iterator;
+     * @return int|string
      */
     public function key() { }
 
     /**
-     * @return mixed
+     * Moves the internal iterator to the next position.
+     * @return null
      */
     public function next() { }
 
     /**
-     * @return mixed
+     * Determines if the internal iterator points to a valid position in the result set.
+     * @return bool Returns true if the internal iterator is valid.
      */
     public function valid() { }
 
     /**
-     * @param mixed $offset
-     * @return mixed
+     * Determines if a result exists at an offset.
+     * @param int $offset An integer offset into the result set.
+     * @return bool Returns true if the offset is valid.
      */
     public function offsetExists($offset) { }
 
     /**
-     * @param mixed $offset
-     * @return mixed
+     * Gets a  result at the provided offset.
+     * @param int $offset An integer offset into the result set.
+     * @return Graph\Result A graph result.
      */
     public function offsetGet($offset) { }
 
     /**
+     * Not implmented. The result set is read-only.
      * @param mixed $offset
      * @param mixed $value
      * @return mixed
@@ -66,13 +77,15 @@ final class ResultSet implements Iterator, ArrayAccess {
     public function offsetSet($offset, $value) { }
 
     /**
+     * Not implmented. The result set is read-only.
      * @param mixed $offset
      * @return mixed
      */
     public function offsetUnset($offset) { }
 
     /**
-     * @return mixed
+     * Gets the first result in the result set.
+     * @return Graph\Result The first result.
      */
     public function first() { }
 

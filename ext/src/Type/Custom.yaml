@@ -1,6 +1,6 @@
 ---
 Dse\Type\Custom:
-  comment: ""
+  comment: A class that represents a custom type.
   methods:
     name:
       comment: '{@inheritDoc}'
@@ -19,9 +19,9 @@ Dse\Type\Custom:
         @throws Dse\Exception\LogicException
       params:
         value:
-          comment: the value
+          comment: The value
           type: mixed
       return:
-        comment: '        nothing'
+        comment: ""
         type: "null"
 ...

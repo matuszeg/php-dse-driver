@@ -33,31 +33,31 @@ final class DefaultAggregate implements Aggregate {
 
     /**
      * {@inheritDoc}
-     * @return Cassandra\Function State public function of the aggregate
+     * @return Dse\Function State public function of the aggregate
      */
     public function stateFunction() { }
 
     /**
      * {@inheritDoc}
-     * @return Cassandra\Function Final public function of the aggregate
+     * @return Dse\Function Final public function of the aggregate
      */
     public function finalFunction() { }
 
     /**
      * {@inheritDoc}
-     * @return Cassandra\Value Initial condition of the aggregate
+     * @return Dse\Value Initial condition of the aggregate
      */
     public function initialCondition() { }
 
     /**
      * {@inheritDoc}
-     * @return Cassandra\Type State type of the aggregate
+     * @return Dse\Type State type of the aggregate
      */
     public function stateType() { }
 
     /**
      * {@inheritDoc}
-     * @return Cassandra\Type Return type of the aggregate
+     * @return Dse\Type Return type of the aggregate
      */
     public function returnType() { }
 

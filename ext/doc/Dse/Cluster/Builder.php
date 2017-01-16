@@ -11,20 +11,20 @@ namespace Dse\Cluster;
 /**
  * Cluster builder allows fluent configuration of the cluster instance.
  *
- * @see \Cassandra::cluster()
+ * @see \Dse::cluster()
  */
 final class Builder {
 
     /**
      * Returns a Cluster Instance.
-     * @return \Cassandra\Cluster Cluster instance
+     * @return \Dse\Cluster Cluster instance
      */
     public function build() { }
 
     /**
      * Configures default consistency for all requests.
      *
-     * @param int $consistency A consistency level, must be one of Cassandra::CONSISTENCY_* values
+     * @param int $consistency A consistency level, must be one of Dse::CONSISTENCY_* values
      * @return Builder self
      */
     public function withDefaultConsistency($consistency) { }
@@ -59,7 +59,7 @@ final class Builder {
     /**
      * Specify a different port to be used when connecting to the cluster.
      *
-     * @throws \Cassandra\Exception\InvalidArgumentException
+     * @throws \Dse\Exception\InvalidArgumentException
      *
      * @param int $port a number between 1 and 65535
      * @return Builder self
@@ -132,7 +132,7 @@ final class Builder {
     public function withTokenAwareRouting($enabled) { }
 
     /**
-     * Configures cassandra authentication.
+     * Configures plain-text authentication.
      *
      * @param string $username Username
      * @param string $password Password
@@ -159,7 +159,7 @@ final class Builder {
     /**
      * Set up ssl context.
      *
-     * @param Cassandra\SSLOptions $options a preconfigured ssl context
+     * @param Dse\SSLOptions $options a preconfigured ssl context
      * @return Builder self
      */
     public function withSSL($options) { }
@@ -253,7 +253,7 @@ final class Builder {
     /**
      * Configures the retry policy.
      *
-     * @param Cassandra\Cluster\RetryPolicy $policy the retry policy to use.
+     * @param Dse\Cluster\RetryPolicy $policy the retry policy to use.
      * @return Builder self
      */
     public function withRetryPolicy($policy) { }
@@ -262,7 +262,7 @@ final class Builder {
      * Sets the timestamp generator.
      *
      *                                                to generate timestamps for statements.
-     * @param Cassandra\TimestampGenerator $generator A timestamp generator that will be used
+     * @param Dse\TimestampGenerator $generator A timestamp generator that will be used
      * @return Builder self
      */
     public function withTimestampGenerator($generator) { }
@@ -329,7 +329,7 @@ final class Builder {
 
     /**
      * Enable authentication for use with Kerberos. By default the driver uses the connecting host's
-     * IP address to construct the full service name (e.g. <service>@<IP address>). To use the host's
+     * IP address to construct the full service name (e.g. &lt;service&gt;\@&lt;IP address&gt;. To use the host's
      * DNS name enable hostname resolution using Dse\Cluster\Builder::withHostnameResolution().
      * @see Dse\Cluster\Builder::withHostnameResolution()
      *

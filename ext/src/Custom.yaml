@@ -1,10 +1,10 @@
 ---
 Dse\Custom:
-  comment: ""
+  comment: An interface for representing custom values.
   methods:
     type:
-      comment: ""
+      comment: The type of this value.
       return:
         comment: ""
-        type: mixed
+        type: Type\Custom
 ...

@@ -1,8 +1,7 @@
 ---
 Dse\Graph\Result:
-  comment: Arbitrary data returned from a graph query. It can respresent
-    several primitive types as well as composite types and graph elements.
-
+  comment: |-
+    Arbitrary data returned from a graph query. It can respresent several primitive types as well as composite types and graph elements.
     @see \Dse\Graph\ResultSet
   methods:
     __toString:
@@ -11,8 +10,8 @@ Dse\Graph\Result:
         comment: A string representation of the data.
         type: string
     count:
-      comment: Gets the number of elements in the result if it is a composite
-        types such as an array or object.
+      comment: Gets the number of elements in the result if it is a composite types
+        such as an array or object.
       return:
         comment: The number of elements.
         type: int
@@ -38,8 +37,8 @@ Dse\Graph\Result:
         comment: The current key.
         type: string
     next:
-      comment: Moves the iterator to the next position if a composite result
-        such as an array or object.
+      comment: Moves the iterator to the next position if a composite result such
+        as an array or object.
       return:
         comment: ""
         type: "null"
@@ -48,27 +47,29 @@ Dse\Graph\Result:
       return:
         comment: |
           `true` if the current iterator position is valid.
-        type: boolean
+        type: bool
     offsetExists:
-      comment: ""
+      comment: |-
+        Determines if an offset is contained in the result. Only valid
+        for an array or object.
       params:
         offset:
-          comment: ""
-          type: mixed
+          comment: An integer offset for array or a string key for objects.
+          type: int|string
       return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the offset or key is valid.
+        type: bool
     offsetGet:
-      comment: ""
+      comment: Gets the value contained at an offset. Only valid for an array or object.
       params:
         offset:
-          comment: ""
-          type: mixed
+          comment: The value at the offset.
+          type: Graph\Result
       return:
         comment: ""
         type: mixed
     offsetSet:
-      comment: ""
+      comment: Not implmented. The result is read-only.
       params:
         offset:
           comment: ""
@@ -80,7 +81,7 @@ Dse\Graph\Result:
         comment: ""
         type: mixed
     offsetUnset:
-      comment: ""
+      comment: Not implmented. The result is read-only.
       params:
         offset:
           comment: ""
@@ -89,93 +90,115 @@ Dse\Graph\Result:
         comment: ""
         type: mixed
     isNull:
-      comment: ""
+      comment: Determines if the result is a null value.
       return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the result is a null.
+        type: bool
     isValue:
-      comment: ""
+      comment: Determines if the result is not a composite value like an array or
+        object.
       return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the result is not an array or object.
+        type: bool
     isArray:
-      comment: ""
+      comment: Determines if the result is an array.
       return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the result is an array.
+        type: bool
     isObject:
-      comment: ""
+      comment: Determines if the result is an object.
       return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the result is an object.
+        type: bool
     asInt:
-      comment: ""
+      comment: Determines if the result is a integer.
       return:
-        comment: ""
-        type: mixed
-    asBool:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    asDouble:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    asString:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    asEdge:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    asPath:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    asVertex:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    asPoint:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    asLineString:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
-    asPolygon:
-      comment: ""
-      return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the result is an integer.
+        type: bool
     isBool:
-      comment: ""
+      comment: Determines if the result is a bool.
       return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the result is a bool.
+        type: bool
     isNumber:
-      comment: ""
+      comment: Determines if the value is an integer or a double.
       return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the result is an integer or a double.
+        type: bool
     isString:
-      comment: ""
+      comment: Determines if the value is a string.
       return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the result is a string.
+        type: bool
+    asBool:
+      comment: Converts the result's value to a bool.
+      return:
+        comment: A bool representation of the result's value.
+        type: bool
+    asDouble:
+      comment: Converts the result's value to a double.
+      return:
+        comment: A double representation of the result's value.
+        type: double
+    asString:
+      comment: Converts the result's value to a string.
+      return:
+        comment: A string representation of the result's value.
+        type: string
+    asEdge:
+      comment: |-
+        Converts an object result to an edge.
+
+        @throws Exception\DomainException
+      return:
+        comment: A graph edge.
+        type: Graph\Edge
+    asPath:
+      comment: |-
+        Converts an object result to a path.
+
+        @throws Exception\DomainException
+      return:
+        comment: A graph path.
+        type: Graph\Path
+    asVertex:
+      comment: |-
+        Converts an object result to a vertex.
+
+        @throws Exception\DomainException
+      return:
+        comment: A graph vertex.
+        type: Grap\Vertex
+    asPoint:
+      comment: |-
+        Converts a string result to the point geospatial type. This
+        expects the string to be in the well-known text (WKT) representation.
+
+        @throws Exception\DomainException
+      return:
+        comment: A geospatial point value.
+        type: Point
+    asLineString:
+      comment: |-
+        Converts a string result to the line string geospatial type. This
+        expects the string to be in the well-known text (WKT) representation.
+
+        @throws Exception\DomainException
+      return:
+        comment: A geospatial line string value.
+        type: LineString
+    asPolygon:
+      comment: |-
+        Converts a string result to the polygon geospatial type. This
+        expects the string to be in the well-known text (WKT) representation.
+
+        @throws Exception\DomainException
+      return:
+        comment: A geospatial polygon value.
+        type: Polygon
     value:
-      comment: ""
+      comment: Gets the PHP value contained in the result.
       return:
-        comment: ""
+        comment: The value.
         type: mixed
 ...

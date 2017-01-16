@@ -31,7 +31,7 @@ abstract class Path {
 
     /**
      * Determines if the following path contains a label.
-     * @return boolean
+     * @return bool
      */
     public abstract function hasLabel();
 

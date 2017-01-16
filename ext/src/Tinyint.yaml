@@ -1,6 +1,6 @@
 ---
 Dse\Tinyint:
-  comment: ""
+  comment: A PHP representation of the CQL `tinyint` datatype.
   methods:
     min:
       comment: Minimum possible Tinyint value

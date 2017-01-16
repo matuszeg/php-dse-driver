@@ -22,15 +22,13 @@ final class DefaultTable implements Table {
     /**
      * {@inheritDoc}
      * @param mixed $name
-     * @return Cassandra\Value Value of an option by name
+     * @return Value Value of an option by name
      */
     public function option($name) { }
 
     /**
      * {@inheritDoc}
-     *
-     *               table's options.
-     * @return array A dictionary of `string` and `Cassandra\Value pairs of the
+     * @return array A dictionary of `string` and `Value` pairs of the
      */
     public function options() { }
 
@@ -102,25 +100,25 @@ final class DefaultTable implements Table {
 
     /**
      * {@inheritDoc}
-     * @return Cassandra\Map Compaction strategy options
+     * @return Dse\Map Compaction strategy options
      */
     public function compactionStrategyOptions() { }
 
     /**
      * {@inheritDoc}
-     * @return Cassandra\Map Compression parameters
+     * @return Dse\Map Compression parameters
      */
     public function compressionParameters() { }
 
     /**
      * {@inheritDoc}
-     * @return boolean Value of `populate_io_cache_on_flush` or null
+     * @return bool Value of `populate_io_cache_on_flush` or null
      */
     public function populateIOCacheOnFlush() { }
 
     /**
      * {@inheritDoc}
-     * @return boolean Value of `replicate_on_write` or null
+     * @return bool Value of `replicate_on_write` or null
      */
     public function replicateOnWrite() { }
 
@@ -139,31 +137,31 @@ final class DefaultTable implements Table {
     /**
      * {@inheritDoc}
      * @param string $name Name of the column
-     * @return Cassandra\Column Column instance
+     * @return Dse\Column Column instance
      */
     public function column($name) { }
 
     /**
      * {@inheritDoc}
-     * @return array A list of `Cassandra\Column` instances
+     * @return array A list of `Dse\Column` instances
      */
     public function columns() { }
 
     /**
      * {@inheritDoc}
-     * @return array A list of of `Cassandra\Column` instance
+     * @return array A list of of `Dse\Column` instance
      */
     public function partitionKey() { }
 
     /**
      * {@inheritDoc}
-     * @return array A list of of `Cassandra\Column` instance
+     * @return array A list of of `Dse\Column` instance
      */
     public function primaryKey() { }
 
     /**
      * {@inheritDoc}
-     * @return array A list of of `Cassandra\Column` instances
+     * @return array A list of of `Dse\Column` instances
      */
     public function clusteringKey() { }
 

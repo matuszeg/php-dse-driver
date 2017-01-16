@@ -1,6 +1,8 @@
 ---
 Dse\Type\Tuple:
-  comment: ""
+  comment: |-
+    A class that represents the tuple type. The tuple type is able to represent
+    a composite type of one or more types accessed by index.
   methods:
     name:
       comment: Returns "tuple"
@@ -19,14 +21,12 @@ Dse\Type\Tuple:
         type: array
     create:
       comment: |-
-        Creates a new Dse\Tuple from the given values.
+        Creates a new Dse\Tuple from the given values. When no values given,
+        creates a tuple with null for the values.
 
         @throws Exception\InvalidArgumentException when values given are of a
                                                    different type than what the
                                                    tuple expects.
-
-                                      When no values given, creates a tuple with
-                                      null for the values.
       params:
         value:
           comment: ',...      One or more values to be added to the tuple.'

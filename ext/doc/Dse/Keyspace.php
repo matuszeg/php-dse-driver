@@ -27,7 +27,7 @@ interface Keyspace {
 
     /**
      * Returns replication options
-     * @return Cassandra\Map Replication options
+     * @return Dse\Map Replication options
      */
     public function replicationOptions();
 
@@ -40,13 +40,13 @@ interface Keyspace {
     /**
      * Returns a table by name
      * @param string $name Table name
-     * @return Cassandra\Table|null Table instance or null
+     * @return Dse\Table|null Table instance or null
      */
     public function table($name);
 
     /**
      * Returns all tables defined in this keyspace
-     * @return array An array of `Cassandra\Table` instances
+     * @return array An array of `Dse\Table` instances
      */
     public function tables();
 
@@ -74,7 +74,7 @@ interface Keyspace {
 
     /**
      * @param mixed $name
-     * @param mixed $...
+     * @param mixed $params
      * @return mixed
      */
     public function function_($name, ...$params);
@@ -86,7 +86,7 @@ interface Keyspace {
 
     /**
      * @param mixed $name
-     * @param mixed $...
+     * @param mixed $params
      * @return mixed
      */
     public function aggregate($name, ...$params);

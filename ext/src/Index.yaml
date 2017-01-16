@@ -31,7 +31,7 @@ Dse\Index:
         Returns all the index's options
                       index's options.
       return:
-        comment: A dictionary of `string` and `Dse\Value pairs of the
+        comment: A dictionary of `string` and `Value` pairs of the
         type: array
     className:
       comment: Returns the class name of the index
@@ -39,8 +39,8 @@ Dse\Index:
         comment: Class name of a custom index
         type: string
     isCustom:
-      comment: Returns `true` if this is a custom index
+      comment: Determines if the index is a custom index.
       return:
-        comment: ""
-        type: boolean
+        comment: Returns `true` if this is a custom index
+        type: bool
 ...

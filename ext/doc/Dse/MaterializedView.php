@@ -15,7 +15,7 @@ abstract class MaterializedView implements Table {
 
     /**
      * Returns the base table of the view
-     * @return Cassandra\Table Base table of the view
+     * @return Dse\Table Base table of the view
      */
     public abstract function baseTable();
 
@@ -28,14 +28,14 @@ abstract class MaterializedView implements Table {
     /**
      * Return a table's option by name
      * @param mixed $name
-     * @return Cassandra\Value Value of an option by name
+     * @return Dse\Value Value of an option by name
      */
     public abstract function option($name);
 
     /**
      * Returns all the table's options
      *               view's options.
-     * @return array A dictionary of `string` and `Cassandra\Value pairs of the
+     * @return array A dictionary of `string` and `Value` pairs of the
      */
     public abstract function options();
 
@@ -107,25 +107,25 @@ abstract class MaterializedView implements Table {
 
     /**
      * Returns compaction strategy options
-     * @return Cassandra\Map Compaction strategy options
+     * @return Dse\Map Compaction strategy options
      */
     public abstract function compactionStrategyOptions();
 
     /**
      * Returns compression parameters
-     * @return Cassandra\Map Compression parameters
+     * @return Dse\Map Compression parameters
      */
     public abstract function compressionParameters();
 
     /**
      * Returns whether or not the `populate_io_cache_on_flush` is true
-     * @return boolean Value of `populate_io_cache_on_flush` or null
+     * @return bool Value of `populate_io_cache_on_flush` or null
      */
     public abstract function populateIOCacheOnFlush();
 
     /**
      * Returns whether or not the `replicate_on_write` is true
-     * @return boolean Value of `replicate_on_write` or null
+     * @return bool Value of `replicate_on_write` or null
      */
     public abstract function replicateOnWrite();
 
@@ -144,31 +144,31 @@ abstract class MaterializedView implements Table {
     /**
      * Returns column by name
      * @param string $name Name of the column
-     * @return Cassandra\Column Column instance
+     * @return Dse\Column Column instance
      */
     public abstract function column($name);
 
     /**
      * Returns all columns in this table
-     * @return array A list of `Cassandra\Column` instances
+     * @return array A list of `Dse\Column` instances
      */
     public abstract function columns();
 
     /**
      * Returns the partition key columns of the table
-     * @return array A list of of `Cassandra\Column` instances
+     * @return array A list of of `Dse\Column` instances
      */
     public abstract function partitionKey();
 
     /**
      * Returns both the partition and clustering key columns of the table
-     * @return array A list of of `Cassandra\Column` instances
+     * @return array A list of of `Dse\Column` instances
      */
     public abstract function primaryKey();
 
     /**
      * Returns the clustering key columns of the table
-     * @return array A list of of `Cassandra\Column` instances
+     * @return array A list of of `Dse\Column` instances
      */
     public abstract function clusteringKey();
 

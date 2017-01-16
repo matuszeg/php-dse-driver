@@ -15,6 +15,14 @@ function doesParentHaveMethod($class, $method) {
     return false;
 }
 
+function escapeSingleSlash($string) {
+    $result = preg_replace('/\\\\\\\\/', '\\\\', $string);
+    //$result = preg_replace('/^\\\\([^\\\\])/', '\\\\\\\\$1', $string); // Escape beginning slash
+    //$result = preg_replace('/([^\\\\])\\\\([^\\\\])/', '$1\\\\\\\\$2', $result); // Escape middle slashes
+    //$result = preg_replace('/([^\\\\])\\\\$/', '$1\\\\\\\\', $result); // Escape end slash
+    return $result;
+}
+
 function writeDocYaml($yamlFileName, $class) {
     $classDoc = yaml_parse_file($yamlFileName);
     if ($classDoc === false) {
@@ -29,6 +37,8 @@ function writeDocYaml($yamlFileName, $class) {
     }
     if (!isset($classDoc["comment"])) {
         $classDoc["comment"] = "";
+    } else {
+        $classDoc["comment"] = escapeSingleSlash($classDoc["comment"]);
     }
 
     $constants = $class->getConstants();
@@ -38,6 +48,8 @@ function writeDocYaml($yamlFileName, $class) {
             $constantDoc = isset($constantsDoc[$name]) ? $constantsDoc[$name] : array();
             if (!isset($constantDoc["comment"])) {
                 $constantDoc["comment"] = "";
+            } else {
+                $constantDoc["comment"] = escapeSingleSlash($constantDoc["comment"]);
             }
             $constantsDoc[$name] = $constantDoc;
         }
@@ -54,6 +66,8 @@ function writeDocYaml($yamlFileName, $class) {
             $methodDoc = isset($methodsDoc[$method->getShortName()]) ? $methodsDoc[$method->getShortName()] : array();
             if (!isset($methodDoc["comment"])) {
                 $methodDoc["comment"] = "";
+            } else {
+                $methodDoc["comment"] = escapeSingleSlash($methodDoc["comment"]);
             }
             $parameters = $method->getParameters();
             if ($parameters) {
@@ -62,10 +76,14 @@ function writeDocYaml($yamlFileName, $class) {
                     $paramDoc = isset($paramsDoc[$parameter->getName()]) ? $paramsDoc[$parameter->getName()] : array();
                     if (!isset($paramDoc["comment"])) {
                         $paramDoc["comment"] = "";
+                    } else {
+                        $paramDoc["comment"] = escapeSingleSlash($paramDoc["comment"]);
                     }
                     if (!isset($paramDoc["type"])) {
                         $parameterType = $parameter->getType();
                         $paramDoc["type"] = $parameterType ? "$parameterType" : "mixed";
+                    } else {
+                        $paramDoc["type"] = escapeSingleSlash($paramDoc["type"]);
                     }
                     $paramsDoc[$parameter->getName()] = $paramDoc;
                 }
@@ -76,8 +94,20 @@ function writeDocYaml($yamlFileName, $class) {
                     $returnDoc = array();
                     $returnDoc["comment"] = "";
                     $returnDoc["type"] = "mixed";
-                    $methodDoc["return"] = $returnDoc;
+                } else {
+                    $returnDoc = $methodDoc["return"];
+                    if (!isset($returnDoc["comment"])) {
+                        $returnDoc["comment"] = "";
+                    } else {
+                        $returnDoc["comment"] = escapeSingleSlash($returnDoc["comment"]);
+                    }
+                    if (!isset($returnDoc["type"])) {
+                        $returnDoc["type"] = "mixed";
+                    } else {
+                        $returnDoc["type"] = escapeSingleSlash($returnDoc["type"]);
+                    }
                 }
+                $methodDoc["return"] = $returnDoc;
             }
             $methodsDoc[$method->getShortName()] = $methodDoc;
         }

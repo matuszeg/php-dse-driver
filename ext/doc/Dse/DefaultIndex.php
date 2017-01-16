@@ -34,15 +34,13 @@ final class DefaultIndex implements Index {
     /**
      * {@inheritDoc}
      * @param mixed $name
-     * @return Cassandra\Value Value of an option by name
+     * @return Value Value of an option by name
      */
     public function option($name) { }
 
     /**
      * {@inheritDoc}
-     *
-     *               index's options.
-     * @return array A dictionary of `string` and `Cassandra\Value pairs of the
+     * @return array A dictionary of `string` and `Value` pairs of the
      */
     public function options() { }
 
@@ -54,7 +52,7 @@ final class DefaultIndex implements Index {
 
     /**
      * {@inheritDoc}
-     * @return boolean
+     * @return bool
      */
     public function isCustom() { }
 

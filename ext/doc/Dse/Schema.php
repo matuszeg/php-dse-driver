@@ -16,13 +16,13 @@ interface Schema {
     /**
      * Returns a Keyspace instance by name.
      * @param string $name Name of the keyspace to get
-     * @return Cassandra\Keyspace Keyspace instance or null
+     * @return Dse\Keyspace Keyspace instance or null
      */
     public function keyspace($name);
 
     /**
      * Returns all keyspaces defined in the schema.
-     * @return array An array of `Cassandra\Keyspace` instances.
+     * @return array An array of `Dse\Keyspace` instances.
      */
     public function keyspaces();
 

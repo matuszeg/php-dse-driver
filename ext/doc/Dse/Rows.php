@@ -11,7 +11,7 @@ namespace Dse;
 /**
  * Rows represent a result of statement execution.
  */
-final class Rows implements Iterator, ArrayAccess {
+final class Rows implements \Iterator, \ArrayAccess {
 
     /**
      */

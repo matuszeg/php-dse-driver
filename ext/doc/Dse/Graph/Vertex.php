@@ -9,27 +9,33 @@
 namespace Dse\Graph;
 
 /**
+ * A graph element that is the basis of the graph and can be connected to other
+ * vertices using graph edges.
  */
 abstract class Vertex implements Element {
 
     /**
-     * @return mixed
+     * Gets the vertex's unique identifier.
+     * @return Graph\Result The vertex's identifier as a graph result.
      */
     public abstract function id();
 
     /**
-     * @return mixed
+     * Gets the vertex's label.
+     * @return string The vertex's label.
      */
     public abstract function label();
 
     /**
-     * @return mixed
+     * Gets the vertex's properties as an array of graph results.
+     * @return array An array of graph results.
      */
     public abstract function properties();
 
     /**
-     * @param mixed $key
-     * @return mixed
+     * Gets an vertex's property for a specific key.
+     * @param string $key A property's name
+     * @return Graph\Result An vertex's property as a graph result.
      */
     public abstract function property($key);
 

@@ -11,7 +11,7 @@ namespace Dse;
 /**
  * A PHP representation of the CQL `map` datatype
  */
-final class Map implements Value, Countable, Iterator, ArrayAccess {
+final class Map implements Value, \Countable, \Iterator, \ArrayAccess {
 
     /**
      * Creates a new map of a given key and value type.

@@ -1,107 +1,97 @@
 ---
 Dse\DefaultSession:
-  comment: |-
-    Actual session implementation.
-
-    @see Dse\Session
+  comment: '{@inheritDoc}'
   methods:
     schema:
       comment: '{@inheritDoc}'
       return:
-        comment: current schema.
-        type: Schema
+        comment: '{@inheritDoc}'
+        type: mixed
     execute:
-      comment: |
-        {@inheritDoc}
-
-        @throws Exception
+      comment: '{@inheritDoc}'
+      return:
       params:
         statement:
-          comment: statement to be executed
-          type: Dse\Statement
+          comment: '{@inheritDoc}'
+          type: mixed
         options:
-          comment: execution options (optional)
-          type: Dse\ExecutionOptions
+          comment: '{@inheritDoc}'
+          type: mixed
       return:
-        comment: execution result
-        type: Rows
+        comment: '{@inheritDoc}'
+        type: mixed
     executeAsync:
-      comment: |
-        {@inheritDoc}
+      comment: '{@inheritDoc}'
       params:
         statement:
-          comment: statement to be executed
-          type: Dse\Statement
+          comment: '{@inheritDoc}'
+          type: mixed
         options:
-          comment: execution options (optional)
-          type: Dse\ExecutionOptions
+          comment: '{@inheritDoc}'
+          type: mixed
       return:
-        comment: future result
-        type: Future
+        comment: '{@inheritDoc}'
+        type: mixed
     prepare:
-      comment: |
-        {@inheritDoc}
-
-        @throws Exception
+      comment: '{@inheritDoc}'
       params:
         cql:
-          comment: CQL statement string
-          type: string
+          comment: '{@inheritDoc}'
+          type: mixed
         options:
-          comment: execution options (optional)
-          type: Dse\ExecutionOptions
+          comment: '{@inheritDoc}'
+          type: mixed
       return:
-        comment: prepared statement
-        type: PreparedStatement
+        comment: '{@inheritDoc}'
+        type: mixed
     prepareAsync:
-      comment: |
-        {@inheritDoc}
+      comment: '{@inheritDoc}'
       params:
         cql:
-          comment: CQL string to be prepared
-          type: string
+          comment: '{@inheritDoc}'
+          type: mixed
         options:
-          comment: preparation options
-          type: Dse\ExecutionOptions
+          comment: '{@inheritDoc}'
+          type: mixed
       return:
-        comment: statement
-        type: Future
+        comment: '{@inheritDoc}'
+        type: mixed
     close:
       comment: '{@inheritDoc}'
       params:
         timeout:
-          comment: Timeout to wait for closure in seconds
-          type: float|null
+          comment: '{@inheritDoc}'
+          type: mixed
       return:
-        comment: ""
-        type: void
+        comment: '{@inheritDoc}'
+        type: mixed
     closeAsync:
       comment: '{@inheritDoc}'
       return:
-        comment: future
-        type: Future
+        comment: '{@inheritDoc}'
+        type: mixed
     executeGraph:
-      comment: ""
+      comment: '{@inheritDoc}'
       params:
         statement:
-          comment: ""
+          comment: '{@inheritDoc}'
           type: mixed
         options:
-          comment: ""
-          type: array
+          comment: '{@inheritDoc}'
+          type: mixed
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     executeGraphAsync:
-      comment: ""
+      comment: '{@inheritDoc}'
       params:
         statement:
-          comment: ""
+          comment: '{@inheritDoc}'
           type: mixed
         options:
-          comment: ""
-          type: array
+          comment: '{@inheritDoc}'
+          type: mixed
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
 ...

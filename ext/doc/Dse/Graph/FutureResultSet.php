@@ -13,7 +13,7 @@ namespace Dse\Graph;
  *
  * @see \Dse\Session::executeGraphAsync()
  */
-final class FutureResultSet implements Dse\Future {
+final class FutureResultSet implements \Dse\Future {
 
     /**
      * Get the result set of an asynchronously executed graph query.

@@ -1,31 +1,31 @@
 ---
 Dse\Graph\DefaultPath:
-  comment: ""
+  comment: '{@inheritDoc}'
   methods:
     __construct:
-      comment: ""
+      comment: '{@inheritDoc}'
     labels:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     objects:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     hasLabel:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     object:
-      comment: ""
+      comment: '{@inheritDoc}'
       params:
         key:
-          comment: ""
+          comment: '{@inheritDoc}'
           type: mixed
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
 ...

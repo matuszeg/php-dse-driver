@@ -9,29 +9,34 @@
 namespace Dse\Graph;
 
 /**
+ * {@inheritDoc}
  */
 final class DefaultPath {
 
     private final function __construct() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function labels() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function objects() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function hasLabel() { }
 
     /**
-     * @param mixed $key
-     * @return mixed
+     * {@inheritDoc}
+     * @param mixed $key {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function object($key) { }
 

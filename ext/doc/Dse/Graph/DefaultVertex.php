@@ -9,29 +9,34 @@
 namespace Dse\Graph;
 
 /**
+ * {@inheritDoc}
  */
 final class DefaultVertex extends Vertex  {
 
     private final function __construct() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function id() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function label() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function properties() { }
 
     /**
-     * @param mixed $key
-     * @return mixed
+     * {@inheritDoc}
+     * @param mixed $key {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function property($key) { }
 

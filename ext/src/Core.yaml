@@ -164,8 +164,8 @@ Dse:
         @see Dse\Map::__construct()
     TYPE_BOOLEAN:
       comment: |-
-        When using a map, collection or set of type boolean, all of its elements
-        must be booleans.
+        When using a map, collection or set of type bool, all of its elements
+        must be bools.
 
         @see Dse\Set::__construct()
         @see Dse\Collection::__construct()
@@ -250,28 +250,44 @@ Dse:
         @see Dse\Set::__construct()
         @see Dse\Collection::__construct()
         @see Dse\Map::__construct()
-    VERSION:
-      comment: Current version of the extension.
-    CPP_DRIVER_VERSION:
-      comment: Version of the cpp-driver the extension is compiled against.
-    LOG_DISABLED:
-      comment: ""
-    LOG_CRITICAL:
-      comment: ""
-    LOG_ERROR:
-      comment: ""
-    LOG_WARN:
-      comment: ""
-    LOG_INFO:
-      comment: ""
-    LOG_DEBUG:
-      comment: ""
-    LOG_TRACE:
-      comment: ""
     TYPE_SMALLINT:
-      comment: ""
+      comment: |-
+        When using a map, collection or set of type smallint, all of its elements
+        must be instances of Inet.
+
+        @see Dse\Set::__construct()
+        @see Dse\Collection::__construct()
+        @see Dse\Map::__construct()
     TYPE_TINYINT:
-      comment: ""
+      comment: |-
+        When using a map, collection or set of type tinyint, all of its elements
+        must be instances of Inet.
+
+        @see Dse\Set::__construct()
+        @see Dse\Collection::__construct()
+        @see Dse\Map::__construct()
+    VERSION:
+      comment: The current version of the extension.
+    CPP_DRIVER_VERSION:
+      comment: |-
+        The version of the cpp-driver library used to build the cpp-driver-dse
+        driver library.
     CPP_DRIVER_DSE_VERSION:
-      comment: ""
+      comment: |-
+        The version of the cpp-driver-dse library used to build the php-driver-dse
+        extension.
+    LOG_DISABLED:
+      comment: Used to disable logging.
+    LOG_CRITICAL:
+      comment: Allow critical level logging.
+    LOG_ERROR:
+      comment: Allow error level logging.
+    LOG_WARN:
+      comment: Allow warning level logging.
+    LOG_INFO:
+      comment: Allow info level logging.
+    LOG_DEBUG:
+      comment: Allow debug level logging.
+    LOG_TRACE:
+      comment: Allow trace level logging.
 ...

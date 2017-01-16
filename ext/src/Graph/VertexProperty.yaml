@@ -1,44 +1,46 @@
 ---
 Dse\Graph\VertexProperty:
-  comment: ""
+  comment: |-
+    A property of a graph vertex. A vertex property can contain its own
+    properties.
   methods:
     name:
-      comment: ""
+      comment: Gets the name of the property.
       return:
-        comment: ""
-        type: mixed
+        comment: The string name of a property.
+        type: string
     value:
-      comment: ""
+      comment: Gets the value of the property.
       return:
-        comment: ""
-        type: mixed
+        comment: The value of the property.
+        type: Graph\Result
     parent:
-      comment: ""
+      comment: Gets The graph element that contains this property.
       return:
-        comment: ""
-        type: mixed
+        comment: The parent graph element of this property.
+        type: Graph\Result
     id:
-      comment: ""
+      comment: Gets the vertex property's unique identifier.
       return:
-        comment: ""
-        type: mixed
+        comment: The vertex property's identifier as a graph result.
+        type: Graph\Result
     label:
-      comment: ""
+      comment: Get's the vertex property's label.
       return:
-        comment: ""
-        type: mixed
+        comment: The vertex property's label.
+        type: string
     properties:
-      comment: ""
+      comment: Gets an array of the vertex property's properties.
       return:
-        comment: ""
-        type: mixed
+        comment: An array of graph results.
+        type: array
     property:
-      comment: ""
+      comment: Gets the vertex property's property at the specified key.
       params:
         key:
-          comment: ""
-          type: mixed
+          comment: The name of the vertex property's property.
+          type: string
       return:
-        comment: ""
-        type: mixed
+        comment: The vertex property's property as a graph result.
+        type: Graph\Result
 ...

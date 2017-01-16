@@ -9,9 +9,9 @@
 namespace Dse\Exception;
 
 /**
- * Cassandra-specific invalid argument exception.
+ * DSE invalid argument exception.
  */
-class InvalidArgumentException extends InvalidArgumentException implements Exception {
+class InvalidArgumentException extends \InvalidArgumentException implements Exception {
 
     /**
      * @param mixed $message

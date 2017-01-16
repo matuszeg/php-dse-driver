@@ -41,5 +41,5 @@ Dse\DefaultFunction:
       comment: '{@inheritDoc}'
       return:
         comment: ""
-        type: boolean
+        type: bool
 ...

@@ -9,6 +9,8 @@
 namespace Dse\Type;
 
 /**
+ * A class that represents the list type. The list type contains the type of the
+ * elements contain in the list.
  */
 final class Collection extends Type {
 
@@ -33,15 +35,14 @@ final class Collection extends Type {
     public function __toString() { }
 
     /**
-     * Creates a new Cassandra\Collection from the given values.
+     * Creates a new Dse\Collection from the given values.  When no values
+     * given, creates an empty list.
      *
      * @throws Exception\InvalidArgumentException when values given are of a
      *                                            different type than what this
      *                                            list type expects.
-     *
-     *                               When no values given, creates an empty list.
      * @param mixed $value ,...      One or more values to be added to the list.
-     * @return Cassandra\Collection A list with given values.
+     * @return Dse\Collection A list with given values.
      */
     public function create($value) { }
 

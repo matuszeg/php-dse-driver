@@ -9,44 +9,52 @@
 namespace Dse\Graph;
 
 /**
+ * {@inheritDoc}
  */
 final class DefaultVertexProperty extends VertexProperty  {
 
     private final function __construct() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function name() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function value() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function parent() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function id() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function label() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function properties() { }
 
     /**
-     * @param mixed $key
-     * @return mixed
+     * {@inheritDoc}
+     * @param mixed $key {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function property($key) { }
 

@@ -9,42 +9,51 @@
 namespace Dse\Graph;
 
 /**
+ * A property of a graph vertex. A vertex property can contain its own
+ * properties.
  */
 abstract class VertexProperty implements Property, Element {
 
     /**
-     * @return mixed
+     * Gets the name of the property.
+     * @return string The string name of a property.
      */
     public abstract function name();
 
     /**
-     * @return mixed
+     * Gets the value of the property.
+     * @return Graph\Result The value of the property.
      */
     public abstract function value();
 
     /**
-     * @return mixed
+     * Gets The graph element that contains this property.
+     * @return Graph\Result The parent graph element of this property.
      */
     public abstract function parent();
 
     /**
-     * @return mixed
+     * Gets the vertex property's unique identifier.
+     * @return Graph\Result The vertex property's identifier as a graph result.
      */
     public abstract function id();
 
     /**
-     * @return mixed
+     * Get's the vertex property's label.
+     * @return string The vertex property's label.
      */
     public abstract function label();
 
     /**
-     * @return mixed
+     * Gets an array of the vertex property's properties.
+     * @return array An array of graph results.
      */
     public abstract function properties();
 
     /**
-     * @param mixed $key
-     * @return mixed
+     * Gets the vertex property's property at the specified key.
+     * @param string $key The name of the vertex property's property.
+     * @return Graph\Result The vertex property's property as a graph result.
      */
     public abstract function property($key);
 

@@ -9,9 +9,9 @@
 namespace Dse\Exception;
 
 /**
- * Cassandra-specific logic exception.
+ * DSE logic exception.
  */
-class LogicException extends LogicException implements Exception {
+class LogicException extends \LogicException implements Exception {
 
     /**
      * @param mixed $message

@@ -9,9 +9,9 @@
 namespace Dse\Exception;
 
 /**
- * Cassandra-specific domain exception.
+ * DSE domain exception.
  */
-class DomainException extends DomainException implements Exception {
+class DomainException extends \DomainException implements Exception {
 
     /**
      * @param mixed $message

@@ -9,11 +9,13 @@
 namespace Dse;
 
 /**
+ * An interface for representing custom values.
  */
 abstract class Custom implements Value {
 
     /**
-     * @return mixed
+     * The type of this value.
+     * @return Type\Custom
      */
     public abstract function type();
 

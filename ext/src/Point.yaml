@@ -11,7 +11,7 @@ Dse\Point:
       params:
         pointData:
           comment: Either x, y pair or a WKT string
-          type: double pair or string
+          type: double|string
     type:
       comment: ""
       return:

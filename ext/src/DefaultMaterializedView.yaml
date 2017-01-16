@@ -17,12 +17,9 @@ Dse\DefaultMaterializedView:
         comment: Value of an option by name
         type: Dse\Value
     options:
-      comment: |-
-        {@inheritDoc}
-
-                      view's options.
+      comment: '{@inheritDoc}'
       return:
-        comment: A dictionary of `string` and `Dse\Value pairs of the
+        comment: A dictionary of `string` and `Value` pairs of the
         type: array
     comment:
       comment: '{@inheritDoc}'
@@ -93,12 +90,12 @@ Dse\DefaultMaterializedView:
       comment: '{@inheritDoc}'
       return:
         comment: Value of `populate_io_cache_on_flush` or null
-        type: boolean
+        type: bool
     replicateOnWrite:
       comment: '{@inheritDoc}'
       return:
         comment: Value of `replicate_on_write` or null
-        type: boolean
+        type: bool
     maxIndexInterval:
       comment: '{@inheritDoc}'
       return:

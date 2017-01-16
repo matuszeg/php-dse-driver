@@ -1,46 +1,46 @@
 ---
 Dse\Graph\DefaultVertexProperty:
-  comment: ""
+  comment: '{@inheritDoc}'
   methods:
     __construct:
-      comment: ""
+      comment: '{@inheritDoc}'
     name:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     value:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     parent:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     id:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     label:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     properties:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     property:
-      comment: ""
+      comment: '{@inheritDoc}'
       params:
         key:
-          comment: ""
+          comment: '{@inheritDoc}'
           type: mixed
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
 ...

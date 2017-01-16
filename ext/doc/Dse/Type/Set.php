@@ -9,6 +9,8 @@
 namespace Dse\Type;
 
 /**
+ * A class that represents the set type. The set type contains the type of the
+ * elements contain in the set.
  */
 final class Set extends Type {
 
@@ -33,15 +35,13 @@ final class Set extends Type {
     public function __toString() { }
 
     /**
-     * Creates a new Cassandra\Set from the given values.
+     * Creates a new Dse\Set from the given values.
      *
      * @throws Exception\InvalidArgumentException when values given are of a
      *                                            different type than what this
      *                                            set type expects.
-     *
-     *                          no values are given, creates an empty set.
-     * @param mixed $value ,... One or more values to be added to the set. When
-     * @return Cassandra\Set A set with given values.
+     * @param mixed $value ,... One or more values to be added to the set. When no values are given, creates an empty set.
+     * @return Dse\Set A set with given values.
      */
     public function create($value) { }
 

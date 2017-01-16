@@ -1,6 +1,8 @@
 ---
 Dse\Type\Set:
-  comment: ""
+  comment: |-
+    A class that represents the set type. The set type contains the type of the
+    elements contain in the set.
   methods:
     name:
       comment: Returns "set"
@@ -24,11 +26,10 @@ Dse\Type\Set:
         @throws Exception\InvalidArgumentException when values given are of a
                                                    different type than what this
                                                    set type expects.
-
-                                 no values are given, creates an empty set.
       params:
         value:
-          comment: ',... One or more values to be added to the set. When'
+          comment: ',... One or more values to be added to the set. When no values
+            are given, creates an empty set.'
           type: mixed
       return:
         comment: '   A set with given values.'

@@ -9,7 +9,7 @@
 namespace Dse;
 
 /**
- * SSL options for Cassandra\Cluster.
+ * SSL options for Dse\Cluster.
  *
  * @see SSLOptions\Builder
  */

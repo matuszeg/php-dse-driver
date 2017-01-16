@@ -11,7 +11,7 @@ namespace Dse;
 /**
  * A PHP representation of the CQL `set` datatype
  */
-final class Set implements Value, Countable, Iterator {
+final class Set implements Value, \Countable, \Iterator {
 
     /**
      * Creates a new collection of a given type.

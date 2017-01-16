@@ -393,7 +393,7 @@ Dse\Cluster\Builder:
     withGssapiAuthenticator:
       comment: |
         Enable authentication for use with Kerberos. By default the driver uses the connecting host's
-        IP address to construct the full service name (e.g. <service>@<IP address>). To use the host's
+        IP address to construct the full service name (e.g. &lt;service&gt;\@&lt;IP address&gt;. To use the host's
         DNS name enable hostname resolution using Dse\Cluster\Builder::withHostnameResolution().
         @see Dse\Cluster\Builder::withHostnameResolution()
       params:

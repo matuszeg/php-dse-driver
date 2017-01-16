@@ -16,17 +16,17 @@ Dse\DefaultColumn:
       comment: '{@inheritDoc}'
       return:
         comment: Whether the column is stored in descending order.
-        type: boolean
+        type: bool
     isStatic:
       comment: '{@inheritDoc}'
       return:
         comment: Whether the column is static
-        type: boolean
+        type: bool
     isFrozen:
       comment: '{@inheritDoc}'
       return:
         comment: Whether the column is frozen
-        type: boolean
+        type: bool
     indexName:
       comment: '{@inheritDoc}'
       return:

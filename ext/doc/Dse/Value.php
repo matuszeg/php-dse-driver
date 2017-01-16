@@ -9,7 +9,7 @@
 namespace Dse;
 
 /**
- * Common interface implemented by all Cassandra value types.
+ * Common interface implemented by all DSE value types.
  *
  * @see Bigint
  * @see Smallint

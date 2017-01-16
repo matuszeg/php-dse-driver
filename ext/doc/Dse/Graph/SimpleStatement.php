@@ -9,11 +9,13 @@
 namespace Dse\Graph;
 
 /**
+ * A simple string base graph query.
  */
 final class SimpleStatement implements Statement {
 
     /**
-     * @param mixed $query
+     * Construct a graph statement with a string query.
+     * @param string $query The graph query.
      */
     public function __construct($query) { }
 

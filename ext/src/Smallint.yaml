@@ -1,6 +1,6 @@
 ---
 Dse\Smallint:
-  comment: ""
+  comment: A PHP representation of the CQL `smallint` datatype.
   methods:
     min:
       comment: Minimum possible Smallint value

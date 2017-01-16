@@ -1,96 +1,113 @@
 ---
 Dse\Session:
-  comment: ""
+  comment: A class that contains and manages connections to DSE. It allows for executing
+    or preparing queries for execution.
   methods:
     execute:
-      comment: ""
+      comment: |
+        Execute a query.
+
+        @throws Exeception
       params:
         statement:
-          comment: ""
+          comment: A statement to be executed.
           type: Dse\Statement
         options:
-          comment: ""
+          comment: Options to control execution of the query.
           type: Dse\ExecutionOptions
       return:
-        comment: ""
-        type: mixed
+        comment: A colleciton of rows.
+        type: Rows
     executeAsync:
-      comment: ""
+      comment: |-
+        Execute a query asyncrhonously. This method returns immediately, but
+        the query continues execution in the background.
       params:
         statement:
-          comment: ""
+          comment: A statement to be executed.
           type: Dse\Statement
         options:
-          comment: ""
+          comment: Options to control execution of the query.
           type: Dse\ExecutionOptions
       return:
-        comment: ""
-        type: mixed
+        comment: A future that can be used to retrieve the result.
+        type: FutureRows
     prepare:
-      comment: ""
+      comment: |
+        Prepare a query for execution.
+
+        @throws Exeception
       params:
         cql:
-          comment: ""
-          type: mixed
+          comment: The query to be prepared.
+          type: string
         options:
-          comment: ""
+          comment: Options to control preparing the query.
           type: Dse\ExecutionOptions
       return:
-        comment: ""
-        type: mixed
+        comment: |
+          A prepared statement that can be bound with parameters and executed.
+        type: PreparedStatement
     prepareAsync:
-      comment: ""
+      comment: Asynchronously prepare a query for execution.
       params:
         cql:
-          comment: ""
-          type: mixed
+          comment: The query to be prepared.
+          type: string
         options:
-          comment: ""
+          comment: Options to control preparing the query.
           type: Dse\ExecutionOptions
       return:
-        comment: ""
-        type: mixed
+        comment: A future that can be used to retrieve the prepared statement.
+        type: FuturePreparedStatement
     close:
-      comment: ""
+      comment: |
+        Close the session and all its connections.
+
+        @throws Exeception
       params:
         timeout:
-          comment: ""
-          type: mixed
+          comment: |
+            The amount of time in seconds to wait for the session to close.
+          type: double
       return:
-        comment: ""
-        type: mixed
+        comment: "Nothing."
+        type: "null"
     closeAsync:
-      comment: ""
+      comment: Asynchronously close the session and all its connections.
       return:
-        comment: ""
-        type: mixed
+        comment: A future that can be waited on.
+        type: FutureClose
     schema:
-      comment: ""
+      comment: Get a snapshot of the cluster's current schema.
       return:
-        comment: ""
-        type: mixed
+        comment: A snapshot of the cluster's schema.
+        type: Schema
     executeGraph:
-      comment: ""
+      comment:
+        Execute graph queries.
+
+        @throws Exeception
       params:
         statement:
-          comment: ""
-          type: mixed
+          comment: A graph statement or query string to be executed.
+          type: string|Graph\Statement
         options:
-          comment: ""
+          comment: Options to control execution of the graph query.
           type: array
       return:
-        comment: ""
-        type: mixed
+        comment: A result set.
+        type: Graph\ResultSet
     executeGraphAsync:
-      comment: ""
+      comment: Asynchronously execute a graph query.
       params:
         statement:
-          comment: ""
-          type: mixed
+          comment: A graph statement or query string to be executed.
+          type: string|Graph\Statement
         options:
-          comment: ""
+          comment: Options to control execution of the graph query.
           type: array
       return:
-        comment: ""
-        type: mixed
+        comment: A future that can be used to retrieve the result set.
+        type: Graph\FutureResultSet
 ...

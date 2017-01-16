@@ -9,9 +9,9 @@
 namespace Dse\Exception;
 
 /**
- * ProtocolException is raised when a client did not follow Apache Cassandra
- * protocol, e.g. sending a QUERY message before STARTUP. Seeing this error can
- * be considered a bug.
+ * ProtocolException is raised when a client did not follow server's protocol,
+ * e.g. sending a QUERY message before STARTUP. Seeing this error can be
+ * considered a bug.
  */
 class ProtocolException extends RuntimeException  {
 

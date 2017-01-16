@@ -9,20 +9,20 @@
 namespace Dse;
 
 /**
- * Encapsulates a 2D point with x,y coordinates. It corresponds to the `org.apache.cassandra.db.marshal.PointType`
- * column type in DSE.
+ * Encapsulates a 2D point with x,y coordinates. It corresponds to the
+ * `org.apache.cassandra.db.marshal.PointType` column type in DSE.
  *
  * @see https://en.wikipedia.org/wiki/Well-known_text
  */
 final class Point extends Custom  {
 
     /**
-     * @param double pair or string $pointData Either x, y pair or a WKT string
+     * @param double|string $pointData Either x, y pair or a WKT string
      */
     public function __construct($pointData) { }
 
     /**
-     * @return Cassandra\Type\Custom the Cassandra custom type for Point
+     * @return Dse\Type\Custom the custom type for Point
      */
     public function type() { }
 

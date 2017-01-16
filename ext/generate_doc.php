@@ -109,6 +109,10 @@ function writeParameterDoc($doc, $file, $class, $method, $parameter) {
             logWarning("Missing '$parameterName' parameter's 'type' documentation for method '$className::$methodName()'");
         }
 
+        if ($parameterName == "...") {
+            $parameterName = "params";
+        }
+
         $parameterType = $parameterType ? $parameterType : "mixed";
         $parameterType = $type ? $type : $parameterType; # Overrides builtin if provided
         $parameterTypeAndName = "@param $parameterType \$$parameterName";

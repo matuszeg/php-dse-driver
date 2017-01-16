@@ -1,60 +1,64 @@
 ---
 Dse\Graph\ResultSet:
-  comment: A set of arbitrary data returned from a graph query. It is iterable
-    and indexable.
-
+  comment: |-
+    A set of arbitrary data returned from a graph query. It is iterable and indexable.
     @see \Dse\Graph\Result
   methods:
     count:
-      comment: ""
+      comment: Gets the number of results contained in the result set.
       return:
-        comment: ""
-        type: mixed
+        comment: The number of results.
+        type: int
     rewind:
-      comment: ""
+      comment: Resets the intenal iterator of the result set to the beginning.
       return:
         comment: ""
-        type: mixed
+        type: "null"
     current:
-      comment: ""
+      comment: |-
+        Gets the current value at the current position of the internal
+        iterator.
       return:
         comment: ""
         type: mixed
     key:
-      comment: ""
+      comment: |-
+        Gets the current key or offset of the current position of the
+        internal iterator;
       return:
         comment: ""
-        type: mixed
+        type: int|string
     next:
-      comment: ""
+      comment: Moves the internal iterator to the next position.
       return:
         comment: ""
-        type: mixed
+        type: "null"
     valid:
-      comment: ""
+      comment: Determines if the internal iterator points to a valid position in the
+        result set.
       return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the internal iterator is valid.
+        type: bool
     offsetExists:
-      comment: ""
+      comment: Determines if a result exists at an offset.
       params:
         offset:
-          comment: ""
-          type: mixed
+          comment: An integer offset into the result set.
+          type: int
       return:
-        comment: ""
-        type: mixed
+        comment: Returns true if the offset is valid.
+        type: bool
     offsetGet:
-      comment: ""
+      comment: Gets a  result at the provided offset.
       params:
         offset:
-          comment: ""
-          type: mixed
+          comment: An integer offset into the result set.
+          type: int
       return:
-        comment: ""
-        type: mixed
+        comment: A graph result.
+        type: Graph\Result
     offsetSet:
-      comment: ""
+      comment: Not implmented. The result set is read-only.
       params:
         offset:
           comment: ""
@@ -66,7 +70,7 @@ Dse\Graph\ResultSet:
         comment: ""
         type: mixed
     offsetUnset:
-      comment: ""
+      comment: Not implmented. The result set is read-only.
       params:
         offset:
           comment: ""
@@ -75,8 +79,8 @@ Dse\Graph\ResultSet:
         comment: ""
         type: mixed
     first:
-      comment: ""
+      comment: Gets the first result in the result set.
       return:
-        comment: ""
-        type: mixed
+        comment: The first result.
+        type: Graph\Result
 ...

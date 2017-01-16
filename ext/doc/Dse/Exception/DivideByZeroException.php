@@ -9,7 +9,7 @@
 namespace Dse\Exception;
 
 /**
- * Cassandra-specific domain exception.
+ * DSE domain exception.
  */
 class DivideByZeroException extends RangeException  {
 

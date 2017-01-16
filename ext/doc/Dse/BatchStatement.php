@@ -13,25 +13,25 @@ namespace Dse;
  * statements.
  *
  * There are 3 types of batch statements:
- *  * `Cassandra::BATCH_LOGGED`   - this is the default batch type. This batch
+ *  * `Dse::BATCH_LOGGED`   - this is the default batch type. This batch
  *    guarantees that either all or none of its statements will be executed.
  *    This behavior is achieved by writing a batch log on the coordinator,
  *    which slows down the execution somewhat.
- *  * `Cassandra::BATCH_UNLOGGED` - this batch will not be verified when
+ *  * `Dse::BATCH_UNLOGGED` - this batch will not be verified when
  *    executed, which makes it faster than a `LOGGED` batch, but means that
  *    some of its statements might fail, while others - succeed.
- *  * `Cassandra::BATCH_COUNTER`  - this batch is used for counter updates,
+ *  * `Dse::BATCH_COUNTER`  - this batch is used for counter updates,
  *    which are, unlike other writes, not idempotent.
  *
- * @see Cassandra::BATCH_LOGGED
- * @see Cassandra::BATCH_UNLOGGED
- * @see Cassandra::BATCH_COUNTER
+ * @see Dse::BATCH_LOGGED
+ * @see Dse::BATCH_UNLOGGED
+ * @see Dse::BATCH_COUNTER
  */
 final class BatchStatement implements Statement {
 
     /**
      * Creates a new batch statement.
-     * @param int $type must be one of Cassandra::BATCH_* (default: Cassandra::BATCH_LOGGED).
+     * @param int $type must be one of Dse::BATCH_* (default: Dse::BATCH_LOGGED).
      */
     public function __construct($type) { }
 
@@ -40,7 +40,7 @@ final class BatchStatement implements Statement {
      *
      *
      * @throws Exception\InvalidArgumentException
-     * @param Cassandra\Statement $statement the statement to add
+     * @param Dse\Statement $statement the statement to add
      * @param array $arguments positional or named arguments
      * @return BatchStatement self
      */

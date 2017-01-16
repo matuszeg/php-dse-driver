@@ -9,6 +9,8 @@
 namespace Dse\Type;
 
 /**
+ * A class that represents a user type. The user type is able to represent a
+ * composite type of one or more types accessed by name.
  */
 final class UserType extends Type {
 
@@ -52,15 +54,14 @@ final class UserType extends Type {
     public function types() { }
 
     /**
-     * Creates a new Cassandra\UserTypeValue from the given name/value pairs.
+     * Creates a new Dse\UserTypeValue from the given name/value pairs. When
+     * no values given, creates an empty user type.
      *
      * @throws Exception\InvalidArgumentException when values given are of a
      *                                            different types than what the
      *                                            user type expects.
-     *
-     *                               When no values given, creates an empty user type.
      * @param mixed $value ,...      One or more name/value pairs to be added to the user type.
-     * @return Cassandra\UserTypeValue A user type value with given name/value pairs.
+     * @return Dse\UserTypeValue A user type value with given name/value pairs.
      */
     public function create($value) { }
 

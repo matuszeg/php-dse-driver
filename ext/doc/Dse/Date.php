@@ -45,7 +45,7 @@ final class Date implements Value {
     public static function fromDateTime($datetime) { }
 
     /**
-     * @return string this date in string format: Cassandra\Date(seconds=$seconds)
+     * @return string this date in string format: Dse\Date(seconds=$seconds)
      */
     public function __toString() { }
 

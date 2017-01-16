@@ -9,6 +9,7 @@
 namespace Dse\Type;
 
 /**
+ * A class that represents a primitive type (e.g. `varchar` or `bigint`)
  */
 final class Scalar extends Type {
 

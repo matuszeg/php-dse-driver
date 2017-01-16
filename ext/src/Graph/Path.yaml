@@ -22,7 +22,7 @@ Dse\Graph\Path:
       comment: Determines if the following path contains a label.
       return:
         comment: ""
-        type: boolean
+        type: bool
     object:
       comment: Get an object in the path with a particular label.
       params:

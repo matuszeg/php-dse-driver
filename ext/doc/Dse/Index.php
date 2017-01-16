@@ -34,14 +34,14 @@ interface Index {
     /**
      * Return a column's option by name
      * @param mixed $name
-     * @return Cassandra\Value Value of an option by name
+     * @return Dse\Value Value of an option by name
      */
     public function option($name);
 
     /**
      * Returns all the index's options
      *               index's options.
-     * @return array A dictionary of `string` and `Cassandra\Value pairs of the
+     * @return array A dictionary of `string` and `Value` pairs of the
      */
     public function options();
 
@@ -52,8 +52,8 @@ interface Index {
     public function className();
 
     /**
-     * Returns `true` if this is a custom index
-     * @return boolean
+     * Determines if the index is a custom index.
+     * @return bool Returns `true` if this is a custom index
      */
     public function isCustom();
 

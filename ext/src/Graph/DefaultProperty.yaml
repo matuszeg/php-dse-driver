@@ -1,22 +1,22 @@
 ---
 Dse\Graph\DefaultProperty:
-  comment: ""
+  comment: '{@inheritDoc}'
   methods:
     __construct:
-      comment: ""
+      comment: '{@inheritDoc}'
     name:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     value:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
     parent:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
+        comment: '{@inheritDoc}'
         type: mixed
 ...

@@ -9,23 +9,27 @@
 namespace Dse\Graph;
 
 /**
+ * {@inheritDoc}
  */
 final class DefaultProperty implements Property {
 
     private final function __construct() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function name() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function value() { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function parent() { }
 

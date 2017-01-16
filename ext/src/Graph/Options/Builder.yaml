@@ -53,7 +53,7 @@ Dse\Graph\Options\Builder:
       params:
         consistency:
           comment: Read consistency
-          type: consistency
+          type: int
       return:
         comment: self
         type: Graph\Options\Builder
@@ -63,7 +63,7 @@ Dse\Graph\Options\Builder:
       params:
         consistency:
           comment: Write consistency
-          type: consistency constant
+          type: int
       return:
         comment: self
         type: Graph\Options\Builder

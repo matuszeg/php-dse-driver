@@ -9,82 +9,74 @@
 namespace Dse;
 
 /**
- * Actual session implementation.
- *
- * @see Cassandra\Session
+ * {@inheritDoc}
  */
 final class DefaultSession implements Session {
 
     /**
      * {@inheritDoc}
-     *
-     * @throws Exception
-     *
-     * @param Cassandra\Statement $statement statement to be executed
-     * @param Cassandra\ExecutionOptions $options execution options (optional)
-     * @return Rows execution result
+     * @param mixed $statement {@inheritDoc}
+     * @param mixed $options {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function execute($statement, $options) { }
 
     /**
      * {@inheritDoc}
-     *
-     * @param Cassandra\Statement $statement statement to be executed
-     * @param Cassandra\ExecutionOptions $options execution options (optional)
-     * @return Future future result
+     * @param mixed $statement {@inheritDoc}
+     * @param mixed $options {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function executeAsync($statement, $options) { }
 
     /**
      * {@inheritDoc}
-     *
-     * @throws Exception
-     *
-     * @param string $cql CQL statement string
-     * @param Cassandra\ExecutionOptions $options execution options (optional)
-     * @return PreparedStatement prepared statement
+     * @param mixed $cql {@inheritDoc}
+     * @param mixed $options {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function prepare($cql, $options) { }
 
     /**
      * {@inheritDoc}
-     *
-     * @param string $cql CQL string to be prepared
-     * @param Cassandra\ExecutionOptions $options preparation options
-     * @return Future statement
+     * @param mixed $cql {@inheritDoc}
+     * @param mixed $options {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function prepareAsync($cql, $options) { }
 
     /**
      * {@inheritDoc}
-     * @param float|null $timeout Timeout to wait for closure in seconds
-     * @return void
+     * @param mixed $timeout {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function close($timeout) { }
 
     /**
      * {@inheritDoc}
-     * @return Future future
+     * @return mixed {@inheritDoc}
      */
     public function closeAsync() { }
 
     /**
      * {@inheritDoc}
-     * @return Schema current schema.
+     * @return mixed {@inheritDoc}
      */
     public function schema() { }
 
     /**
-     * @param mixed $statement
-     * @param array $options
-     * @return mixed
+     * {@inheritDoc}
+     * @param mixed $statement {@inheritDoc}
+     * @param mixed $options {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function executeGraph($statement, $options) { }
 
     /**
-     * @param mixed $statement
-     * @param array $options
-     * @return mixed
+     * {@inheritDoc}
+     * @param mixed $statement {@inheritDoc}
+     * @param mixed $options {@inheritDoc}
+     * @return mixed {@inheritDoc}
      */
     public function executeGraphAsync($statement, $options) { }
 

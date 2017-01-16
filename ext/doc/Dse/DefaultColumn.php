@@ -21,25 +21,25 @@ final class DefaultColumn implements Column {
 
     /**
      * {@inheritDoc}
-     * @return Cassandra\Type Type of the column
+     * @return Dse\Type Type of the column
      */
     public function type() { }
 
     /**
      * {@inheritDoc}
-     * @return boolean Whether the column is stored in descending order.
+     * @return bool Whether the column is stored in descending order.
      */
     public function isReversed() { }
 
     /**
      * {@inheritDoc}
-     * @return boolean Whether the column is static
+     * @return bool Whether the column is static
      */
     public function isStatic() { }
 
     /**
      * {@inheritDoc}
-     * @return boolean Whether the column is frozen
+     * @return bool Whether the column is frozen
      */
     public function isFrozen() { }
 

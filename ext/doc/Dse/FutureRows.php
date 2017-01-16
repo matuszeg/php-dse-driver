@@ -9,7 +9,7 @@
 namespace Dse;
 
 /**
- * This future results is resolved with `Cassandra\Rows`.
+ * This future results is resolved with `Dse\Rows`.
  *
  * @see Session::executeAsync()
  */

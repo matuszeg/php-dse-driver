@@ -1,5 +1,4 @@
 ---
 Dse\TimestampGenerator\ServerSide:
-  comment: |-
-    A timestamp generator that allows the server-side to assign timestamps.
+  comment: A timestamp generator that allows the server-side to assign timestamps.
 ...

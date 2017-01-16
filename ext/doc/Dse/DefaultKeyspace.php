@@ -27,7 +27,7 @@ final class DefaultKeyspace implements Keyspace {
 
     /**
      * {@inheritDoc}
-     * @return Cassandra\Map Replication options
+     * @return Dse\Map Replication options
      */
     public function replicationOptions() { }
 
@@ -40,13 +40,13 @@ final class DefaultKeyspace implements Keyspace {
     /**
      * {@inheritDoc}
      * @param string $name Table name
-     * @return Cassandra\Table Table instance or null
+     * @return Dse\Table Table instance or null
      */
     public function table($name) { }
 
     /**
      * {@inheritDoc}
-     * @return array An array of `Cassandra\Table` instances
+     * @return array An array of `Dse\Table` instances
      */
     public function tables() { }
 
@@ -74,7 +74,7 @@ final class DefaultKeyspace implements Keyspace {
 
     /**
      * @param mixed $name
-     * @param mixed $...
+     * @param mixed $params
      * @return mixed
      */
     public function function_($name, ...$params) { }
@@ -86,7 +86,7 @@ final class DefaultKeyspace implements Keyspace {
 
     /**
      * @param mixed $name
-     * @param mixed $...
+     * @param mixed $params
      * @return mixed
      */
     public function aggregate($name, ...$params) { }

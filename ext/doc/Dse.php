@@ -7,11 +7,11 @@
 */
 
 /**
- * The main entry point to the PHP Driver for Apache Cassandra.
+ * The main entry point to the DataStax Enterprise PHP Driver.
  *
- * Use Cassandra::cluster() to build a cluster instance.
- * Use Cassandra::ssl() to build SSL options instance.
- * Use Cassandra::graphOptions() to build a graph options instance.
+ * Use Dse::cluster() to build a cluster instance.
+ * Use Dse::ssl() to build SSL options instance.
+ * Use Dse::graphOptions() to build a graph options instance.
  */
 class Dse {
 
@@ -20,7 +20,7 @@ class Dse {
      * has been written on the Coordinator. Requests with this consistency level
      * are not guranteed to make it to Replica nodes.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_ANY = 0;
 
@@ -28,7 +28,7 @@ class Dse {
      * Consistency level ONE guarantees that data has been written to at least
      * one Replica node.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_ONE = 1;
 
@@ -36,7 +36,7 @@ class Dse {
      * Consistency level TWO guarantees that data has been written to at least
      * two Replica nodes.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_TWO = 2;
 
@@ -44,7 +44,7 @@ class Dse {
      * Consistency level THREE guarantees that data has been written to at least
      * three Replica nodes.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_THREE = 3;
 
@@ -56,7 +56,7 @@ class Dse {
      * ceiling function and `RF` is the replication factor used. For example,
      * for a replication factor of `5`, the majority is `ceil(5 / 2 + 1) = 3`.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_QUORUM = 4;
 
@@ -64,7 +64,7 @@ class Dse {
      * Consistency level ALL guarantees that data has been written to all
      * Replica nodes.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_ALL = 5;
 
@@ -72,7 +72,7 @@ class Dse {
      * Same as `CONSISTENCY_QUORUM`, but confined to the local data center. This
      * consistency level works only with `NetworkTopologyStrategy` replication.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_LOCAL_QUORUM = 6;
 
@@ -81,19 +81,19 @@ class Dse {
      * least a majority Replica nodes in all datacenters. This consistency level
      * works only with `NetworkTopologyStrategy` replication.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_EACH_QUORUM = 7;
 
     /**
      * This is a serial consistency level, it is used in conditional updates,
      * e.g. (`CREATE|INSERT ... IF NOT EXISTS`), and should be specified as the
-     * `serial_consistency` option of the Cassandra\ExecutionOptions instance.
+     * `serial_consistency` option of the Dse\ExecutionOptions instance.
      *
      * Consistency level SERIAL, when set, ensures that a Paxos commit fails if
      * any of the replicas is down.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_SERIAL = 8;
 
@@ -101,7 +101,7 @@ class Dse {
      * Same as `CONSISTENCY_SERIAL`, but confined to the local data center. This
      * consistency level works only with `NetworkTopologyStrategy` replication.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_LOCAL_SERIAL = 9;
 
@@ -109,21 +109,21 @@ class Dse {
      * Same as `CONSISTENCY_ONE`, but confined to the local data center. This
      * consistency level works only with `NetworkTopologyStrategy` replication.
      *
-     * @see Cassandra\ExecutionOptions::__construct()
+     * @see Dse\ExecutionOptions::__construct()
      */
     const CONSISTENCY_LOCAL_ONE = 10;
 
     /**
-     * Perform no verification of Cassandra nodes when using SSL encryption.
+     * Perform no verification of nodes when using SSL encryption.
      *
-     * @see Cassandra\SSLOptions\Builder::withVerifyFlags()
+     * @see Dse\SSLOptions\Builder::withVerifyFlags()
      */
     const VERIFY_NONE = 0;
 
     /**
-     * Verify presence and validity of SSL certificates of Cassandra.
+     * Verify presence and validity of SSL certificates.
      *
-     * @see Cassandra\SSLOptions\Builder::withVerifyFlags()
+     * @see Dse\SSLOptions\Builder::withVerifyFlags()
      */
     const VERIFY_PEER_CERT = 1;
 
@@ -132,50 +132,57 @@ class Dse {
      * one of its subject alternative names. This implies the certificate is
      * also present.
      *
-     * @see Cassandra\SSLOptions\Builder::withVerifyFlags()
+     * @see Dse\SSLOptions\Builder::withVerifyFlags()
      */
     const VERIFY_PEER_IDENTITY = 2;
 
     /**
-     * @see Cassandra\BatchStatement::__construct()
+     * @see Dse\BatchStatement::__construct()
      */
     const BATCH_LOGGED = 0;
 
     /**
-     * @see Cassandra\BatchStatement::__construct()
+     * @see Dse\BatchStatement::__construct()
      */
     const BATCH_UNLOGGED = 1;
 
     /**
-     * @see Cassandra\BatchStatement::__construct()
+     * @see Dse\BatchStatement::__construct()
      */
     const BATCH_COUNTER = 2;
 
     /**
+     * Used to disable logging.
      */
     const LOG_DISABLED = 0;
 
     /**
+     * Allow critical level logging.
      */
     const LOG_CRITICAL = 1;
 
     /**
+     * Allow error level logging.
      */
     const LOG_ERROR = 2;
 
     /**
+     * Allow warning level logging.
      */
     const LOG_WARN = 3;
 
     /**
+     * Allow info level logging.
      */
     const LOG_INFO = 4;
 
     /**
+     * Allow debug level logging.
      */
     const LOG_DEBUG = 5;
 
     /**
+     * Allow trace level logging.
      */
     const LOG_TRACE = 6;
 
@@ -183,9 +190,9 @@ class Dse {
      * When using a map, collection or set of type text, all of its elements
      * must be strings.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_TEXT = "text";
 
@@ -193,9 +200,9 @@ class Dse {
      * When using a map, collection or set of type ascii, all of its elements
      * must be strings.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_ASCII = "ascii";
 
@@ -203,9 +210,9 @@ class Dse {
      * When using a map, collection or set of type varchar, all of its elements
      * must be strings.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_VARCHAR = "varchar";
 
@@ -213,17 +220,29 @@ class Dse {
      * When using a map, collection or set of type bigint, all of its elements
      * must be instances of Bigint.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_BIGINT = "bigint";
 
     /**
+     * When using a map, collection or set of type smallint, all of its elements
+     * must be instances of Inet.
+     *
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_SMALLINT = "smallint";
 
     /**
+     * When using a map, collection or set of type tinyint, all of its elements
+     * must be instances of Inet.
+     *
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_TINYINT = "tinyint";
 
@@ -231,19 +250,19 @@ class Dse {
      * When using a map, collection or set of type blob, all of its elements
      * must be instances of Blob.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_BLOB = "blob";
 
     /**
-     * When using a map, collection or set of type boolean, all of its elements
-     * must be booleans.
+     * When using a map, collection or set of type bool, all of its elements
+     * must be bools.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_BOOLEAN = "boolean";
 
@@ -251,9 +270,9 @@ class Dse {
      * When using a map, collection or set of type counter, all of its elements
      * must be instances of Bigint.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_COUNTER = "counter";
 
@@ -261,9 +280,9 @@ class Dse {
      * When using a map, collection or set of type decimal, all of its elements
      * must be instances of Decimal.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_DECIMAL = "decimal";
 
@@ -271,9 +290,9 @@ class Dse {
      * When using a map, collection or set of type double, all of its elements
      * must be doubles.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_DOUBLE = "double";
 
@@ -281,9 +300,9 @@ class Dse {
      * When using a map, collection or set of type float, all of its elements
      * must be instances of Float.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_FLOAT = "float";
 
@@ -291,9 +310,9 @@ class Dse {
      * When using a map, collection or set of type int, all of its elements
      * must be ints.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_INT = "int";
 
@@ -301,9 +320,9 @@ class Dse {
      * When using a map, collection or set of type timestamp, all of its elements
      * must be instances of Timestamp.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_TIMESTAMP = "timestamp";
 
@@ -311,9 +330,9 @@ class Dse {
      * When using a map, collection or set of type uuid, all of its elements
      * must be instances of Uuid.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_UUID = "uuid";
 
@@ -321,9 +340,9 @@ class Dse {
      * When using a map, collection or set of type varint, all of its elements
      * must be instances of Varint.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_VARINT = "varint";
 
@@ -331,9 +350,9 @@ class Dse {
      * When using a map, collection or set of type timeuuid, all of its elements
      * must be instances of Timeuuid.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_TIMEUUID = "timeuuid";
 
@@ -341,23 +360,26 @@ class Dse {
      * When using a map, collection or set of type inet, all of its elements
      * must be instances of Inet.
      *
-     * @see Cassandra\Set::__construct()
-     * @see Cassandra\Collection::__construct()
-     * @see Cassandra\Map::__construct()
+     * @see Dse\Set::__construct()
+     * @see Dse\Collection::__construct()
+     * @see Dse\Map::__construct()
      */
     const TYPE_INET = "inet";
 
     /**
-     * Current version of the extension.
+     * The current version of the extension.
      */
     const VERSION = "1.0.0";
 
     /**
-     * Version of the cpp-driver the extension is compiled against.
+     * The version of the cpp-driver library used to build the cpp-driver-dse
+     * driver library.
      */
     const CPP_DRIVER_VERSION = "2.5.0";
 
     /**
+     * The version of the cpp-driver-dse library used to build the php-driver-dse
+     * extension.
      */
     const CPP_DRIVER_DSE_VERSION = "1.1.0";
 
@@ -368,8 +390,8 @@ class Dse {
     public static function cluster() { }
 
     /**
-     * Creates a new ssl builder for constructing a Cassandra\SSLOptions object.
-     * @return Cassandra\SSLOptions\Builder A SSL options builder with default settings
+     * Creates a new ssl builder for constructing a Dse\SSLOptions object.
+     * @return Dse\SSLOptions\Builder A SSL options builder with default settings
      */
     public static function ssl() { }
 

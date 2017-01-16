@@ -1,6 +1,8 @@
 ---
 Dse\Type\UserType:
-  comment: ""
+  comment: |-
+    A class that represents a user type. The user type is able to represent a
+    composite type of one or more types accessed by name.
   methods:
     name:
       comment: Returns type name for the user type
@@ -26,13 +28,12 @@ Dse\Type\UserType:
         type: array
     create:
       comment: |-
-        Creates a new Dse\UserTypeValue from the given name/value pairs.
+        Creates a new Dse\UserTypeValue from the given name/value pairs. When
+        no values given, creates an empty user type.
 
         @throws Exception\InvalidArgumentException when values given are of a
                                                    different types than what the
                                                    user type expects.
-
-                                      When no values given, creates an empty user type.
       params:
         value:
           comment: ',...      One or more name/value pairs to be added to the user

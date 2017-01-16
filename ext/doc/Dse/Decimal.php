@@ -20,7 +20,7 @@ final class Decimal implements Value, Numeric {
      *
      * ~~~{.php}
      * <?php
-     * $decimal = new Cassandra::Decimal("1313123123.234234234234234234123");
+     * $decimal = new Dse::Decimal("1313123123.234234234234234234123");
      *
      * $this->assertEquals(21, $decimal->scale());
      * $this->assertEquals("1313123123234234234234234234123", $decimal->value());
@@ -54,31 +54,31 @@ final class Decimal implements Value, Numeric {
     public function scale() { }
 
     /**
-     * @param Cassandra\Numeric $num a number to add to this one
+     * @param Dse\Numeric $num a number to add to this one
      * @return Numeric sum
      */
     public function add($num) { }
 
     /**
-     * @param Cassandra\Numeric $num a number to subtract from this one
+     * @param Dse\Numeric $num a number to subtract from this one
      * @return Numeric difference
      */
     public function sub($num) { }
 
     /**
-     * @param Cassandra\Numeric $num a number to multiply this one by
+     * @param Dse\Numeric $num a number to multiply this one by
      * @return Numeric product
      */
     public function mul($num) { }
 
     /**
-     * @param Cassandra\Numeric $num a number to divide this one by
+     * @param Dse\Numeric $num a number to divide this one by
      * @return Numeric quotient
      */
     public function div($num) { }
 
     /**
-     * @param Cassandra\Numeric $num a number to divide this one by
+     * @param Dse\Numeric $num a number to divide this one by
      * @return Numeric remainder
      */
     public function mod($num) { }

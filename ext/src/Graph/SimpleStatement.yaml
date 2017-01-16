@@ -1,11 +1,11 @@
 ---
 Dse\Graph\SimpleStatement:
-  comment: ""
+  comment: A simple string base graph query.
   methods:
     __construct:
-      comment: ""
+      comment: Construct a graph statement with a string query.
       params:
         query:
-          comment: ""
-          type: mixed
+          comment: The graph query.
+          type: string
 ...

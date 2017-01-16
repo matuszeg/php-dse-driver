@@ -40,7 +40,7 @@ final class LineString extends Custom  {
     public function __construct($points) { }
 
     /**
-     * @return Cassandra\Type\Custom the Cassandra custom type for LineString
+     * @return Dse\Type\Custom the custom type for LineString
      */
     public function type() { }
 

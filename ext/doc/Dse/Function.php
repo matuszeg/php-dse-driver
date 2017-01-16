@@ -33,7 +33,7 @@ interface Function_ {
 
     /**
      * Returns the return type of the function
-     * @return Cassandra\Type Return type of the function
+     * @return Dse\Type Return type of the function
      */
     public function returnType();
 
@@ -56,8 +56,8 @@ interface Function_ {
     public function body();
 
     /**
-     * Returns whether the function is called when the input columns are null
-     * @return boolean
+     * Determines if a funciton is called when the value is null.
+     * @return bool Returns whether the function is called when the input columns are null
      */
     public function isCalledOnNullInput();
 
