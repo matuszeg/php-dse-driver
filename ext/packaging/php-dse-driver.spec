@@ -6,7 +6,7 @@
 %global ini_name   40-dse.ini
 %endif
 
-Name:    php-driver-dse
+Name:    %{package_name}
 Epoch:   1
 Version: %{driver_version}
 Release: 1%{?dist}
@@ -71,5 +71,5 @@ rm -rf %{buildroot}
 %{php_extdir}/dse.so
 
 %changelog
-* Fri Dec 30 2016 Michael Penick <michael.penick@datastax.com> - 1.0.0rc1-1
+* Wed Jan 18 2017 Michael Penick <michael.penick@datastax.com> - 1.0.0rc1-1
 - rc1 release

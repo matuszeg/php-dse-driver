@@ -39,8 +39,12 @@ if [[ ! -z $1 ]]; then
   arch=$1
 fi
 
+echo "Getting PHP version"
+php_version=$(php-config --version | sed -rn 's/^([0-9]+)\.([0-9]+)\.[0-9]+/\1\2w/p')
+
 version=$(header_version "../version.h")
-base="php-driver-dse-$version"
+package_name="php$php_version-dse-driver"
+base="$package_name-$version"
 archive="$base.tar.gz"
 files="config.m4 php_driver.c php_driver.h php_driver_globals.h php_driver_types.h version.h src util"
 
@@ -76,6 +80,6 @@ tar zcf $archive $base
 popd
 
 echo "Building package:"
-rpmbuild --target $arch --define "_topdir ${PWD}/build" --define "driver_version $version" --define "libuv_version $libuv_version" -ba php-dse-driver.spec
+rpmbuild --target $arch --define "_topdir ${PWD}/build" --define "driver_version $version" --define "libuv_version $libuv_version" --define "package_name $package_name" -ba php-dse-driver.spec
 
 exit 0
