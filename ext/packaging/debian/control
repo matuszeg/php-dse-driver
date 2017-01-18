@@ -3,7 +3,7 @@ Section: php
 Priority: optional
 Maintainer: Michael Penick <michael.penick@datastax.com>
 Build-Depends: debhelper (>= 9~),
-               dh-php (>= 0.12~),
+               dh-php (>= 0.10~),
                php-all-dev,
                pkg-config,
                dse-cpp-driver-dev (>= 1.1.0),
@@ -18,5 +18,5 @@ Depends: ${misc:Depends},
          ${shlibs:Depends}
 Provides: ${php:Provides}
 Description: PHP client driver for DataStax Enterprise
-  A driver built on top of the PHP driver for Apache Cassandra, with specific
-  extensions for DataStax Enterprise.
+ A driver built on top of the PHP driver for Apache Cassandra, with specific
+ extensions for DataStax Enterprise.

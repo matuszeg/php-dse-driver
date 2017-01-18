@@ -36,14 +36,14 @@ function header_version_full {
   /PHP_DRIVER_STABILITY/ { suffix=$3; gsub(/"/, "", suffix) }
   END { 
     if (length(suffix) > 0)
-      printf "%s.%s.%s%s", major, minor, patch, suffix
+      printf "%s.%s.%s~%s", major, minor, patch, suffix
     else
       printf "%s.%s.%s", major, minor, patch 
   }
 EOF
   version=$(grep '#define[ \t]\+PHP_DRIVER_\(MAJOR\|MINOR\|RELEASE\|STABILITY\)' $1 | awk "$version_script")
-  if [[ ! $version =~ ^[0-9]+\.[0-9]+\.[0-9]+([a-zA-Z0-9_\-]+)?$ ]]; then
-    echo "Unable to extract version from $1"
+  if [[ ! $version =~ ^[0-9]+\.[0-9]+\.[0-9]+(~[a-zA-Z0-9_\-]+)?$ ]]; then
+    echo "Unable to extract version from $1 $version"
     exit 1
   fi
   echo "$version"
@@ -91,6 +91,7 @@ cp -r debian "build/$base"
 pushd "build/$base"
 echo "Updating changlog"
 dch -m -v "$version-$release" -D $dist "Version $version"
+
 echo "Building package:"
 nprocs=$(grep -e '^processor' -c /proc/cpuinfo)
 DH_PHP_VERSIONS_OVERRIDE=7.0 DEB_BUILD_OPTIONS="parallel=$nprocs" debuild -i -b -uc -us
