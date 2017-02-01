@@ -101,7 +101,7 @@ Dse\Session:
                                                        analytics (OLAP) query then it should
                                                        use "a"
             * array["graph_name"]         string       Graph name
-            * array["red_consistency"]    consistency  Read consistency of graph queries;
+            * array["read_consistency"]   consistency  Read consistency of graph queries;
                                                        default `Dse::CONSISTENCY_ONE`
             * array["write_consistency"]  consistency  Write consistency of graph queries;
                                                        default `Dse::CONSISTENCY_QUORUM`
