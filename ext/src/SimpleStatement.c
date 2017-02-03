@@ -25,7 +25,7 @@ PHP_METHOD(SimpleStatement, __construct)
 
   self = PHP_DRIVER_GET_STATEMENT(getThis());
 
-  self->cql = estrndup(Z_STRVAL_P(cql), Z_STRLEN_P(cql));
+  self->data.simple.cql = estrndup(Z_STRVAL_P(cql), Z_STRLEN_P(cql));
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo__construct, 0, ZEND_RETURN_VALUE, 1)
@@ -61,9 +61,9 @@ php_driver_simple_statement_free(php5to7_zend_object_free *object TSRMLS_DC)
 {
   php_driver_statement *self = PHP5TO7_ZEND_OBJECT_GET(statement, object);
 
-  if (self->cql) {
-    efree(self->cql);
-    self->cql = NULL;
+  if (self->data.simple.cql) {
+    efree(self->data.simple.cql);
+    self->data.simple.cql = NULL;
   }
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
@@ -77,7 +77,7 @@ php_driver_simple_statement_new(zend_class_entry *ce TSRMLS_DC)
       PHP5TO7_ZEND_OBJECT_ECALLOC(statement, ce);
 
   self->type = PHP_DRIVER_SIMPLE_STATEMENT;
-  self->cql  = NULL;
+  self->data.simple.cql  = NULL;
 
   PHP5TO7_ZEND_OBJECT_INIT_EX(statement, simple_statement, self, ce);
 }

@@ -34,11 +34,11 @@ php_driver_map_set(php_driver_map *map, zval *zkey, zval *zvalue TSRMLS_DC)
 
   type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->type));
 
-  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->key_type) TSRMLS_CC)) {
+  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type) TSRMLS_CC)) {
     return 0;
   }
 
-  if (!php_driver_validate_object(zvalue, PHP5TO7_ZVAL_MAYBE_P(type->value_type) TSRMLS_CC)) {
+  if (!php_driver_validate_object(zvalue, PHP5TO7_ZVAL_MAYBE_P(type->data.map.value_type) TSRMLS_CC)) {
     return 0;
   }
 
@@ -67,7 +67,7 @@ php_driver_map_get(php_driver_map *map, zval *zkey, php5to7_zval *zvalue TSRMLS_
 
   type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->type));
 
-  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->key_type) TSRMLS_CC)) {
+  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type) TSRMLS_CC)) {
     return 0;
   }
 
@@ -89,7 +89,7 @@ php_driver_map_del(php_driver_map *map, zval *zkey TSRMLS_DC)
 
   type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->type));
 
-  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->key_type) TSRMLS_CC)) {
+  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type) TSRMLS_CC)) {
     return 0;
   }
 
@@ -118,7 +118,7 @@ php_driver_map_has(php_driver_map *map, zval *zkey TSRMLS_DC)
 
   type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->type));
 
-  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->key_type) TSRMLS_CC)) {
+  if (!php_driver_validate_object(zkey, PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type) TSRMLS_CC)) {
     return 0;
   }
 
@@ -462,11 +462,10 @@ php_driver_map_properties(zval *object TSRMLS_DC)
   HashTable     *props = zend_std_get_properties(object TSRMLS_CC);
 
 
-  if (PHP5TO7_ZEND_HASH_UPDATE(props,
-                               "type", sizeof("type"),
-                               PHP5TO7_ZVAL_MAYBE_P(self->type), sizeof(zval))) {
-    Z_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(self->type));
-  }
+  PHP5TO7_ZEND_HASH_UPDATE(props,
+                          "type", sizeof("type"),
+                           PHP5TO7_ZVAL_MAYBE_P(self->type), sizeof(zval));
+  Z_ADDREF_P(PHP5TO7_ZVAL_MAYBE_P(self->type));
 
   PHP5TO7_ZVAL_MAYBE_MAKE(keys);
   array_init(PHP5TO7_ZVAL_MAYBE_P(keys));
