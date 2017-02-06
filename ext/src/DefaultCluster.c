@@ -147,8 +147,6 @@ PHP_METHOD(DefaultCluster, connectAsync)
   future = PHP_DRIVER_GET_FUTURE_SESSION(return_value);
 
   future->persist = self->persist;
-  future->hash_key = estrdup(self->hash_key);
-  future->hash_key_len = self->hash_key_len;
 
   PHP5TO7_ZVAL_COPY(PHP5TO7_ZVAL_MAYBE_P(future->graph_options),
                     PHP5TO7_ZVAL_MAYBE_P(self->graph_options));
