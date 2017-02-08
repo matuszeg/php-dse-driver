@@ -36,6 +36,7 @@ ZEND_BEGIN_MODULE_GLOBALS(php_driver)
   php5to7_zval           type_line_string;
   php5to7_zval           type_point;
   php5to7_zval           type_polygon;
+  php5to7_zval           type_duration;
   DseLineStringIterator *iterator_line_string;
   DsePolygonIterator    *iterator_polygon;
 ZEND_END_MODULE_GLOBALS(php_driver)

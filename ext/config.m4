@@ -44,6 +44,7 @@ if test "$PHP_DSE" != "no"; then
     src/DefaultSchema.c \
     src/DefaultSession.c \
     src/DefaultTable.c \
+    src/Duration.c \
     src/Exception.c \
     src/ExecutionOptions.c \
     src/Float.c \
