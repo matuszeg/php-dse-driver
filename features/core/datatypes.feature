@@ -113,9 +113,9 @@ Feature: Datatypes
       $session   = $cluster->connect("simplex");
 
       $statement = new Dse\SimpleStatement("INSERT INTO values (id, tinyint_value, smallint_value) VALUES (?, ?, ?)");
-      $options   = new Dse\ExecutionOptions(array('arguments' =>
+      $options   = array('arguments' =>
         array(1, new Dse\Tinyint(127), new Dse\Smallint(32767))
-      ));
+      );
       $session->execute($statement, $options);
 
       $statement = new Dse\SimpleStatement("SELECT * FROM values");
@@ -158,7 +158,7 @@ Feature: Datatypes
       $session   = $cluster->connect("simplex");
 
       $statement = new Dse\SimpleStatement("INSERT INTO date_values (id, date_value) VALUES (?, ?)");
-      $options   = new Dse\ExecutionOptions(array('arguments' => array(1, new Dse\Date(0))));
+      $options   = array('arguments' => array(1, new Dse\Date(0)));
       $session->execute($statement, $options);
 
       $statement = new Dse\SimpleStatement("SELECT * FROM date_values");
@@ -197,7 +197,7 @@ Feature: Datatypes
 
       $statement = new Dse\SimpleStatement("INSERT INTO time_values (id, time_value) VALUES (?, ?)");
       $datetime = new \DateTime("1970-01-01T00:00:01+0000");
-      $options   = new Dse\ExecutionOptions(array('arguments' => array(1, Dse\Time::fromDateTime($datetime))));
+      $options   = array('arguments' => array(1, Dse\Time::fromDateTime($datetime)));
       $session->execute($statement, $options);
 
       $statement = new Dse\SimpleStatement("SELECT * FROM time_values");

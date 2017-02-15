@@ -43,10 +43,10 @@ Feature: Retry Policies
                           'La Petite Tonkinoise',
                           'Bye Bye Blackbird'
                           );
-      $options     = new Dse\ExecutionOptions(array(
+      $options     = array(
                           'consistency' => Dse::CONSISTENCY_QUORUM,
                           'arguments' => $arguments
-                          ));
+                          );
       $session->execute($statement, $options);
 
       $statement = new Dse\SimpleStatement("SELECT * FROM simplex.playlists");
@@ -81,11 +81,11 @@ Feature: Retry Policies
                           'La Petite Tonkinoise',
                           'Bye Bye Blackbird'
                           );
-      $options     = new Dse\ExecutionOptions(array(
+      $options     = array(
                           'consistency' => Dse::CONSISTENCY_QUORUM,
                           'arguments' => $arguments,
                           'retry_policy' => new Dse\RetryPolicy\Logging($retry_policy)
-                          ));
+                          );
       $session->execute($statement, $options);
 
       $statement = new Dse\SimpleStatement("SELECT * FROM simplex.playlists");
@@ -123,10 +123,10 @@ Feature: Retry Policies
                    );
       $batch     = new Dse\BatchStatement(Dse::BATCH_UNLOGGED);
 
-      $options    = new Dse\ExecutionOptions(array(
+      $options    = array(
                          'consistency' => Dse::CONSISTENCY_QUORUM,
                          'retry_policy' => new Dse\RetryPolicy\Logging($retry_policy)
-                    ));
+                    );
 
       $batch->add($prepared, array(
           'song_id' => new Dse\Uuid('756716f7-2e54-4715-9f00-91dcbea6cf50'),

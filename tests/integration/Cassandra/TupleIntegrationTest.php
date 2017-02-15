@@ -221,8 +221,8 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
 
         $tableName = $this->createTable($validType);
 
-        $options = new Cassandra\ExecutionOptions(array(
-            'arguments' => array("key", $invalidType->create("value")))
+        $options = array(
+            'arguments' => array("key", $invalidType->create("value"))
         );
 
         $this->insertValue($tableName, $options);
@@ -268,13 +268,13 @@ class TupleIntegrationTest extends CollectionsIntegrationTest {
         // Insert the value into the table
         $query = "INSERT INTO " . $this->table . " (key, value) VALUES (?, ?)";
         $statement = new Cassandra\SimpleStatement($query);
-        $options = new Cassandra\ExecutionOptions(array("arguments" => $values));
+        $options = array("arguments" => $values);
         $this->session->execute($statement, $options);
 
         // Select the tuple
         $query = "SELECT value FROM " . $this->table . " WHERE key=?";
         $statement = new Cassandra\SimpleStatement($query);
-        $options = new Cassandra\ExecutionOptions(array("arguments" => array($key)));
+        $options = array("arguments" => array($key));
         $rows = $this->session->execute($statement, $options);
 
         // Ensure the tuple collection is valid

@@ -83,13 +83,13 @@ class DatatypeIntegrationTest extends DatatypeIntegrationTests {
             // Insert the value into the table
             $query = "INSERT INTO {$this->keyspace}.{$this->table} (key, value_decimal, value_varint) VALUES (?, ?, ?)";
             $statement = new Cassandra\SimpleStatement($query);
-            $options = new Cassandra\ExecutionOptions(array("arguments" => $values));
+            $options = array("arguments" => $values);
             $this->session->execute($statement, $options);
 
             // Select the decimal and varint
             $query = "SELECT value_decimal, value_varint FROM {$this->keyspace}.{$this->table} WHERE key=?";
             $statement = new Cassandra\SimpleStatement($query);
-            $options = new Cassandra\ExecutionOptions(array("arguments" => array($key)));
+            $options = array("arguments" => array($key));
             $rows = $this->session->execute($statement, $options);
 
             // Ensure the decimal and varint are valid

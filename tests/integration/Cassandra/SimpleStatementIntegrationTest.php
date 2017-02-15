@@ -68,7 +68,7 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
         );
         $statement = new Cassandra\SimpleStatement($query);
         foreach ($values as $value) {
-            $options = new Cassandra\ExecutionOptions(array("arguments" => $value));
+            $options = array("arguments" => $value);
             $this->session->execute($statement, $options);
         }
 
@@ -141,7 +141,7 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
         );
         $statement = new Cassandra\SimpleStatement($query);
         foreach ($values as $value) {
-            $options = new Cassandra\ExecutionOptions(array("arguments" => $value));
+            $options = array("arguments" => $value);
             $this->session->execute($statement, $options);
         }
 
@@ -185,7 +185,7 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
             "wrong_name" => 1
         );
         $statement = new Cassandra\SimpleStatement($query);
-        $options = new Cassandra\ExecutionOptions(array("arguments" => $values));
+        $options = array("arguments" => $values);
         $this->session->execute($statement, $options);
     }
 
@@ -217,7 +217,7 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
             "value_text" => "Exception will be thrown; case-sensitive"
         );
         $statement = new Cassandra\SimpleStatement($query);
-        $options = new Cassandra\ExecutionOptions(array("arguments" => $values));
+        $options = array("arguments" => $values);
         $this->session->execute($statement, $options);
     }
 
@@ -246,7 +246,7 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
             "value_text" => "Null values should exist for value_int and value_boolean"
         );
         $statement = new Cassandra\SimpleStatement($query);
-        $options = new Cassandra\ExecutionOptions(array("arguments" => $values));
+        $options = array("arguments" => $values);
         $this->session->execute($statement, $options);
 
         // Select and assert the values

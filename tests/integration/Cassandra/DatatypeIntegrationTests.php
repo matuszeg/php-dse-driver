@@ -71,7 +71,7 @@ abstract class DatatypeIntegrationTests extends IntegrationTest {
      */
     public function createTableInsertAndVerifyValueByIndex($type, $value) {
         $key = "key";
-        $options = new Cassandra\ExecutionOptions(array('arguments' => array($key, $value)));
+        $options = array('arguments' => array($key, $value));
         $this->createTableInsertAndVerifyValue($type, $options, $key, $value);
     }
 
@@ -84,7 +84,7 @@ abstract class DatatypeIntegrationTests extends IntegrationTest {
      */
     public function createTableInsertAndVerifyValueByName($type, $value) {
         $key = "key";
-        $options = new Cassandra\ExecutionOptions(array('arguments' => array("key" => $key, "value" => $value)));
+        $options = array('arguments' => array("key" => $key, "value" => $value));
         $this->createTableInsertAndVerifyValue($type, $options, $key, $value);
     }
 
@@ -160,7 +160,7 @@ abstract class DatatypeIntegrationTests extends IntegrationTest {
     protected function verifyValue($tableName, $type, $key, $value) {
         $selectQuery = "SELECT * FROM $this->keyspace.$tableName WHERE key = ?";
 
-        $options = new Cassandra\ExecutionOptions(array('arguments' => array($key)));
+        $options = array('arguments' => array($key));
 
         $result = $this->session->execute(new Cassandra\SimpleStatement($selectQuery), $options);
 

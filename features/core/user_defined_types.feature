@@ -63,7 +63,7 @@ Feature: User defined types
       );
 
       foreach ($users as $user) {
-          $options = new Dse\ExecutionOptions(array('arguments' => $user));
+          $options = array('arguments' => $user);
           $session->execute($statement, $options);
       }
 
@@ -175,7 +175,7 @@ Feature: User defined types
       );
 
       foreach ($users as $user) {
-          $options = new Dse\ExecutionOptions(array('arguments' => $user));
+          $options = array('arguments' => $user);
           $session->execute($statement, $options);
       }
 

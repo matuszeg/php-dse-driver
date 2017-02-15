@@ -49,10 +49,10 @@ Feature: Client-side timestamps
           'album'   => 'Bye Bye Blackbird',
           'artist'  => 'Joséphine Baker'
       );
-      $options = new Dse\ExecutionOptions(array(
+      $options = array(
           'arguments' => $arguments,
           'timestamp' => 1234
-      ));
+      );
       $session->execute($simple, $options);
 
       $statement = new Dse\SimpleStatement(
@@ -103,7 +103,7 @@ Feature: Client-side timestamps
           'Mick Jager', 'Memo From Turner', 'Performance'
       ));
 
-      $options = new Dse\ExecutionOptions(array("timestamp" => 5678));
+      $options = array("timestamp" => 5678);
 
       $session->execute($batch, $options);
 
@@ -149,10 +149,10 @@ Feature: Client-side timestamps
               'album'   => 'Bye Bye Blackbird',
               'artist'  => 'Joséphine Baker'
           );
-          $options = new Dse\ExecutionOptions(array(
+          $options = array(
               'arguments' => $arguments,
               'timestamp' => 1234
-          ));
+          );
           $session->execute($simple, $options);
       }
 

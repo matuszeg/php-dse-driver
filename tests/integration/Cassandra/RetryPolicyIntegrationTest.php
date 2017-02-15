@@ -117,13 +117,13 @@ class RetryPolicyIntegrationTest extends IntegrationTest {
                         $statement = $simple;
                     }
                     $options["arguments"] = $values;
-                    $this->session->execute($statement, new Cassandra\ExecutionOptions($options));
+                    $this->session->execute($statement, $options);
                 }
             }
 
             // Execute the batched insert
             if ($statementType == self::BATCH_STATEMENT) {
-                $this->session->execute($batch, new Cassandra\ExecutionOptions($options));
+                $this->session->execute($batch, $options);
             }
         } catch (Cassandra\Exception\TimeoutException $te) {
             if (self::$configuration->verbose) {
@@ -154,10 +154,10 @@ class RetryPolicyIntegrationTest extends IntegrationTest {
             // Select the values
             $query = "SELECT value_int FROM {$this->keyspace}.{$this->table} WHERE key = {$key}";
             $statement = new Cassandra\SimpleStatement($query);
-            $options = new Cassandra\ExecutionOptions(array(
+            $options = array(
                 "consistency" => $consistency,
                 "retry_policy" => $policy
-            ));
+            );
             $rows = $this->session->execute($statement, $options);
 
             // Assert the values

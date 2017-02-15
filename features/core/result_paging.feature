@@ -47,7 +47,7 @@ Feature: Result paging
                      ->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement("SELECT * FROM paging_entries");
-      $options   = new Dse\ExecutionOptions(array('page_size' => 5));
+      $options   = array('page_size' => 5);
       $rows      = $session->execute($statement, $options);
 
       while (true) {
@@ -91,7 +91,7 @@ Feature: Result paging
                      ->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement("SELECT * FROM paging_entries");
-      $options   = new Dse\ExecutionOptions(array('page_size' => 10));
+      $options   = array('page_size' => 10);
       $rows      = $session->execute($statement, $options);
 
       $firstPageRows = $session->execute($statement, $options);
@@ -124,7 +124,7 @@ Feature: Result paging
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement("SELECT * FROM paging_entries");
       $options = array('page_size' => 2);
-      $result = $session->execute($statement, new Dse\ExecutionOptions($options));
+      $result = $session->execute($statement, $options);
 
       foreach ($result as $row) {
           echo "key: {$row['key']}, value: {$row['value']}" . PHP_EOL;
@@ -136,7 +136,8 @@ Feature: Result paging
               'paging_state_token' => $result->pagingStateToken()
           );
 
-          $result = $session->execute($statement, new Dse\ExecutionOptions($options));
+          $result = $session->execute($statement, $options);
+
           foreach ($result as $row) {
             echo "key: {$row['key']}, value: {$row['value']}" . PHP_EOL;
           }
