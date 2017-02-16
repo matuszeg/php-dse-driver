@@ -28,7 +28,7 @@ to_double(zval *result, php_driver_numeric *smallint TSRMLS_DC)
 static int
 to_long(zval *result, php_driver_numeric *smallint TSRMLS_DC)
 {
-  ZVAL_LONG(result, (long) smallint->data.smallint.value);
+  ZVAL_LONG(result, (php5to7_long) smallint->data.smallint.value);
   return SUCCESS;
 }
 
@@ -233,10 +233,6 @@ PHP_METHOD(Smallint, div)
     }
 
     result->data.smallint.value = self->data.smallint.value / smallint->data.smallint.value;
-    if (result->data.smallint.value * smallint->data.smallint.value != self->data.smallint.value) {
-      zend_throw_exception_ex(php_driver_range_exception_ce, 0 TSRMLS_CC, "Quotient is out of range");
-      return;
-    }
   } else {
     INVALID_ARGUMENT(divisor, "a " PHP_DRIVER_NAMESPACE "\\Smallint");
   }
