@@ -39,6 +39,15 @@ class SetIntegrationTest extends CollectionsIntegrationTest
      * Data provider for sets with scalar types
      */
     public function setWithScalarTypes() {
+        // Ensure duration data type is not used as a key for set
+        $scalarCassandraTypes = array_filter($this->scalarCassandraTypes(),
+            function($cassandraType) {
+                if ($cassandraType[0] != "duration") {
+                    return $cassandraType;
+                }
+            }
+        );
+
         return array_map(function ($cassandraType) {
             $setType = Cassandra\Type::set($cassandraType[0]);
             $set = $setType->create();
@@ -46,7 +55,7 @@ class SetIntegrationTest extends CollectionsIntegrationTest
                 $set->add($value);
             }
             return array($setType, $set);
-        }, $this->scalarCassandraTypes());
+        }, $scalarCassandraTypes);
     }
 
     /**
