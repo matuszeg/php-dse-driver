@@ -1,5 +1,5 @@
 ---
-Dse\Graph\SimpleStatement:
+Graph\SimpleStatement:
   comment: A simple string base graph query.
   methods:
     __construct:

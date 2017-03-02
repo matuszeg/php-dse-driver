@@ -1,5 +1,5 @@
 ---
-Dse\FutureValue:
+FutureValue:
   comment: A future that always resolves in a value.
   methods:
     get:
@@ -10,9 +10,9 @@ Dse\FutureValue:
         @throws Exception\TimeoutException
       params:
         timeout:
-          comment: ""
-          type: float|null
+          comment: A timeout in seconds
+          type: int|double|null
       return:
-        comment: a value that the future has been resolved with
+        comment: A value
         type: mixed
 ...

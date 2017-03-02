@@ -1,8 +1,8 @@
 ---
-Dse\Graph\Result:
+Graph\Result:
   comment: |-
     Arbitrary data returned from a graph query. It can respresent several primitive types as well as composite types and graph elements.
-    @see \Dse\Graph\ResultSet
+    @see Graph\ResultSet
   methods:
     __toString:
       comment: Gets the string representation of the contained data.

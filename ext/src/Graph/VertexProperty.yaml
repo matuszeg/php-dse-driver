@@ -1,5 +1,5 @@
 ---
-Dse\Graph\VertexProperty:
+Graph\VertexProperty:
   comment: |-
     A property of a graph vertex. A vertex property can contain its own
     properties.

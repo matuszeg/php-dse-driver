@@ -1,5 +1,5 @@
 ---
-Dse\Graph\DefaultProperty:
+Graph\DefaultProperty:
   comment: '{@inheritDoc}'
   methods:
     __construct:
@@ -8,15 +8,15 @@ Dse\Graph\DefaultProperty:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: string
     value:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Graph\Result
     parent:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Graph\Result
 ...

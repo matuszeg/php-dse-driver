@@ -1,5 +1,5 @@
 ---
-Dse\Graph\Vertex:
+Graph\Vertex:
   comment: |
     A graph element that is the basis of the graph and can be connected to other
     vertices using graph edges.

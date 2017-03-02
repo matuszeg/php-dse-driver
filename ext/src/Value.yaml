@@ -1,5 +1,5 @@
 ---
-Dse\Value:
+Value:
   comment: |-
     Common interface implemented by all DSE value types.
 

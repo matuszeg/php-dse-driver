@@ -1,8 +1,8 @@
 ---
-Dse\Graph\ResultSet:
+Graph\ResultSet:
   comment: |-
     A set of arbitrary data returned from a graph query. It is iterable and indexable.
-    @see \Dse\Graph\Result
+    @see Graph\Result
   methods:
     count:
       comment: Gets the number of results contained in the result set.

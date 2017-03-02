@@ -1,5 +1,5 @@
 ---
-Dse\LineString:
+LineString:
   comment: |
     Encapsulates a set of lines, characterized by a sequence of Point's in the xy-plane. It corresponds to the
     `org.apache.cassandra.db.marshal.LineStringType` column type in DSE.
@@ -30,10 +30,10 @@ Dse\LineString:
           comment: varargs-style array of Point's
           type: array
     type:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
         comment: the custom type for LineString
-        type: Dse\Type\Custom
+        type: Type\Custom
     points:
       comment: ""
       return:

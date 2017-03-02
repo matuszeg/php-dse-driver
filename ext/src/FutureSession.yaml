@@ -1,7 +1,7 @@
 ---
-Dse\FutureSession:
+FutureSession:
   comment: |-
-    A future that resolves with `Dse\Session`.
+    A future that resolves with Session.
 
     @see Cluster::connectAsync()
   methods:
@@ -13,9 +13,9 @@ Dse\FutureSession:
         @throws Exception\TimeoutException
       params:
         timeout:
-          comment: ""
-          type: float|null
+          comment: A timeout in seconds
+          type: int|double|null
       return:
-        comment: a value that the future has been resolved with
-        type: mixed
+        comment: A connected session
+        type: Session
 ...

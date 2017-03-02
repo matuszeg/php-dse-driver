@@ -1,5 +1,5 @@
 ---
-Dse\Graph\DefaultEdge:
+Graph\DefaultEdge:
   comment: '{@inheritDoc}'
   methods:
     __construct:
@@ -8,44 +8,44 @@ Dse\Graph\DefaultEdge:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Graph\Result
     label:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: string
     properties:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: array
     property:
       comment: '{@inheritDoc}'
       params:
         key:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: string
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Graph\Result
     inV:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Graph\Result
     inVLabel:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: string
     outV:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Graph\Result
     outVLabel:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: string
 ...

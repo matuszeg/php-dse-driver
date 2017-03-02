@@ -1,5 +1,5 @@
 ---
-Dse\Exception\LogicException:
+Exception\LogicException:
   comment: DSE logic exception.
   methods:
     __construct:

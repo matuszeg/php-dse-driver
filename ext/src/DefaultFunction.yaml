@@ -1,5 +1,5 @@
 ---
-Dse\DefaultFunction:
+DefaultFunction:
   comment: A PHP representation of a public function
   methods:
     name:
@@ -21,7 +21,7 @@ Dse\DefaultFunction:
       comment: '{@inheritDoc}'
       return:
         comment: Return type of the function
-        type: Dse\Type
+        type: Type
     signature:
       comment: '{@inheritDoc}'
       return:

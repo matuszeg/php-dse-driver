@@ -1,5 +1,5 @@
 ---
-Dse\DefaultIndex:
+DefaultIndex:
   comment: A PHP representation of an index
   methods:
     name:
@@ -21,8 +21,8 @@ Dse\DefaultIndex:
       comment: '{@inheritDoc}'
       params:
         name:
-          comment: ""
-          type: mixed
+          comment: '{@inheritDoc}'
+          type: string
       return:
         comment: Value of an option by name
         type: Value

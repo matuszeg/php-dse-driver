@@ -1,5 +1,5 @@
 ---
-Dse\Graph\DefaultVertex:
+Graph\DefaultVertex:
   comment: '{@inheritDoc}'
   methods:
     __construct:
@@ -8,24 +8,24 @@ Dse\Graph\DefaultVertex:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Graph\Result
     label:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: string
     properties:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: array
     property:
       comment: '{@inheritDoc}'
       params:
         key:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: string
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Graph\Result
 ...

@@ -1,5 +1,5 @@
 ---
-Dse\Numeric:
+Numeric:
   comment: |-
     Common interface implemented by all numeric types, providing basic
     arithmetic functions.
@@ -14,7 +14,7 @@ Dse\Numeric:
       params:
         num:
           comment: a number to add to this one
-          type: Dse\Numeric
+          type: Numeric
       return:
         comment: sum
         type: Numeric
@@ -23,7 +23,7 @@ Dse\Numeric:
       params:
         num:
           comment: a number to subtract from this one
-          type: Dse\Numeric
+          type: Numeric
       return:
         comment: difference
         type: Numeric
@@ -32,7 +32,7 @@ Dse\Numeric:
       params:
         num:
           comment: a number to multiply this one by
-          type: Dse\Numeric
+          type: Numeric
       return:
         comment: product
         type: Numeric
@@ -41,7 +41,7 @@ Dse\Numeric:
       params:
         num:
           comment: a number to divide this one by
-          type: Dse\Numeric
+          type: Numeric
       return:
         comment: quotient
         type: Numeric
@@ -50,7 +50,7 @@ Dse\Numeric:
       params:
         num:
           comment: a number to divide this one by
-          type: Dse\Numeric
+          type: Numeric
       return:
         comment: remainder
         type: Numeric

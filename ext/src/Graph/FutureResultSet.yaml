@@ -1,9 +1,9 @@
 ---
-Dse\Graph\FutureResultSet:
+Graph\FutureResultSet:
   comment: |
     A future result set of an asynchronously running graph query.
 
-    @see \Dse\Session::executeGraphAsync()
+    @see Session::executeGraphAsync()
   methods:
     get:
       comment: |

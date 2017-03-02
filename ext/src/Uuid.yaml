@@ -1,5 +1,5 @@
 ---
-Dse\Uuid:
+Uuid:
   comment: A PHP representation of the CQL `uuid` datatype
   methods:
     __construct:

@@ -1,5 +1,5 @@
 ---
-Dse\Column:
+Column:
   comment: A PHP representation of a column
   methods:
     name:
@@ -11,7 +11,7 @@ Dse\Column:
       comment: Returns the type of the column.
       return:
         comment: Type of the column
-        type: Dse\Type
+        type: Type
     isReversed:
       comment: Returns whether the column is in descending or ascending order.
       return:

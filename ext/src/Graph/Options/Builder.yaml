@@ -1,20 +1,20 @@
 ---
-Dse\Graph\Options\Builder:
+Graph\Options\Builder:
   comment: |
     A builder for fluent configuration of graph options;
 
-    @see \Dse::graphOptions()
-    @see \Dse\Cluster\Builder::withGraphOptions()
+    @see Dse::graphOptions()
+    @see Cluster\Builder::withGraphOptions()
   methods:
     build:
       comment: |
         Constructs a graph options object that can be used to construct
         a cluster with graph support.
 
-        @see \Dse\Cluster\Builder::withGraphOptions()
+        @see Cluster\Builder::withGraphOptions()
       return:
         comment: ""
-        type: Dse\Graph\Options
+        type: Graph\Options
     withGraphLanguage:
       comment: |
         Set the graph language. Default: "gremlin-groovy"

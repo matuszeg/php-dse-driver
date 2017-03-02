@@ -1,5 +1,5 @@
 ---
-Dse\Exception\RuntimeException:
+Exception\RuntimeException:
   comment: DSE runtime exception.
   methods:
     __construct:

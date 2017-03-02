@@ -1,5 +1,5 @@
 ---
-Dse\Graph\Element:
+Graph\Element:
   comment: A base interface for graph elements.
   methods:
     id:

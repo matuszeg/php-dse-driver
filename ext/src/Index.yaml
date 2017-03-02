@@ -1,5 +1,5 @@
 ---
-Dse\Index:
+Index:
   comment: A PHP representation of an index
   methods:
     name:
@@ -21,11 +21,11 @@ Dse\Index:
       comment: Return a column's option by name
       params:
         name:
-          comment: ""
-          type: mixed
+          comment: The name of the option
+          type: string
       return:
         comment: Value of an option by name
-        type: Dse\Value
+        type: Value
     options:
       comment: |-
         Returns all the index's options
@@ -41,6 +41,6 @@ Dse\Index:
     isCustom:
       comment: Determines if the index is a custom index.
       return:
-        comment: Returns `true` if this is a custom index
+        comment: true if a custom index
         type: bool
 ...

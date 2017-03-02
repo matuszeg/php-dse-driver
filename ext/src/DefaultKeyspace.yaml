@@ -1,5 +1,5 @@
 ---
-Dse\DefaultKeyspace:
+DefaultKeyspace:
   comment: A PHP representation of a keyspace
   methods:
     name:
@@ -16,7 +16,7 @@ Dse\DefaultKeyspace:
       comment: '{@inheritDoc}'
       return:
         comment: Replication options
-        type: Dse\Map
+        type: Map
     hasDurableWrites:
       comment: '{@inheritDoc}'
       return:
@@ -30,72 +30,72 @@ Dse\DefaultKeyspace:
           type: string
       return:
         comment: '       Table instance or null'
-        type: Dse\Table
+        type: Table
     tables:
       comment: '{@inheritDoc}'
       return:
-        comment: An array of `Dse\Table` instances
+        comment: An array of `Table` instances
         type: array
     userType:
-      comment: ""
+      comment: '{@inheritDoc}'
       params:
         name:
-          comment: ""
-          type: mixed
+          comment: '{@inheritDoc}'
+          type: string
       return:
-        comment: ""
-        type: mixed
+        comment: '{@inheritDoc}'
+        type: Type\UserType|null
     userTypes:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
-        type: mixed
+        comment: '{@inheritDoc}'
+        type: array
     materializedView:
-      comment: ""
+      comment: '{@inheritDoc}'
       params:
         name:
-          comment: ""
-          type: mixed
+          comment: '{@inheritDoc}'
+          type: string
       return:
-        comment: ""
-        type: mixed
+        comment: '{@inheritDoc}'
+        type: MaterizedView|null
     materializedViews:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
-        type: mixed
+        comment: '{@inheritDoc}'
+        type: array
     function:
-      comment: ""
+      comment: '{@inheritDoc}'
       params:
         name:
-          comment: ""
-          type: mixed
+          comment: '{@inheritDoc}'
+          type: string
         '...':
-          comment: ""
-          type: mixed
+          comment: '{@inheritDoc}'
+          type: string|Type
       return:
-        comment: ""
-        type: mixed
+        comment: '{@inheritDoc}'
+        type: Function|null
     functions:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
-        type: mixed
+        comment: '{@inheritDoc}'
+        type: array
     aggregate:
-      comment: ""
+      comment: '{@inheritDoc}'
       params:
         name:
-          comment: ""
-          type: mixed
+          comment: '{@inheritDoc}'
+          type: string
         '...':
-          comment: ""
-          type: mixed
+          comment: '{@inheritDoc}'
+          type: string|Type
       return:
-        comment: ""
-        type: mixed
+        comment: '{@inheritDoc}'
+        type: Aggregate|null
     aggregates:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
-        comment: ""
-        type: mixed
+        comment: '{@inheritDoc}'
+        type: array
 ...

@@ -1,5 +1,5 @@
 ---
-Dse\Cluster:
+Cluster:
   comment: Cluster object is used to create Sessions.
   methods:
     connect:

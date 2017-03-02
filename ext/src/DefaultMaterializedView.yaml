@@ -1,5 +1,5 @@
 ---
-Dse\DefaultMaterializedView:
+DefaultMaterializedView:
   comment: A PHP representation of a materialized view
   methods:
     name:
@@ -11,15 +11,15 @@ Dse\DefaultMaterializedView:
       comment: '{@inheritDoc}'
       params:
         name:
-          comment: ""
-          type: mixed
+          comment: '{@inheritDoc}'
+          type: string
       return:
         comment: Value of an option by name
-        type: Dse\Value
+        type: Value
     options:
       comment: '{@inheritDoc}'
       return:
-        comment: A dictionary of `string` and `Value` pairs of the
+        comment: A dictionary of string and Value pairs of the
         type: array
     comment:
       comment: '{@inheritDoc}'
@@ -80,12 +80,12 @@ Dse\DefaultMaterializedView:
       comment: '{@inheritDoc}'
       return:
         comment: Compaction strategy options
-        type: Dse\Map
+        type: Map
     compressionParameters:
       comment: '{@inheritDoc}'
       return:
         comment: Compression parameters
-        type: Dse\Map
+        type: Map
     populateIOCacheOnFlush:
       comment: '{@inheritDoc}'
       return:
@@ -114,26 +114,26 @@ Dse\DefaultMaterializedView:
           type: string
       return:
         comment: Column instance
-        type: Dse\Column
+        type: Column
     columns:
       comment: '{@inheritDoc}'
       return:
-        comment: A list of `Dse\Column` instances
+        comment: A list of Column instances
         type: array
     partitionKey:
       comment: '{@inheritDoc}'
       return:
-        comment: A list of of `Dse\Column` instances
+        comment: A list of of Column instances
         type: array
     primaryKey:
       comment: '{@inheritDoc}'
       return:
-        comment: A list of of `Dse\Column` instances
+        comment: A list of of Column instances
         type: array
     clusteringKey:
       comment: '{@inheritDoc}'
       return:
-        comment: A list of of `Dse\Column` instances
+        comment: A list of of Column instances
         type: array
     clusteringOrder:
       comment: '{@inheritDoc}'
@@ -144,5 +144,5 @@ Dse\DefaultMaterializedView:
       comment: '{@inheritDoc}'
       return:
         comment: Base table of the view
-        type: Dse\Table
+        type: Table
 ...

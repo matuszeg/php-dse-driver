@@ -1,5 +1,5 @@
 ---
-Dse\Inet:
+Inet:
   comment: A PHP representation of the CQL `inet` datatype
   methods:
     __construct:

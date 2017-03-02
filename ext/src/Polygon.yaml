@@ -1,5 +1,5 @@
 ---
-Dse\Polygon:
+Polygon:
   comment: |
     Encapsulates a polygon consisting of a set of linear-rings in the xy-plane.
     It corresponds to the `org.apache.cassandra.db.marshal.PolygonType` column
@@ -31,10 +31,10 @@ Dse\Polygon:
           comment: varargs-style array of LineStrings
           type: array
     type:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
         comment: the custom type for Polygon
-        type: Dse\Type\Custom
+        type: Type\Custom
     exteriorRing:
       comment: ""
       return:

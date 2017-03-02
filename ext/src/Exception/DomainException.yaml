@@ -1,5 +1,5 @@
 ---
-Dse\Exception\DomainException:
+Exception\DomainException:
   comment: DSE domain exception.
   methods:
     __construct:

@@ -1,10 +1,10 @@
 ---
-Dse\Graph\Edge:
+Graph\Edge:
   comment: |
     A connection between two vertices. It contains a reference to the two
     vertices as well as a colleciton of properties.
 
-    @see \Dse\Graph\Vertex
+    @see Graph\Vertex
   methods:
     inV:
       comment: Gets the "in" vertex.

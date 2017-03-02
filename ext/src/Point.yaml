@@ -1,5 +1,5 @@
 ---
-Dse\Point:
+Point:
   comment: |
     Encapsulates a 2D point with x,y coordinates. It corresponds to the
     `org.apache.cassandra.db.marshal.PointType` column type in DSE.
@@ -13,10 +13,10 @@ Dse\Point:
           comment: Either x, y pair or a WKT string
           type: double|string
     type:
-      comment: ""
+      comment: '{@inheritDoc}'
       return:
         comment: the custom type for Point
-        type: Dse\Type\Custom
+        type: Type\Custom
     x:
       comment: ""
       return:

@@ -1,7 +1,7 @@
 ---
-Dse\FutureClose:
+FutureClose:
   comment: |-
-    A future returned from Dse\Session::closeAsync().
+    A future returned from Session::closeAsync().
 
     @see Session::closeAsync()
   methods:
@@ -13,9 +13,9 @@ Dse\FutureClose:
         @throws Exception\TimeoutException
       params:
         timeout:
-          comment: ""
-          type: float|null
+          comment: A timeout in seconds
+          type: int|double|null
       return:
-        comment: a value that the future has been resolved with
-        type: mixed
+        comment: Nothing
+        type: "null"
 ...

@@ -1,5 +1,5 @@
 ---
-Dse\BatchStatement:
+BatchStatement:
   comment: |-
     Batch statements are used to execute a series of simple or prepared
     statements.
@@ -29,15 +29,14 @@ Dse\BatchStatement:
       comment: |-
         Adds a statement to this batch.
 
-
         @throws Exception\InvalidArgumentException
       params:
         statement:
-          comment: the statement to add
-          type: Dse\Statement
+          comment: string or statement to add
+          type: string|Statement
         arguments:
-          comment: positional or named arguments
-          type: array
+          comment: positional or named arguments (optional)
+          type: array|null
       return:
         comment: self
         type: BatchStatement

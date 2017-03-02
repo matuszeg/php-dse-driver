@@ -1,6 +1,6 @@
 ---
-Dse\Exception\DivideByZeroException:
-  comment: DSE domain exception.
+Exception\DivideByZeroException:
+  comment: Cassandra domain exception.
   methods:
     __construct:
       comment: ""

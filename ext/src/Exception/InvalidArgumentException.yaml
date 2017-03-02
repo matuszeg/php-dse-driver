@@ -1,5 +1,5 @@
 ---
-Dse\Exception\InvalidArgumentException:
+Exception\InvalidArgumentException:
   comment: DSE invalid argument exception.
   methods:
     __construct:

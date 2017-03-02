@@ -1,9 +1,9 @@
 ---
-Dse\DefaultCluster:
+DefaultCluster:
   comment: |-
     Default cluster implementation.
 
-    @see Dse\Cluster
+    @see Cluster
   methods:
     connect:
       comment: |

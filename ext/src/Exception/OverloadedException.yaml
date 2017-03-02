@@ -1,5 +1,5 @@
 ---
-Dse\Exception\OverloadedException:
+Exception\OverloadedException:
   comment: OverloadedException is raised when a node is overloaded.
   methods:
     __construct:

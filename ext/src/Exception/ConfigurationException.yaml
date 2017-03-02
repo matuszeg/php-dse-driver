@@ -1,5 +1,5 @@
 ---
-Dse\Exception\ConfigurationException:
+Exception\ConfigurationException:
   comment: |-
     ConfigurationException is raised when query is syntactically correct but
     invalid because of some configuration issue.

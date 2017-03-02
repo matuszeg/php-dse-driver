@@ -1,5 +1,5 @@
 ---
-Dse\Graph\Property:
+Graph\Property:
   comment: A property or sub-property of a graph element.
   methods:
     name:

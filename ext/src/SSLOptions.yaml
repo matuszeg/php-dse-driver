@@ -1,7 +1,7 @@
 ---
-Dse\SSLOptions:
+SSLOptions:
   comment: |-
-    SSL options for Dse\Cluster.
+    SSL options for Cluster.
 
     @see SSLOptions\Builder
 ...

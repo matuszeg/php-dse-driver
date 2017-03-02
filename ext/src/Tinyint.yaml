@@ -1,5 +1,5 @@
 ---
-Dse\Tinyint:
+Tinyint:
   comment: A PHP representation of the CQL `tinyint` datatype.
   methods:
     min:
@@ -13,17 +13,17 @@ Dse\Tinyint:
         comment: maximum value
         type: Tinyint
     __construct:
-      comment: Creates a new 8bit integer.
+      comment: Creates a new 8-bit signed integer.
       params:
         value:
-          comment: integer value as a string
-          type: string
+          comment: The value as an integer, double or string
+          type: int|double|string
     add:
       comment: ""
       params:
         num:
           comment: a number to add to this one
-          type: Dse\Numeric
+          type: Numeric
       return:
         comment: sum
         type: Numeric
@@ -32,7 +32,7 @@ Dse\Tinyint:
       params:
         num:
           comment: a number to subtract from this one
-          type: Dse\Numeric
+          type: Numeric
       return:
         comment: difference
         type: Numeric
@@ -41,7 +41,7 @@ Dse\Tinyint:
       params:
         num:
           comment: a number to multiply this one by
-          type: Dse\Numeric
+          type: Numeric
       return:
         comment: product
         type: Numeric
@@ -50,7 +50,7 @@ Dse\Tinyint:
       params:
         num:
           comment: a number to divide this one by
-          type: Dse\Numeric
+          type: Numeric
       return:
         comment: quotient
         type: Numeric
@@ -59,7 +59,7 @@ Dse\Tinyint:
       params:
         num:
           comment: a number to divide this one by
-          type: Dse\Numeric
+          type: Numeric
       return:
         comment: remainder
         type: Numeric
@@ -102,5 +102,5 @@ Dse\Tinyint:
       comment: ""
       return:
         comment: ""
-        type: mixed
+        type: string
 ...

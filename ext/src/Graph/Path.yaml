@@ -1,10 +1,10 @@
 ---
-Dse\Graph\Path:
+Graph\Path:
   comment: |
     A sequence of graph elements that represents a path between two vertices.
 
-    @see \Dse\Graph\Edge
-    @see \Dse\Graph\Vertex
+    @see Graph\Edge
+    @see Graph\Vertex
   methods:
     labels:
       comment: |

@@ -1,7 +1,11 @@
 ---
-Dse\Session:
-  comment: A class that contains and manages connections to DSE. It allows for executing
-    or preparing queries for execution.
+Session:
+  comment: |-
+    A class that contains and manages connections to DSE. It allows for
+    executing or preparing queries for execution.
+
+    @see Cluster::connect()
+    @see Cluster::connectAsync()
   methods:
     execute:
       comment: |
@@ -10,25 +14,25 @@ Dse\Session:
         @throws Exception
       params:
         statement:
-          comment: A statement to be executed.
-          type: Dse\Statement
+          comment: string or statement to be executed.
+          type: string|Statement
         options:
-          comment: Options to control execution of the query.
-          type: Dse\ExecutionOptions
+          comment: execution options (optional)
+          type: array|ExecutionOptions|null
       return:
-        comment: A colleciton of rows.
+        comment: A collection of rows.
         type: Rows
     executeAsync:
       comment: |-
-        Execute a query asyncrhonously. This method returns immediately, but
+        Execute a query asynchronously. This method returns immediately, but
         the query continues execution in the background.
       params:
         statement:
-          comment: A statement to be executed.
-          type: Dse\Statement
+          comment: string or statement to be executed.
+          type: string|Statement
         options:
-          comment: Options to control execution of the query.
-          type: Dse\ExecutionOptions
+          comment: execution options (optional)
+          type: array|ExecutionOptions|null
       return:
         comment: A future that can be used to retrieve the result.
         type: FutureRows
@@ -43,7 +47,7 @@ Dse\Session:
           type: string
         options:
           comment: Options to control preparing the query.
-          type: Dse\ExecutionOptions
+          type: ExecutionOptions
       return:
         comment: |
           A prepared statement that can be bound with parameters and executed.
@@ -56,7 +60,7 @@ Dse\Session:
           type: string
         options:
           comment: Options to control preparing the query.
-          type: Dse\ExecutionOptions
+          type: ExecutionOptions
       return:
         comment: A future that can be used to retrieve the prepared statement.
         type: FuturePreparedStatement
@@ -71,7 +75,7 @@ Dse\Session:
             The amount of time in seconds to wait for the session to close.
           type: double
       return:
-        comment: "Nothing."
+        comment: Nothing.
         type: "null"
     closeAsync:
       comment: Asynchronously close the session and all its connections.
@@ -84,9 +88,8 @@ Dse\Session:
         comment: A snapshot of the cluster's schema.
         type: Schema
     executeGraph:
-      comment:
+      comment: |-
         Execute graph queries.
-
         @throws Exception
       params:
         statement:
@@ -128,4 +131,9 @@ Dse\Session:
       return:
         comment: A future that can be used to retrieve the result set.
         type: Graph\FutureResultSet
+    metrics:
+      comment: ""
+      return:
+        comment: ""
+        type: mixed
 ...

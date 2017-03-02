@@ -1,5 +1,5 @@
 ---
-Dse\Time:
+Time:
   comment: A PHP representation of the CQL `time` type.
   methods:
     __construct:
@@ -28,13 +28,13 @@ Dse\Time:
     __toString:
       comment: ""
       return:
-        comment: 'this date in string format: Dse\Time(nanoseconds=$nanoseconds)'
+        comment: 'this date in string format: Time(nanoseconds=$nanoseconds)'
         type: string
     seconds:
       comment: ""
       return:
         comment: ""
-        type: mixed
+        type: int
     fromDateTime:
       comment: ""
       params:
@@ -43,5 +43,5 @@ Dse\Time:
           type: DateTime
       return:
         comment: ""
-        type: mixed
+        type: Time
 ...

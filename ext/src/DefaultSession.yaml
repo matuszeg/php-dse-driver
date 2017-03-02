@@ -1,97 +1,97 @@
 ---
-Dse\DefaultSession:
+DefaultSession:
   comment: '{@inheritDoc}'
   methods:
     schema:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Schema
     execute:
       comment: '{@inheritDoc}'
       return:
+        comment: '{@inheritDoc}'
+        type: Rows
       params:
         statement:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: string|Statement
         options:
           comment: '{@inheritDoc}'
-          type: mixed
-      return:
-        comment: '{@inheritDoc}'
-        type: mixed
+          type: array|ExecutionOptions|null
     executeAsync:
       comment: '{@inheritDoc}'
       params:
         statement:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: string|Statement
         options:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: array|ExecutionOptions|null
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: FutureRows
     prepare:
       comment: '{@inheritDoc}'
       params:
         cql:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: string
         options:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: ExecutionOptions
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: PreparedStatement
     prepareAsync:
       comment: '{@inheritDoc}'
       params:
         cql:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: string
         options:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: ExecutionOptions
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: FuturePreparedStatement
     close:
       comment: '{@inheritDoc}'
       params:
         timeout:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: double
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: "null"
     closeAsync:
       comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: FutureClose
     executeGraph:
-      comment: '{@inheritDoc}'
       params:
         statement:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: string|Graph\Statement
         options:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: array
+        type: FutureClose
+      comment: '{@inheritDoc}'
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Graph\ResultSet
     executeGraphAsync:
       comment: '{@inheritDoc}'
       params:
         statement:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: string|Graph\Statement
         options:
           comment: '{@inheritDoc}'
-          type: mixed
+          type: array
       return:
         comment: '{@inheritDoc}'
-        type: mixed
+        type: Graph\FutureResultSet
 ...

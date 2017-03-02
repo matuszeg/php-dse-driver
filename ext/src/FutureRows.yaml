@@ -1,7 +1,7 @@
 ---
-Dse\FutureRows:
+FutureRows:
   comment: |-
-    This future results is resolved with `Dse\Rows`.
+    This future results is resolved with Rows.
 
     @see Session::executeAsync()
   methods:
@@ -13,9 +13,9 @@ Dse\FutureRows:
         @throws Exception\TimeoutException
       params:
         timeout:
-          comment: ""
-          type: float|null
+          comment: A timeout in seconds
+          type: int|double|null
       return:
-        comment: a value that the future has been resolved with
-        type: mixed
+        comment: The result set
+        type: Rows|null
 ...

@@ -1,16 +1,16 @@
 ---
-Dse\SSLOptions\Builder:
+SSLOptions\Builder:
   comment: |-
     SSLOptions builder allows fluent configuration of ssl options.
 
-    @see \Dse::ssl()
-    @see \Dse\Cluster\Builder::withSSL()
+    @see Dse::ssl()
+    @see Cluster\Builder::withSSL()
   methods:
     withTrustedCerts:
       comment: |
         Adds a trusted certificate. This is used to verify node's identity.
 
-        @throws \Dse\Exception\InvalidArgumentException
+        @throws Exception\InvalidArgumentException
       params:
         path:
           comment: ',... one or more paths to files containing a PEM formatted certificate.'
@@ -22,7 +22,7 @@ Dse\SSLOptions\Builder:
       comment: |
         Disable certificate verification.
 
-        @throws \Dse\Exception\InvalidArgumentException
+        @throws Exception\InvalidArgumentException
       params:
         flags:
           comment: ""
@@ -37,7 +37,7 @@ Dse\SSLOptions\Builder:
         This is used to authenticate the client on the server-side. This should contain the entire Certificate
         chain starting with the certificate itself.
 
-        @throws \Dse\Exception\InvalidArgumentException
+        @throws Exception\InvalidArgumentException
       params:
         path:
           comment: path to a file containing a PEM formatted certificate.
@@ -50,7 +50,7 @@ Dse\SSLOptions\Builder:
         Set client-side private key. This is used to authenticate the client on
         the server-side.
 
-        @throws \Dse\Exception\InvalidArgumentException
+        @throws Exception\InvalidArgumentException
       params:
         path:
           comment: Path to the private key file
@@ -65,5 +65,5 @@ Dse\SSLOptions\Builder:
       comment: Builds SSL options.
       return:
         comment: ssl options configured accordingly.
-        type: \Dse\SSLOptions
+        type: SSLOptions
 ...
