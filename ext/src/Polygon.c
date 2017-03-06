@@ -358,7 +358,8 @@ PHP_METHOD(Polygon, __toString)
 PHP_METHOD(Polygon, type)
 {
   if (PHP5TO7_ZVAL_IS_UNDEF(PHP_DRIVER_G(type_polygon))) {
-    PHP_DRIVER_G(type_polygon) = php_driver_type_custom(DSE_POLYGON_TYPE TSRMLS_CC);
+    PHP_DRIVER_G(type_polygon) = php_driver_type_custom(DSE_POLYGON_TYPE,
+                                                        strlen(DSE_POLYGON_TYPE) TSRMLS_CC);
   }
   RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(PHP_DRIVER_G(type_polygon)), 1, 0);
 }

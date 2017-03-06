@@ -148,7 +148,8 @@ PHP_METHOD(Point, __toString)
 PHP_METHOD(Point, type)
 {
   if (PHP5TO7_ZVAL_IS_UNDEF(PHP_DRIVER_G(type_point))) {
-    PHP_DRIVER_G(type_point) = php_driver_type_custom(DSE_POINT_TYPE TSRMLS_CC);
+    PHP_DRIVER_G(type_point) = php_driver_type_custom(DSE_POINT_TYPE,
+                                                      strlen(DSE_POINT_TYPE) TSRMLS_CC);
   }
   RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(PHP_DRIVER_G(type_point)), 1, 0);
 }

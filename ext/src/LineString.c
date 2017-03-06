@@ -309,7 +309,8 @@ PHP_METHOD(LineString, __toString)
 PHP_METHOD(LineString, type)
 {
   if (PHP5TO7_ZVAL_IS_UNDEF(PHP_DRIVER_G(type_line_string))) {
-    PHP_DRIVER_G(type_line_string) = php_driver_type_custom(DSE_LINE_STRING_TYPE TSRMLS_CC);
+    PHP_DRIVER_G(type_line_string) = php_driver_type_custom(DSE_LINE_STRING_TYPE,
+                                                            strlen(DSE_LINE_STRING_TYPE) TSRMLS_CC);
   }
   RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(PHP_DRIVER_G(type_line_string)), 1, 0);
 }
