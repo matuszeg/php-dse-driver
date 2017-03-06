@@ -36,8 +36,7 @@ Feature: Simple string queries
   Scenario: A simple CQL string can be used to execute queries
     Given the following example:
       """php
-      <?php
-      $cluster = Cassandra::cluster()
+      $cluster = Dse::cluster()
                    ->withContactPoints('127.0.0.1')
                    ->build();
       $session = $cluster->connect("simplex");
@@ -64,8 +63,7 @@ Feature: Simple string queries
   Scenario: A simple CQL string can also be used to execute asynchronous queries
     Given the following example:
       """php
-      <?php
-      $cluster = Cassandra::cluster()
+      $cluster = Dse::cluster()
                    ->withContactPoints('127.0.0.1')
                    ->build();
       $session = $cluster->connect("simplex");
@@ -100,14 +98,13 @@ Feature: Simple string queries
   Scenario: Simple CQL strings can also be used in batch statements
     Given the following example:
       """php
-      <?php
-      $cluster = Cassandra::cluster()
+      $cluster = Dse::cluster()
                      ->withContactPoints('127.0.0.1')
                      ->build();
       $session = $cluster->connect("simplex");
       $future  = $session->executeAsync("SELECT * FROM playlists");
 
-      $batch = new Cassandra\BatchStatement(Cassandra::BATCH_UNLOGGED);
+      $batch = new Dse\BatchStatement(Dse::BATCH_UNLOGGED);
 
       $batch->add("INSERT INTO playlists
                    (id, song_id, artist, title, album) VALUES
