@@ -614,7 +614,7 @@ graph_object_add_varint(DseGraphObject *object,
   char *str;
   int len;
   CassError rc;
-  php_driver_format_integer(varint->varint_value, &str, &len);
+  php_driver_format_integer(varint->data.varint.value, &str, &len);
   rc = dse_graph_object_add_string_n(object,
                                      name, strlen(name),
                                      str, len);
@@ -629,7 +629,7 @@ graph_array_add_varint(DseGraphArray *array,
   char *str;
   int len;
   CassError rc;
-  php_driver_format_integer(varint->varint_value, &str, &len);
+  php_driver_format_integer(varint->data.varint.value, &str, &len);
   rc = dse_graph_array_add_string_n(array, str, len);
   efree(str);
   CHECK_RESULT(rc);
@@ -643,7 +643,7 @@ graph_object_add_decimal(DseGraphObject *object,
   char *str;
   int len;
   CassError rc;
-  php_driver_format_decimal(decimal->decimal_value, decimal->decimal_scale,
+  php_driver_format_decimal(decimal->data.decimal.value, decimal->data.decimal.scale,
                                &str, &len);
   rc = dse_graph_object_add_string_n(object,
                                      name, strlen(name),
@@ -659,7 +659,7 @@ graph_array_add_decimal(DseGraphArray *array,
   char *str;
   int len;
   CassError rc;
-  php_driver_format_decimal(decimal->decimal_value, decimal->decimal_scale,
+  php_driver_format_decimal(decimal->data.decimal.value, decimal->data.decimal.scale,
                                &str, &len);
   rc = dse_graph_array_add_string_n(array, str, len);
   efree(str);
@@ -744,15 +744,15 @@ graph_object_add_with_value_type(DseGraphObject *object,
   case CASS_VALUE_TYPE_BIGINT:
   case CASS_VALUE_TYPE_COUNTER:
     numeric = PHP_DRIVER_GET_NUMERIC(value);
-    CHECK_RESULT(dse_graph_object_add_int64(object, name, numeric->bigint_value));
+    CHECK_RESULT(dse_graph_object_add_int64(object, name, numeric->data.bigint.value));
     break;
   case CASS_VALUE_TYPE_SMALL_INT:
     numeric = PHP_DRIVER_GET_NUMERIC(value);
-    CHECK_RESULT(dse_graph_object_add_int32(object, name, numeric->smallint_value));
+    CHECK_RESULT(dse_graph_object_add_int32(object, name, numeric->data.smallint.value));
     break;
   case CASS_VALUE_TYPE_TINY_INT:
     numeric = PHP_DRIVER_GET_NUMERIC(value);
-    CHECK_RESULT(dse_graph_object_add_int32(object, name, numeric->tinyint_value));
+    CHECK_RESULT(dse_graph_object_add_int32(object, name, numeric->data.tinyint.value));
     break;
   case CASS_VALUE_TYPE_BLOB:
     blob = PHP_DRIVER_GET_BLOB(value);
@@ -770,7 +770,7 @@ graph_object_add_with_value_type(DseGraphObject *object,
     break;
   case CASS_VALUE_TYPE_FLOAT:
     numeric = PHP_DRIVER_GET_NUMERIC(value);
-    CHECK_RESULT(dse_graph_object_add_double(object, name, numeric->float_value));
+    CHECK_RESULT(dse_graph_object_add_double(object, name, numeric->data.floating.value));
     break;
   case CASS_VALUE_TYPE_INT:
     CHECK_RESULT(dse_graph_object_add_int32(object, name, Z_LVAL_P(value)));
@@ -891,15 +891,15 @@ graph_array_add_with_value_type(DseGraphArray *array,
   case CASS_VALUE_TYPE_BIGINT:
   case CASS_VALUE_TYPE_COUNTER:
     numeric = PHP_DRIVER_GET_NUMERIC(value);
-    CHECK_RESULT(dse_graph_array_add_int64(array, numeric->bigint_value));
+    CHECK_RESULT(dse_graph_array_add_int64(array, numeric->data.bigint.value));
     break;
   case CASS_VALUE_TYPE_SMALL_INT:
     numeric = PHP_DRIVER_GET_NUMERIC(value);
-    CHECK_RESULT(dse_graph_array_add_int32(array, numeric->smallint_value));
+    CHECK_RESULT(dse_graph_array_add_int32(array, numeric->data.smallint.value));
     break;
   case CASS_VALUE_TYPE_TINY_INT:
     numeric = PHP_DRIVER_GET_NUMERIC(value);
-    CHECK_RESULT(dse_graph_array_add_int32(array, numeric->tinyint_value));
+    CHECK_RESULT(dse_graph_array_add_int32(array, numeric->data.tinyint.value));
     break;
   case CASS_VALUE_TYPE_BLOB:
     blob = PHP_DRIVER_GET_BLOB(value);
@@ -917,7 +917,7 @@ graph_array_add_with_value_type(DseGraphArray *array,
     break;
   case CASS_VALUE_TYPE_FLOAT:
     numeric = PHP_DRIVER_GET_NUMERIC(value);
-    CHECK_RESULT(dse_graph_array_add_double(array, numeric->float_value));
+    CHECK_RESULT(dse_graph_array_add_double(array, numeric->data.floating.value));
     break;
   case CASS_VALUE_TYPE_INT:
     CHECK_RESULT(dse_graph_array_add_int32(array, Z_LVAL_P(value)));
@@ -1015,7 +1015,7 @@ graph_array_from_set(php_driver_set *set,
   php_driver_set_entry *curr, *temp;
 
   type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(set->type));
-  value_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->value_type));
+  value_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.set.value_type));
   array = dse_graph_array_new();
 
   HASH_ITER(hh, set->entries, curr, temp) {
@@ -1046,7 +1046,7 @@ graph_array_from_collection(php_driver_collection *coll,
   php5to7_zval *curr;
 
   type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(coll->type));
-  value_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->value_type));
+  value_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.collection.value_type));
   array = dse_graph_array_new();
 
   PHP5TO7_ZEND_HASH_FOREACH_VAL(&coll->values, curr) {
@@ -1079,8 +1079,8 @@ graph_object_from_map(php_driver_map *map,
   php_driver_map_entry *curr, *temp;
 
   type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->type));
-  value_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->value_type));
-  key_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->key_type));
+  value_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.map.value_type));
+  key_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type));
   object = dse_graph_object_new();
 
   HASH_ITER(hh, map->entries, curr, temp) {
@@ -1117,7 +1117,7 @@ graph_array_from_tuple(php_driver_tuple *tuple,
   PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(&tuple->values, num_key, current) {
     php5to7_zval *zsub_type;
     php_driver_type *sub_type;
-    PHP5TO7_ZEND_HASH_INDEX_FIND(&type->types, num_key, zsub_type);
+    PHP5TO7_ZEND_HASH_INDEX_FIND(&type->data.tuple.types, num_key, zsub_type);
     if (!php_driver_validate_object(PHP5TO7_ZVAL_MAYBE_DEREF(current),
                                        PHP5TO7_ZVAL_MAYBE_DEREF(zsub_type) TSRMLS_CC)) {
       rc = FAILURE;
@@ -1156,7 +1156,7 @@ graph_object_from_user_type_value(php_driver_user_type_value *user_type_value,
   PHP5TO7_ZEND_HASH_FOREACH_STR_KEY_VAL(&user_type_value->values, name, current) {
     php5to7_zval *zsub_type;
     php_driver_type *sub_type;
-    if (!PHP5TO7_ZEND_HASH_FIND(&type->types, name, strlen(name) + 1, zsub_type) ||
+    if (!PHP5TO7_ZEND_HASH_FIND(&type->data.udt.types, name, strlen(name) + 1, zsub_type) ||
         !php_driver_validate_object(PHP5TO7_ZVAL_MAYBE_DEREF(current),
                                        PHP5TO7_ZVAL_MAYBE_DEREF(zsub_type) TSRMLS_CC)) {
       rc = FAILURE;
@@ -1255,22 +1255,22 @@ graph_array_add(DseGraphArray *array,
   if (Z_TYPE_P(value) == IS_OBJECT) {
     if (instanceof_function(Z_OBJCE_P(value), php_driver_float_ce TSRMLS_CC)) {
       php_driver_numeric *float_number = PHP_DRIVER_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_array_add_double(array, float_number->float_value));
+      CHECK_RESULT(dse_graph_array_add_double(array, float_number->data.floating.value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_bigint_ce TSRMLS_CC)) {
       php_driver_numeric *bigint = PHP_DRIVER_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_array_add_int64(array, bigint->bigint_value));
+      CHECK_RESULT(dse_graph_array_add_int64(array, bigint->data.bigint.value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_smallint_ce TSRMLS_CC)) {
       php_driver_numeric *smallint = PHP_DRIVER_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_array_add_int32(array, smallint->smallint_value));
+      CHECK_RESULT(dse_graph_array_add_int32(array, smallint->data.smallint.value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_tinyint_ce TSRMLS_CC)) {
       php_driver_numeric *tinyint = PHP_DRIVER_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_array_add_int32(array, tinyint->tinyint_value));
+      CHECK_RESULT(dse_graph_array_add_int32(array, tinyint->data.tinyint.value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_timestamp_ce TSRMLS_CC)) {
@@ -1442,22 +1442,22 @@ graph_object_add(DseGraphObject *object,
   if (Z_TYPE_P(value) == IS_OBJECT) {
     if (instanceof_function(Z_OBJCE_P(value), php_driver_float_ce TSRMLS_CC)) {
       php_driver_numeric *float_number = PHP_DRIVER_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_object_add_double(object, name, float_number->float_value));
+      CHECK_RESULT(dse_graph_object_add_double(object, name, float_number->data.floating.value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_bigint_ce TSRMLS_CC)) {
       php_driver_numeric *bigint = PHP_DRIVER_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_object_add_int64(object, name, bigint->bigint_value));
+      CHECK_RESULT(dse_graph_object_add_int64(object, name, bigint->data.bigint.value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_smallint_ce TSRMLS_CC)) {
       php_driver_numeric *smallint = PHP_DRIVER_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_object_add_int32(object, name, smallint->smallint_value));
+      CHECK_RESULT(dse_graph_object_add_int32(object, name, smallint->data.smallint.value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_tinyint_ce TSRMLS_CC)) {
       php_driver_numeric *tinyint = PHP_DRIVER_GET_NUMERIC(value);
-      CHECK_RESULT(dse_graph_object_add_int32(object, name, tinyint->tinyint_value));
+      CHECK_RESULT(dse_graph_object_add_int32(object, name, tinyint->data.tinyint.value));
     }
 
     if (instanceof_function(Z_OBJCE_P(value), php_driver_timestamp_ce TSRMLS_CC)) {
