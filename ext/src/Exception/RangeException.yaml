@@ -1,6 +1,6 @@
 ---
 Exception\RangeException:
-  comment: DSE domain exception.
+  comment: Range exception.
   methods:
     __construct:
       comment: ""

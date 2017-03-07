@@ -1,6 +1,6 @@
 ---
 Exception\RuntimeException:
-  comment: DSE runtime exception.
+  comment: Runtime exception.
   methods:
     __construct:
       comment: ""

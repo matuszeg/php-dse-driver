@@ -1,6 +1,6 @@
 ---
 Exception\LogicException:
-  comment: DSE logic exception.
+  comment: Logic exception.
   methods:
     __construct:
       comment: ""

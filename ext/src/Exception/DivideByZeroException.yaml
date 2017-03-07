@@ -1,6 +1,6 @@
 ---
 Exception\DivideByZeroException:
-  comment: Cassandra domain exception.
+  comment: Divide by zero exception.
   methods:
     __construct:
       comment: ""

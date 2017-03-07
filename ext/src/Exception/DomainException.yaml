@@ -1,6 +1,6 @@
 ---
 Exception\DomainException:
-  comment: DSE domain exception.
+  comment: Domain exception.
   methods:
     __construct:
       comment: ""

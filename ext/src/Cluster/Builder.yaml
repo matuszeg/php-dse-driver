@@ -3,7 +3,7 @@ Cluster\Builder:
   comment: |-
     Cluster builder allows fluent configuration of the cluster instance.
 
-    @see \Dse::cluster()
+    @see Dse::cluster()
   methods:
     build:
       comment: Returns a Cluster Instance.
