@@ -116,7 +116,7 @@ class GraphTest extends DseGraphIntegrationTest {
             )
         );
         $array_value = array(
-            Dse\Bigint::max(),
+            new Dse\Bigint(PHP_INT_MAX),
             true,
             3.1415926535,
             2147483647,
@@ -249,7 +249,7 @@ class GraphTest extends DseGraphIntegrationTest {
         // Create and execute the graph statement with specified timestamp
         $options = array(
             "graph_name" => $this->table,
-            "timestamp" => $timestamp->toInt()
+            "timestamp" => (string) $timestamp // Use string as $timestamp might be to big for zend_long
         );
         $result_set = $this->session->executeGraph($query, $options);
 

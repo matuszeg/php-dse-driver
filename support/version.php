@@ -216,7 +216,7 @@ class Version extends \Version {
      * Get the Cassandra version used in the DSE version from a 1:1 mapping
      *
      * @return \Cassandra\Version Cassandra version used by DSE version
-     * @throws Exception Invalid DSE version
+     * @throws \Exception Invalid DSE version
      */
     private function cassandra_version() {
         // Map the DSE version to the appropriate Cassandra version
@@ -304,13 +304,15 @@ class Version extends \Version {
             return new \Cassandra\Version("2.1.15-1403");
         } else if ($this->equal("4.8.10")) {
             return new \Cassandra\Version("2.1.15-1423");
-        } else if (($compare = $this->compare("4.8.11")) >= 0
+        } else if ($this->equal("4.8.11")) {
+            return new \Cassandra\Version("2.1.17-1426");
+        } else if (($compare = $this->compare("4.8.12")) >= 0
             && $this->compare("5.0.0") < 0) {
             if ($compare > 0) {
                 fwrite(STDERR, "Cassandra Version is not Defined: "
                     . "Add Cassandra version for DSE v{$this}" . PHP_EOL);
             }
-            return new \Cassandra\Version("2.1.17.1428");
+            return new \Cassandra\Version("2.1.17.1439");
         } else if ($this->equal("5.0.0")) {
             return new \Cassandra\Version("3.0.7-1158");
         } else if ($this->equal("5.0.1")) {
@@ -321,16 +323,20 @@ class Version extends \Version {
             return new \Cassandra\Version("3.0.9-1346");
         } else if ($this->equal("5.0.4")) {
             return new \Cassandra\Version("3.0.10.1443");
-        } else if (($compare = $this->compare("5.0.5")) >= 0) {
+        } else if ($this->equal("5.0.5")) {
+            return new \Cassandra\Version("3.0.11.1485");
+        } else if ($this->equal("5.0.6")) {
+            return new \Cassandra\Version("3.0.11.1564");
+        } else if (($compare = $this->compare("5.0.7")) >= 0) {
             if ($compare > 0) {
                 fwrite(STDERR, "Cassandra Version is not Defined: "
                     . "Add Cassandra version for DSE v{$this}" . PHP_EOL);
             }
-            return new \Cassandra\Version("3.0.11.1485");
+            return new \Cassandra\Version("3.0.12.1586");
         }
 
         // DSE version does not correspond to a valid Cassandra version
-        throw new Exception("Invalid DSE Version {$this}: Could not determine Cassandra version");
+        throw new \Exception("Invalid DSE Version {$this}: Could not determine Cassandra version");
     }
 } // Version class
 } // Dse namespace

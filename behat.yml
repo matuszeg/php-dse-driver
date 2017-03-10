@@ -9,22 +9,22 @@ default:
             paths: [ %paths.base%/features/authentication ]
             contexts:
                 - AuthenticationContext:
-                    dse_version: 5.0.5
+                    dse_version: 5.0.7
         geotypes:
             paths: [ %paths.base%/features/geotypes ]
             contexts:
                 - FeatureContext:
-                    dse_version: 5.0.5
+                    dse_version: 5.0.7
         graph:
             paths: [ %paths.base%/features/graph ]
             contexts:
                 - GraphContext:
-                    dse_version: 5.0.5
+                    dse_version: 5.0.7
         core:
             paths: [ %paths.base%/features/core, %paths.base%/features/sessions, %paths.base%/features/migration ]
             contexts:
                 - FeatureContext:
-                    dse_version: 5.0.5
+                    dse_version: 5.0.7
 
 dse-4.8:
     gherkin:
@@ -34,11 +34,11 @@ dse-4.8:
         authentication:
             contexts:
                 - AuthenticationContext:
-                    dse_version: 4.8.11
+                    dse_version: 4.8.12
         core:
             contexts:
                 - FeatureContext:
-                    dse_version: 4.8.11
+                    dse_version: 4.8.12
 
 cassandra-3.x:
     gherkin:
@@ -48,7 +48,7 @@ cassandra-3.x:
         core:
             contexts:
                 - FeatureContext:
-                    cassandra_version: 3.9
+                    cassandra_version: 3.10
 
 cassandra-3.0:
     gherkin:
@@ -58,7 +58,7 @@ cassandra-3.0:
         core:
             contexts:
                 - FeatureContext:
-                    cassandra_version: 3.0.10
+                    cassandra_version: 3.0.11
 
 cassandra-2.2:
     gherkin:
@@ -68,7 +68,7 @@ cassandra-2.2:
         core:
             contexts:
                 - FeatureContext:
-                    cassandra_version: 2.2.8
+                    cassandra_version: 2.2.9
 
 cassandra-2.1:
     gherkin:
@@ -78,7 +78,7 @@ cassandra-2.1:
         core:
             contexts:
                 - FeatureContext:
-                    cassandra_version: 2.1.16
+                    cassandra_version: 2.1.17
 
 cassandra-2.0:
     gherkin:

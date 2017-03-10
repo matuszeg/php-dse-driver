@@ -121,6 +121,10 @@ class IntegrationTestFixture {
  */
 abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     /**
+     * Minimum value for integer
+     */
+    const PHP_INT_MIN = -PHP_INT_MAX - 1;
+    /**
      * Create keyspace format
      */
     const CREATE_KEYSPACE_FORMAT = "CREATE KEYSPACE %s WITH replication = %s;";
@@ -1260,8 +1264,8 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             array(
                 Cassandra\Type::bigint(),
                 array(
-                    Cassandra\Bigint::max(),
-                    Cassandra\Bigint::min(),
+                    new Cassandra\Bigint(PHP_INT_MAX),
+                    new Cassandra\Bigint(self::PHP_INT_MIN),
                     new Cassandra\Bigint("0"),
                     new Cassandra\Bigint("37")
                 )
@@ -1333,7 +1337,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                 Cassandra\Type::int(),
                 array(
                     2147483647,
-                    -2147483648,
+                    -2147483647 - 1, // Operation of INT32_MAX performed due to PHP v5.x edge case (casts to double and fails insert)
                     0,
                     148
                 )

@@ -125,7 +125,7 @@ abstract class DatatypeIntegrationTests extends IntegrationTest {
      * Create a new table with specified type and insert and verify value
      *
      * @param $type Cassandra\Type
-     * @param $options Cassandra\ExecutionOptions
+     * @param $options array
      * @param $key string
      * @param $value mixed
      */
@@ -141,7 +141,7 @@ abstract class DatatypeIntegrationTests extends IntegrationTest {
      * Insert a value into table
      *
      * @param $tableName string
-     * @param $options Cassandra\ExecutionOptions
+     * @param $options array
      */
     protected function insertValue($tableName, $options) {
         $insertQuery = "INSERT INTO $this->keyspace.$tableName (key, value) VALUES (?, ?)";

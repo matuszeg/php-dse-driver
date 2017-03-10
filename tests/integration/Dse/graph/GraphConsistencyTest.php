@@ -232,7 +232,8 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
             $this->execute_read(Dse::CONSISTENCY_THREE);
             $this->fail("Read should have failed for 'THREE' with one node down");
         } catch (Dse\Exception\InvalidQueryException $iqe) {
-            $this->assertContains("Cannot achieve consistency level",
+            $this->assertRegExp("(Cannot achieve consistency level|"
+                . "Operation timed out - received only 2 responses)",
                 $iqe->getMessage());
         }
     }

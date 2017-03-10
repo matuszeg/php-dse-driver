@@ -51,11 +51,11 @@ class Configuration {
     /**
      * Default Cassandra version to be used
      */
-    const DEFAULT_CASSANDRA_VERSION = "3.0.10";
+    const DEFAULT_CASSANDRA_VERSION = "3.0.11";
     /**
      * Default DSE version to be used
      */
-    const DEFAULT_DSE_VERSION = "5.0.5";
+    const DEFAULT_DSE_VERSION = "5.0.7";
 
     /**
      * @var bool Flag to determine if DSE is being used

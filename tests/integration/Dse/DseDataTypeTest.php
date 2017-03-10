@@ -101,12 +101,10 @@ class DseDataTypeTest extends DseIntegrationTest {
      */
     private function insert($id, $value, $statement = null) {
         // Create the execution options for the statement execution
-        $options = new Dse\ExecutionOptions(
-            array(
-                "arguments" => array(
-                    "id" => $id,
-                    "value" => $value
-                )
+        $options = array(
+            "arguments" => array(
+                "id" => $id,
+                "value" => $value
             )
         );
 

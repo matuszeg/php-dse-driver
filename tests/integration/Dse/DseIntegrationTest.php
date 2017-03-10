@@ -22,7 +22,6 @@ abstract class DseIntegrationTest extends IntegrationTest {
      *         [
      *             [0] => (Dse\Type|string) Data type
      *             [1] => (string) CQL data type
-     *             [2] => (Dse\Type\Timeuuid) Timeuuid generated value
      *             [3] => (mixed) Data type value
      *         ]
      *     ]
@@ -41,7 +40,6 @@ abstract class DseIntegrationTest extends IntegrationTest {
      *         [
      *             [0] => (Dse\Type|string) Data type
      *             [1] => (string) CQL data type
-     *             [2] => (Dse\Type\Timeuuid) Timeuuid generated value
      *             [3] => (mixed) Data type value
      *         ]
      *     ]
