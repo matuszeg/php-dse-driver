@@ -24,9 +24,7 @@ Feature: Simple Statements
   Scenario: Simple statements are initialized with a CQL string
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement("SELECT * FROM playlists");
       $result    = $session->execute($statement);
@@ -42,9 +40,7 @@ Feature: Simple Statements
   Scenario: Simple statements support positional arguments
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement(
                      "INSERT INTO playlists (id, song_id, artist, title, album) " .
@@ -102,9 +98,7 @@ Feature: Simple Statements
   Scenario: Simple statements also support named arguments
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement(
                      "INSERT INTO playlists (id, song_id, artist, title, album) " .
@@ -162,9 +156,7 @@ Feature: Simple Statements
   Scenario: Simple statements also supports ":name" arguments
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement(
           "INSERT INTO playlists (id, song_id, artist, title, album) " .

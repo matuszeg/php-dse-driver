@@ -58,9 +58,7 @@ Feature: Datatypes
       """
     And the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement("SELECT * FROM values");
       $result    = $session->execute($statement);
@@ -107,9 +105,7 @@ Feature: Datatypes
       """
     And the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
 
       $statement = new Dse\SimpleStatement("INSERT INTO values (id, tinyint_value, smallint_value) VALUES (?, ?, ?)");
@@ -152,9 +148,7 @@ Feature: Datatypes
       """
     And the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
 
       $statement = new Dse\SimpleStatement("INSERT INTO date_values (id, date_value) VALUES (?, ?)");
@@ -190,9 +184,7 @@ Feature: Datatypes
       """
     And the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
 
       $statement = new Dse\SimpleStatement("INSERT INTO time_values (id, time_value) VALUES (?, ?)");

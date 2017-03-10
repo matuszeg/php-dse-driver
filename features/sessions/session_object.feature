@@ -72,9 +72,7 @@ Feature: Session Object
       """
     And the following example:
       """php
-      $cluster          = Dse::cluster()
-                            ->withContactPoints('127.0.0.1')
-                            ->build();
+      $cluster          = Dse::cluster()->build();
       $french_session   = $cluster->connect("french");
       $german_session   = $cluster->connect("german");
       $uk_session       = $cluster->connect("uk");

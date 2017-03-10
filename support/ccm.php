@@ -620,7 +620,20 @@ class Bridge {
             $create_command[] = "-b";
             if ($cluster->ssl) {
                 $ssl_path = realpath(__DIR__ . DIRECTORY_SEPARATOR
-                    . "ssl" . DIRECTORY_SEPARATOR);
+                    . "ssl") . DIRECTORY_SEPARATOR;
+                if (!is_null($this->ssh)) {
+                    $files = array_diff(scandir($ssl_path), array("..", "."));
+                    var_dump($files);
+                    ssh2_exec($this->ssh, "mkdir -p .ccm/ssl");
+                    foreach ($files as $file) {
+                        $absolute_file = $ssl_path . $file;
+                        if (!ssh2_scp_send($this->ssh, $absolute_file, ".ccm/ssl/{$file}")) {
+                            throw new \Exception("Unable to Enable SSL: "
+                                .   "{$file} could not be copied to {$this->ssh_host}");
+                        }
+                    }
+                    $ssl_path = ".ccm/ssl/";
+                }
                 $create_command[] = "--ssl={$ssl_path}";
                 if ($cluster->client_authentication) {
                     $create_command[] = "--require_client_auth";
@@ -1261,8 +1274,10 @@ class Bridge {
                 stream_set_blocking($stream, true);
                 $output = "";
                 while ($buffer = fread($stream, 4096)) {
+                    flush();
                     $output .= $buffer;
                 }
+                fclose($stream);
                 if ($this->verbose) {
                     if (!empty(trim($output))) {
                         echo "CCM: {$output}" . PHP_EOL;

@@ -7,9 +7,7 @@ Feature: SSL encryption
     Given a running Cassandra cluster with SSL encryption
     And the following example:
       """php
-      $cluster = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster = Dse::cluster()->build();
 
       try {
           $session = $cluster->connect();
@@ -31,7 +29,6 @@ Feature: SSL encryption
                      ->withVerifyFlags(Dse::VERIFY_NONE)
                      ->build();
       $cluster = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
                      ->withSSL($ssl)
                      ->build();
 
@@ -57,7 +54,6 @@ Feature: SSL encryption
                      ->withTrustedCerts($_SERVER['SERVER_CERT'])
                      ->build();
       $cluster = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
                      ->withSSL($ssl)
                      ->build();
 
@@ -85,7 +81,6 @@ Feature: SSL encryption
                      ->withPrivateKey($_SERVER['PRIVATE_KEY'], $_SERVER['PASSPHRASE'])
                      ->build();
       $cluster = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
                      ->withSSL($ssl)
                      ->build();
 

@@ -42,9 +42,7 @@ Feature: Schema Metadata
   Scenario: Getting keyspace metadata
     Given the following example:
       """php
-      $cluster  = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->build();
+      $cluster  = Dse::cluster()->build();
       $session  = $cluster->connect("simplex");
 
       $schema   = $session->schema();
@@ -83,9 +81,7 @@ Feature: Schema Metadata
     Scenario: Getting table metadata
     Given the following example:
       """php
-      $cluster = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->build();
+      $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
 
       $schema  = $session->schema();
@@ -146,9 +142,7 @@ Feature: Schema Metadata
       """
     And the following example:
       """php
-      $cluster = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->build();
+      $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
 
       $schema  = $session->schema();
@@ -174,9 +168,7 @@ Feature: Schema Metadata
       """
     And the following example:
       """php
-      $cluster = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->build();
+      $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
       $schema  = $session->schema();
       $table   = $schema->keyspace("simplex")->table("values");
@@ -201,9 +193,7 @@ Feature: Schema Metadata
       """
     And the following example:
       """php
-      $cluster = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->build();
+      $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
       $schema  = $session->schema();
       $table   = $schema->keyspace("simplex")->table("values");
@@ -231,9 +221,7 @@ Feature: Schema Metadata
       """
     And the following example:
       """php
-      $cluster = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->build();
+      $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
       $schema  = $session->schema();
       $table   = $schema->keyspace("simplex")->table("values");
@@ -252,9 +240,7 @@ Feature: Schema Metadata
     Scenario: Getting metadata for column and types
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $schema    = $session->schema();
       $table     = $schema->keyspace("simplex")->table("values");
@@ -293,9 +279,7 @@ Feature: Schema Metadata
       """
     And the following example:
       """php
-      $cluster   = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $schema    = $session->schema();
       $keyspace  = $schema->keyspace("simplex");
@@ -329,9 +313,8 @@ Feature: Schema Metadata
     Given the following example:
       """php
       $cluster   = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->withSchemaMetadata(false)
-                         ->build();
+                       ->withSchemaMetadata(false)
+                       ->build();
       $session   = $cluster->connect("simplex");
       $schema    = $session->schema();
       echo count($schema->keyspaces()) . PHP_EOL;

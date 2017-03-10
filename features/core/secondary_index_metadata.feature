@@ -18,9 +18,7 @@ Feature: Secondary Index Metadata
   Scenario: Getting a index metadata
     Given the following example:
       """php
-      $cluster = Dse::cluster()
-                        ->withContactPoints('127.0.0.1')
-                        ->build();
+      $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
       $schema = $session->schema();
       $index = $schema->keyspace("simplex")->table("users")->index("name_index");
@@ -43,9 +41,7 @@ Feature: Secondary Index Metadata
   Scenario: Getting a index metadata with options
     Given the following example:
       """php
-      $cluster  = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->build();
+      $cluster  = Dse::cluster()->build();
       $session  = $cluster->connect("simplex");
 
       $schema   = $session->schema();
@@ -83,9 +79,7 @@ Feature: Secondary Index Metadata
       """
     And the following example:
       """php
-      $cluster  = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->build();
+      $cluster  = Dse::cluster()->build();
       $session  = $cluster->connect("simplex");
 
       $schema   = $session->schema();

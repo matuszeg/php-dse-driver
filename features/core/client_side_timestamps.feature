@@ -34,9 +34,7 @@ Feature: Client-side timestamps
   Scenario: Create a simple statement with a client-side timestamp
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $simple    = new Dse\SimpleStatement(
                      "INSERT INTO playlists (id, song_id, artist, title, album) " .
@@ -72,9 +70,7 @@ Feature: Client-side timestamps
   Scenario: Create a batch with a client-side timestamp
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $prepared  = $session->prepare(
                      "INSERT INTO playlists (id, song_id, artist, title, album) " .
@@ -133,7 +129,6 @@ Feature: Client-side timestamps
     Given the following example:
       """php
       $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
                      ->withTimestampGenerator(new Dse\TimestampGenerator\Monotonic())
                      ->build();
       $session   = $cluster->connect("simplex");

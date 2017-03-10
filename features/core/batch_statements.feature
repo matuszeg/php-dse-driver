@@ -35,9 +35,7 @@ Feature: Batch statements
   Scenario: Batch statements can contain simple and prepared statements
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $prepared  = $session->prepare(
                      "INSERT INTO playlists (id, song_id, artist, title, album) " .

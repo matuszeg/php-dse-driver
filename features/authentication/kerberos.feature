@@ -24,9 +24,9 @@ Feature: Kerberos Authentication
 
         // Indicate the connection was successful
         echo "Login successful" . PHP_EOL;
-    } catch (Dse\Exception\AuthenticationException $der) {
+    } catch (Dse\Exception\AuthenticationException $deae) {
         // Indicate the connection was unsuccessful
-        echo $der->getMessage() . PHP_EOL;
+        echo $deae->getMessage() . PHP_EOL;
     }
     """
 
@@ -46,9 +46,9 @@ Feature: Kerberos Authentication
 
     Scenario: Authenticating with improper GSSAPI principal
       But it is executed with improper GSSAPI principal, a Dse\Exception\AuthenticationException will occur
-      Then its output should contain:
+      Then its output should contain pattern:
       """
-      Can't find client principal invalid@DATASTAX.COM in cache collection
+      Can't find client principal invalid@DATASTAX.COM in cache collection|Failed to acquire principal credentials
       """
 
     Scenario: Authenticating with unauthorized GSSAPI principal

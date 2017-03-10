@@ -15,7 +15,6 @@ Feature: Migrating from the DataStax Driver for Apache Cassandra to the
       use Dse as Cassandra;
 
       $cluster = Cassandra::cluster()
-        ->withContactPoints("127.0.0.1")
         ->build();
 
       $session = $cluster->connect();

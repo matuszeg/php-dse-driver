@@ -24,9 +24,7 @@ Feature: User defined types
       """
     And the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $keyspace = $session->schema()->keyspace("simplex");
 
@@ -129,9 +127,7 @@ Feature: User defined types
       """
     And the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
 
       $statement = new Dse\SimpleStatement(

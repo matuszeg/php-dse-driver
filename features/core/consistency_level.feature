@@ -25,10 +25,8 @@ Feature: Consistency Level
     Given tracing is enabled
     And the following example:
       """php
-      $cluster     = Dse::cluster()
-                       ->withContactPoints('127.0.0.1')
-                       ->build();
-                       $session     = $cluster->connect("simplex");
+      $cluster     = Dse::cluster()->build();
+      $session     = $cluster->connect("simplex");
 
       $insertQuery = "INSERT INTO playlists (id, song_id, artist, title, album) " .
                      "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, " .
@@ -57,24 +55,22 @@ Feature: Consistency Level
       $sources = array_unique($sources);
 
       foreach ($sources as $source) {
-          echo $source . PHP_EOL;
+          echo str_replace($_SERVER["IP_PREFIX"], "", $source) . PHP_EOL;
       }
       """
     When it is executed
     Then its output should contain disregarding order:
       """
-      127.0.0.1
-      127.0.0.2
-      127.0.0.3
+      1
+      2
+      3
       """
   Scenario: Consistency levels are specified via an array of execution options
     Given tracing is enabled
     And the following example:
       """php
-      $cluster     = Dse::cluster()
-                       ->withContactPoints('127.0.0.1')
-                       ->build();
-                       $session     = $cluster->connect("simplex");
+      $cluster     = Dse::cluster()->build();
+      $session     = $cluster->connect("simplex");
 
       $insertQuery = "INSERT INTO playlists (id, song_id, artist, title, album) " .
                      "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, " .
@@ -94,15 +90,15 @@ Feature: Consistency Level
           array_push($sources, (string) $row['source']);
       }
       $sources = array_unique($sources);
-      asort($sources);
+
       foreach ($sources as $source) {
-          echo $source . "\n";
+          echo str_replace($_SERVER["IP_PREFIX"], "", $source) . PHP_EOL;
       }
       """
     When it is executed
-    Then its output should contain:
+    Then its output should contain disregarding order:
       """
-      127.0.0.1
-      127.0.0.2
-      127.0.0.3
+      1
+      2
+      3
       """

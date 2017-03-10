@@ -19,9 +19,7 @@ Feature: Materialized View Metadata
   Scenario: Getting a materialized view
     Given the following example:
       """php
-      $cluster = Dse::cluster()
-                        ->withContactPoints('127.0.0.1')
-                        ->build();
+      $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
       $schema = $session->schema();
       $view = $schema->keyspace("simplex")->materializedView("users_view");

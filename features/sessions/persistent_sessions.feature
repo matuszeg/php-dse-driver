@@ -20,9 +20,8 @@ Feature: Persistent Sessions
     Given a URI "connect.php" with:
       """php
       $cluster = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->withPersistentSessions(true)
-                         ->build();
+                     ->withPersistentSessions(true)
+                     ->build();
       $session = $cluster->connect();
       """
     When I go to "/connect.php" 5 times
@@ -35,17 +34,15 @@ Feature: Persistent Sessions
     Given a URI "connect.php" with:
       """php
       $cluster = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->withPersistentSessions(true)
-                         ->build();
+                     ->withPersistentSessions(true)
+                     ->build();
       $session = $cluster->connect();
       """
     And a URI "connect_system.php" with:
       """php
       $cluster = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->withPersistentSessions(true)
-                         ->build();
+                     ->withPersistentSessions(true)
+                     ->build();
       $session = $cluster->connect("system");
       """
     When I go to "/connect.php"
@@ -59,9 +56,8 @@ Feature: Persistent Sessions
     Given a URI "connect.php" with:
       """php
       $cluster = Dse::cluster()
-                         ->withContactPoints('127.0.0.1')
-                         ->withPersistentSessions(false)
-                         ->build();
+                     ->withPersistentSessions(false)
+                     ->build();
       $session = $cluster->connect();
       """
     When I go to "/connect.php"

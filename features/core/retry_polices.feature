@@ -32,7 +32,6 @@ Feature: Retry Policies
       """php
       $retry_policy = new Dse\RetryPolicy\DowngradingConsistency();
       $cluster     = Dse::cluster()
-                       ->withContactPoints('127.0.0.1')
                        ->withRetryPolicy(new Dse\RetryPolicy\Logging($retry_policy))
                        ->build();
       $session     = $cluster->connect("simplex");
@@ -70,9 +69,7 @@ Feature: Retry Policies
     And the following example:
       """php
       $retry_policy = new Dse\RetryPolicy\DowngradingConsistency();
-      $cluster     = Dse::cluster()
-                       ->withContactPoints('127.0.0.1')
-                       ->build();
+      $cluster     = Dse::cluster()->build();
       $session     = $cluster->connect("simplex");
       $statement   = $session->prepare("INSERT INTO playlists (id, song_id, artist, title, album)
                                         VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)");
@@ -109,9 +106,7 @@ Feature: Retry Policies
     And the following example:
       """php
       $retry_policy = new Dse\RetryPolicy\DowngradingConsistency();
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $prepared  = $session->prepare(
                      "INSERT INTO playlists (id, song_id, artist, title, album) " .

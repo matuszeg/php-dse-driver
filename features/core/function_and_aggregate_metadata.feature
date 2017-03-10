@@ -13,7 +13,7 @@ Feature: User-defined Function (UDF) and Aggregate Metadata (UDA)
       } AND DURABLE_WRITES = false;
       USE simplex;
       CREATE OR REPLACE FUNCTION fLog (input double) CALLED ON NULL INPUT RETURNS double LANGUAGE java AS 'return Double.valueOf(Math.log(input.doubleValue()));';
-      CREATE OR REPLACE FUNCTION avgState ( state tuple<int,bigint>, val int ) CALLED ON NULL INPUT RETURNS tuple<int,bigint> LANGUAGE java AS 'if (val !=null) { state.setInt(0, state.getInt(0)+1); state.setLong(1, state.getLong(1)+val.intValue()); } return state;';
+      CREATE OR REPLACE FUNCTION avgState ( state tuple<int,bigint>, val int ) CALLED ON NULL INPUT RETURNS tuple<int,bigint> LANGUAGE java AS 'state.setInt(0, state.getInt(0)+1); state.setLong(1, state.getLong(1)+val.intValue()); return state;';
       CREATE OR REPLACE FUNCTION avgFinal ( state tuple<int,bigint> ) CALLED ON NULL INPUT RETURNS double LANGUAGE java AS 'double r = 0; if (state.getInt(0) == 0) return null; r = state.getLong(1); r/= state.getInt(0); return Double.valueOf(r);';
       CREATE AGGREGATE IF NOT EXISTS average ( int ) SFUNC avgState STYPE tuple<int,bigint> FINALFUNC avgFinal INITCOND (0,0);
       """
@@ -21,9 +21,7 @@ Feature: User-defined Function (UDF) and Aggregate Metadata (UDA)
   Scenario: Getting a function's metadata
     Given the following example:
       """php
-      $cluster = Dse::cluster()
-                        ->withContactPoints('127.0.0.1')
-                        ->build();
+      $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
       $schema = $session->schema();
 
@@ -57,9 +55,7 @@ Feature: User-defined Function (UDF) and Aggregate Metadata (UDA)
   Scenario: Getting an aggregates's metadata
     Given the following example:
       """php
-      $cluster = Dse::cluster()
-                        ->withContactPoints('127.0.0.1')
-                        ->build();
+      $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
       $schema = $session->schema();
 

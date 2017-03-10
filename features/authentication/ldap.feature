@@ -25,7 +25,7 @@ Feature: LDAP Authentication
 
         // Indicate the connection was successful
         echo "Login successful" . PHP_EOL;
-    } catch (Dse\Exception\AuthenticationException $der) {
+    } catch (Dse\Exception\AuthenticationException $deae) {
         // Indicate the connection was unsuccessful
         echo "Login failed" . PHP_EOL;
     }

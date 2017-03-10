@@ -29,9 +29,7 @@ Feature: Collections
       """
     And the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement("SELECT * FROM user");
       $result    = $session->execute($statement);
@@ -80,9 +78,7 @@ Feature: Collections
       """
     And the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement(
                       "INSERT INTO users (id, name, addresses) VALUES (?, ?, ?)");

@@ -42,9 +42,7 @@ Feature: Result paging
   Scenario: Paging through results synchronously
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement("SELECT * FROM paging_entries");
       $options   = array('page_size' => 5);
@@ -86,9 +84,7 @@ Feature: Result paging
   Scenario: Accessing page info after loading next one
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement("SELECT * FROM paging_entries");
       $options   = array('page_size' => 10);
@@ -118,9 +114,7 @@ Feature: Result paging
   Scenario: Use paging state token to get next result
     Given the following example:
       """php
-      $cluster   = Dse::cluster()
-                     ->withContactPoints('127.0.0.1')
-                     ->build();
+      $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
       $statement = new Dse\SimpleStatement("SELECT * FROM paging_entries");
       $options = array('page_size' => 2);

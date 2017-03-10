@@ -45,6 +45,10 @@ trait CommonTraits {
      */
     private static $display_configuration = true;
     /**
+     * @var string Absolute path to PHP executable
+     */
+    private static $php_executable = array();
+    /**
      * @var string Example code to execute
      */
     private $example;
@@ -268,16 +272,8 @@ trait CommonTraits {
      * @Given a URI :uri with:
      */
     public function a_uri($uri, $contents) {
-        // Prepare the contents of the web page
-        $preparation = "include \"" . realpath(__DIR__ . "/../../vendor/autoload.php") . "\";";
-        foreach ($this->example_ini_settings as $setting => $value) {
-            $preparation .= PHP_EOL . "ini_set(\"{$setting}\", \"{$value}\");";
-        }
-        $contents = "<?php " . PHP_EOL
-            . $preparation . PHP_EOL
-            . $contents;
-
         // Create the web page
+        $contents = $this->prepare_example($contents);
         $this->a_file($uri, $contents);
     }
 
@@ -289,13 +285,7 @@ trait CommonTraits {
      * @Given /^the following example:$/
      */
     public function given_example(PyStringNode $example) {
-        $preparation = "include \"" . realpath(__DIR__ . "/../../vendor/autoload.php") . "\";";
-        foreach ($this->example_ini_settings as $setting => $value) {
-            $preparation .= PHP_EOL . "ini_set(\"{$setting}\", \"{$value}\");";
-        }
-        $this->example = "<?php " . PHP_EOL
-            . $preparation . PHP_EOL
-            . $example;
+        $this->example = $this->prepare_example($example);
     }
 
     /**
@@ -354,21 +344,31 @@ trait CommonTraits {
      */
     public function when_executed($configuration = array()) {
         // Create the process and apply the optional configurations
-        $process = new PhpProcess($this->example);
-        $process->setWorkingDirectory(sys_get_temp_dir());
+        $process_builder = ProcessBuilder::create(self::$php_executable)
+            ->setWorkingDirectory(sys_get_temp_dir())
+            ->setInput($this->example);
         if (array_key_exists("timeout", $configuration)) {
-            $process->setTimeout($configuration["timeout"]);
+            $process_builder->setTimeout($configuration["timeout"]);
         }
         if (array_key_exists("environment", $configuration)) {
-            $process->setEnv($configuration["environment"]);
+            foreach ($configuration["environment"] as $key => $value) {
+                $process_builder->setEnv($key, $value);
+            }
         }
+        // Ensure the IP prefix is available for the features to use
+        $process_builder->setEnv("IP_PREFIX", self::$ccm->ip_prefix());
 
         // Execute the PHP example code
+        $process = $process_builder->getProcess();
         $process->run(function ($type, $buffer) {
             if (self::$configuration->verbose) {
                 echo $buffer;
             }
         });
+        if (self::$configuration->verbose) {
+            echo "Process: [Exit Code: {$process->getExitCode()}] / "
+                . "[Exit Message: {$process->getExitCodeText()}]" . PHP_EOL;
+        }
 
         // Get the output and normalize the line endings
         $this->example_output = $process->getOutput();
@@ -395,10 +395,10 @@ trait CommonTraits {
 
         // Execute the example with the proper SSL credentials
         $this->when_executed(array("environment" => array(
-            "SERVER_CERT={$server_certificate}",
-            "CLIENT_CERT={$client_certificate}",
-            "PRIVATE_KEY={$private_key}",
-            "PASSPHRASE={$passphrase}"
+            "SERVER_CERT" => $server_certificate,
+            "CLIENT_CERT" => $client_certificate,
+            "PRIVATE_KEY" => $private_key,
+            "PASSPHRASE" => $passphrase
         )));
     }
 
@@ -503,10 +503,10 @@ trait CommonTraits {
      * @param PyStringNode $expected Expected output
      * @Then /^its output should contain disregarding order:$/
      */
-    public function then_output_contains_disregarding_error(PyStringNode $expected) {
+    public function then_output_contains_disregarding_order(PyStringNode $expected) {
         // Sort the expected and actual output values
         $expected = $expected->getStrings();
-        $actual = explode(PHP_EOL, $this->example_output);
+        $actual = explode("\n", $this->example_output);
         sort($expected);
         sort($actual);
         $expected = implode(PHP_EOL, $expected);
@@ -524,6 +524,40 @@ trait CommonTraits {
     public function then_output_contains_pattern(PyStringNode $expected) {
         PHPUnit_Framework_Assert::assertRegExp("/" . (string) $expected . "/",
             $this->example_output);
+    }
+
+    /**
+     * Apply/Prepare example for execution
+     *
+     * This method will handle ini setting updates as well as prepare any
+     * clusters for remote CCM instances
+     *
+     * @param PyStringNode $example Content/Example to prepare
+     * @return string Prepared content/example
+     */
+    private function prepare_example(PyStringNode $example) {
+        $autoload_file = realpath(__DIR__ . "/../../vendor/autoload.php");
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ||
+            strtoupper(substr(PHP_OS, 0, 6)) === 'CYGWIN') {
+            $autoload_file = str_replace("\\", "\\\\", $autoload_file);
+        }
+        $preparation = "include \"" . $autoload_file . "\";" . PHP_EOL
+            . "ini_set(\"date.timezone\", \"America/New_York\");";
+        foreach ($this->example_ini_settings as $setting => $value) {
+            $preparation .= PHP_EOL . "ini_set(\"{$setting}\", \"{$value}\");" . PHP_EOL;
+        }
+        if (self::$configuration->ssh_host) {
+            $contact_point = self::$configuration->ssh_host;
+            $example = str_replace("Dse::cluster()",
+                "Dse::cluster()->withContactPoints(\"{$contact_point}\")",
+                (string) $example);
+            $example = str_replace("Cassandra::cluster()",
+                "Cassandra::cluster()->withContactPoints(\"{$contact_point}\")",
+                (string) $example);
+        }
+        return "<?php" . PHP_EOL
+            . $preparation . PHP_EOL
+            . $example;
     }
 
     /**
@@ -554,6 +588,21 @@ trait CommonTraits {
     }
 
     /**
+     * Get the default session. This method should be used for setting up the
+     * features using the driver.
+     *
+     * @return Dse\Session Default session instance
+     */
+    private static function default_session() {
+        // Determine if remote host (SSH) is being used or local instances
+        $cluster = Dse::cluster();
+        if (self::$configuration->ssh_host) {
+            $cluster->withContactPoints(self::$configuration->ssh_host);
+        }
+        return $cluster->build()->connect();
+    }
+
+    /**
      * Initialization for the context feature
      *
      * @param HookScope $scope Scope to gather initialization information from
@@ -576,7 +625,7 @@ trait CommonTraits {
         if (self::get_value("cassandra_version", $settings)) {
             self::$configuration->dse = false;
             self::$configuration->version =
-                new Dse\Version(self::get_value("cassandra_version", $settings));
+                new Cassandra\Version(self::get_value("cassandra_version", $settings));
         } else if (self::get_value("dse_version", $settings)) {
             self::$configuration->dse = true;
             self::$configuration->version =
@@ -587,6 +636,30 @@ trait CommonTraits {
 
         // Print the current settings (will be performed only once)
         self::print_settings();
+
+        // Get the PHP process (locate only once)
+        if (empty(self::$php_executable)) {
+            /**
+             * Add `exec` to the ADS command to properly terminate process
+             * chain.
+             *
+             * NOTE: Due to some limitations in PHP, if you want to get the pid
+             *       of a symfony Process, you may have to prefix your commands
+             *       with exec.
+             *       Please read Symfony Issue #5759 to understand why this is
+             *       happening.
+             *       https://github.com/symfony/symfony/issues/5759
+             */
+            if ("\\" !== DIRECTORY_SEPARATOR) {
+                self::$php_executable[] = "exec";
+            }
+
+            // Locate the PHP executable
+            $finder = new PhpExecutableFinder();
+            if (false === self::$php_executable[] = $finder->find()) {
+                throw new \Exception("Unable to locate PHP executable");
+            }
+        }
     }
 
     /**

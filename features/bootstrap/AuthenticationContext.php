@@ -38,10 +38,10 @@ class AuthenticationContext implements Context {
      * @BeforeFeature @ads
      */
     public static function setup_feature_ads(BeforeFeatureScope $scope) {
-        self::$ads = new EmbeddedAds(self::$configuration->verbose);
+        self::$ads = new EmbeddedAds(self::$configuration);
         self::$ads->start();
         self::$ads->acquire_ticket(EmbeddedAds::CASSANDRA_SERVICE_PRINCIPAL,
-            self::$ads->cassandra_keytab_file);
+            self::$ads->cassandra_keytab_file["client"]);
     }
 
     /**
@@ -101,10 +101,10 @@ class AuthenticationContext implements Context {
         }
         $dse[] = "kerberos_options.service_principal:" . EmbeddedAds::DSE_SERVICE_PRINCIPAL;
         $dse[] = "kerberos_options.http_principal:" . EmbeddedAds::DSE_SERVICE_PRINCIPAL;
-        $dse[] = "kerberos_options.keytab:" . self::$ads->dse_keytab_file;
+        $dse[] = "kerberos_options.keytab:" . self::$ads->dse_keytab_file["server"];
         $dse[] = "kerberos_options.qop:auth";
         $jvm[] = "-Dcassandra.superuser_setup_delay_ms=0";
-        $jvm[] = "-Djava.security.krb5.conf=" . self::$ads->configuration_file;
+        $jvm[] = "-Djava.security.krb5.conf=" . self::$ads->configuration_file["server"];
 
         // Start the DSE cluster
         $this->a_running_cluster_with_nodes("DSE", 1, array(
@@ -134,7 +134,7 @@ class AuthenticationContext implements Context {
         }
         $dse[] = "ldap_options.search_dn:uid=cassandra,ou=users,dc=datastax,dc=com";
         $dse[] = "ldap_options.search_password:cassandra";
-        $dse[] = "ldap_options.server_host:" . EmbeddedAds::HOST;
+        $dse[] = "ldap_options.server_host:" . self::$ads->host;
         $dse[] = "ldap_options.server_port:" . EmbeddedAds::LDAP_PORT;
         $dse[] = "ldap_options.user_search_base:ou=users,dc=datastax,dc=com";
         $dse[] = "ldap_options.user_search_filter:(uid={0})";
@@ -150,18 +150,18 @@ class AuthenticationContext implements Context {
 
     /**
      * Execute the PHP example code with GSSAPI service and principal
-     * environment variables; S: dse, P: @see EmbeddedAds::DSE_SERVICE_PRINCIPAL
+     * environment variables; S: dse, P: @see EmbeddedAds::CASSANDRA_SERVICE_PRINCIPAL
      *
      * @Given it is executed with proper GSSAPI credentials
      */
     public function executed_with_proper_gssapi_credentials() {
         self::$ads->acquire_ticket(EmbeddedAds::CASSANDRA_SERVICE_PRINCIPAL,
-            self::$ads->cassandra_keytab_file);
+            self::$ads->cassandra_keytab_file["client"]);
 
         $this->when_executed(array("environment" => array(
-            "KRB5_CONFIG=" . self::$ads->configuration_file,
-            "SERVICE=dse",
-            "PRINCIPAL=". EmbeddedAds::CASSANDRA_SERVICE_PRINCIPAL
+            "KRB5_CONFIG" => self::$ads->configuration_file["client"],
+            "SERVICE" => "dse",
+            "PRINCIPAL" => EmbeddedAds::CASSANDRA_SERVICE_PRINCIPAL
         )));
     }
 
@@ -173,23 +173,23 @@ class AuthenticationContext implements Context {
      */
     public function executed_with_improper_gssapi_principal() {
         $this->when_executed(array("environment" => array(
-            "KRB5_CONFIG=" . self::$ads->configuration_file,
-            "SERVICE=dse",
-            "PRINCIPAL=invalid@". EmbeddedAds::REALM
+            "KRB5_CONFIG" => self::$ads->configuration_file["client"],
+            "SERVICE" => "dse",
+            "PRINCIPAL" => "invalid@". EmbeddedAds::REALM
         )));
     }
 
     /**
      * Execute the PHP example code with GSSAPI service and principal
-     * environment variables; S: invalid, P: @see EmbeddedAds::DSE_SERVICE_PRINCIPAL
+     * environment variables; S: invalid, P: @see EmbeddedAds::CASSANDRA_SERVICE_PRINCIPAL
      *
      * @Given it is executed with improper GSSAPI service provider, a Dse\Exception\AuthenticationException will occur
      */
     public function executed_with_improper_gssapi_service_provider() {
         $this->when_executed(array("environment" => array(
-            "KRB5_CONFIG=" . self::$ads->configuration_file,
-            "SERVICE=invalid",
-            "PRINCIPAL=". EmbeddedAds::CASSANDRA_SERVICE_PRINCIPAL
+            "KRB5_CONFIG" => self::$ads->configuration_file["client"],
+            "SERVICE" => "invalid",
+            "PRINCIPAL" => EmbeddedAds::CASSANDRA_SERVICE_PRINCIPAL
         )));
     }
 
@@ -202,12 +202,12 @@ class AuthenticationContext implements Context {
     public function executed_with_unauthorized_gssapi_principal() {
         // Ensure the dseuser principal ticket is available
         self::$ads->acquire_ticket(EmbeddedAds::DSEUSER_SERVICE_PRINCIPAL,
-            self::$ads->dseuser_keytab_file);
+            self::$ads->dseuser_keytab_file["client"]);
 
         $this->when_executed(array("environment" => array(
-            "KRB5_CONFIG=" . self::$ads->configuration_file,
-            "SERVICE=dse",
-            "PRINCIPAL=". EmbeddedAds::DSEUSER_SERVICE_PRINCIPAL
+            "KRB5_CONFIG" => self::$ads->configuration_file["client"],
+            "SERVICE" => "dse",
+            "PRINCIPAL" => EmbeddedAds::DSEUSER_SERVICE_PRINCIPAL
         )));
     }
 
@@ -219,8 +219,8 @@ class AuthenticationContext implements Context {
      */
     public function executed_with_proper_credentials() {
         $this->when_executed(array("environment" => array(
-            "USERNAME=cassandra",
-            "PASSWORD=cassandra"
+            "USERNAME" => "cassandra",
+            "PASSWORD" => "cassandra"
         )));
     }
 
@@ -232,8 +232,8 @@ class AuthenticationContext implements Context {
      */
     public function executed_with_improper_credentials() {
         $this->when_executed(array("environment" => array(
-            "USERNAME=invalid",
-            "PASSWORD=credentials"
+            "USERNAME" => "invalid",
+            "PASSWORD" => "credentials"
         )));
     }
 }

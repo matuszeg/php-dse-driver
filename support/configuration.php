@@ -19,13 +19,15 @@
  *                       | NOTE: If available, SSH connection is in use and is
  *                       |       pointing to a valid filename; the file will be
  *                       |       copied to remote host and used for DSE
- *                               download authentication
+ *                       |       download authentication
  *     "DSE_USERNAME"    | Username for DSE download authentication
  *     "DSE_PASSWORD"    | Password for DSE download authentication
  *     "KEEP_CLUSTERS"   | If available and true; CCM clusters will not be
  *                       | removed on startup and shutdown
  *     "PREFIX"          | Cluster prefix to use (default: php-driver)
- *     "SSH_HOST"        | If available; host/IPv4 to use for SSH connection
+ *     "SSH_HOST"        | If available; IPv4 to use for SSH connection
+ *                       | (default: disabled)
+ *     "SSH_HOSTNAME"    | If available; DNS hostname to use for SSH connection
  *                       | (default: disabled)
  *     "SSH_PASSWORD"    | Password to use for username/password authentication
  *                       | or for private key passphrase using public key
@@ -85,10 +87,15 @@ class Configuration {
      */
     private $prefix = "php-driver";
     /**
-     * @var bool|string Host/IPv4 address to use for SSH deployments; false if
-     *                  not utilized
+     * @var bool|string IPv4 address to use for SSH deployments; false if not
+     *                  utilized
      */
     private $ssh_host = false;
+    /**
+     * @var bool|string DNS hostname to use for SSH deployments; false if not
+     *                  utilized
+     */
+    private $ssh_hostname = false;
     /**
      * @var string Password to use for SSH deployments
      */
@@ -171,8 +178,11 @@ class Configuration {
         echo "  Deployment: ";
         if ($this->ssh_host) {
             echo "SSH" . PHP_EOL
-                . "    Host: {$this->ssh_host}:{$this->ssh_port}" . PHP_EOL
-                . "    Username: {$this->ssh_username}";
+                . "    Host: {$this->ssh_host}:{$this->ssh_port}" . PHP_EOL;
+                if ($this->ssh_hostname) {
+                    echo "    Hostname: {$this->ssh_hostname}" . PHP_EOL;
+                }
+                echo "    Username: {$this->ssh_username}";
             if (!is_null($this->ssh_password)) {
                 echo PHP_EOL . "    Password: {$this->ssh_password}";
             }
@@ -210,6 +220,9 @@ class Configuration {
         // Determine if SSH deployment settings are to be overridden
         if (isset($_SERVER["SSH_HOST"])) {
             $this->ssh_host = filter_var($_SERVER["SSH_HOST"], FILTER_VALIDATE_IP);
+        }
+        if (isset($_SERVER["SSH_HOSTNAME"])) {
+            $this->ssh_hostname = $_SERVER["SSH_HOSTNAME"];
         }
         if (isset($_SERVER["SSH_PUBLIC_KEY"]) &&
             isset($_SERVER["SSH_PRIVATE_KEY"])) {
