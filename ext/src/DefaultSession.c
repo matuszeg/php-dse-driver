@@ -1087,14 +1087,12 @@ graph_object_from_map(php_driver_map *map,
 {
   int rc = SUCCESS;
   php_driver_type *type;
-  php_driver_type *key_type;
   php_driver_type *value_type;
   DseGraphObject *object;
   php_driver_map_entry *curr, *temp;
 
   type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(map->type));
   value_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.map.value_type));
-  key_type = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(type->data.map.key_type));
   object = dse_graph_object_new();
 
   HASH_ITER(hh, map->entries, curr, temp) {
@@ -1131,7 +1129,10 @@ graph_array_from_tuple(php_driver_tuple *tuple,
   PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(&tuple->values, num_key, current) {
     php5to7_zval *zsub_type;
     php_driver_type *sub_type;
-    PHP5TO7_ZEND_HASH_INDEX_FIND(&type->data.tuple.types, num_key, zsub_type);
+    if (!PHP5TO7_ZEND_HASH_INDEX_FIND(&type->data.tuple.types, num_key, zsub_type)) {
+      rc = FAILURE;
+      break;
+    }
     if (!php_driver_validate_object(PHP5TO7_ZVAL_MAYBE_DEREF(current),
                                        PHP5TO7_ZVAL_MAYBE_DEREF(zsub_type) TSRMLS_CC)) {
       rc = FAILURE;
@@ -1201,14 +1202,14 @@ graph_determine_array_type(zval *value) {
   HashTable *ht = Z_ARRVAL_P(value);
 
   if (ht && zend_hash_num_elements(ht) > 0) {
-    php5to7_zval *current;
     ulong num_key, index = 0;
 
 #if PHP_MAJOR_VERSION >= 7
     zend_string *key;
-    ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, key, current) {
+    ZEND_HASH_FOREACH_KEY(ht, num_key, key) {
       if (key) {
 #else
+    php5to7_zval *current;
     char *str_key;
     uint str_len;
     PHP5TO7_ZEND_HASH_FOREACH_KEY_VAL(ht, num_key, str_key, str_len, current) {
@@ -1608,9 +1609,8 @@ graph_build_array(zval *value,
   HashTable *ht = Z_ARRVAL_P(value);
   DseGraphArray *array = dse_graph_array_new();
 
-  php5to7_ulong num_key;
   php5to7_zval *current;
-  PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(ht, num_key, current) {
+  PHP5TO7_ZEND_HASH_FOREACH_VAL(ht, current) {
     CassError r = graph_array_add(array, PHP5TO7_ZVAL_MAYBE_DEREF(current) TSRMLS_CC);
     ASSERT_SUCCESS_BLOCK(r, rc = FAILURE; break;);
   } PHP5TO7_ZEND_HASH_FOREACH_END(ht);
@@ -2288,7 +2288,7 @@ PHP_METHOD(DefaultSession, executeGraph)
     dse_graph_statement_free(graph_statement);
 
     if (options) {
-      PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "timeout", sizeof("timeout"), timeout);
+      (void) PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "timeout", sizeof("timeout"), timeout);
     }
 
     do {

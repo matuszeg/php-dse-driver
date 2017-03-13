@@ -126,6 +126,7 @@ char *php_driver_polygon_to_wkt(php_driver_polygon *polygon TSRMLS_DC)
     // Traverse the rings array and iteratively build "wkt".
     php5to7_ulong num_key;
     php5to7_zval *ring_obj;
+    char *temp_string;
     smart_str wkt = PHP5TO7_SMART_STR_INIT;
     smart_str_appends(&wkt, "POLYGON (");
 
@@ -149,8 +150,9 @@ char *php_driver_polygon_to_wkt(php_driver_polygon *polygon TSRMLS_DC)
     // Wrap up the wkt.
     smart_str_appendc(&wkt, ')');
     smart_str_0(&wkt);
+    temp_string = PHP5TO7_SMART_STR_VAL(wkt);
     result = ecalloc(PHP5TO7_SMART_STR_LEN(wkt) + 1, 1);
-    strncpy(result, PHP5TO7_SMART_STR_VAL(wkt), PHP5TO7_SMART_STR_LEN(wkt));
+    strncpy(result, temp_string, PHP5TO7_SMART_STR_LEN(wkt));
     smart_str_free(&wkt);
   } else {
     spprintf(&result, 0, "%s", "POLYGON EMPTY");
@@ -170,6 +172,7 @@ char *php_driver_polygon_to_string(php_driver_polygon *polygon TSRMLS_DC)
     php5to7_ulong num_key;
     php5to7_zval *ring_obj;
     char *ring_string;
+    char *temp_string;
     smart_str to_string = PHP5TO7_SMART_STR_INIT;
 
     PHP5TO7_ZEND_HASH_FOREACH_NUM_KEY_VAL(rings, num_key, ring_obj) {
@@ -205,8 +208,9 @@ char *php_driver_polygon_to_string(php_driver_polygon *polygon TSRMLS_DC)
 
     // Wrap up the toString representation.
     smart_str_0(&to_string);
+    temp_string = PHP5TO7_SMART_STR_VAL(to_string);
     result = ecalloc(PHP5TO7_SMART_STR_LEN(to_string) + 1, 1);
-    strncpy(result, PHP5TO7_SMART_STR_VAL(to_string), PHP5TO7_SMART_STR_LEN(to_string));
+    strncpy(result, temp_string, PHP5TO7_SMART_STR_LEN(to_string));
     smart_str_free(&to_string);
   } else {
     result = emalloc(1);
