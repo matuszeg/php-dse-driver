@@ -71,5 +71,7 @@ rm -rf %{buildroot}
 %{php_extdir}/dse.so
 
 %changelog
+* Mon Mar 20 2017 Michael Penick <michael.penick@datastax.com> - 1.0.0-1
+- release
 * Wed Jan 18 2017 Michael Penick <michael.penick@datastax.com> - 1.0.0rc1-1
 - rc1 release
