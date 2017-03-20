@@ -1,10 +1,3 @@
-/*
-  Copyright (c) 2017 DataStax, Inc.
-
-  This software can be used solely with DataStax Enterprise. Please consult the
-  license at http://www.datastax.com/terms/datastax-dse-driver-license-terms
-*/
-
 #ifndef PHP_DRIVER_VERSION_H
 #define PHP_DRIVER_VERSION_H
 
@@ -13,7 +6,7 @@
 #define PHP_DRIVER_MAJOR        1
 #define PHP_DRIVER_MINOR        0
 #define PHP_DRIVER_RELEASE      0
-#define PHP_DRIVER_STABILITY    "rc1"
+#define PHP_DRIVER_STABILITY    "stable"
 #define PHP_DRIVER_VERSION      "1.0.0"
 #define PHP_DRIVER_VERSION_FULL "1.0.0"
 

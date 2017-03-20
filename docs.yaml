@@ -37,4 +37,4 @@ links:
 #    href:  https://github.com/datastax/php-driver-dse-private/releases
 versions:
   - name: v1.0
-    ref:  HEAD
+    ref: v1.0.0
