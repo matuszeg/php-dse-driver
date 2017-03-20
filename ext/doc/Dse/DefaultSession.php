@@ -15,68 +15,84 @@ final class DefaultSession implements Session {
 
     /**
      * {@inheritDoc}
-     * @param mixed $statement {@inheritDoc}
-     * @param mixed $options {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @param string|Statement $statement {@inheritDoc}
+     * @param array|ExecutionOptions|null $options {@inheritDoc}
+     *
+     * @return Rows {@inheritDoc}
      */
     public function execute($statement, $options) { }
 
     /**
      * {@inheritDoc}
-     * @param mixed $statement {@inheritDoc}
-     * @param mixed $options {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @param string|Statement $statement {@inheritDoc}
+     * @param array|ExecutionOptions|null $options {@inheritDoc}
+     *
+     * @return FutureRows {@inheritDoc}
      */
     public function executeAsync($statement, $options) { }
 
     /**
      * {@inheritDoc}
-     * @param mixed $cql {@inheritDoc}
-     * @param mixed $options {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @param string $cql {@inheritDoc}
+     * @param ExecutionOptions $options {@inheritDoc}
+     *
+     * @return PreparedStatement {@inheritDoc}
      */
     public function prepare($cql, $options) { }
 
     /**
      * {@inheritDoc}
-     * @param mixed $cql {@inheritDoc}
-     * @param mixed $options {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @param string $cql {@inheritDoc}
+     * @param ExecutionOptions $options {@inheritDoc}
+     *
+     * @return FuturePreparedStatement {@inheritDoc}
      */
     public function prepareAsync($cql, $options) { }
 
     /**
      * {@inheritDoc}
-     * @param mixed $timeout {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @param double $timeout {@inheritDoc}
+     *
+     * @return null {@inheritDoc}
      */
     public function close($timeout) { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return FutureClose {@inheritDoc}
      */
     public function closeAsync() { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return Schema {@inheritDoc}
      */
     public function schema() { }
 
     /**
      * {@inheritDoc}
-     * @param mixed $statement {@inheritDoc}
-     * @param mixed $options {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @param string|Graph\Statement $statement {@inheritDoc}
+     * @param array $options {@inheritDoc}
+     *
+     * @return Graph\ResultSet {@inheritDoc}
      */
     public function executeGraph($statement, $options) { }
 
     /**
      * {@inheritDoc}
-     * @param mixed $statement {@inheritDoc}
-     * @param mixed $options {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @param string|Graph\Statement $statement {@inheritDoc}
+     * @param array $options {@inheritDoc}
+     *
+     * @return Graph\FutureResultSet {@inheritDoc}
      */
     public function executeGraphAsync($statement, $options) { }
 

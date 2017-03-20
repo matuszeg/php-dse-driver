@@ -9,7 +9,7 @@
 namespace Dse\Exception;
 
 /**
- * DSE logic exception.
+ * Logic exception.
  */
 class LogicException extends \LogicException implements Exception {
 

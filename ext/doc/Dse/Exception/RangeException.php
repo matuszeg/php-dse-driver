@@ -9,7 +9,7 @@
 namespace Dse\Exception;
 
 /**
- * DSE domain exception.
+ * Range exception.
  */
 class RangeException extends \RangeException implements Exception {
 

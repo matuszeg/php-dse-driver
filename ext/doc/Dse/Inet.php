@@ -15,24 +15,28 @@ final class Inet implements Value {
 
     /**
      * Creates a new IPv4 or IPv6 inet address.
+     *
      * @param string $address any IPv4 or IPv6 address
      */
     public function __construct($address) { }
 
     /**
      * Returns the normalized string representation of the address.
+     *
      * @return string address
      */
     public function __toString() { }
 
     /**
      * The type of this inet.
+     *
      * @return Type
      */
     public function type() { }
 
     /**
      * Returns the normalized string representation of the address.
+     *
      * @return string address
      */
     public function address() { }

@@ -9,7 +9,7 @@
 namespace Dse\Exception;
 
 /**
- * DSE domain exception.
+ * Divide by zero exception.
  */
 class DivideByZeroException extends RangeException  {
 

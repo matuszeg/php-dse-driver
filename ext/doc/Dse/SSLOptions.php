@@ -9,7 +9,7 @@
 namespace Dse;
 
 /**
- * SSL options for Dse\Cluster.
+ * SSL options for Cluster.
  *
  * @see SSLOptions\Builder
  */

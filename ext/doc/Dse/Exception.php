@@ -11,7 +11,7 @@ namespace Dse;
 /**
  * An interface implemented by all exceptions thrown by the PHP Driver.
  * Makes it easy to catch all driver-related exceptions using
- * `catch (Dse\Exception $e)`.
+ * `catch (Exception $e)`.
  */
 interface Exception {
 

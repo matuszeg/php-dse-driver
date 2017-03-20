@@ -15,6 +15,7 @@ final class SimpleStatement implements Statement {
 
     /**
      * Construct a graph statement with a string query.
+     *
      * @param string $query The graph query.
      */
     public function __construct($query) { }

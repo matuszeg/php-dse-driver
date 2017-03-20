@@ -16,8 +16,7 @@ final class Logging implements RetryPolicy {
     /**
      * Creates a new Logging retry policy.
      *
-     *                                           Dse\Logging
-     * @param Dse\RetryPolicy $childPolicy Any retry policy other than
+     * @param RetryPolicy $childPolicy Any retry policy other than Logging
      */
     public function __construct($childPolicy) { }
 

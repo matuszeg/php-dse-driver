@@ -14,54 +14,57 @@ namespace Dse;
 final class Smallint implements Value, Numeric {
 
     /**
-     * Creates a new 16bit integer.
-     * @param string $value integer value as a string
+     * Creates a new 16-bit signed integer.
+     *
+     * @param int|double|string $value The value as an integer, double or string
      */
     public function __construct($value) { }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function __toString() { }
 
     /**
      * The type of this value (smallint).
+     *
      * @return Type
      */
     public function type() { }
 
     /**
      * Returns the integer value.
+     *
      * @return int integer value
      */
     public function value() { }
 
     /**
-     * @param Dse\Numeric $num a number to add to this one
+     * @param Numeric $num a number to add to this one
      * @return Numeric sum
      */
     public function add($num) { }
 
     /**
-     * @param Dse\Numeric $num a number to subtract from this one
+     * @param Numeric $num a number to subtract from this one
      * @return Numeric difference
      */
     public function sub($num) { }
 
     /**
-     * @param Dse\Numeric $num a number to multiply this one by
+     * @param Numeric $num a number to multiply this one by
      * @return Numeric product
      */
     public function mul($num) { }
 
     /**
-     * @param Dse\Numeric $num a number to divide this one by
+     * @param Numeric $num a number to divide this one by
      * @return Numeric quotient
      */
     public function div($num) { }
 
     /**
-     * @param Dse\Numeric $num a number to divide this one by
+     * @param Numeric $num a number to divide this one by
      * @return Numeric remainder
      */
     public function mod($num) { }
@@ -93,12 +96,14 @@ final class Smallint implements Value, Numeric {
 
     /**
      * Minimum possible Smallint value
+     *
      * @return Smallint minimum value
      */
     public static function min() { }
 
     /**
      * Maximum possible Smallint value
+     *
      * @return Smallint maximum value
      */
     public static function max() { }

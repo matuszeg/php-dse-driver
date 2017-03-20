@@ -15,6 +15,7 @@ final class Map implements Value, \Countable, \Iterator, \ArrayAccess {
 
     /**
      * Creates a new map of a given key and value type.
+     *
      * @param Type $keyType
      * @param Type $valueType
      */
@@ -22,26 +23,31 @@ final class Map implements Value, \Countable, \Iterator, \ArrayAccess {
 
     /**
      * The type of this map.
+     *
      * @return Type
      */
     public function type() { }
 
     /**
      * Returns all keys in the map as an array.
+     *
      * @return array keys
      */
     public function keys() { }
 
     /**
      * Returns all values in the map as an array.
+     *
      * @return array values
      */
     public function values() { }
 
     /**
      * Sets key/value in the map.
+     *
      * @param mixed $key key
      * @param mixed $value value
+     *
      * @return mixed
      */
     public function set($key, $value) { }
@@ -50,6 +56,7 @@ final class Map implements Value, \Countable, \Iterator, \ArrayAccess {
      * Gets the value of the key in the map.
      *
      * @param mixed $key Key
+     *
      * @return mixed Value or null
      */
     public function get($key) { }
@@ -58,6 +65,7 @@ final class Map implements Value, \Countable, \Iterator, \ArrayAccess {
      * Removes the key from the map.
      *
      * @param mixed $key Key
+     *
      * @return bool Whether the key was removed or not, e.g. didn't exist
      */
     public function remove($key) { }
@@ -66,42 +74,49 @@ final class Map implements Value, \Countable, \Iterator, \ArrayAccess {
      * Returns whether the key is in the map.
      *
      * @param mixed $key Key
+     *
      * @return bool Whether the key is in the map or not
      */
     public function has($key) { }
 
     /**
      * Total number of elements in this map
+     *
      * @return int count
      */
     public function count() { }
 
     /**
      * Current value for iteration
+     *
      * @return mixed current value
      */
     public function current() { }
 
     /**
      * Current key for iteration
+     *
      * @return int current key
      */
     public function key() { }
 
     /**
      * Move internal iterator forward
+     *
      * @return void
      */
     public function next() { }
 
     /**
      * Check whether a current value exists
+     *
      * @return bool
      */
     public function valid() { }
 
     /**
      * Rewind internal iterator
+     *
      * @return void
      */
     public function rewind() { }
@@ -109,10 +124,11 @@ final class Map implements Value, \Countable, \Iterator, \ArrayAccess {
     /**
      * Sets the value at a given key
      *
-     * @throws Exception\InvalidArgumentException when the type of key or value is wrong
-     *
      * @param mixed $key Key to use.
      * @param mixed $value Value to set.
+     *
+     * @throws Exception\InvalidArgumentException when the type of key or value is wrong
+     *
      * @return void
      */
     public function offsetSet($key, $value) { }
@@ -120,8 +136,10 @@ final class Map implements Value, \Countable, \Iterator, \ArrayAccess {
     /**
      * Retrieves the value at a given key
      *
-     * @throws Exception\InvalidArgumentException when the type of key is wrong
      * @param mixed $key Key to use.
+     *
+     * @throws Exception\InvalidArgumentException when the type of key is wrong
+     *
      * @return mixed Value or `null`
      */
     public function offsetGet($key) { }
@@ -129,9 +147,10 @@ final class Map implements Value, \Countable, \Iterator, \ArrayAccess {
     /**
      * Deletes the value at a given key
      *
+     * @param mixed $key Key to use.
+     *
      * @throws Exception\InvalidArgumentException when the type of key is wrong
      *
-     * @param mixed $key Key to use.
      * @return void
      */
     public function offsetUnset($key) { }
@@ -139,9 +158,10 @@ final class Map implements Value, \Countable, \Iterator, \ArrayAccess {
     /**
      * Returns whether the value a given key is present
      *
+     * @param mixed $key Key to use.
+     *
      * @throws Exception\InvalidArgumentException when the type of key is wrong
      *
-     * @param mixed $key Key to use.
      * @return bool Whether the value at a given key is present
      */
     public function offsetExists($key) { }

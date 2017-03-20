@@ -15,12 +15,14 @@ interface UuidInterface {
 
     /**
      * Returns this uuid as string.
+     *
      * @return string uuid as string
      */
     public function uuid();
 
     /**
      * Returns the version of this uuid.
+     *
      * @return int version of this uuid
      */
     public function version();

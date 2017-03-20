@@ -17,44 +17,52 @@ final class DefaultVertexProperty extends VertexProperty  {
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return string {@inheritDoc}
      */
     public function name() { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return Graph\Result {@inheritDoc}
      */
     public function value() { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return Graph\Result {@inheritDoc}
      */
     public function parent() { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return Graph\Result {@inheritDoc}
      */
     public function id() { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return string {@inheritDoc}
      */
     public function label() { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return array {@inheritDoc}
      */
     public function properties() { }
 
     /**
      * {@inheritDoc}
-     * @param mixed $key {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @param string $key {@inheritDoc}
+     *
+     * @return Graph\Result {@inheritDoc}
      */
     public function property($key) { }
 

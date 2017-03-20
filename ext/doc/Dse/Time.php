@@ -15,29 +15,31 @@ final class Time implements Value {
 
     /**
      * Creates a new Time object
+     *
      * @param int|string $nanoseconds Number of nanoseconds since last microsecond
      */
     public function __construct($nanoseconds) { }
 
     /**
      * The type of this date.
+     *
      * @return Type
      */
     public function type() { }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function seconds() { }
 
     /**
      * @param DateTime $datetime
-     * @return mixed
+     * @return Time
      */
     public static function fromDateTime($datetime) { }
 
     /**
-     * @return string this date in string format: Dse\Time(nanoseconds=$nanoseconds)
+     * @return string this date in string format: Time(nanoseconds=$nanoseconds)
      */
     public function __toString() { }
 

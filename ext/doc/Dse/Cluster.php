@@ -17,6 +17,7 @@ interface Cluster {
      * Creates a new Session instance.
      *
      * @param string $keyspace Optional keyspace name
+     *
      * @return Session Session instance
      */
     public function connect($keyspace);
@@ -25,6 +26,7 @@ interface Cluster {
      * Creates a new Session instance.
      *
      * @param string $keyspace Optional keyspace name
+     *
      * @return Future A Future Session instance
      */
     public function connectAsync($keyspace);

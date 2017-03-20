@@ -20,31 +20,31 @@ namespace Dse;
 interface Numeric {
 
     /**
-     * @param Dse\Numeric $num a number to add to this one
+     * @param Numeric $num a number to add to this one
      * @return Numeric sum
      */
     public function add($num);
 
     /**
-     * @param Dse\Numeric $num a number to subtract from this one
+     * @param Numeric $num a number to subtract from this one
      * @return Numeric difference
      */
     public function sub($num);
 
     /**
-     * @param Dse\Numeric $num a number to multiply this one by
+     * @param Numeric $num a number to multiply this one by
      * @return Numeric product
      */
     public function mul($num);
 
     /**
-     * @param Dse\Numeric $num a number to divide this one by
+     * @param Numeric $num a number to divide this one by
      * @return Numeric quotient
      */
     public function div($num);
 
     /**
-     * @param Dse\Numeric $num a number to divide this one by
+     * @param Numeric $num a number to divide this one by
      * @return Numeric remainder
      */
     public function mod($num);

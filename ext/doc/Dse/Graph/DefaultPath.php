@@ -17,25 +17,30 @@ final class DefaultPath {
 
     /**
      * {@inheritDoc}
+     *
      * @return mixed {@inheritDoc}
      */
     public function labels() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return mixed {@inheritDoc}
      */
     public function objects() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return mixed {@inheritDoc}
      */
     public function hasLabel() { }
 
     /**
      * {@inheritDoc}
+     *
      * @param mixed $key {@inheritDoc}
+     *
      * @return mixed {@inheritDoc}
      */
     public function object($key) { }

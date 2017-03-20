@@ -9,7 +9,7 @@
 namespace Dse;
 
 /**
- * This future results is resolved with `Dse\Rows`.
+ * This future results is resolved with Rows.
  *
  * @see Session::executeAsync()
  */
@@ -18,11 +18,12 @@ final class FutureRows implements Future {
     /**
      * {@inheritDoc}
      *
+     * @param int|double|null $timeout A timeout in seconds
+     *
      * @throws Exception\InvalidArgumentException
      * @throws Exception\TimeoutException
      *
-     * @param float|null $timeout
-     * @return mixed a value that the future has been resolved with
+     * @return Rows|null The result set
      */
     public function get($timeout) { }
 

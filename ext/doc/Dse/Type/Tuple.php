@@ -18,31 +18,36 @@ final class Tuple extends Type {
 
     /**
      * Returns "tuple"
+     *
      * @return string "tuple"
      */
     public function name() { }
 
     /**
      * Returns type representation in CQL, e.g. `tuple<varchar, int>`
+     *
      * @return string Type representation in CQL
      */
     public function __toString() { }
 
     /**
      * Returns types of values
+     *
      * @return array An array of types
      */
     public function types() { }
 
     /**
-     * Creates a new Dse\Tuple from the given values. When no values given,
+     * Creates a new Tuple from the given values. When no values given,
      * creates a tuple with null for the values.
+     *
+     * @param mixed $values {@inheritDoc}
      *
      * @throws Exception\InvalidArgumentException when values given are of a
      *                                            different type than what the
      *                                            tuple expects.
-     * @param mixed $values
-     * @return Dse\Tuple A tuple with given values.
+     *
+     * @return Tuple A tuple with given values.
      */
     public function create($values) { }
 

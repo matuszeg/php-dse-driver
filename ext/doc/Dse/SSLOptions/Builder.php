@@ -11,23 +11,25 @@ namespace Dse\SSLOptions;
 /**
  * SSLOptions builder allows fluent configuration of ssl options.
  *
- * @see \Dse::ssl()
- * @see \Dse\Cluster\Builder::withSSL()
+ * @see Dse::ssl()
+ * @see Cluster\Builder::withSSL()
  */
 final class Builder {
 
     /**
      * Builds SSL options.
-     * @return \Dse\SSLOptions ssl options configured accordingly.
+     *
+     * @return SSLOptions ssl options configured accordingly.
      */
     public function build() { }
 
     /**
      * Adds a trusted certificate. This is used to verify node's identity.
      *
-     * @throws \Dse\Exception\InvalidArgumentException
-     *
      * @param string $path ,... one or more paths to files containing a PEM formatted certificate.
+     *
+     * @throws Exception\InvalidArgumentException
+     *
      * @return Builder self
      */
     public function withTrustedCerts($path) { }
@@ -35,9 +37,10 @@ final class Builder {
     /**
      * Disable certificate verification.
      *
-     * @throws \Dse\Exception\InvalidArgumentException
-     *
      * @param int $flags
+     *
+     * @throws Exception\InvalidArgumentException
+     *
      * @return Builder self
      */
     public function withVerifyFlags($flags) { }
@@ -48,9 +51,10 @@ final class Builder {
      * This is used to authenticate the client on the server-side. This should contain the entire Certificate
      * chain starting with the certificate itself.
      *
-     * @throws \Dse\Exception\InvalidArgumentException
-     *
      * @param string $path path to a file containing a PEM formatted certificate.
+     *
+     * @throws Exception\InvalidArgumentException
+     *
      * @return Builder self
      */
     public function withClientCert($path) { }
@@ -59,10 +63,11 @@ final class Builder {
      * Set client-side private key. This is used to authenticate the client on
      * the server-side.
      *
-     * @throws \Dse\Exception\InvalidArgumentException
-     *
      * @param string $path Path to the private key file
      * @param string|null $passphrase Passphrase for the private key, if any
+     *
+     * @throws Exception\InvalidArgumentException
+     *
      * @return Builder self
      */
     public function withPrivateKey($path, $passphrase) { }

@@ -15,30 +15,35 @@ final class Blob implements Value {
 
     /**
      * Creates a new bytes array.
+     *
      * @param string $bytes any bytes
      */
     public function __construct($bytes) { }
 
     /**
      * Returns bytes as a hex string.
+     *
      * @return string bytes as hexadecimal string
      */
     public function __toString() { }
 
     /**
      * The type of this blob.
+     *
      * @return Type
      */
     public function type() { }
 
     /**
      * Returns bytes as a hex string.
+     *
      * @return string bytes as hexadecimal string
      */
     public function bytes() { }
 
     /**
      * Returns bytes as a binary string.
+     *
      * @return string bytes as binary string
      */
     public function toBinaryString() { }

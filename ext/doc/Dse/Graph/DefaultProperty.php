@@ -17,19 +17,22 @@ final class DefaultProperty implements Property {
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return string {@inheritDoc}
      */
     public function name() { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return Graph\Result {@inheritDoc}
      */
     public function value() { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return Graph\Result {@inheritDoc}
      */
     public function parent() { }
 

@@ -9,26 +9,33 @@
 namespace Dse;
 
 /**
- * A class that contains and manages connections to DSE. It allows for executing or preparing queries for execution.
+ * A class that contains and manages connections to DSE. It allows for
+ * executing or preparing queries for execution.
+ *
+ * @see Cluster::connect()
+ * @see Cluster::connectAsync()
  */
 interface Session {
 
     /**
      * Execute a query.
      *
+     * @param string|Statement $statement string or statement to be executed.
+     * @param array|ExecutionOptions|null $options execution options (optional)
+     *
      * @throws Exception
      *
-     * @param Dse\Statement $statement A statement to be executed.
-     * @param Dse\ExecutionOptions $options Options to control execution of the query.
-     * @return Rows A colleciton of rows.
+     * @return Rows A collection of rows.
      */
     public function execute($statement, $options);
 
     /**
-     * Execute a query asyncrhonously. This method returns immediately, but
+     * Execute a query asynchronously. This method returns immediately, but
      * the query continues execution in the background.
-     * @param Dse\Statement $statement A statement to be executed.
-     * @param Dse\ExecutionOptions $options Options to control execution of the query.
+     *
+     * @param string|Statement $statement string or statement to be executed.
+     * @param array|ExecutionOptions|null $options execution options (optional)
+     *
      * @return FutureRows A future that can be used to retrieve the result.
      */
     public function executeAsync($statement, $options);
@@ -36,18 +43,21 @@ interface Session {
     /**
      * Prepare a query for execution.
      *
+     * @param string $cql The query to be prepared.
+     * @param ExecutionOptions $options Options to control preparing the query.
+     *
      * @throws Exception
      *
-     * @param string $cql The query to be prepared.
-     * @param Dse\ExecutionOptions $options Options to control preparing the query.
      * @return PreparedStatement A prepared statement that can be bound with parameters and executed.
      */
     public function prepare($cql, $options);
 
     /**
      * Asynchronously prepare a query for execution.
+     *
      * @param string $cql The query to be prepared.
-     * @param Dse\ExecutionOptions $options Options to control preparing the query.
+     * @param ExecutionOptions $options Options to control preparing the query.
+     *
      * @return FuturePreparedStatement A future that can be used to retrieve the prepared statement.
      */
     public function prepareAsync($cql, $options);
@@ -55,28 +65,31 @@ interface Session {
     /**
      * Close the session and all its connections.
      *
+     * @param double $timeout The amount of time in seconds to wait for the session to close.
+     *
      * @throws Exception
      *
-     * @param double $timeout The amount of time in seconds to wait for the session to close.
      * @return null Nothing.
      */
     public function close($timeout);
 
     /**
      * Asynchronously close the session and all its connections.
+     *
      * @return FutureClose A future that can be waited on.
      */
     public function closeAsync();
 
     /**
      * Get a snapshot of the cluster's current schema.
+     *
      * @return Schema A snapshot of the cluster's schema.
      */
     public function schema();
 
     /**
      * Execute graph queries.
-     * @throws Exception
+     *
      * @param string|Graph\Statement $statement A graph statement or query string to be executed.
      * @param array $options Options to control execution of the graph query.
      *
@@ -94,15 +107,20 @@ interface Session {
      *                       * array["timestamp"]          int|string   Either an integer or integer string
      *                                                                  timestamp that represents the number
      *                                                                  of microseconds since the epoch
+     *
+     * @throws Exception
+     *
      * @return Graph\ResultSet A result set.
      */
     public function executeGraph($statement, $options);
 
     /**
      * Asynchronously execute a graph query.
+     *
      * @param string|Graph\Statement $statement A graph statement or query string to be executed.
      * @param array $options Options to control execution of the graph query.
      *                       @see Session::executeGraph()
+     *
      * @return Graph\FutureResultSet A future that can be used to retrieve the result set.
      */
     public function executeGraphAsync($statement, $options);

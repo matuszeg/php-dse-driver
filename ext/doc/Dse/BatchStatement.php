@@ -31,6 +31,7 @@ final class BatchStatement implements Statement {
 
     /**
      * Creates a new batch statement.
+     *
      * @param int $type must be one of Dse::BATCH_* (default: Dse::BATCH_LOGGED).
      */
     public function __construct($type) { }
@@ -38,10 +39,11 @@ final class BatchStatement implements Statement {
     /**
      * Adds a statement to this batch.
      *
+     * @param string|Statement $statement string or statement to add
+     * @param array|null $arguments positional or named arguments (optional)
      *
      * @throws Exception\InvalidArgumentException
-     * @param Dse\Statement $statement the statement to add
-     * @param array $arguments positional or named arguments
+     *
      * @return BatchStatement self
      */
     public function add($statement, $arguments) { }

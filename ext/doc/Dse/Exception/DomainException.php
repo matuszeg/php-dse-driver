@@ -9,7 +9,7 @@
 namespace Dse\Exception;
 
 /**
- * DSE domain exception.
+ * Domain exception.
  */
 class DomainException extends \DomainException implements Exception {
 

@@ -15,54 +15,63 @@ final class DefaultAggregate implements Aggregate {
 
     /**
      * {@inheritDoc}
+     *
      * @return string Full name of the aggregate including name and types
      */
     public function name() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return string Simple name of the aggregate
      */
     public function simpleName() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return array Argument types of the aggregate
      */
     public function argumentTypes() { }
 
     /**
      * {@inheritDoc}
-     * @return Dse\Function State public function of the aggregate
+     *
+     * @return Function State public function of the aggregate
      */
     public function stateFunction() { }
 
     /**
      * {@inheritDoc}
-     * @return Dse\Function Final public function of the aggregate
+     *
+     * @return Function Final public function of the aggregate
      */
     public function finalFunction() { }
 
     /**
      * {@inheritDoc}
-     * @return Dse\Value Initial condition of the aggregate
+     *
+     * @return Value Initial condition of the aggregate
      */
     public function initialCondition() { }
 
     /**
      * {@inheritDoc}
-     * @return Dse\Type State type of the aggregate
+     *
+     * @return Type State type of the aggregate
      */
     public function stateType() { }
 
     /**
      * {@inheritDoc}
-     * @return Dse\Type Return type of the aggregate
+     *
+     * @return Type Return type of the aggregate
      */
     public function returnType() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return string Signature of the aggregate (same as name())
      */
     public function signature() { }

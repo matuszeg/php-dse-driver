@@ -15,43 +15,51 @@ final class DefaultIndex implements Index {
 
     /**
      * {@inheritDoc}
+     *
      * @return string Name of the index
      */
     public function name() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return string Kind of the index
      */
     public function kind() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return string Target column name of the index
      */
     public function target() { }
 
     /**
      * {@inheritDoc}
-     * @param mixed $name
+     *
+     * @param string $name {@inheritDoc}
+     *
      * @return Value Value of an option by name
      */
     public function option($name) { }
 
     /**
      * {@inheritDoc}
+     *
      * @return array A dictionary of `string` and `Value` pairs of the
      */
     public function options() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return string Class name of a custom index
      */
     public function className() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return bool
      */
     public function isCustom() { }

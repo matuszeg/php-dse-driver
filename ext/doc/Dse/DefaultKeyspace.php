@@ -15,84 +15,111 @@ final class DefaultKeyspace implements Keyspace {
 
     /**
      * {@inheritDoc}
+     *
      * @return string Name
      */
     public function name() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return string Replication class
      */
     public function replicationClassName() { }
 
     /**
      * {@inheritDoc}
-     * @return Dse\Map Replication options
+     *
+     * @return Map Replication options
      */
     public function replicationOptions() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return string Whether durable writes are enabled
      */
     public function hasDurableWrites() { }
 
     /**
      * {@inheritDoc}
+     *
      * @param string $name Table name
-     * @return Dse\Table Table instance or null
+     *
+     * @return Table Table instance or null
      */
     public function table($name) { }
 
     /**
      * {@inheritDoc}
-     * @return array An array of `Dse\Table` instances
+     *
+     * @return array An array of `Table` instances
      */
     public function tables() { }
 
     /**
-     * @param mixed $name
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @param string $name {@inheritDoc}
+     *
+     * @return Type\UserType|null {@inheritDoc}
      */
     public function userType($name) { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @return array {@inheritDoc}
      */
     public function userTypes() { }
 
     /**
-     * @param mixed $name
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @param string $name {@inheritDoc}
+     *
+     * @return MaterizedView|null {@inheritDoc}
      */
     public function materializedView($name) { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @return array {@inheritDoc}
      */
     public function materializedViews() { }
 
     /**
-     * @param mixed $name
-     * @param mixed $params
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @param string $name {@inheritDoc}
+     * @param string|Type $params {@inheritDoc}
+     *
+     * @return Function|null {@inheritDoc}
      */
     public function function_($name, ...$params) { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @return array {@inheritDoc}
      */
     public function functions() { }
 
     /**
-     * @param mixed $name
-     * @param mixed $params
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @param string $name {@inheritDoc}
+     * @param string|Type $params {@inheritDoc}
+     *
+     * @return Aggregate|null {@inheritDoc}
      */
     public function aggregate($name, ...$params) { }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
+     *
+     * @return array {@inheritDoc}
      */
     public function aggregates() { }
 

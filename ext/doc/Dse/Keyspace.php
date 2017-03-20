@@ -15,84 +15,111 @@ interface Keyspace {
 
     /**
      * Returns keyspace name
+     *
      * @return string Name
      */
     public function name();
 
     /**
      * Returns replication class name
+     *
      * @return string Replication class
      */
     public function replicationClassName();
 
     /**
      * Returns replication options
-     * @return Dse\Map Replication options
+     *
+     * @return Map Replication options
      */
     public function replicationOptions();
 
     /**
      * Returns whether the keyspace has durable writes enabled
+     *
      * @return string Whether durable writes are enabled
      */
     public function hasDurableWrites();
 
     /**
      * Returns a table by name
+     *
      * @param string $name Table name
-     * @return Dse\Table|null Table instance or null
+     *
+     * @return Table|null Table instance or null
      */
     public function table($name);
 
     /**
      * Returns all tables defined in this keyspace
-     * @return array An array of `Dse\Table` instances
+     *
+     * @return array An array of `Table` instances
      */
     public function tables();
 
     /**
-     * @param mixed $name
-     * @return mixed
+     * Get user type by name
+     *
+     * @param string $name User type name
+     *
+     * @return Type\UserType|null A user type or null
      */
     public function userType($name);
 
     /**
-     * @return mixed
+     * Get all user types
+     *
+     * @return array An array of user types
      */
     public function userTypes();
 
     /**
-     * @param mixed $name
-     * @return mixed
+     * Get materialized view by name
+     *
+     * @param string $name Materialized view name
+     *
+     * @return MaterizedView|null A materialized view or null
      */
     public function materializedView($name);
 
     /**
-     * @return mixed
+     * Gets all materialized views
+     *
+     * @return array An array of materialized views
      */
     public function materializedViews();
 
     /**
-     * @param mixed $name
-     * @param mixed $params
-     * @return mixed
+     * Get a function by name and signature
+     *
+     * @param string $name Function name
+     * @param string|Type $params Function arguments
+     *
+     * @return Function|null A function or null
      */
     public function function_($name, ...$params);
 
     /**
-     * @return mixed
+     * Get all functions
+     *
+     * @return array An array of functions
      */
     public function functions();
 
     /**
-     * @param mixed $name
-     * @param mixed $params
-     * @return mixed
+     * Get an aggregate by name and signature
+     *
+     * @param string $name Aggregate name
+     * @param string|Type $params Aggregate arguments
+     *
+     * @return Aggregate|null An aggregate or null
      */
     public function aggregate($name, ...$params);
 
     /**
-     * @return mixed
+     * Get all aggregates
+     *
+     * @return array An array of aggregates
      */
     public function aggregates();
 

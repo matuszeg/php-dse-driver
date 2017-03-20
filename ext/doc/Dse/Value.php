@@ -34,6 +34,7 @@ interface Value {
 
     /**
      * The type of represented by the value.
+     *
      * @return Type
      */
     public function type();

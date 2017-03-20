@@ -11,8 +11,8 @@ namespace Dse\Graph\Options;
 /**
  * A builder for fluent configuration of graph options;
  *
- * @see \Dse::graphOptions()
- * @see \Dse\Cluster\Builder::withGraphOptions()
+ * @see Dse::graphOptions()
+ * @see Cluster\Builder::withGraphOptions()
  */
 final class Builder {
 
@@ -20,8 +20,9 @@ final class Builder {
      * Constructs a graph options object that can be used to construct
      * a cluster with graph support.
      *
-     * @see \Dse\Cluster\Builder::withGraphOptions()
-     * @return Dse\Graph\Options
+     * @return Graph\Options
+     *
+     * @see Cluster\Builder::withGraphOptions()
      */
     public function build() { }
 
@@ -29,6 +30,7 @@ final class Builder {
      * Set the graph language. Default: "gremlin-groovy"
      *
      * @param string $language Graph language
+     *
      * @return Graph\Options\Builder self
      */
     public function withGraphLanguage($language) { }
@@ -38,6 +40,7 @@ final class Builder {
      * analytics (OLAP) query then it should use "a".
      *
      * @param string $source Graph source
+     *
      * @return Graph\Options\Builder self
      */
     public function withGraphSource($source) { }
@@ -47,6 +50,7 @@ final class Builder {
      * used.
      *
      * @param string $name Graph name
+     *
      * @return Graph\Options\Builder self
      */
     public function withGraphName($name) { }
@@ -55,6 +59,7 @@ final class Builder {
      * Set the read consistency of graph queries. Default: `Dse::CONSISTENCY_ONE`
      *
      * @param int $consistency Read consistency
+     *
      * @return Graph\Options\Builder self
      */
     public function withReadConsistency($consistency) { }
@@ -63,6 +68,7 @@ final class Builder {
      * Set the write consistency of graph queries. Default: `Dse::CONSISTENCY_QUORUM`
      *
      * @param int $consistency Write consistency
+     *
      * @return Graph\Options\Builder self
      */
     public function withWriteConsistency($consistency) { }
@@ -71,6 +77,7 @@ final class Builder {
      * Set the request time of graph queries in seconds. Default: `0` (no timeout)
      *
      * @param double $request_timeout Request timeout in seconds
+     *
      * @return Graph\Options\Builder self
      */
     public function withRequestTimeout($request_timeout) { }

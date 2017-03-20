@@ -13,14 +13,14 @@
  * Use Dse::ssl() to build SSL options instance.
  * Use Dse::graphOptions() to build a graph options instance.
  */
-class Dse {
+final class Dse {
 
     /**
      * Consistency level ANY means the request is fulfilled as soon as the data
      * has been written on the Coordinator. Requests with this consistency level
      * are not guranteed to make it to Replica nodes.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_ANY = 0;
 
@@ -28,7 +28,7 @@ class Dse {
      * Consistency level ONE guarantees that data has been written to at least
      * one Replica node.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_ONE = 1;
 
@@ -36,7 +36,7 @@ class Dse {
      * Consistency level TWO guarantees that data has been written to at least
      * two Replica nodes.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_TWO = 2;
 
@@ -44,7 +44,7 @@ class Dse {
      * Consistency level THREE guarantees that data has been written to at least
      * three Replica nodes.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_THREE = 3;
 
@@ -56,7 +56,7 @@ class Dse {
      * ceiling function and `RF` is the replication factor used. For example,
      * for a replication factor of `5`, the majority is `ceil(5 / 2 + 1) = 3`.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_QUORUM = 4;
 
@@ -64,7 +64,7 @@ class Dse {
      * Consistency level ALL guarantees that data has been written to all
      * Replica nodes.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_ALL = 5;
 
@@ -72,7 +72,7 @@ class Dse {
      * Same as `CONSISTENCY_QUORUM`, but confined to the local data center. This
      * consistency level works only with `NetworkTopologyStrategy` replication.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_LOCAL_QUORUM = 6;
 
@@ -81,19 +81,19 @@ class Dse {
      * least a majority Replica nodes in all datacenters. This consistency level
      * works only with `NetworkTopologyStrategy` replication.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_EACH_QUORUM = 7;
 
     /**
      * This is a serial consistency level, it is used in conditional updates,
      * e.g. (`CREATE|INSERT ... IF NOT EXISTS`), and should be specified as the
-     * `serial_consistency` option of the Dse\ExecutionOptions instance.
+     * `serial_consistency` option of the ExecutionOptions instance.
      *
      * Consistency level SERIAL, when set, ensures that a Paxos commit fails if
      * any of the replicas is down.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_SERIAL = 8;
 
@@ -101,7 +101,7 @@ class Dse {
      * Same as `CONSISTENCY_SERIAL`, but confined to the local data center. This
      * consistency level works only with `NetworkTopologyStrategy` replication.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_LOCAL_SERIAL = 9;
 
@@ -109,21 +109,21 @@ class Dse {
      * Same as `CONSISTENCY_ONE`, but confined to the local data center. This
      * consistency level works only with `NetworkTopologyStrategy` replication.
      *
-     * @see Dse\ExecutionOptions::__construct()
+     * @see ExecutionOptions::__construct()
      */
     const CONSISTENCY_LOCAL_ONE = 10;
 
     /**
      * Perform no verification of nodes when using SSL encryption.
      *
-     * @see Dse\SSLOptions\Builder::withVerifyFlags()
+     * @see SSLOptions\Builder::withVerifyFlags()
      */
     const VERIFY_NONE = 0;
 
     /**
      * Verify presence and validity of SSL certificates.
      *
-     * @see Dse\SSLOptions\Builder::withVerifyFlags()
+     * @see SSLOptions\Builder::withVerifyFlags()
      */
     const VERIFY_PEER_CERT = 1;
 
@@ -132,22 +132,22 @@ class Dse {
      * one of its subject alternative names. This implies the certificate is
      * also present.
      *
-     * @see Dse\SSLOptions\Builder::withVerifyFlags()
+     * @see SSLOptions\Builder::withVerifyFlags()
      */
     const VERIFY_PEER_IDENTITY = 2;
 
     /**
-     * @see Dse\BatchStatement::__construct()
+     * @see BatchStatement::__construct()
      */
     const BATCH_LOGGED = 0;
 
     /**
-     * @see Dse\BatchStatement::__construct()
+     * @see BatchStatement::__construct()
      */
     const BATCH_UNLOGGED = 1;
 
     /**
-     * @see Dse\BatchStatement::__construct()
+     * @see BatchStatement::__construct()
      */
     const BATCH_COUNTER = 2;
 
@@ -190,213 +190,216 @@ class Dse {
      * When using a map, collection or set of type text, all of its elements
      * must be strings.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_TEXT = "text";
+    const TYPE_TEXT = 'text';
 
     /**
      * When using a map, collection or set of type ascii, all of its elements
      * must be strings.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_ASCII = "ascii";
+    const TYPE_ASCII = 'ascii';
 
     /**
      * When using a map, collection or set of type varchar, all of its elements
      * must be strings.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_VARCHAR = "varchar";
+    const TYPE_VARCHAR = 'varchar';
 
     /**
      * When using a map, collection or set of type bigint, all of its elements
      * must be instances of Bigint.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_BIGINT = "bigint";
+    const TYPE_BIGINT = 'bigint';
 
     /**
      * When using a map, collection or set of type smallint, all of its elements
      * must be instances of Inet.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_SMALLINT = "smallint";
+    const TYPE_SMALLINT = 'smallint';
 
     /**
      * When using a map, collection or set of type tinyint, all of its elements
      * must be instances of Inet.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_TINYINT = "tinyint";
+    const TYPE_TINYINT = 'tinyint';
 
     /**
      * When using a map, collection or set of type blob, all of its elements
      * must be instances of Blob.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_BLOB = "blob";
+    const TYPE_BLOB = 'blob';
 
     /**
      * When using a map, collection or set of type bool, all of its elements
-     * must be bools.
+     * must be boolean.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_BOOLEAN = "boolean";
+    const TYPE_BOOLEAN = 'boolean';
 
     /**
      * When using a map, collection or set of type counter, all of its elements
      * must be instances of Bigint.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_COUNTER = "counter";
+    const TYPE_COUNTER = 'counter';
 
     /**
      * When using a map, collection or set of type decimal, all of its elements
      * must be instances of Decimal.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_DECIMAL = "decimal";
+    const TYPE_DECIMAL = 'decimal';
 
     /**
      * When using a map, collection or set of type double, all of its elements
      * must be doubles.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_DOUBLE = "double";
+    const TYPE_DOUBLE = 'double';
 
     /**
      * When using a map, collection or set of type float, all of its elements
      * must be instances of Float.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_FLOAT = "float";
+    const TYPE_FLOAT = 'float';
 
     /**
      * When using a map, collection or set of type int, all of its elements
      * must be ints.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_INT = "int";
+    const TYPE_INT = 'int';
 
     /**
      * When using a map, collection or set of type timestamp, all of its elements
      * must be instances of Timestamp.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_TIMESTAMP = "timestamp";
+    const TYPE_TIMESTAMP = 'timestamp';
 
     /**
      * When using a map, collection or set of type uuid, all of its elements
      * must be instances of Uuid.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_UUID = "uuid";
+    const TYPE_UUID = 'uuid';
 
     /**
      * When using a map, collection or set of type varint, all of its elements
      * must be instances of Varint.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_VARINT = "varint";
+    const TYPE_VARINT = 'varint';
 
     /**
      * When using a map, collection or set of type timeuuid, all of its elements
      * must be instances of Timeuuid.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_TIMEUUID = "timeuuid";
+    const TYPE_TIMEUUID = 'timeuuid';
 
     /**
      * When using a map, collection or set of type inet, all of its elements
      * must be instances of Inet.
      *
-     * @see Dse\Set::__construct()
-     * @see Dse\Collection::__construct()
-     * @see Dse\Map::__construct()
+     * @see Set::__construct()
+     * @see Collection::__construct()
+     * @see Map::__construct()
      */
-    const TYPE_INET = "inet";
+    const TYPE_INET = 'inet';
 
     /**
      * The current version of the extension.
      */
-    const VERSION = "1.0.0";
+    const VERSION = '1.0.0';
 
     /**
      * The version of the cpp-driver library used to build the cpp-driver-dse
      * driver library.
      */
-    const CPP_DRIVER_VERSION = "2.5.0";
+    const CPP_DRIVER_VERSION = '2.5.0';
 
     /**
      * The version of the cpp-driver-dse library used to build the php-driver-dse
      * extension.
      */
-    const CPP_DRIVER_DSE_VERSION = "1.1.0";
+    const CPP_DRIVER_DSE_VERSION = '1.1.0';
 
     /**
-     * Creates a new cluster builder for constructing a Dse\Cluster object.
-     * @return Dse\Cluster\Builder A cluster builder object with default settings
+     * Creates a new cluster builder for constructing a Cluster object.
+     *
+     * @return Cluster\Builder A cluster builder object with default settings
      */
     public static function cluster() { }
 
     /**
-     * Creates a new ssl builder for constructing a Dse\SSLOptions object.
-     * @return Dse\SSLOptions\Builder A SSL options builder with default settings
+     * Creates a new ssl builder for constructing a SSLOptions object.
+     *
+     * @return SSLOptions\Builder A SSL options builder with default settings
      */
     public static function ssl() { }
 
     /**
      * Creates a new graph options builder for constructing a Dse\Graph\Options object.
+     *
      * @return Dse\Graph\Options A graph options builder with default settings
      */
     public static function graphOptions() { }

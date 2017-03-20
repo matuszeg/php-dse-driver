@@ -9,7 +9,7 @@
 namespace Dse;
 
 /**
- * A future returned from Dse\Session::closeAsync().
+ * A future returned from Session::closeAsync().
  *
  * @see Session::closeAsync()
  */
@@ -18,11 +18,12 @@ final class FutureClose implements Future {
     /**
      * {@inheritDoc}
      *
+     * @param int|double|null $timeout A timeout in seconds
+     *
      * @throws Exception\InvalidArgumentException
      * @throws Exception\TimeoutException
      *
-     * @param float|null $timeout
-     * @return mixed a value that the future has been resolved with
+     * @return null Nothing
      */
     public function get($timeout) { }
 

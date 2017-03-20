@@ -17,23 +17,16 @@ final class Custom extends Type {
 
     /**
      * {@inheritDoc}
+     *
      * @return string The name of this type
      */
     public function name() { }
 
     /**
      * {@inheritDoc}
+     *
      * @return string String representation of this type
      */
     public function __toString() { }
-
-    /**
-     * Creation of custom type instances is not supported
-     *
-     * @throws Dse\Exception\LogicException
-     * @param mixed $value The value
-     * @return null
-     */
-    public function create($value) { }
 
 }

@@ -17,26 +17,31 @@ final class DefaultVertex extends Vertex  {
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return Graph\Result {@inheritDoc}
      */
     public function id() { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return string {@inheritDoc}
      */
     public function label() { }
 
     /**
      * {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @return array {@inheritDoc}
      */
     public function properties() { }
 
     /**
      * {@inheritDoc}
-     * @param mixed $key {@inheritDoc}
-     * @return mixed {@inheritDoc}
+     *
+     * @param string $key {@inheritDoc}
+     *
+     * @return Graph\Result {@inheritDoc}
      */
     public function property($key) { }
 

@@ -9,7 +9,7 @@
 namespace Dse\Exception;
 
 /**
- * DSE runtime exception.
+ * Runtime exception.
  */
 class RuntimeException extends \RuntimeException implements Exception {
 

@@ -9,8 +9,8 @@
 namespace Dse;
 
 /**
- * A future returned from `Dse\Session::prepareAsync()`
- * This future will resolve with a `Dse\PreparedStatement` or an exception.
+ * A future returned from `Session::prepareAsync()`
+ * This future will resolve with a PreparedStatement or an exception.
  *
  * @see Session::prepareAsync()
  */
@@ -19,11 +19,12 @@ final class FuturePreparedStatement implements Future {
     /**
      * {@inheritDoc}
      *
+     * @param int|double|null $timeout A timeout in seconds
+     *
      * @throws Exception\InvalidArgumentException
      * @throws Exception\TimeoutException
      *
-     * @param float|null $timeout
-     * @return mixed a value that the future has been resolved with
+     * @return PreparedStatement A prepared statement
      */
     public function get($timeout) { }
 

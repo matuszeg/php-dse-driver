@@ -18,31 +18,36 @@ final class Collection extends Type {
 
     /**
      * Returns "list"
+     *
      * @return string "list"
      */
     public function name() { }
 
     /**
      * Returns type of values
+     *
      * @return Type Type of values
      */
     public function valueType() { }
 
     /**
      * Returns type representation in CQL, e.g. `list<varchar>`
+     *
      * @return string Type representation in CQL
      */
     public function __toString() { }
 
     /**
-     * Creates a new Dse\Collection from the given values.  When no values
+     * Creates a new Collection from the given values.  When no values
      * given, creates an empty list.
+     *
+     * @param mixed $value ,...      One or more values to be added to the list.
      *
      * @throws Exception\InvalidArgumentException when values given are of a
      *                                            different type than what this
      *                                            list type expects.
-     * @param mixed $value ,...      One or more values to be added to the list.
-     * @return Dse\Collection A list with given values.
+     *
+     * @return Collection A list with given values.
      */
     public function create($value) { }
 

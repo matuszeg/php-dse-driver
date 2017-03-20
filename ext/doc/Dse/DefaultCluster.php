@@ -11,7 +11,7 @@ namespace Dse;
 /**
  * Default cluster implementation.
  *
- * @see Dse\Cluster
+ * @see Cluster
  */
 final class DefaultCluster implements Cluster {
 
@@ -20,6 +20,7 @@ final class DefaultCluster implements Cluster {
      *
      * @param string $keyspace Optional keyspace name
      * @param int $timeout Optional timeout
+     *
      * @return Session Session instance
      */
     public function connect($keyspace, $timeout) { }
@@ -28,6 +29,7 @@ final class DefaultCluster implements Cluster {
      * {@inheritDoc}
      *
      * @param string $keyspace Optional keyspace name
+     *
      * @return Future A Future Session instance
      */
     public function connectAsync($keyspace) { }

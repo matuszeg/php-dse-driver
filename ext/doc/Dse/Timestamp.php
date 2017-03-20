@@ -16,13 +16,15 @@ final class Timestamp implements Value {
     /**
      * Creates a new timestamp from either unix timestamp and microseconds or
      * from the current time by default.
-     * @param mixed $seconds
-     * @param mixed $microseconds
+     *
+     * @param int $seconds The number of seconds
+     * @param int $microseconds The number of microseconds
      */
     public function __construct($seconds, $microseconds) { }
 
     /**
      * The type of this timestamp.
+     *
      * @return Type
      */
     public function type() { }
@@ -30,29 +32,33 @@ final class Timestamp implements Value {
     /**
      * Unix timestamp.
      *
-     * @see time
      * @return int seconds
+     *
+     * @see time
      */
     public function time() { }
 
     /**
      * Microtime from this timestamp
      *
+     * @param bool $get_as_float Whether to get this value as float
+     *
+     * @return float|string Float or string representation
      *
      * @see microtime
-     * @param bool $get_as_float Whether to get this value as float
-     * @return float|string Float or string representation
      */
     public function microtime($get_as_float) { }
 
     /**
      * Converts current timestamp to PHP DateTime.
+     *
      * @return \DateTime PHP representation
      */
     public function toDateTime() { }
 
     /**
      * Returns a string representation of this timestamp.
+     *
      * @return string timestamp
      */
     public function __toString() { }

@@ -12,7 +12,7 @@ namespace Dse\Graph;
  * Options for controlling the execution of graph queries. Construct using a
  * graph options builder.
  *
- * @see \Dse\Graph\Options\Builder
+ * @see Graph\Options\Builder
  */
 final class Options {
 
