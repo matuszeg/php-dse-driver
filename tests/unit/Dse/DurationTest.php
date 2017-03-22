@@ -5,16 +5,16 @@
  *
  */
 
-namespace Cassandra;
+namespace Dse;
 
 /**
- * @requires extension cassandra
+ * @requires extension dse
  */
 class DurationTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage months must be a long, a double, a numeric string or a Cassandra\Bigint, 1 given
+     * @expectedExceptionMessage months must be a long, a double, a numeric string or a Dse\Bigint, 1 given
      */
     public function testMonthsArgWrongType()
     {
@@ -23,7 +23,7 @@ class DurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage days must be a long, a double, a numeric string or a Cassandra\Bigint, 1 given
+     * @expectedExceptionMessage days must be a long, a double, a numeric string or a Dse\Bigint, 1 given
      */
     public function testDaysArgWrongType()
     {
@@ -32,7 +32,7 @@ class DurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage nanos must be a long, a double, a numeric string or a Cassandra\Bigint, 1 given
+     * @expectedExceptionMessage nanos must be a long, a double, a numeric string or a Dse\Bigint, 1 given
      */
     public function testNanosArgWrongType()
     {
