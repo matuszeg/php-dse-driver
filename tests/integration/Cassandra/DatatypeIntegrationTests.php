@@ -47,11 +47,11 @@ abstract class DatatypeIntegrationTests extends IntegrationTest {
             array(Cassandra\Type::decimal(), array(new Cassandra\Decimal(1.1), new Cassandra\Decimal(2.2), new Cassandra\Decimal(3.3))),
             array(Cassandra\Type::double(), array(1.1, 2.2, 3.3, 4.4)),
             array(Cassandra\Type::duration(), array(new Cassandra\Duration(0, 0, 0),
-                                          			new Cassandra\Duration(1, 2, 3),
-                                          			new Cassandra\Duration(1, 0, (2 ** 31) - 1), // see CASSANDRA-13218 for 32-bit value usage
-                                          			new Cassandra\Duration(-1, 0, -(2 ** 31)),
-                                          			new Cassandra\Duration((2 ** 31) - 1, 1, 0),
-                                          			new Cassandra\Duration(-(2 ** 31), -1, 0))),
+                                                    new Cassandra\Duration(1, 2, 3),
+                                                    new Cassandra\Duration(1, 0, (2 ** 31) - 1), // see CASSANDRA-13218 for 32-bit value usage
+                                                    new Cassandra\Duration(-1, 0, -(2 ** 31)),
+                                                    new Cassandra\Duration((2 ** 31) - 1, 1, 0),
+                                                    new Cassandra\Duration(-(2 ** 31), -1, 0))),
             array(Cassandra\Type::float(), array(new Cassandra\Float(1.0), new Cassandra\Float(2.2), new Cassandra\Float(2.2))),
             array(Cassandra\Type::inet(), array(new Cassandra\Inet("127.0.0.1"), new Cassandra\Inet("127.0.0.2"), new Cassandra\Inet("127.0.0.3"))),
             array(Cassandra\Type::smallint(), array(Cassandra\Smallint::min(), Cassandra\Smallint::max(), new Cassandra\Smallint(0), new Cassandra\Smallint(74))),
