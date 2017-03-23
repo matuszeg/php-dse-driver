@@ -103,9 +103,9 @@ SET OPENSSL_DIRECTORY=openssl
 SET ZLIB_DIRECTORY=zlib
 SET MPIR_REPOSITORY_URL=https://github.com/wbhart/mpir.git
 SET MPIR_DIRECTORY=mpir
-REM MPIR updated versions but did not create a release or tag on GitHub for 2.7.2
-SET MPIR_BRANCH_TAG_VERSION=2.7.2
-SET MPIR_SHA_CHANGESET=67d98ac
+REM MPIR updated versions but did not create a release or tag on GitHub for 3.0.0
+SET MPIR_BRANCH_TAG_VERSION=3.0.0
+SET MPIR_SHA_CHANGESET=a6ad489
 SET PHP_REPOSITORY_URL=https://github.com/php/php-src.git
 SET PHP_DIRECTORY=php
 SET PHP_5_6_BRANCH_TAG_VERSION=php-5.6.30
@@ -777,7 +777,14 @@ IF !ENABLE_BUILD_PACKAGES! EQU !FALSE! (
     IF !ERRORLEVEL! NEQ 0 EXIT /B !ERRORLEVEL!
     ECHO extension=php_dse.dll >> "!ABSOLUTE_DRIVER_LIBRARY_DIRECTORY!\php.ini"
 
-    REM Configure PHP instance for use with Kerberos runtime libraries
+    REM Configure PHP for use with OpenSSL and Kerberos runtime libraries
+    ECHO | SET /P="Copying runtime libraries ... "
+    XCOPY /Y /E "!ABSOLUTE_DEPENDENCIES_OPENSSL_LIBRARIES_DIRECTORY!\!LIBRARY_RUNTIME_DIRECTORY!\*.dll" "!ABSOLUTE_DRIVER_LIBRARY_DIRECTORY!" >> "!PHP_DRIVER_LOG_FILENAME!" 2>&1
+    IF NOT !ERRORLEVEL! EQU 0 (
+      ECHO FAILED!
+      ECHO 	See !PHP_DRIVER_LOG_FILENAME! for more details
+      EXIT /B !EXIT_CODE_BUILD_DRIVER_FAILED!
+    )
     XCOPY /Y /E "!KERBEROS_SDK_RUNTIME_DIRECTORY!\*!TARGET_ARCHITECTURE!.dll" "!ABSOLUTE_DRIVER_LIBRARY_DIRECTORY!" >> "!PHP_DRIVER_LOG_FILENAME!" 2>&1
     IF NOT !ERRORLEVEL! EQU 0 (
       ECHO FAILED!
@@ -790,6 +797,7 @@ IF !ENABLE_BUILD_PACKAGES! EQU !FALSE! (
     ECHO @ECHO %%PATH%% ^| FIND /C /I ^"!ABSOLUTE_DRIVER_LIBRARY_DIRECTORY!^"^>NUL ^|^| @SET ^"PATH=!ABSOLUTE_DRIVER_LIBRARY_DIRECTORY!;%%PATH%%^" > bin\php.bat
     ECHO "!ABSOLUTE_DRIVER_LIBRARY_DIRECTORY!\php.exe" %%* >> bin\php.bat
     POPD
+    ECHO done.
   )
 
   REM Configure PHP instance for use with the driver (or keep just driver)
@@ -798,22 +806,19 @@ IF !ENABLE_BUILD_PACKAGES! EQU !FALSE! (
     PUSHD "!ABSOLUTE_BATCH_DIRECTORY!\.." > NUL
     IF EXIST vendor RMDIR /S /Q vendor
     IF EXIST composer.phar ERASE composer.phar
-    ECHO | SET /P="Installing composer and driver dependencies ... "
-    ECHO Installing composer >> "!LOG_DRIVER_BUILD!"
+    ECHO | SET /P="Installing composer ... "
     php -r "readfile('https://getcomposer.org/installer');" | php >> "!LOG_DRIVER_BUILD!" 2>&1
     IF NOT !ERRORLEVEL! EQU 0 (
       ECHO FAILED!
       ECHO 	See !LOG_DRIVER_BUILD! for more details
       EXIT /B !EXIT_CODE_CONFIGURATION_DRIVER_FAILED!
     )
-    ECHO Installing driver dependencies >> "!LOG_DRIVER_BUILD!"
     php composer.phar install >> "!LOG_DRIVER_BUILD!" 2>&1
     IF NOT !ERRORLEVEL! EQU 0 (
       ECHO FAILED!
       ECHO 	See !LOG_DRIVER_BUILD! for more details
       EXIT /B !EXIT_CODE_CONFIGURATION_DRIVER_FAILED!
     )
-    ECHO done.
     IF EXIST bin\behat.bat (
       RENAME bin\behat.bat behat.bak
       ECHO @ECHO %%PATH%% ^| FIND /C /I ^"!ABSOLUTE_DRIVER_LIBRARY_DIRECTORY!^"^>NUL ^|^| @SET ^"PATH=!ABSOLUTE_DRIVER_LIBRARY_DIRECTORY!;%%PATH%%^" > bin\behat.bat
@@ -826,6 +831,7 @@ IF !ENABLE_BUILD_PACKAGES! EQU !FALSE! (
       TYPE bin\phpunit.bak >> bin\phpunit.bat
       ERASE bin\phpunit.bak
     )
+    ECHO done.
     POPD
   )
 
@@ -1243,7 +1249,7 @@ REM @param log-filename Absolute path and filename for log output
 
   REM Build the cpp-driver
   PUSHD "!CPP_DRIVER_SOURCE_DIRECTORY!" > NUL
-  SET "CPP_DRIVER_BUILD_COMMAND_LINE=--TARGET-COMPILER !CPP_DRIVER_TARGET_COMPILER! --INSTALL-DIR !CPP_DRIVER_INSTALLATION_DIRECTORY! --STATIC --ENABLE-ZLIB"
+  SET "CPP_DRIVER_BUILD_COMMAND_LINE=--TARGET-COMPILER !CPP_DRIVER_TARGET_COMPILER! --INSTALL-DIR !CPP_DRIVER_INSTALLATION_DIRECTORY! --STATIC --ENABLE-SHARED-OPENSSL --ENABLE-ZLIB"
   IF "!CPP_DRIVER_BUILD_TYPE!" == "!BUILD_TYPE_DEBUG!" (
     SET "CPP_DRIVER_BUILD_COMMAND_LINE=!CPP_DRIVER_BUILD_COMMAND_LINE! --DEBUG"
   ) ELSE (
@@ -1308,8 +1314,8 @@ REM @param log-filename Absolute path and filename for log output
   ECHO | SET /P="Building MPIR ... "
   SET MPIR_PLATFORM_ARCHITECTURE=Win32
   IF !MPIR_TARGET_ARCHITECTURE! EQU !ARCHITECTURE_64BIT! SET MPIR_PLATFORM_ARCHITECTURE=x64
-  ECHO !MSBUILD! !MPIR_VISUAL_STUDIO_SOLUTION_DIRECTORY!\mpir.sln /T:lib_mpir_gc /P:Configuration=!MPIR_BUILD_TYPE! /P:Platform=!MPIR_PLATFORM_ARCHITECTURE! /CLP:NoSummary;NoItemAndPropertyList;Verbosity=minimal /NOLOGO >> "!MPIR_LOG_FILENAME!" 2>&1
-  !MSBUILD! !MPIR_VISUAL_STUDIO_SOLUTION_DIRECTORY!\mpir.sln /T:lib_mpir_gc /P:Configuration=!MPIR_BUILD_TYPE! /P:Platform=!MPIR_PLATFORM_ARCHITECTURE! /CLP:NoSummary;NoItemAndPropertyList;Verbosity=minimal /NOLOGO >> "!MPIR_LOG_FILENAME!" 2>&1
+  ECHO !MSBUILD! /P:Configuration=!MPIR_BUILD_TYPE! /P:Platform=!MPIR_PLATFORM_ARCHITECTURE! /CLP:NoSummary;NoItemAndPropertyList;Verbosity=minimal /NOLOGO !MPIR_VISUAL_STUDIO_SOLUTION_DIRECTORY!\lib_mpir_gc\lib_mpir_gc.vcxproj >> "!MPIR_LOG_FILENAME!" 2>&1
+  !MSBUILD! /P:Configuration=!MPIR_BUILD_TYPE! /P:Platform=!MPIR_PLATFORM_ARCHITECTURE! /CLP:NoSummary;NoItemAndPropertyList;Verbosity=minimal /NOLOGO !MPIR_VISUAL_STUDIO_SOLUTION_DIRECTORY!\lib_mpir_gc\lib_mpir_gc.vcxproj >> "!MPIR_LOG_FILENAME!" 2>&1
   IF NOT !ERRORLEVEL! EQU 0 (
     ECHO FAILED!
     ECHO 	See !MPIR_LOG_FILENAME! for more details
