@@ -452,7 +452,8 @@ static CassBatch *
 create_batch(php_driver_statement *batch,
              CassConsistency consistency,
              CassRetryPolicy *retry_policy,
-             cass_int64_t timestamp TSRMLS_DC)
+             cass_int64_t timestamp,
+             const char* execute_as, size_t execute_as_size TSRMLS_DC)
 {
   CassBatch *cass_batch = cass_batch_new(batch->data.batch.type);
   CassError rc = CASS_OK;
@@ -509,6 +510,14 @@ create_batch(php_driver_statement *batch,
     return NULL;
   )
 
+  if (execute_as != NULL) {
+    rc = cass_batch_set_execute_as_n(cass_batch, execute_as, execute_as_size);
+    ASSERT_SUCCESS_BLOCK(rc,
+      cass_batch_free(cass_batch);
+      return NULL;
+    )
+  }
+
   return cass_batch;
 }
 
@@ -517,7 +526,8 @@ create_single(php_driver_statement *statement, HashTable *arguments,
               CassConsistency consistency, long serial_consistency,
               int page_size, const char* paging_state_token,
               size_t paging_state_token_size,
-              CassRetryPolicy *retry_policy, cass_int64_t timestamp TSRMLS_DC)
+              CassRetryPolicy *retry_policy, cass_int64_t timestamp,
+              const char* execute_as, size_t execute_as_size TSRMLS_DC)
 {
   CassError rc = CASS_OK;
   CassStatement *stmt = create_statement(statement, arguments TSRMLS_CC);
@@ -543,6 +553,12 @@ create_single(php_driver_statement *statement, HashTable *arguments,
 
   if (rc == CASS_OK)
     rc = cass_statement_set_timestamp(stmt, timestamp);
+
+  if (rc == CASS_OK && execute_as) {
+    rc = cass_statement_set_execute_as_n(stmt,
+                                         execute_as,
+                                         execute_as_size);
+  }
 
   if (rc != CASS_OK) {
     cass_statement_free(stmt);
@@ -1870,6 +1886,8 @@ PHP_METHOD(DefaultSession, execute)
   long serial_consistency = -1;
   CassRetryPolicy *retry_policy = NULL;
   cass_int64_t timestamp = INT64_MIN;
+  char *execute_as = NULL;
+  size_t execute_as_size = 0;
   php_driver_execution_options *opts = NULL;
   php_driver_execution_options local_opts;
   CassFuture *future = NULL;
@@ -1935,6 +1953,11 @@ PHP_METHOD(DefaultSession, execute)
     if (!PHP5TO7_ZVAL_IS_UNDEF(opts->retry_policy))
       retry_policy = (PHP_DRIVER_GET_RETRY_POLICY(PHP5TO7_ZVAL_MAYBE_P(opts->retry_policy)))->policy;
 
+    if (opts->execute_as) {
+      execute_as = opts->execute_as;
+      execute_as_size = opts->execute_as_size;
+    }
+
     timestamp = opts->timestamp;
   }
 
@@ -1944,7 +1967,7 @@ PHP_METHOD(DefaultSession, execute)
       single = create_single(stmt, arguments, consistency,
                              serial_consistency, page_size,
                              paging_state_token, paging_state_token_size,
-                             retry_policy, timestamp TSRMLS_CC);
+                             retry_policy, timestamp, execute_as, execute_as_size TSRMLS_CC);
 
       if (!single)
         return;
@@ -1952,7 +1975,7 @@ PHP_METHOD(DefaultSession, execute)
       future = cass_session_execute((CassSession *) self->session->data, single);
       break;
     case PHP_DRIVER_BATCH_STATEMENT:
-      batch = create_batch(stmt, consistency, retry_policy, timestamp TSRMLS_CC);
+      batch = create_batch(stmt, consistency, retry_policy, timestamp, execute_as, execute_as_size TSRMLS_CC);
 
       if (!batch)
         return;
@@ -2024,6 +2047,8 @@ PHP_METHOD(DefaultSession, executeAsync)
   long serial_consistency = -1;
   CassRetryPolicy *retry_policy = NULL;
   cass_int64_t timestamp = INT64_MIN;
+  char *execute_as = NULL;
+  size_t execute_as_size = 0;
   php_driver_execution_options *opts = NULL;
   php_driver_execution_options local_opts;
   php_driver_future_rows *future_rows = NULL;
@@ -2085,6 +2110,11 @@ PHP_METHOD(DefaultSession, executeAsync)
     if (!PHP5TO7_ZVAL_IS_UNDEF(opts->retry_policy))
       retry_policy = (PHP_DRIVER_GET_RETRY_POLICY(PHP5TO7_ZVAL_MAYBE_P(opts->retry_policy)))->policy;
 
+    if (opts->execute_as) {
+      execute_as = opts->execute_as;
+      execute_as_size = opts->execute_as_size;
+    }
+
     timestamp = opts->timestamp;
   }
 
@@ -2097,7 +2127,7 @@ PHP_METHOD(DefaultSession, executeAsync)
       single = create_single(stmt, arguments, consistency,
                              serial_consistency, page_size,
                              paging_state_token, paging_state_token_size,
-                             retry_policy, timestamp TSRMLS_CC);
+                             retry_policy, timestamp, execute_as, execute_as_size TSRMLS_CC);
 
       if (!single)
         return;
@@ -2107,7 +2137,7 @@ PHP_METHOD(DefaultSession, executeAsync)
       future_rows->session   = php_driver_add_ref(self->session);
       break;
     case PHP_DRIVER_BATCH_STATEMENT:
-      batch = create_batch(stmt, consistency, retry_policy, timestamp TSRMLS_CC);
+      batch = create_batch(stmt, consistency, retry_policy, timestamp, execute_as, execute_as_size TSRMLS_CC);
 
       if (!batch)
         return;

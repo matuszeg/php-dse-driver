@@ -20,6 +20,8 @@ static void init_execution_options(php_driver_execution_options *self)
   self->paging_state_token = NULL;
   self->paging_state_token_size = 0;
   self->timestamp = INT64_MIN;
+  self->execute_as = NULL;
+  self->execute_as_size = 0;
   PHP5TO7_ZVAL_UNDEF(self->arguments);
   PHP5TO7_ZVAL_UNDEF(self->timeout);
   PHP5TO7_ZVAL_UNDEF(self->retry_policy);
@@ -35,6 +37,7 @@ static int build_from_array(php_driver_execution_options *self, zval *options, i
   php5to7_zval *arguments = NULL;
   php5to7_zval *retry_policy = NULL;
   php5to7_zval *timestamp = NULL;
+  php5to7_zval *execute_as = NULL;
 
   if (PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "consistency", sizeof("consistency"), consistency)) {
     if (php_driver_get_consistency(PHP5TO7_ZVAL_MAYBE_DEREF(consistency), &self->consistency TSRMLS_CC) == FAILURE) {
@@ -129,6 +132,21 @@ static int build_from_array(php_driver_execution_options *self, zval *options, i
       return FAILURE;
     }
   }
+
+  if (PHP5TO7_ZEND_HASH_FIND(Z_ARRVAL_P(options), "execute_as", sizeof("execute_as"), execute_as)) {
+    if (Z_TYPE_P(PHP5TO7_ZVAL_MAYBE_DEREF(execute_as)) != IS_STRING) {
+      throw_invalid_argument(PHP5TO7_ZVAL_MAYBE_DEREF(execute_as), "execute_as", "a string" TSRMLS_CC);
+      return FAILURE;
+    }
+    if (copy) {
+      self->execute_as = estrndup(Z_STRVAL_P(PHP5TO7_ZVAL_MAYBE_DEREF(execute_as)),
+                                          Z_STRLEN_P(PHP5TO7_ZVAL_MAYBE_DEREF(execute_as)));
+    } else {
+      self->execute_as = Z_STRVAL_P(PHP5TO7_ZVAL_MAYBE_DEREF(execute_as));
+    }
+    self->execute_as_size = Z_STRLEN_P(PHP5TO7_ZVAL_MAYBE_DEREF(execute_as));
+  }
+
   return SUCCESS;
 }
 
@@ -219,6 +237,12 @@ PHP_METHOD(ExecutionOptions, __get)
 #endif
     PHP5TO7_RETVAL_STRING(string);
     efree(string);
+  } else if (name_len == 9 && strncmp("executeAs", name, name_len) == 0) {
+    if (!self->execute_as) {
+      RETURN_NULL();
+    }
+    PHP5TO7_RETURN_STRINGL(self->execute_as,
+                           self->execute_as_size);
   }
 }
 

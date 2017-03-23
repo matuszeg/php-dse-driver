@@ -45,7 +45,7 @@ PHP_METHOD(ClusterBuilder, build)
 
     cluster->hash_key_len = spprintf(&cluster->hash_key, 0,
                                      PHP_DRIVER_NAME ":%s:%d:%d:%s:%d:%d:%d:%s:%s:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%s:%s:%s:%s"
-                                                     ":%s:%s:%s:%s:%s",
+                                                     ":%s:%s:%s:%s:%s:%s",
                                      self->contact_points, self->port, self->load_balancing_policy,
                                      SAFE_STR(self->local_dc), self->used_hosts_per_remote_dc,
                                      self->allow_remote_dcs_for_local_cl, self->use_token_aware_routing,
@@ -62,7 +62,7 @@ PHP_METHOD(ClusterBuilder, build)
                                      SAFE_STR(self->whitelist_hosts), SAFE_STR(self->whitelist_dcs),
                                      SAFE_STR(self->plaintext_username), SAFE_STR(self->plaintext_password),
                                      SAFE_STR(self->gssapi_service), SAFE_STR(self->gssapi_principal),
-                                     graph_options_hash_key);
+                                     SAFE_STR(self->authorization_id), graph_options_hash_key);
 
     if (self->persist) {
       php5to7_zend_resource_le *le;
@@ -146,15 +146,29 @@ PHP_METHOD(ClusterBuilder, build)
   }
 
   if (self->plaintext_username) {
-    cass_cluster_set_dse_plaintext_authenticator(cluster->cluster,
-                                                 self->plaintext_username,
-                                                 SAFE_STR(self->plaintext_password));
+    if (self->authorization_id && *self->authorization_id) {
+      cass_cluster_set_dse_plaintext_authenticator_proxy(cluster->cluster,
+                                                         self->plaintext_username,
+                                                         SAFE_STR(self->plaintext_password),
+                                                         self->authorization_id);
+    } else {
+      cass_cluster_set_dse_plaintext_authenticator(cluster->cluster,
+                                                   self->plaintext_username,
+                                                   SAFE_STR(self->plaintext_password));
+    }
   }
 
   if (self->gssapi_service) {
-    cass_cluster_set_dse_gssapi_authenticator(cluster->cluster,
-                                              self->gssapi_service,
-                                              SAFE_STR(self->gssapi_principal));
+    if (self->authorization_id && *self->authorization_id) {
+      cass_cluster_set_dse_gssapi_authenticator_proxy(cluster->cluster,
+                                                      self->gssapi_service,
+                                                      SAFE_STR(self->gssapi_principal),
+                                                      self->authorization_id);
+    } else {
+      cass_cluster_set_dse_gssapi_authenticator(cluster->cluster,
+                                                self->gssapi_service,
+                                                SAFE_STR(self->gssapi_principal));
+    }
   }
 
   if (self->persist) {
@@ -948,10 +962,11 @@ PHP_METHOD(ClusterBuilder, withPlaintextAuthenticator)
 {
   zval *username = NULL;
   zval *password = NULL;
+  zval *authorizationId = NULL;
 
   php_driver_cluster_builder *self = PHP_DRIVER_GET_CLUSTER_BUILDER(getThis());
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz", &username, &password) == FAILURE) {
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz|z", &username, &password, &authorizationId) == FAILURE) {
     return;
   }
 
@@ -963,13 +978,21 @@ PHP_METHOD(ClusterBuilder, withPlaintextAuthenticator)
     INVALID_ARGUMENT(password, "a string");
   }
 
+  if (authorizationId && Z_TYPE_P(authorizationId) != IS_STRING) {
+    INVALID_ARGUMENT(authorizationId, "a string");
+  }
+
   if (self->plaintext_username) {
     efree(self->plaintext_username);
     efree(self->plaintext_password);
+    if (self->authorization_id) {
+      efree(self->authorization_id);
+    }
   }
 
   self->plaintext_username = estrndup(Z_STRVAL_P(username), Z_STRLEN_P(username));
   self->plaintext_password = estrndup(Z_STRVAL_P(password), Z_STRLEN_P(password));
+  self->authorization_id = authorizationId ? estrndup(Z_STRVAL_P(authorizationId), Z_STRLEN_P(authorizationId)) : NULL;
 
   RETURN_ZVAL(getThis(), 1, 0);
 }
@@ -978,10 +1001,11 @@ PHP_METHOD(ClusterBuilder, withGssapiAuthenticator)
 {
   zval *service = NULL;
   zval *principal = NULL;
+  zval *authorizationId = NULL;
 
   php_driver_cluster_builder *self = PHP_DRIVER_GET_CLUSTER_BUILDER(getThis());
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &service, &principal) == FAILURE) {
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|zz", &service, &principal, &authorizationId) == FAILURE) {
     return;
   }
 
@@ -993,13 +1017,25 @@ PHP_METHOD(ClusterBuilder, withGssapiAuthenticator)
     INVALID_ARGUMENT(principal, "a string");
   }
 
+  if (authorizationId && Z_TYPE_P(authorizationId) != IS_STRING) {
+    INVALID_ARGUMENT(authorizationId, "a string");
+  }
+
   if (self->gssapi_service) {
     efree(self->gssapi_service);
+  }
+
+  if (self->gssapi_principal) {
     efree(self->gssapi_principal);
   }
 
+  if (self->authorization_id) {
+    efree(self->authorization_id);
+  }
+
   self->gssapi_service = estrndup(Z_STRVAL_P(service), Z_STRLEN_P(service));
-  self->gssapi_principal = principal ? estrndup(Z_STRVAL_P(principal), Z_STRLEN_P(principal)) : estrdup("");
+  self->gssapi_principal = principal ? estrndup(Z_STRVAL_P(principal), Z_STRLEN_P(principal)) : NULL;
+  self->authorization_id = authorizationId ? estrndup(Z_STRVAL_P(authorizationId), Z_STRLEN_P(authorizationId)) : NULL;
 
   RETURN_ZVAL(getThis(), 1, 0);
 }
@@ -1106,14 +1142,16 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_timestamp_gen, 0, ZEND_RETURN_VALUE, 1)
   PHP_DRIVER_NAMESPACE_ZEND_ARG_OBJ_INFO(0, generator, TimestampGenerator, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_plaintext_authenticator, 0, ZEND_RETURN_VALUE, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_plaintext_authenticator, 0, ZEND_RETURN_VALUE, 3)
   ZEND_ARG_INFO(0, username)
   ZEND_ARG_INFO(0, password)
+  ZEND_ARG_INFO(0, authorizationId)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_gssapi_authenticator, 0, ZEND_RETURN_VALUE, 2)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_gssapi_authenticator, 0, ZEND_RETURN_VALUE, 3)
   ZEND_ARG_INFO(0, service)
   ZEND_ARG_INFO(0, principal)
+  ZEND_ARG_INFO(0, authorizationId)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_graph_options, 0, ZEND_RETURN_VALUE, 2)
@@ -1496,6 +1534,11 @@ php_driver_cluster_builder_free(php5to7_zend_object_free *object TSRMLS_DC)
     self->gssapi_principal = NULL;
   }
 
+  if (self->authorization_id) {
+    efree(self->authorization_id);
+    self->authorization_id = NULL;
+  }
+
   PHP5TO7_ZVAL_MAYBE_DESTROY(self->graph_options);
 
   zend_object_std_dtor(&self->zval TSRMLS_CC);
@@ -1549,6 +1592,7 @@ php_driver_cluster_builder_new(zend_class_entry *ce TSRMLS_DC)
   self->plaintext_password = NULL;
   self->gssapi_service = NULL;
   self->gssapi_principal = NULL;
+  self->authorization_id = NULL;
   PHP5TO7_ZVAL_UNDEF(self->graph_options);
 
   PHP5TO7_ZEND_OBJECT_INIT(cluster_builder, self, ce);

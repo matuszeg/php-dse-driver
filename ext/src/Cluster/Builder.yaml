@@ -380,6 +380,9 @@ Cluster\Builder:
         password:
           comment: The password to use with DSE's plaintext authentication
           type: string
+        authorizationId:
+          comment: The user that all statements will be executed as (optional).
+          type: string|null
       return:
         comment: self
         type: Builder
@@ -398,6 +401,9 @@ Cluster\Builder:
             The principal whose credentials are used to authenticate. If not provided then the first
             principal in the Kerberos ticket cache will be used.
           type: string
+        authorizationId:
+          comment: The user that all statements will be executed as (optional).
+          type: string|null
       return:
         comment: self
         type: Builder

@@ -291,6 +291,8 @@ PHP_DRIVER_BEGIN_OBJECT_TYPE(execution_options)
   php5to7_zval arguments;
   php5to7_zval retry_policy;
   cass_int64_t timestamp;
+  char *execute_as;
+  size_t execute_as_size;
 PHP_DRIVER_END_OBJECT_TYPE(execution_options)
 
 typedef enum {
@@ -366,6 +368,7 @@ PHP_DRIVER_BEGIN_OBJECT_TYPE(cluster_builder)
   char *plaintext_password;
   char *gssapi_service;
   char *gssapi_principal;
+  char *authorization_id;
   php5to7_zval graph_options;
 PHP_DRIVER_END_OBJECT_TYPE(cluster_builder)
 
