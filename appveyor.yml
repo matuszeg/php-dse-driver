@@ -46,7 +46,7 @@ environment:
   DEPENDENCIES_LOCATION_PREFIX: C:/projects/dependencies/libs
   COMPOSER_CACHE_DIR: C:/projects/dependencies/composer
   CONFIGURATION_COMPLETE: False
-  priv_key:
+  PRIVATE_ENCRYPTED_SSH_KEY:
     secure: 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
   matrix:
     - PHP: 7.0
@@ -247,10 +247,13 @@ install:
 
 before_build:
   - ps: |
-      $fileContent = "-----BEGIN RSA PRIVATE KEY-----`n"
-      $fileContent += $env:priv_key.Replace(' ', "`n")
-      $fileContent += "`n-----END RSA PRIVATE KEY-----`n"
-      Set-Content c:\users\appveyor\.ssh\id_rsa $fileContent
+      # Ensure the private SSH key is available to update git submodule
+      $ssh_key_file_content = @"
+      -----BEGIN RSA PRIVATE KEY-----
+      $($env:PRIVATE_ENCRYPTED_SSH_KEY)
+      -----END RSA PRIVATE KEY-----
+      "@
+      Set-Content C:\Users\appveyor\.ssh\id_rsa $ssh_key_file_content
   - cmd: git submodule update --init --recursive
   - ps: |
       # Navigate to the C/C++ driver dependency
