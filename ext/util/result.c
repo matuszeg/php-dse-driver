@@ -66,19 +66,19 @@ php_driver_value(const CassValue* value, const CassDataType* data_type, php5to7_
                          zval_ptr_dtor(out);
         return FAILURE;
     );
-    if (strncmp(DSE_LINE_STRING_TYPE, v_string, v_string_len) == 0) {
-      return php_driver_line_string_construct_from_value(value, out TSRMLS_CC);
-    } else if (strncmp(DSE_POINT_TYPE, v_string, v_string_len) == 0) {
-      return php_driver_point_construct_from_value(value, out TSRMLS_CC);
-    } else if (strncmp(DSE_POLYGON_TYPE, v_string, v_string_len) == 0) {
-      return php_driver_polygon_construct_from_value(value, out TSRMLS_CC);
-    } else{
-      zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC,
-                              "Unable to to construct unsupported custom type %.*s",
-                              (int)v_string_len, v_string);
-      return FAILURE;
+
+#define XX_FROM_VALUE(type_name, _, __, type_string) \
+    if (strncmp(type_string, v_string, v_string_len) == 0) { \
+      return php_driver_##type_name##_construct_from_value(value, out TSRMLS_CC); \
     }
-    break;
+
+    PHP_DRIVER_DSE_TYPES_MAP(XX_FROM_VALUE)
+#undef XX_FROM_VALUE
+
+  zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC,
+                          "Unable to to construct unsupported custom type %.*s",
+                          (int)v_string_len, v_string);
+  return FAILURE;
   case CASS_VALUE_TYPE_ASCII:
   case CASS_VALUE_TYPE_TEXT:
   case CASS_VALUE_TYPE_VARCHAR:

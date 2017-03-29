@@ -94,7 +94,7 @@ if (PHP_DSE != "no") {
         if (CHECK_LIB("mpir_a.lib", "dse") &&
           CHECK_HEADER_ADD_INCLUDE("gmp.h", "CFLAGS_DSE", PHP_GMP +  ";" + PHP_PHP_BUILD + "/include/mpir")) {
           if (ADD_EXTENSION_DEP("dse", "spl")) {
-            EXTENSION("dse", "php_driver.c");
+            EXTENSION("dse", "php_driver.c php_driver_globals.c");
 
             ADD_SOURCES(configure_module_dirname + "/src",
                 "Aggregate.c " +

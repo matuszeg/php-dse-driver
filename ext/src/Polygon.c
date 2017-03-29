@@ -26,10 +26,11 @@
 zend_class_entry *php_driver_polygon_ce = NULL;
 
 static DsePolygon *
-build_polygon(HashTable *line_strings TSRMLS_DC)
+build_polygon(php_driver_polygon *polygon TSRMLS_DC)
 {
   php5to7_zval *current1;
-  DsePolygon *result = dse_polygon_new();
+  DsePolygon *result = php_driver_polygon_g(TSRMLS_C);
+  HashTable *line_strings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
 
   PHP5TO7_ZEND_HASH_FOREACH_VAL(line_strings, current1) {
     php5to7_zval *current2;
@@ -37,14 +38,12 @@ build_polygon(HashTable *line_strings TSRMLS_DC)
     HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
 
     ASSERT_SUCCESS_BLOCK(dse_polygon_start_ring(result),
-                         dse_polygon_free(result);
                          return NULL;
     );
 
     PHP5TO7_ZEND_HASH_FOREACH_VAL(points, current2) {
       php_driver_point *point = PHP_DRIVER_GET_POINT(PHP5TO7_ZVAL_MAYBE_DEREF(current2));
       ASSERT_SUCCESS_BLOCK(dse_polygon_add_point(result, point->x, point->y),
-                           dse_polygon_free(result);
                            return NULL;
       );
     } PHP5TO7_ZEND_HASH_FOREACH_END(points);
@@ -52,69 +51,28 @@ build_polygon(HashTable *line_strings TSRMLS_DC)
   } PHP5TO7_ZEND_HASH_FOREACH_END(line_strings);
 
   ASSERT_SUCCESS_BLOCK(dse_polygon_finish(result),
-                       dse_polygon_free(result);
                        return NULL;
   );
 
   return result;
 }
 
-int php_driver_polygon_bind_by_index(CassStatement *statement,
-                                     size_t index,
-                                     zval *value TSRMLS_DC)
-{
-  php_driver_polygon *polygon = PHP_DRIVER_GET_POLYGON(value);
-  HashTable *line_strings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
-
-  DsePolygon *dse_polygon = build_polygon(line_strings TSRMLS_CC);
-
-  ASSERT_SUCCESS_BLOCK(cass_statement_bind_dse_polygon(statement,
-                                                       index,
-                                                       dse_polygon),
-                       dse_polygon_free(dse_polygon);
-      return FAILURE;
-  );
-
-  dse_polygon_free(dse_polygon);
-  return SUCCESS;
-}
-
-int php_driver_polygon_bind_by_name(CassStatement *statement,
-                                    const char *name,
-                                    zval *value TSRMLS_DC)
-{
-  php_driver_polygon *polygon = PHP_DRIVER_GET_POLYGON(value);
-  HashTable *line_strings = PHP5TO7_Z_ARRVAL_MAYBE_P(polygon->rings);
-
-  DsePolygon *dse_polygon = build_polygon(line_strings TSRMLS_CC);
-
-  ASSERT_SUCCESS_BLOCK(cass_statement_bind_dse_polygon_by_name(statement,
-                                                               name,
-                                                               dse_polygon),
-                       dse_polygon_free(dse_polygon);
-      return FAILURE;
-  );
-
-  dse_polygon_free(dse_polygon);
-  return SUCCESS;
-}
+#define EXPAND_PARAMS(polygon) build_polygon(polygon TSRMLS_CC)
+PHP_DRIVER_DEFINE_DSE_TYPE_HELPERS(polygon, POLYGON, EXPAND_PARAMS)
+#undef EXPAND_PARAMS
 
 int php_driver_polygon_construct_from_value(const CassValue *value,
                                             php5to7_zval *out TSRMLS_DC)
 {
-  int rc;
-  DsePolygonIterator* iterator = dse_polygon_iterator_new();
-
+  DsePolygonIterator* iterator = PHP_DRIVER_G(iterator_polygon);
   ASSERT_SUCCESS_BLOCK(dse_polygon_iterator_reset(iterator, value),
-                       dse_polygon_iterator_free(iterator);
       return FAILURE;
   );
 
   object_init_ex(PHP5TO7_ZVAL_MAYBE_DEREF(out), php_driver_polygon_ce);
-  rc = php_driver_polygon_construct_from_iterator(iterator,
-                                                  PHP5TO7_ZVAL_MAYBE_DEREF(out) TSRMLS_CC);
-  dse_polygon_iterator_free(iterator);
-  return rc;
+
+  return php_driver_polygon_construct_from_iterator(iterator,
+                                                    PHP5TO7_ZVAL_MAYBE_DEREF(out) TSRMLS_CC);
 }
 
 char *php_driver_polygon_to_wkt(php_driver_polygon *polygon TSRMLS_DC)
@@ -286,16 +244,13 @@ PHP_METHOD(Polygon, __construct)
       // error, it typically occurs during initialization. However, it's theoretically
       // possible to run into an issue when traversing the iterator, so cover that, too.
 
-      DsePolygonIterator* iterator = dse_polygon_iterator_new();
+      DsePolygonIterator* iterator = PHP_DRIVER_G(iterator_polygon);
       rc = dse_polygon_iterator_reset_with_wkt_n(iterator, Z_STRVAL_P(ring_obj_or_wkt), Z_STRLEN_P(ring_obj_or_wkt));
       if (rc == CASS_OK) {
         rc = php_driver_polygon_construct_from_iterator(iterator, getThis() TSRMLS_CC);
       }
 
-      dse_polygon_iterator_free(iterator);
-
-      if (rc != SUCCESS && rc != CASS_OK) {
-        // Failed to parse the wkt properly. Yell.
+      if (rc != SUCCESS && rc != CASS_OK) { // Failed to parse the wkt properly. Yell
         throw_invalid_argument(ring_obj_or_wkt, "Argument 1", "valid WKT for a Polygon" TSRMLS_CC);
       }
 
@@ -361,11 +316,7 @@ PHP_METHOD(Polygon, __toString)
 
 PHP_METHOD(Polygon, type)
 {
-  if (PHP5TO7_ZVAL_IS_UNDEF(PHP_DRIVER_G(type_polygon))) {
-    PHP_DRIVER_G(type_polygon) = php_driver_type_custom(DSE_POLYGON_TYPE,
-                                                        strlen(DSE_POLYGON_TYPE) TSRMLS_CC);
-  }
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(PHP_DRIVER_G(type_polygon)), 1, 0);
+  php_driver_polygon_type(return_value TSRMLS_CC);
 }
 
 PHP_METHOD(Polygon, exteriorRing)
@@ -479,7 +430,7 @@ static zend_function_entry php_driver_polygon_methods[] = {
   PHP_FE_END
 };
 
-static zend_object_handlers php_driver_polygon_handlers;
+static php_driver_value_handlers php_driver_polygon_handlers;
 
 static HashTable *
 php_driver_polygon_properties(zval *object TSRMLS_DC)
@@ -540,6 +491,27 @@ php_driver_polygon_compare(zval *obj1, zval *obj2 TSRMLS_DC)
   return 0;
 }
 
+static unsigned
+php_driver_polygon_hash_value(zval *obj TSRMLS_DC)
+{
+  php5to7_zval *current;
+  php_driver_polygon *self = PHP_DRIVER_GET_POLYGON(obj);
+  HashTable *rings = PHP5TO7_Z_ARRVAL_MAYBE_P(self->rings);
+
+  /*
+   * It's possible for two polygons to have the same number of points in a
+   * different number of rings.
+   */
+  unsigned hashv = (unsigned) zend_hash_num_elements(rings);
+
+  PHP5TO7_ZEND_HASH_FOREACH_VAL(rings, current) {
+    hashv = php_driver_combine_hash(hashv, php_driver_value_hash(PHP5TO7_ZVAL_MAYBE_DEREF(current) TSRMLS_CC));
+  } PHP5TO7_ZEND_HASH_FOREACH_END(rings);
+
+
+  return hashv;
+}
+
 static void
 php_driver_polygon_free(php5to7_zend_object_free *object TSRMLS_DC)
 {
@@ -573,7 +545,9 @@ void php_driver_define_Polygon(TSRMLS_D)
   php_driver_polygon_ce->create_object = php_driver_polygon_new;
 
   memcpy(&php_driver_polygon_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-  php_driver_polygon_handlers.get_properties  = php_driver_polygon_properties;
-  php_driver_polygon_handlers.compare_objects = php_driver_polygon_compare;
-  php_driver_polygon_handlers.clone_obj = NULL;
+  php_driver_polygon_handlers.std.get_properties  = php_driver_polygon_properties;
+  php_driver_polygon_handlers.std.compare_objects = php_driver_polygon_compare;
+  php_driver_polygon_handlers.std.clone_obj = NULL;
+
+  php_driver_polygon_handlers.hash_value = php_driver_polygon_hash_value;
 }

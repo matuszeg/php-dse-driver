@@ -85,7 +85,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider scalarTypes
      */
-    public function testScalarKeys($type, $value)
+    public function testScalarTypes($type, $value)
     {
         $list = Type::collection($type)->create();
         $list->add($value);
@@ -112,7 +112,13 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             array(Type::timeuuid(), new Timeuuid(0)),
             array(Type::uuid(), new Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2")),
             array(Type::varchar(), "varchar"),
-            array(Type::varint(), new Varint("9223372036854775808"))
+            array(Type::varint(), new Varint("9223372036854775808")),
+            array(Type::point(), new Point(0.0, 0.0)),
+            array(Type::lineString(), new LineString(new Point(3.14159, 3.14159), new Point(1.0, 1.0))),
+            array(Type::polygon(), new Polygon(new LineString(new Point(3.14159, 3.14159),
+                                                              new Point(1.0, 1.0),
+                                                              new Point(3.14159, 2.0),
+                                                              new Point(3.14159, 3.14159))))
         );
     }
 

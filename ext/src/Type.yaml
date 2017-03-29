@@ -210,4 +210,19 @@ Type:
       return:
         comment: String representation of this type
         type: string
+    point:
+      comment: Get the DSE point type
+      return:
+        comment: point type
+        type: Type
+    lineString:
+      comment: Get the DSE line string type
+      return:
+        comment: line string type
+        type: Type
+    polygon:
+      comment: Get the DSE polygon type
+      return:
+        comment: polygon type
+        type: Type
 ...

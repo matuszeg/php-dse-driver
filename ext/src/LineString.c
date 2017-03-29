@@ -26,83 +26,42 @@
 zend_class_entry *php_driver_line_string_ce = NULL;
 
 static DseLineString*
-build_line_string(HashTable *points TSRMLS_DC)
+build_line_string(php_driver_line_string* line_string TSRMLS_DC)
 {
-  DseLineString *result = dse_line_string_new();
+  DseLineString *result = php_driver_line_string_g(TSRMLS_C);
+  HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
 
   php5to7_zval *current;
   PHP5TO7_ZEND_HASH_FOREACH_VAL(points, current) {
     php_driver_point *point = PHP_DRIVER_GET_POINT(PHP5TO7_ZVAL_MAYBE_DEREF(current));
     ASSERT_SUCCESS_BLOCK(dse_line_string_add_point(result, point->x, point->y),
-                         dse_line_string_free(result);
         return NULL;
     );
   } PHP5TO7_ZEND_HASH_FOREACH_END(points);
 
   ASSERT_SUCCESS_BLOCK(dse_line_string_finish(result),
-                       dse_line_string_free(result);
       return NULL;
   );
 
   return result;
 }
 
-int php_driver_line_string_bind_by_index(CassStatement *statement,
-                                         size_t index,
-                                         zval *value TSRMLS_DC)
-{
-  php_driver_line_string *line_string = PHP_DRIVER_GET_LINE_STRING(value);
-  HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
-
-  DseLineString *dse_line_string = build_line_string(points TSRMLS_CC);
-
-  ASSERT_SUCCESS_BLOCK(cass_statement_bind_dse_line_string(statement,
-                                                           index,
-                                                           dse_line_string),
-                       dse_line_string_free(dse_line_string);
-      return FAILURE;
-  );
-
-  dse_line_string_free(dse_line_string);
-  return SUCCESS;
-}
-
-int php_driver_line_string_bind_by_name(CassStatement *statement,
-                                        const char *name,
-                                        zval *value TSRMLS_DC)
-{
-  php_driver_line_string *line_string = PHP_DRIVER_GET_LINE_STRING(value);
-  HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(line_string->points);
-
-  DseLineString *dse_line_string = build_line_string(points TSRMLS_CC);
-
-  ASSERT_SUCCESS_BLOCK(cass_statement_bind_dse_line_string_by_name(statement,
-                                                                   name,
-                                                                   dse_line_string),
-                       dse_line_string_free(dse_line_string);
-      return FAILURE;
-  );
-
-  dse_line_string_free(dse_line_string);
-  return SUCCESS;
-}
+#define EXPAND_PARAMS(line_string) build_line_string(line_string TSRMLS_CC)
+PHP_DRIVER_DEFINE_DSE_TYPE_HELPERS(line_string, LINE_STRING, EXPAND_PARAMS)
+#undef EXPAND_PARAMS
 
 int php_driver_line_string_construct_from_value(const CassValue *value,
                                                 php5to7_zval *out TSRMLS_DC)
 {
-  int rc;
-  DseLineStringIterator* iterator = dse_line_string_iterator_new();
-
+  DseLineStringIterator* iterator = PHP_DRIVER_G(iterator_line_string);
   ASSERT_SUCCESS_BLOCK(dse_line_string_iterator_reset(iterator, value),
-                       dse_line_string_iterator_free(iterator);
       return FAILURE;
   );
 
   object_init_ex(PHP5TO7_ZVAL_MAYBE_DEREF(out), php_driver_line_string_ce);
-  rc = php_driver_line_string_construct_from_iterator(iterator,
-                                                      PHP5TO7_ZVAL_MAYBE_DEREF(out) TSRMLS_CC);
-  dse_line_string_iterator_free(iterator);
-  return rc;
+
+  return php_driver_line_string_construct_from_iterator(iterator,
+                                                        PHP5TO7_ZVAL_MAYBE_DEREF(out) TSRMLS_CC);
 }
 
 char *php_driver_line_string_to_wkt(php_driver_line_string *line_string TSRMLS_DC)
@@ -240,13 +199,11 @@ PHP_METHOD(LineString, __construct)
       // error, it typically occurs during initialization. However, it's theoretically
       // possible to run into an issue when traversing the iterator, so cover that, too.
 
-      DseLineStringIterator* iterator = dse_line_string_iterator_new();
+      DseLineStringIterator* iterator = PHP_DRIVER_G(iterator_line_string);
       rc = dse_line_string_iterator_reset_with_wkt_n(iterator, Z_STRVAL_P(point_obj_or_wkt), Z_STRLEN_P(point_obj_or_wkt));
       if (rc == CASS_OK) {
         rc = php_driver_line_string_construct_from_iterator(iterator, getThis() TSRMLS_CC);
       }
-
-      dse_line_string_iterator_free(iterator);
 
       if (rc != SUCCESS && rc != CASS_OK) {
         // Failed to parse the wkt properly. Yell.
@@ -312,11 +269,7 @@ PHP_METHOD(LineString, __toString)
 
 PHP_METHOD(LineString, type)
 {
-  if (PHP5TO7_ZVAL_IS_UNDEF(PHP_DRIVER_G(type_line_string))) {
-    PHP_DRIVER_G(type_line_string) = php_driver_type_custom(DSE_LINE_STRING_TYPE,
-                                                            strlen(DSE_LINE_STRING_TYPE) TSRMLS_CC);
-  }
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(PHP_DRIVER_G(type_line_string)), 1, 0);
+  php_driver_line_string_type(return_value TSRMLS_CC);
 }
 
 PHP_METHOD(LineString, points)
@@ -385,7 +338,7 @@ static zend_function_entry php_driver_line_string_methods[] = {
   PHP_FE_END
 };
 
-static zend_object_handlers php_driver_line_string_handlers;
+static php_driver_value_handlers php_driver_line_string_handlers;
 
 static HashTable *
 php_driver_line_string_properties(zval *object TSRMLS_DC)
@@ -445,6 +398,21 @@ php_driver_line_string_compare(zval *obj1, zval *obj2 TSRMLS_DC)
   return 0;
 }
 
+static unsigned
+php_driver_line_string_hash_value(zval *obj TSRMLS_DC)
+{
+  php5to7_zval *current;
+  php_driver_line_string *self = PHP_DRIVER_GET_LINE_STRING(obj);
+  HashTable *points = PHP5TO7_Z_ARRVAL_MAYBE_P(self->points);
+  unsigned hashv = 0;
+
+  PHP5TO7_ZEND_HASH_FOREACH_VAL(points, current) {
+    hashv = php_driver_combine_hash(hashv, php_driver_value_hash(PHP5TO7_ZVAL_MAYBE_DEREF(current) TSRMLS_CC));
+  } PHP5TO7_ZEND_HASH_FOREACH_END(points);
+
+  return hashv;
+}
+
 static void
 php_driver_line_string_free(php5to7_zend_object_free *object TSRMLS_DC)
 {
@@ -478,7 +446,10 @@ void php_driver_define_LineString(TSRMLS_D)
   php_driver_line_string_ce->create_object = php_driver_line_string_new;
 
   memcpy(&php_driver_line_string_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-  php_driver_line_string_handlers.get_properties  = php_driver_line_string_properties;
-  php_driver_line_string_handlers.compare_objects = php_driver_line_string_compare;
-  php_driver_line_string_handlers.clone_obj = NULL;
+  php_driver_line_string_handlers.std.get_properties  = php_driver_line_string_properties;
+  php_driver_line_string_handlers.std.compare_objects = php_driver_line_string_compare;
+  php_driver_line_string_handlers.std.clone_obj = NULL;
+
+  php_driver_line_string_handlers.hash_value = php_driver_line_string_hash_value;
+
 }

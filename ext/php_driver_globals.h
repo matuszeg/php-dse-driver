@@ -8,38 +8,32 @@
 #ifndef PHP_DRIVER_GLOBALS_H
 #define PHP_DRIVER_GLOBALS_H
 
+#include "php_driver_types.h"
+
 ZEND_BEGIN_MODULE_GLOBALS(php_driver)
   CassUuidGen           *uuid_gen;
   pid_t                  uuid_gen_pid;
   unsigned int           persistent_clusters;
   unsigned int           persistent_sessions;
-  php5to7_zval           type_varchar;
-  php5to7_zval           type_text;
-  php5to7_zval           type_blob;
-  php5to7_zval           type_ascii;
-  php5to7_zval           type_bigint;
-  php5to7_zval           type_counter;
-  php5to7_zval           type_int;
-  php5to7_zval           type_varint;
-  php5to7_zval           type_boolean;
-  php5to7_zval           type_decimal;
-  php5to7_zval           type_double;
-  php5to7_zval           type_float;
-  php5to7_zval           type_inet;
-  php5to7_zval           type_timestamp;
-  php5to7_zval           type_date;
-  php5to7_zval           type_time;
-  php5to7_zval           type_uuid;
-  php5to7_zval           type_timeuuid;
-  php5to7_zval           type_smallint;
-  php5to7_zval           type_tinyint;
-  php5to7_zval           type_line_string;
-  php5to7_zval           type_point;
-  php5to7_zval           type_polygon;
-  php5to7_zval           type_duration;
+
+#define XX_SCALAR(name, _) php5to7_zval type_##name;
+
+  PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
+#undef XX_SCALAR
+
+#define XX_DSE_TYPE(name, _, __, ___) php5to7_zval type_##name;
+
+  PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_TYPE)
+#undef XX_DSE_TYPE
+
+  DseLineString         *line_string; // Don't use directly use php_driver_line_string_g()
   DseLineStringIterator *iterator_line_string;
+  DsePolygon            *polygon; // Don't use directly use php_driver_polygon_g()
   DsePolygonIterator    *iterator_polygon;
 ZEND_END_MODULE_GLOBALS(php_driver)
+
+DseLineString *php_driver_line_string_g(TSRMLS_D);
+DsePolygon *php_driver_polygon_g(TSRMLS_D);
 
 ZEND_EXTERN_MODULE_GLOBALS(php_driver)
 

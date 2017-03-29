@@ -9,35 +9,16 @@
 #include "php_driver_globals.h"
 #include "php_driver_types.h"
 
+#include "util/hash.h"
 #include "util/types.h"
 
 #include "Point.h"
 
 zend_class_entry *php_driver_point_ce = NULL;
 
-int php_driver_point_bind_by_index(CassStatement *statement,
-                                   size_t index,
-                                   zval *value TSRMLS_DC)
-{
-  php_driver_point *point = PHP_DRIVER_GET_POINT(value);
-  ASSERT_SUCCESS_VALUE(cass_statement_bind_dse_point(statement,
-                                                     index,
-                                                     point->x, point->y),
-                       FAILURE);
-  return SUCCESS;
-}
-
-int php_driver_point_bind_by_name(CassStatement *statement,
-                                  const char *name,
-                                  zval *value TSRMLS_DC)
-{
-  php_driver_point *point = PHP_DRIVER_GET_POINT(value);
-  ASSERT_SUCCESS_VALUE(cass_statement_bind_dse_point_by_name(statement,
-                                                             name,
-                                                             point->x, point->y),
-                       FAILURE);
-  return SUCCESS;
-}
+#define EXPAND_PARMS(point) point->x, point->y
+PHP_DRIVER_DEFINE_DSE_TYPE_HELPERS(point, POINT, EXPAND_PARMS)
+#undef EXPAND_PARMS
 
 int php_driver_point_construct_from_value(const CassValue *value,
                                           php5to7_zval *out TSRMLS_DC)
@@ -147,11 +128,7 @@ PHP_METHOD(Point, __toString)
 
 PHP_METHOD(Point, type)
 {
-  if (PHP5TO7_ZVAL_IS_UNDEF(PHP_DRIVER_G(type_point))) {
-    PHP_DRIVER_G(type_point) = php_driver_type_custom(DSE_POINT_TYPE,
-                                                      strlen(DSE_POINT_TYPE) TSRMLS_CC);
-  }
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(PHP_DRIVER_G(type_point)), 1, 0);
+  php_driver_point_type(return_value TSRMLS_CC);
 }
 
 PHP_METHOD(Point, x)
@@ -209,7 +186,7 @@ static zend_function_entry php_driver_point_methods[] = {
   PHP_FE_END
 };
 
-static zend_object_handlers php_driver_point_handlers;
+static php_driver_value_handlers php_driver_point_handlers;
 
 static HashTable *
 php_driver_point_properties(zval *object TSRMLS_DC)
@@ -231,6 +208,7 @@ php_driver_point_properties(zval *object TSRMLS_DC)
 static int
 php_driver_point_compare(zval *obj1, zval *obj2 TSRMLS_DC)
 {
+  int result;
   php_driver_point *left;
   php_driver_point *right;
 
@@ -240,24 +218,25 @@ php_driver_point_compare(zval *obj1, zval *obj2 TSRMLS_DC)
   left = PHP_DRIVER_GET_POINT(obj1);
   right = PHP_DRIVER_GET_POINT(obj2);
 
-  // Comparisons compare x, then y.
 
-  // left has smaller x.
-  if (left->x < right->x)
-    return -1;
-
-  if (left->x == right->x) {
-    // x's are the same; compare y's.
-    if (left->y < right->y)
-      return -1;
-    else if (left->y == right->y)
-      return 0;
-    else
-      return 1;
-  } else {
-    // left x is larger than right x.
-    return 1;
+  result = php_driver_hash_double_compare(left->x, right->x);
+  if (result == 0) {
+    return php_driver_hash_double_compare(left->y, right->y);
   }
+
+  return result;
+}
+
+static unsigned
+php_driver_point_hash_value(zval *obj TSRMLS_DC)
+{
+  php_driver_point *self = PHP_DRIVER_GET_POINT(obj);
+  unsigned hashv = 0;
+
+  hashv = php_driver_combine_hash(hashv, php_driver_double_hash(self->x));
+  hashv = php_driver_combine_hash(hashv, php_driver_double_hash(self->y));
+
+  return hashv;
 }
 
 static void
@@ -288,7 +267,9 @@ void php_driver_define_Point(TSRMLS_D)
   php_driver_point_ce->create_object = php_driver_point_new;
 
   memcpy(&php_driver_point_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-  php_driver_point_handlers.get_properties  = php_driver_point_properties;
-  php_driver_point_handlers.compare_objects = php_driver_point_compare;
-  php_driver_point_handlers.clone_obj = NULL;
+  php_driver_point_handlers.std.get_properties  = php_driver_point_properties;
+  php_driver_point_handlers.std.compare_objects = php_driver_point_compare;
+  php_driver_point_handlers.std.clone_obj = NULL;
+
+  php_driver_point_handlers.hash_value = php_driver_point_hash_value;
 }

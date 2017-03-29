@@ -208,17 +208,13 @@ bind_argument_by_index(CassStatement *statement, size_t index, zval *value TSRML
       CHECK_RESULT(rc);
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_line_string_ce TSRMLS_CC)) {
-      return php_driver_line_string_bind_by_index(statement, index, value TSRMLS_CC);
+#define XX_BIND_BY_INDEX(type_name, _, __, ___)  \
+    if (instanceof_function(Z_OBJCE_P(value), php_driver_##type_name##_ce TSRMLS_CC)) { \
+      return php_driver_##type_name##_bind_by_index(statement, index, value TSRMLS_CC); \
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_point_ce TSRMLS_CC)) {
-      return php_driver_point_bind_by_index(statement, index, value TSRMLS_CC);
-    }
-
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_polygon_ce TSRMLS_CC)) {
-      return php_driver_polygon_bind_by_index(statement, index, value TSRMLS_CC);
-    }
+    PHP_DRIVER_DSE_TYPES_MAP(XX_BIND_BY_INDEX)
+#undef XX_BIND_BY_INDEX
   }
 
   return FAILURE;
@@ -383,17 +379,13 @@ bind_argument_by_name(CassStatement *statement, const char *name,
       CHECK_RESULT(rc);
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_line_string_ce TSRMLS_CC)) {
-      return php_driver_line_string_bind_by_name(statement, name, value TSRMLS_CC);
+#define XX_BIND_BY_NAME(type_name, _, __, ___) \
+    if (instanceof_function(Z_OBJCE_P(value), php_driver_##type_name##_ce TSRMLS_CC)) { \
+      return php_driver_##type_name##_bind_by_name(statement, name, value TSRMLS_CC); \
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_point_ce TSRMLS_CC)) {
-      return php_driver_point_bind_by_name(statement, name, value TSRMLS_CC);
-    }
-
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_polygon_ce TSRMLS_CC)) {
-      return php_driver_polygon_bind_by_name(statement, name, value TSRMLS_CC);
-    }
+    PHP_DRIVER_DSE_TYPES_MAP(XX_BIND_BY_NAME)
+#undef XX_BIND_BY_NAME
   }
 
   return FAILURE;
@@ -1418,26 +1410,13 @@ graph_array_add(DseGraphArray *array,
       CHECK_RESULT(rc);
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_line_string_ce TSRMLS_CC)) {
-      char* wkt = php_driver_line_string_to_wkt(PHP_DRIVER_GET_LINE_STRING(value) TSRMLS_CC);
-      CassError rc = dse_graph_array_add_string(array, wkt);
-      efree(wkt);
-      CHECK_RESULT(rc);
+#define XX_GRAPH_ARRAY_ADD(type_name, _, __, ___) \
+    if (instanceof_function(Z_OBJCE_P(value), php_driver_##type_name##_ce TSRMLS_CC)) { \
+      return php_driver_##type_name##_graph_array_add(array, value TSRMLS_CC); \
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_point_ce TSRMLS_CC)) {
-      char* wkt = php_driver_point_to_wkt(PHP_DRIVER_GET_POINT(value));
-      CassError rc = dse_graph_array_add_string(array, wkt);
-      efree(wkt);
-      CHECK_RESULT(rc);
-    }
-
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_polygon_ce TSRMLS_CC)) {
-      char* wkt = php_driver_polygon_to_wkt(PHP_DRIVER_GET_POLYGON(value) TSRMLS_CC);
-      CassError rc = dse_graph_array_add_string(array, wkt);
-      efree(wkt);
-      CHECK_RESULT(rc);
-    }
+    PHP_DRIVER_DSE_TYPES_MAP(XX_GRAPH_ARRAY_ADD)
+#undef XX_GRAPH_ARRAY_ADD
   }
 
   return FAILURE;
@@ -1605,26 +1584,13 @@ graph_object_add(DseGraphObject *object,
       CHECK_RESULT(rc);
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_line_string_ce TSRMLS_CC)) {
-      char* wkt = php_driver_line_string_to_wkt(PHP_DRIVER_GET_LINE_STRING(value) TSRMLS_CC);
-      CassError rc = dse_graph_object_add_string(object, name, wkt);
-      efree(wkt);
-      CHECK_RESULT(rc);
+#define XX_GRAPH_OBJECT_ADD(type_name, _, __, ___) \
+    if (instanceof_function(Z_OBJCE_P(value), php_driver_##type_name##_ce TSRMLS_CC)) { \
+      return php_driver_##type_name##_graph_object_add(object, name, value TSRMLS_CC); \
     }
 
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_point_ce TSRMLS_CC)) {
-      char* wkt = php_driver_point_to_wkt(PHP_DRIVER_GET_POINT(value));
-      CassError rc = dse_graph_object_add_string(object, name, wkt);
-      efree(wkt);
-      CHECK_RESULT(rc);
-    }
-
-    if (instanceof_function(Z_OBJCE_P(value), php_driver_polygon_ce TSRMLS_CC)) {
-      char* wkt = php_driver_polygon_to_wkt(PHP_DRIVER_GET_POLYGON(value) TSRMLS_CC);
-      CassError rc = dse_graph_object_add_string(object, name, wkt);
-      efree(wkt);
-      CHECK_RESULT(rc);
-    }
+    PHP_DRIVER_DSE_TYPES_MAP(XX_GRAPH_OBJECT_ADD)
+#undef XX_GRAPH_OBJECT_ADD
   }
 
   return FAILURE;

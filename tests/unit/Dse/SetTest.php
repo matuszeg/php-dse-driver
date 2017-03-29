@@ -66,13 +66,13 @@ class SetTest extends \PHPUnit_Framework_TestCase
      */
     public function testScalarKeys($type, $value, $valueCopy)
     {
-        $map = Type::set($type)->create();
-        $map->add($value);
-        $this->assertEquals(1, count($map));
-        $this->assertTrue($map->has($value));
-        $this->assertTrue($map->has($valueCopy));
-        $map->remove($value);
-        $this->assertEquals(0, count($map));
+        $set = Type::set($type)->create();
+        $set->add($value);
+        $this->assertEquals(1, count($set));
+        $this->assertTrue($set->has($value));
+        $this->assertTrue($set->has($valueCopy));
+        $set->remove($value);
+        $this->assertEquals(0, count($set));
     }
 
     public function scalarTypes()
@@ -93,7 +93,18 @@ class SetTest extends \PHPUnit_Framework_TestCase
             array(Type::timeuuid(), new Timeuuid(0), new Timeuuid(0)),
             array(Type::uuid(), new Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2"), new Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2")),
             array(Type::varchar(), "varchar", "varchar"),
-            array(Type::varint(), new Varint("9223372036854775808"), new Varint("9223372036854775808"))
+            array(Type::varint(), new Varint("9223372036854775808"), new Varint("9223372036854775808")),
+            array(Type::point(), new Point(3.14159, 3.14159), new Point(3.14159, 3.14159)),
+            array(Type::lineString(), new LineString(new Point(3.14159, 3.14159), new Point(1.0, 1.0)),
+                                      new LineString(new Point(3.14159, 3.14159), new Point(1.0, 1.0))),
+            array(Type::polygon(), new Polygon(new LineString(new Point(3.14159, 3.14159),
+                                                              new Point(1.0, 1.0),
+                                                              new Point(3.14159, 2.0),
+                                                              new Point(3.14159, 3.14159))),
+                                   new Polygon(new LineString(new Point(3.14159, 3.14159),
+                                                              new Point(1.0, 1.0),
+                                                              new Point(3.14159, 2.0),
+                                                              new Point(3.14159, 3.14159))))
         );
     }
 
@@ -102,23 +113,23 @@ class SetTest extends \PHPUnit_Framework_TestCase
      */
     public function testCompositeKeys($type)
     {
-        $map = Type::set($type)->create();
+        $set = Type::set($type)->create();
 
-        $map->add($type->create("a", "1", "b", "2"));
-        $this->assertTrue($map->has($type->create("a", "1", "b", "2")));
-        $this->assertEquals(1, count($map));
+        $set->add($type->create("a", "1", "b", "2"));
+        $this->assertTrue($set->has($type->create("a", "1", "b", "2")));
+        $this->assertEquals(1, count($set));
 
-        $map->add($type->create("c", "3", "d", "4", "e", "5"));
-        $this->assertTrue($map->has($type->create("c", "3", "d", "4", "e", "5")));
-        $this->assertEquals(2, count($map));
+        $set->add($type->create("c", "3", "d", "4", "e", "5"));
+        $this->assertTrue($set->has($type->create("c", "3", "d", "4", "e", "5")));
+        $this->assertEquals(2, count($set));
 
-        $map->remove($type->create("a", "1", "b", "2"));
-        $this->assertFalse($map->has($type->create("a", "1", "b", "2")));
-        $this->assertEquals(1, count($map));
+        $set->remove($type->create("a", "1", "b", "2"));
+        $this->assertFalse($set->has($type->create("a", "1", "b", "2")));
+        $this->assertEquals(1, count($set));
 
-        $map->remove($type->create("c", "3", "d", "4", "e", "5"));
-        $this->assertFalse($map->has($type->create("c", "3", "d", "4", "e", "5")));
-        $this->assertEquals(0, count($map));
+        $set->remove($type->create("c", "3", "d", "4", "e", "5"));
+        $this->assertFalse($set->has($type->create("c", "3", "d", "4", "e", "5")));
+        $this->assertEquals(0, count($set));
     }
 
     public function compositeTypes()

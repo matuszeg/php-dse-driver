@@ -9,19 +9,6 @@
 #include "php_driver_types.h"
 #include "util/hash.h"
 
-static inline cass_int64_t
-double_to_bits(cass_double_t value) {
-  cass_int64_t bits;
-  if (zend_isnan(value)) return 0x7ff8000000000000LL; /* A canonical NaN value */
-  memcpy(&bits, &value, sizeof(cass_int64_t));
-  return bits;
-}
-
-static inline unsigned
-double_hash(cass_double_t value) {
-  return php_driver_bigint_hash(double_to_bits(value));
-}
-
 unsigned
 php_driver_value_hash(zval* zvalue TSRMLS_DC) {
   switch (Z_TYPE_P(zvalue)) {
@@ -34,7 +21,8 @@ php_driver_value_hash(zval* zvalue TSRMLS_DC) {
 #error "Unexpected sizeof(long)"
 #endif
 
-  case IS_DOUBLE: return double_hash(Z_DVAL_P(zvalue));
+  case IS_DOUBLE:
+      return php_driver_double_hash(Z_DVAL_P(zvalue));
 
 #if PHP_MAJOR_VERSION >= 7
   case IS_TRUE: return 1;
@@ -61,17 +49,6 @@ php_driver_value_hash(zval* zvalue TSRMLS_DC) {
   return 0;
 }
 
-static inline int
-double_compare(cass_double_t d1, cass_double_t d2) {
-  cass_int64_t bits1, bits2;
-  if (d1 < d2) return -1;
-  if (d1 > d2) return  1;
-  bits1 = double_to_bits(d1);
-  bits2 = double_to_bits(d2);
-  /* Handle NaNs and negative and positive 0.0 */
-  return PHP_DRIVER_COMPARE(bits1, bits2);
-}
-
 int
 php_driver_value_compare(zval* zvalue1, zval* zvalue2 TSRMLS_DC) {
   if (zvalue1 == zvalue2) return 0;
@@ -88,7 +65,7 @@ php_driver_value_compare(zval* zvalue1, zval* zvalue2 TSRMLS_DC) {
     return PHP_DRIVER_COMPARE(Z_LVAL_P(zvalue1), Z_LVAL_P(zvalue2));
 
   case IS_DOUBLE:
-    return double_compare(Z_DVAL_P(zvalue1), Z_DVAL_P(zvalue2));
+    return php_driver_hash_double_compare(Z_DVAL_P(zvalue1), Z_DVAL_P(zvalue2));
 
 #if PHP_MAJOR_VERSION >= 7
   case IS_TRUE:

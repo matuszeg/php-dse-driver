@@ -8,15 +8,7 @@
 #ifndef PHP_DRIVER_POLYGON_H
 #define PHP_DRIVER_POLYGON_H
 
-#define DSE_POLYGON_TYPE "org.apache.cassandra.db.marshal.PolygonType"
-
-int php_driver_polygon_bind_by_index(CassStatement *statement,
-                                     size_t index,
-                                     zval *value TSRMLS_DC);
-
-int php_driver_polygon_bind_by_name(CassStatement *statement,
-                                    const char *name,
-                                    zval *value TSRMLS_DC);
+PHP_DRIVER_DECLARE_DSE_TYPE_HELPERS(polygon)
 
 int php_driver_polygon_construct_from_value(const CassValue *value,
                                             php5to7_zval *out TSRMLS_DC);

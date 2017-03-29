@@ -13,6 +13,10 @@
 #include "util/math.h"
 #include "util/types.h"
 
+#include "src/Point.h"
+#include "src/LineString.h"
+#include "src/Polygon.h"
+
 #include <stdlib.h>
 
 #define EXPECTING_VALUE(expected) \
@@ -37,6 +41,12 @@ php_driver_validate_object(zval *object, zval *ztype TSRMLS_DC)
   type = PHP_DRIVER_GET_TYPE(ztype);
 
   switch (type->type) {
+  case CASS_VALUE_TYPE_CUSTOM:
+    if (!INSTANCE_OF(php_driver_custom_ce)) {
+      EXPECTING_VALUE("an instance of " PHP_DRIVER_NAMESPACE "\\Custom");
+    }
+
+    return 1;
   case CASS_VALUE_TYPE_VARCHAR:
   case CASS_VALUE_TYPE_TEXT:
   case CASS_VALUE_TYPE_ASCII:
@@ -293,6 +303,19 @@ php_driver_collection_append(CassCollection *collection, zval *value, CassValueT
   CassUserType         *sub_ut;
 
   switch (type) {
+  case CASS_VALUE_TYPE_CUSTOM:
+      assert(Z_TYPE_P(value) == IS_OBJECT);
+#define XX_COLLECTION_APPEND(type_name, _, __, ___) \
+      if (instanceof_function(Z_OBJCE_P(value), php_driver_##type_name##_ce TSRMLS_CC)) { \
+        return php_driver_##type_name##_collection_append(collection, value TSRMLS_CC) == SUCCESS; \
+      }
+
+      PHP_DRIVER_DSE_TYPES_MAP(XX_COLLECTION_APPEND)
+#undef XX_COLLECTION_APPEND
+
+      zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC,
+                              "Unable to add unsupported custom type to collection");
+      return 0;
   case CASS_VALUE_TYPE_TEXT:
   case CASS_VALUE_TYPE_ASCII:
   case CASS_VALUE_TYPE_VARCHAR:
@@ -400,7 +423,8 @@ php_driver_collection_append(CassCollection *collection, zval *value, CassValueT
     CHECK_ERROR(cass_collection_append_user_type(collection, sub_ut));
     break;
   default:
-    zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC, "Unsupported collection type");
+    zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC,
+                            "Unable to add unsupported type to collection");
     return 0;
   }
 
@@ -436,6 +460,19 @@ php_driver_tuple_set(CassTuple *tuple, php5to7_ulong index, zval *value, CassVal
   }
 
   switch (type) {
+  case CASS_VALUE_TYPE_CUSTOM:
+      assert(Z_TYPE_P(value) == IS_OBJECT);
+#define XX_TUPLE_SET(type_name, _, __, ___) \
+      if (instanceof_function(Z_OBJCE_P(value), php_driver_##type_name##_ce TSRMLS_CC)) { \
+        return php_driver_##type_name##_tuple_set(tuple, index, value TSRMLS_CC) == SUCCESS; \
+      }
+
+      PHP_DRIVER_DSE_TYPES_MAP(XX_TUPLE_SET)
+#undef XX_TUPLE_SET
+
+      zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC,
+                              "Unable to add unsupported custom type to tuple");
+      return 0;
   case CASS_VALUE_TYPE_TEXT:
   case CASS_VALUE_TYPE_ASCII:
   case CASS_VALUE_TYPE_VARCHAR:
@@ -543,7 +580,8 @@ php_driver_tuple_set(CassTuple *tuple, php5to7_ulong index, zval *value, CassVal
     CHECK_ERROR(cass_tuple_set_user_type(tuple, index, sub_ut));
     break;
   default:
-    zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC, "Unsupported collection type");
+    zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC,
+                            "Unable to add unsupported type to tuple");
     return 0;
   }
 
@@ -581,6 +619,19 @@ php_driver_user_type_set(CassUserType *ut,
   }
 
   switch (type) {
+    case CASS_VALUE_TYPE_CUSTOM:
+      assert(Z_TYPE_P(value) == IS_OBJECT);
+#define XX_USER_TYPE_SET(type_name, _, __, ___) \
+      if (instanceof_function(Z_OBJCE_P(value), php_driver_##type_name##_ce TSRMLS_CC)) { \
+        return php_driver_##type_name##_user_type_set(ut, name, value TSRMLS_CC) == SUCCESS; \
+      }
+
+      PHP_DRIVER_DSE_TYPES_MAP(XX_USER_TYPE_SET)
+#undef XX_USER_TYPE_SET
+
+      zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC,
+                              "Unable to add unsupported custom type to user type");
+      return 0;
   case CASS_VALUE_TYPE_TEXT:
   case CASS_VALUE_TYPE_ASCII:
   case CASS_VALUE_TYPE_VARCHAR:
@@ -688,7 +739,8 @@ php_driver_user_type_set(CassUserType *ut,
     CHECK_ERROR(cass_user_type_set_user_type_by_name(ut, name, sub_ut));
     break;
   default:
-    zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC, "Unsupported collection type");
+    zend_throw_exception_ex(php_driver_runtime_exception_ce, 0 TSRMLS_CC,
+                            "Unable to add unsupported type to user type");
     return 0;
   }
 
@@ -716,8 +768,8 @@ php_driver_collection_from_set(php_driver_set *set, CassCollection **collection_
 
   HASH_ITER(hh, set->entries, curr, temp) {
     if (!php_driver_collection_append(collection,
-                                         PHP5TO7_ZVAL_MAYBE_P(curr->value),
-                                         value_type->type TSRMLS_CC)) {
+                                      PHP5TO7_ZVAL_MAYBE_P(curr->value),
+                                      value_type->type TSRMLS_CC)) {
       result = 0;
       break;
     }

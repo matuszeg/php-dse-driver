@@ -7,6 +7,7 @@
 
 #include "php_driver.h"
 #include "php_driver_types.h"
+#include "util/hash.h"
 #include "util/math.h"
 #include "util/types.h"
 #include <float.h>
@@ -389,18 +390,9 @@ php_driver_float_properties(zval *object TSRMLS_DC)
   return props;
 }
 
-static inline cass_int32_t
-float_to_bits(cass_float_t value) {
-  cass_int32_t bits;
-  if (zend_isnan(value)) return 0x7fc00000; /* A canonical NaN value */
-  memcpy(&bits, &value, sizeof(cass_int32_t));
-  return bits;
-}
-
 static int
 php_driver_float_compare(zval *obj1, zval *obj2 TSRMLS_DC)
 {
-  cass_int32_t bits1, bits2;
   php_driver_numeric *flt1 = NULL;
   php_driver_numeric *flt2 = NULL;
 
@@ -410,21 +402,15 @@ php_driver_float_compare(zval *obj1, zval *obj2 TSRMLS_DC)
   flt1 = PHP_DRIVER_GET_NUMERIC(obj1);
   flt2 = PHP_DRIVER_GET_NUMERIC(obj2);
 
-  if (flt1->data.floating.value < flt2->data.floating.value) return -1;
-  if (flt1->data.floating.value > flt2->data.floating.value) return  1;
-
-  bits1 = float_to_bits(flt1->data.floating.value);
-  bits2 = float_to_bits(flt2->data.floating.value);
-
-  /* Handle NaNs and negative and positive 0.0 */
-  return bits1 < bits2 ? -1 : bits1 > bits2;
+  return php_driver_hash_float_compare(flt1->data.floating.value,
+                                       flt2->data.floating.value);
 }
 
 static unsigned
 php_driver_float_hash_value(zval *obj TSRMLS_DC)
 {
   php_driver_numeric *self = PHP_DRIVER_GET_NUMERIC(obj);
-  return float_to_bits(self->data.floating.value);
+  return php_driver_hash_float_to_bits(self->data.floating.value);
 }
 
 static int

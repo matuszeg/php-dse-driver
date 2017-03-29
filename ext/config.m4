@@ -180,6 +180,7 @@ if test "$PHP_DSE" != "no"; then
 
   PHP_NEW_EXTENSION(dse,
     php_driver.c \
+    php_driver_globals.c \
     $PHP_DRIVER_CLASSES \
     $PHP_DRIVER_EXCEPTIONS \
     $PHP_DRIVER_RETRY_POLICIES \

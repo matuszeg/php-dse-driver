@@ -30,6 +30,38 @@
 // Format string macro for how to emit a coordinate of a Point.
 #define COORD_FMT "%.17g"
 
+#define PHP_DRIVER_SCALAR_TYPES_MAP(XX) \
+  XX(ascii, CASS_VALUE_TYPE_ASCII) \
+  XX(bigint, CASS_VALUE_TYPE_BIGINT) \
+  XX(smallint, CASS_VALUE_TYPE_SMALL_INT) \
+  XX(tinyint, CASS_VALUE_TYPE_TINY_INT) \
+  XX(blob, CASS_VALUE_TYPE_BLOB) \
+  XX(boolean, CASS_VALUE_TYPE_BOOLEAN) \
+  XX(counter, CASS_VALUE_TYPE_COUNTER) \
+  XX(decimal, CASS_VALUE_TYPE_DECIMAL) \
+  XX(double, CASS_VALUE_TYPE_DOUBLE) \
+  XX(duration, CASS_VALUE_TYPE_DURATION) \
+  XX(float, CASS_VALUE_TYPE_FLOAT) \
+  XX(int, CASS_VALUE_TYPE_INT) \
+  XX(text, CASS_VALUE_TYPE_TEXT) \
+  XX(timestamp, CASS_VALUE_TYPE_TIMESTAMP) \
+  XX(date, CASS_VALUE_TYPE_DATE) \
+  XX(time, CASS_VALUE_TYPE_TIME) \
+  XX(uuid, CASS_VALUE_TYPE_UUID) \
+  XX(varchar, CASS_VALUE_TYPE_VARCHAR) \
+  XX(varint, CASS_VALUE_TYPE_VARINT) \
+  XX(timeuuid, CASS_VALUE_TYPE_TIMEUUID) \
+  XX(inet, CASS_VALUE_TYPE_INET)
+
+#define DSE_POINT_TYPE "org.apache.cassandra.db.marshal.PointType"
+#define DSE_LINE_STRING_TYPE "org.apache.cassandra.db.marshal.LineStringType"
+#define DSE_POLYGON_TYPE "org.apache.cassandra.db.marshal.PolygonType"
+
+#define PHP_DRIVER_DSE_TYPES_MAP(XX) \
+  XX(point, point, Point, DSE_POINT_TYPE) \
+  XX(line_string, lineString, LineString, DSE_LINE_STRING_TYPE) \
+  XX(polygon, polygon, Polygon, DSE_POLYGON_TYPE)
+
 #if PHP_MAJOR_VERSION >= 7
   #define PHP_DRIVER_GET_NUMERIC(obj) php_driver_numeric_object_fetch(Z_OBJ_P(obj))
   #define PHP_DRIVER_GET_BLOB(obj) php_driver_blob_object_fetch(Z_OBJ_P(obj))
@@ -137,6 +169,61 @@
   #define PHP_DRIVER_GET_LINE_STRING(obj) ((php_driver_line_string *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DRIVER_GET_POLYGON(obj) ((php_driver_polygon *)zend_object_store_get_object((obj) TSRMLS_CC))
 #endif
+
+#define PHP_DRIVER_DECLARE_DSE_TYPE_HELPERS(type_name) \
+int php_driver_##type_name##_bind_by_index(CassStatement *statement, size_t index, zval *value TSRMLS_DC); \
+int php_driver_##type_name##_bind_by_name(CassStatement *statement, const char *name, zval *value TSRMLS_DC); \
+int php_driver_##type_name##_collection_append(CassCollection *collection, zval *value TSRMLS_DC); \
+int php_driver_##type_name##_tuple_set(CassTuple *tuple, php5to7_ulong index, zval *value TSRMLS_DC); \
+int php_driver_##type_name##_user_type_set(CassUserType *ut, const char *name, zval *value TSRMLS_DC); \
+int php_driver_##type_name##_graph_array_add(DseGraphArray *graph_array, zval *value TSRMLS_DC); \
+int php_driver_##type_name##_graph_object_add(DseGraphObject *graph_object, const char *name, zval *value TSRMLS_DC); \
+int php_driver_##type_name##_construct_from_value(const CassValue *value, php5to7_zval *out TSRMLS_DC); \
+void php_driver_##type_name##_type(zval *return_value TSRMLS_DC);
+
+#define PHP_DRIVER_DEFINE_DSE_TYPE_HELPERS(type_name, type_name_upper, expand_params) \
+int php_driver_##type_name##_bind_by_index(CassStatement *statement, size_t index, zval *value TSRMLS_DC) { \
+  php_driver_##type_name *object = PHP_DRIVER_GET_##type_name_upper(value); \
+  ASSERT_SUCCESS_VALUE(cass_statement_bind_dse_##type_name(statement, index, expand_params(object)), FAILURE); \
+  return SUCCESS; \
+} \
+int php_driver_##type_name##_bind_by_name(CassStatement *statement, const char *name, zval *value TSRMLS_DC) { \
+  php_driver_##type_name *object = PHP_DRIVER_GET_##type_name_upper(value); \
+  ASSERT_SUCCESS_VALUE(cass_statement_bind_dse_##type_name##_by_name(statement, name, expand_params(object)), FAILURE); \
+  return SUCCESS; \
+} \
+int php_driver_##type_name##_collection_append(CassCollection *collection, zval *value TSRMLS_DC) { \
+  php_driver_##type_name *object = PHP_DRIVER_GET_##type_name_upper(value); \
+  ASSERT_SUCCESS_VALUE(cass_collection_append_dse_##type_name(collection, expand_params(object)), FAILURE); \
+  return SUCCESS; \
+} \
+int php_driver_##type_name##_tuple_set(CassTuple *tuple, php5to7_ulong index, zval *value TSRMLS_DC) { \
+  php_driver_##type_name *object = PHP_DRIVER_GET_##type_name_upper(value); \
+  ASSERT_SUCCESS_VALUE(cass_tuple_set_dse_##type_name(tuple, index, expand_params(object)), FAILURE); \
+  return SUCCESS; \
+} \
+int php_driver_##type_name##_user_type_set(CassUserType *ut, const char *name, zval *value TSRMLS_DC) { \
+  php_driver_##type_name *object = PHP_DRIVER_GET_##type_name_upper(value); \
+  ASSERT_SUCCESS_VALUE(cass_user_type_set_dse_##type_name##_by_name(ut, name, expand_params(object)), FAILURE); \
+  return SUCCESS; \
+} \
+int php_driver_##type_name##_graph_array_add(DseGraphArray *graph_array, zval *value TSRMLS_DC) { \
+  php_driver_##type_name *object = PHP_DRIVER_GET_##type_name_upper(value); \
+  ASSERT_SUCCESS_VALUE(dse_graph_array_add_##type_name(graph_array, expand_params(object)), FAILURE); \
+  return SUCCESS; \
+} \
+int php_driver_##type_name##_graph_object_add(DseGraphObject *graph_object, const char *name, zval *value TSRMLS_DC) { \
+  php_driver_##type_name *object = PHP_DRIVER_GET_##type_name_upper(value); \
+  ASSERT_SUCCESS_VALUE(dse_graph_object_add_##type_name(graph_object, name, expand_params(object)), FAILURE); \
+  return SUCCESS; \
+} \
+void php_driver_##type_name##_type(zval *return_value TSRMLS_DC) { \
+  if (PHP5TO7_ZVAL_IS_UNDEF(PHP_DRIVER_G(type_##type_name))) { \
+    PHP_DRIVER_G(type_##type_name) = php_driver_type_custom(DSE_##type_name_upper##_TYPE, \
+                                                      strlen(DSE_##type_name_upper##_TYPE) TSRMLS_CC); \
+  } \
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(PHP_DRIVER_G(type_##type_name)), 1, 0); \
+}
 
 typedef enum {
   PHP_DRIVER_BIGINT,

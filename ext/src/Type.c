@@ -9,6 +9,9 @@
 #include "php_driver_types.h"
 #include "util/types.h"
 
+#include "Point.h"
+#include "LineString.h"
+#include "Polygon.h"
 #include "src/Type/Tuple.h"
 #include "src/Type/UserType.h"
 
@@ -26,6 +29,17 @@ zend_class_entry *php_driver_type_ce = NULL;
 
 PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR_METHOD)
 #undef XX_SCALAR_METHOD
+
+#define XX_DSE_METHOD(type_name, type_name_external, _, __) \
+PHP_METHOD(Type, type_name_external) { \
+  if (zend_parse_parameters_none() == FAILURE) { \
+    return; \
+  } \
+  php_driver_##type_name##_type(return_value TSRMLS_CC); \
+}
+
+PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_METHOD)
+#undef XX_DSE_METHOD
 
 PHP_METHOD(Type, collection)
 {
@@ -205,13 +219,21 @@ static zend_function_entry php_driver_type_methods[] = {
   PHP_ABSTRACT_ME(Type, __toString, arginfo_none)
 
 #define XX_SCALAR_METHOD(name, _) PHP_ME(Type, name, arginfo_none, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC|ZEND_ACC_FINAL)
+
   PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR_METHOD)
 #undef XX_SCALAR_METHOD
+
+#define XX_DSE_METHOD(_, name, __, ___) PHP_ME(Type, name, arginfo_none, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC|ZEND_ACC_FINAL)
+
+  PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_METHOD)
+#undef XX_DSE_METHOD
+
   PHP_ME(Type, collection, arginfo_type,  ZEND_ACC_PUBLIC|ZEND_ACC_STATIC|ZEND_ACC_FINAL)
   PHP_ME(Type, set,        arginfo_type,  ZEND_ACC_PUBLIC|ZEND_ACC_STATIC|ZEND_ACC_FINAL)
   PHP_ME(Type, map,        arginfo_map,   ZEND_ACC_PUBLIC|ZEND_ACC_STATIC|ZEND_ACC_FINAL)
   PHP_ME(Type, tuple,      arginfo_types, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC|ZEND_ACC_FINAL)
   PHP_ME(Type, userType,   arginfo_types, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC|ZEND_ACC_FINAL)
+
   PHP_FE_END
 };
 

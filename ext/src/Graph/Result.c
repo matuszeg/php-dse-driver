@@ -577,56 +577,22 @@ PHP_METHOD(GraphResult, asVertex)
   }
 }
 
-PHP_METHOD(GraphResult, asPoint)
-{
-  php_driver_graph_result *self = NULL;
-
-  if (zend_parse_parameters_none() == FAILURE)
-    return;
-
-  self = PHP_DRIVER_GET_GRAPH_RESULT(getThis());
-
-  if (!instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(self->value), php_driver_point_ce TSRMLS_CC)) {
-    zend_throw_exception_ex(php_driver_domain_exception_ce, 0 TSRMLS_CC,
-                            "Graph result isn't a point");
-  }
-
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
+#define XX_DSE_METHOD(type_name, _, type_name_proper, __) \
+PHP_METHOD(GraphResult, as##type_name_proper) { \
+  php_driver_graph_result *self = NULL; \
+  if (zend_parse_parameters_none() == FAILURE) \
+    return; \
+  self = PHP_DRIVER_GET_GRAPH_RESULT(getThis()); \
+  if (!instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(self->value), \
+                           php_driver_##type_name##_ce TSRMLS_CC)) { \
+    zend_throw_exception_ex(php_driver_domain_exception_ce, 0 TSRMLS_CC, \
+                            "Graph result isn't a " #type_name); \
+  } \
+  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0); \
 }
 
-PHP_METHOD(GraphResult, asLineString)
-{
-  php_driver_graph_result *self = NULL;
-
-  if (zend_parse_parameters_none() == FAILURE)
-    return;
-
-  self = PHP_DRIVER_GET_GRAPH_RESULT(getThis());
-
-  if (!instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(self->value), php_driver_line_string_ce TSRMLS_CC)) {
-    zend_throw_exception_ex(php_driver_domain_exception_ce, 0 TSRMLS_CC,
-                            "Graph result isn't a line string");
-  }
-
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
-}
-
-PHP_METHOD(GraphResult, asPolygon)
-{
-  php_driver_graph_result *self = NULL;
-
-  if (zend_parse_parameters_none() == FAILURE)
-    return;
-
-  self = PHP_DRIVER_GET_GRAPH_RESULT(getThis());
-
-  if (!instanceof_function(PHP5TO7_Z_OBJCE_MAYBE_P(self->value), php_driver_polygon_ce TSRMLS_CC)) {
-    zend_throw_exception_ex(php_driver_domain_exception_ce, 0 TSRMLS_CC,
-                            "Graph result isn't a polygon");
-  }
-
-  RETURN_ZVAL(PHP5TO7_ZVAL_MAYBE_P(self->value), 1, 0);
-}
+PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_METHOD)
+#undef XX_DSE_METHOD
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)
 ZEND_END_ARG_INFO()
@@ -673,10 +639,11 @@ static zend_function_entry php_driver_graph_result_methods[] = {
   PHP_ME(GraphResult, asEdge,       arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(GraphResult, asPath,       arginfo_none,   ZEND_ACC_PUBLIC)
   PHP_ME(GraphResult, asVertex,     arginfo_none,   ZEND_ACC_PUBLIC)
-  /* Geometric types */
-  PHP_ME(GraphResult, asPoint,      arginfo_none,   ZEND_ACC_PUBLIC)
-  PHP_ME(GraphResult, asLineString, arginfo_none,   ZEND_ACC_PUBLIC)
-  PHP_ME(GraphResult, asPolygon,    arginfo_none,   ZEND_ACC_PUBLIC)
+  /* DSE types */
+#define XX_DSE_METHOD(_, __, name, ___) PHP_ME(GraphResult, as##name, arginfo_none, ZEND_ACC_PUBLIC)
+
+  PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_METHOD)
+#undef XX_DSE_METHOD
   PHP_FE_END
 };
 

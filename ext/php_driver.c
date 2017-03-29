@@ -419,7 +419,9 @@ static PHP_GINIT_FUNCTION(php_driver)
   PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_uuid);
   PHP5TO7_ZVAL_UNDEF(php_driver_globals->type_timeuuid);
 
+  php_driver_globals->line_string = dse_line_string_new();
   php_driver_globals->iterator_line_string = dse_line_string_iterator_new();
+  php_driver_globals->polygon = dse_polygon_new();
   php_driver_globals->iterator_polygon = dse_polygon_iterator_new();
 }
 
@@ -430,7 +432,9 @@ static PHP_GSHUTDOWN_FUNCTION(php_driver)
   }
   php_driver_log_cleanup();
 
+  dse_line_string_free(php_driver_globals->line_string);
   dse_line_string_iterator_free(php_driver_globals->iterator_line_string);
+  dse_polygon_free(php_driver_globals->polygon);
   dse_polygon_iterator_free(php_driver_globals->iterator_polygon);
 }
 
@@ -576,10 +580,11 @@ PHP_MINIT_FUNCTION(php_driver)
   php_driver_define_GraphDefaultVertex(TSRMLS_C);
   php_driver_define_GraphDefaultVertexProperty(TSRMLS_C);
 
-  /* DSE geometric types */
-  php_driver_define_Point(TSRMLS_C);
-  php_driver_define_LineString(TSRMLS_C);
-  php_driver_define_Polygon(TSRMLS_C);
+#define XX_DSE_TYPE(_, __, name, ___) \
+  php_driver_define_##name(TSRMLS_C);
+
+  PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_TYPE)
+#undef XX_DSE_TYPE
 
   return SUCCESS;
 }
@@ -593,30 +598,35 @@ PHP_MSHUTDOWN_FUNCTION(php_driver)
 
 PHP_RINIT_FUNCTION(php_driver)
 {
-#define XX_SCALAR(name, value) \
+#define XX_SCALAR(name, _) \
   PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(type_##name));
 
   PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
 
-  PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(type_line_string));
-  PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(type_point));
-  PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(type_polygon));
+#define XX_DSE_TYPE(name, _, __, ___) \
+  PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(type_##name));
+
+  PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_TYPE)
+#undef XX_DSE_TYPE
+
 
   return SUCCESS;
 }
 
 PHP_RSHUTDOWN_FUNCTION(php_driver)
 {
-#define XX_SCALAR(name, value) \
+#define XX_SCALAR(name, _) \
   PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(type_##name));
 
   PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
 
-  PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(type_line_string));
-  PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(type_point));
-  PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(type_polygon));
+#define XX_DSE_TYPE(name, _, __, ___) \
+  PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(type_##name));
+
+  PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_TYPE)
+#undef XX_DSE_TYPE
 
   return SUCCESS;
 }

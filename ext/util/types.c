@@ -260,6 +260,7 @@ php_driver_type_from_data_type(const CassDataType *data_type TSRMLS_DC)
 int php_driver_type_validate(zval *object, const char *object_name TSRMLS_DC)
 {
   if (!instanceof_function(Z_OBJCE_P(object), php_driver_type_scalar_ce TSRMLS_CC) &&
+      !instanceof_function(Z_OBJCE_P(object), php_driver_type_custom_ce TSRMLS_CC) &&
       !instanceof_function(Z_OBJCE_P(object), php_driver_type_collection_ce TSRMLS_CC) &&
       !instanceof_function(Z_OBJCE_P(object), php_driver_type_map_ce TSRMLS_CC) &&
       !instanceof_function(Z_OBJCE_P(object), php_driver_type_set_ce TSRMLS_CC) &&
@@ -824,6 +825,7 @@ php_driver_type_custom(const char *name, size_t name_length TSRMLS_DC)
   object_init_ex(PHP5TO7_ZVAL_MAYBE_P(ztype), php_driver_type_custom_ce);
   custom = PHP_DRIVER_GET_TYPE(PHP5TO7_ZVAL_MAYBE_P(ztype));
   custom->data.custom.class_name = estrndup(name, name_length);
+  cass_data_type_set_class_name_n(custom->data_type, name, name_length);
 
   return ztype;
 }

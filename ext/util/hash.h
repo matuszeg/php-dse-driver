@@ -54,4 +54,53 @@ static inline unsigned php_driver_combine_hash(unsigned seed, unsigned  hashv) {
   return seed ^ (hashv + 0x9e3779b9 + (seed << 6) + (seed >> 2));
 }
 
+static inline cass_int32_t
+php_driver_hash_float_to_bits(cass_float_t value) {
+  cass_int32_t bits;
+  if (zend_isnan(value)) return 0x7fc00000; /* A canonical NaN value */
+  memcpy(&bits, &value, sizeof(cass_int32_t));
+  return bits;
+}
+
+static inline int
+php_driver_hash_float_compare(cass_float_t v1, cass_float_t v2) {
+  cass_int32_t bits1, bits2;
+
+  if (v1 < v2) return -1;
+  if (v1 > v2) return  1;
+
+  bits1 = php_driver_hash_float_to_bits(v1);
+  bits2 = php_driver_hash_float_to_bits(v2);
+
+  /* Handle NaNs and negative and positive 0.0 */
+  return bits1 < bits2 ? -1 : bits1 > bits2;
+}
+
+static inline cass_int64_t
+php_driver_hash_double_to_bits(cass_double_t value) {
+  cass_int64_t bits;
+  if (zend_isnan(value)) return 0x7ff8000000000000LL; /* A canonical NaN value */
+  memcpy(&bits, &value, sizeof(cass_int64_t));
+  return bits;
+}
+
+static inline unsigned
+php_driver_double_hash(cass_double_t value) {
+  return php_driver_bigint_hash(php_driver_hash_double_to_bits(value));
+}
+
+static inline int
+php_driver_hash_double_compare(cass_double_t v1, cass_double_t v2) {
+  cass_int64_t bits1, bits2;
+
+  if (v1 < v2) return -1;
+  if (v1 > v2) return  1;
+
+  bits1 = php_driver_hash_double_to_bits(v1);
+  bits2 = php_driver_hash_double_to_bits(v2);
+
+  /* Handle NaNs and negative and positive 0.0 */
+  return bits1 < bits2 ? -1 : bits1 > bits2;
+}
+
 #endif /* PHP_DRIVER_HASH_H */
