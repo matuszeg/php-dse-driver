@@ -130,7 +130,6 @@ class YamlClassDoc {
     private static function loadYaml($class, $yamlFileName) {
         $classDoc = yaml_parse_file($yamlFileName);
         $classNameNoCoreNamespace = self::getClassNameWithNoCoreNamespace($class->getName());
-        print("$classNameNoCoreNamespace\n");
 
         if ($classDoc === false) {
             $fullClassName = $class->getName();
@@ -249,7 +248,7 @@ class YamlClassDoc {
 };
 
 foreach ($regex as $fileName => $notused) {
-    print "Loading... $fileName" . PHP_EOL;
+    echo "Loading... $fileName" . PHP_EOL;
     YamlClassDoc::load($fileName);
 }
 
