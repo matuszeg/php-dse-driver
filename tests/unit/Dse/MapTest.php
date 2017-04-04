@@ -129,6 +129,7 @@ class MapTest extends \PHPUnit_Framework_TestCase
             array(Type::uuid(), new Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2"), new Uuid("03398c99-c635-4fad-b30a-3b2c49f785c2")),
             array(Type::varchar(), "varchar", "varchar"),
             array(Type::varint(), new Varint("9223372036854775808"), new Varint("9223372036854775808")),
+            array(Type::duration(), new Duration(1, 2, 3), new Duration(1, 2, 3)),
             array(Type::point(), new Point(3.14159, 3.14159), new Point(3.14159, 3.14159)),
             array(Type::lineString(), new LineString(new Point(3.14159, 3.14159), new Point(1.0, 1.0)),
                                       new LineString(new Point(3.14159, 3.14159), new Point(1.0, 1.0))),
