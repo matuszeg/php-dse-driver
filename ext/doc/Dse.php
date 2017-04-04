@@ -375,7 +375,7 @@ final class Dse {
      * The version of the cpp-driver library used to build the cpp-driver-dse
      * driver library.
      */
-    const CPP_DRIVER_VERSION = '2.5.0';
+    const CPP_DRIVER_VERSION = '2.6.0-dev';
 
     /**
      * The version of the cpp-driver-dse library used to build the php-driver-dse

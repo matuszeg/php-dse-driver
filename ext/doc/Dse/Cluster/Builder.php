@@ -352,10 +352,11 @@ final class Builder {
      *
      * @param string $username The username to use with DSE's plaintext authentication
      * @param string $password The password to use with DSE's plaintext authentication
+     * @param string|null $authorizationId The user that all statements will be executed as (optional).
      *
      * @return Builder self
      */
-    public function withPlaintextAuthenticator($username, $password) { }
+    public function withPlaintextAuthenticator($username, $password, $authorizationId) { }
 
     /**
      * Enable authentication for use with Kerberos. By default the driver uses the connecting host's
@@ -365,12 +366,13 @@ final class Builder {
      * @param string $service The name of the Kerberos service
      * @param string $principal The principal whose credentials are used to authenticate. If not provided then the first
      *                          principal in the Kerberos ticket cache will be used.
+     * @param string|null $authorizationId The user that all statements will be executed as (optional).
      *
      * @return Builder self
      *
      * @see Dse\Cluster\Builder::withHostnameResolution()
      */
-    public function withGssapiAuthenticator($service, $principal) { }
+    public function withGssapiAuthenticator($service, $principal, $authorizationId) { }
 
     /**
      * Sets graph options to be used to control graph queries. This options

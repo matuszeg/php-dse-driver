@@ -91,6 +91,13 @@ abstract class Type {
     public static final function double() { }
 
     /**
+     * Get representation of duration type
+     *
+     * @return Type duration type
+     */
+    public static final function duration() { }
+
+    /**
      * Get representation of float type
      *
      * @return Type float type
@@ -166,6 +173,27 @@ abstract class Type {
      * @return Type inet type
      */
     public static final function inet() { }
+
+    /**
+     * Get the DSE point type
+     *
+     * @return Type point type
+     */
+    public static final function point() { }
+
+    /**
+     * Get the DSE line string type
+     *
+     * @return Type line string type
+     */
+    public static final function lineString() { }
+
+    /**
+     * Get the DSE polygon type
+     *
+     * @return Type polygon type
+     */
+    public static final function polygon() { }
 
     /**
      * Initialize a Collection type

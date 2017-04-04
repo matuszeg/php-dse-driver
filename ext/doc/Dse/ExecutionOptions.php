@@ -30,6 +30,7 @@ final class ExecutionOptions {
      * * array['serial_consistency'] int         Either Dse::CONSISTENCY_SERIAL or Dse::CONSISTENCY_LOCAL_SERIAL
      * * array['timestamp']          int|string  Either an integer or integer string timestamp that represents the number
      *                                           of microseconds since the epoch.
+     * * array['execute_as']         string      User to execute statement as.
      *
      * @param array $options various execution options
      *

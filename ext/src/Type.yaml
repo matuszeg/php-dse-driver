@@ -102,6 +102,11 @@ Type:
       return:
         comment: time type
         type: Type
+    duration:
+      comment: Get representation of duration type
+      return:
+        comment: duration type
+        type: Type
     collection:
       comment: |-
         Initialize a Collection type
