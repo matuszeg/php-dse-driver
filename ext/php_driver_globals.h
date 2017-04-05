@@ -30,6 +30,8 @@ ZEND_BEGIN_MODULE_GLOBALS(php_driver)
   DseLineStringIterator *iterator_line_string;
   DsePolygon            *polygon; // Don't use directly use php_driver_polygon_g()
   DsePolygonIterator    *iterator_polygon;
+  php5to7_zval           unbounded_bound;
+  DseDateRange          dse_date_range;
 ZEND_END_MODULE_GLOBALS(php_driver)
 
 DseLineString *php_driver_line_string_g(TSRMLS_D);

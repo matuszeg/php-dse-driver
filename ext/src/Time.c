@@ -101,7 +101,7 @@ php_driver_time_init(INTERNAL_FUNCTION_PARAMETERS)
     if (Z_TYPE_P(nanoseconds) == IS_LONG) {
       self->time = Z_LVAL_P(nanoseconds);
     } else if (Z_TYPE_P(nanoseconds) == IS_STRING) {
-      if (!php_driver_parse_bigint(Z_STRVAL_P(nanoseconds), Z_STRLEN_P(nanoseconds),
+      if (!php_driver_parse_bigint(Z_STRVAL_P(nanoseconds), Z_STRLEN_P(nanoseconds), "nanoseconds",
                                       &self->time TSRMLS_CC)) {
         return;
       }

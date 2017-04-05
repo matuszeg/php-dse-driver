@@ -56,11 +56,13 @@
 #define DSE_POINT_TYPE "org.apache.cassandra.db.marshal.PointType"
 #define DSE_LINE_STRING_TYPE "org.apache.cassandra.db.marshal.LineStringType"
 #define DSE_POLYGON_TYPE "org.apache.cassandra.db.marshal.PolygonType"
+#define DSE_DATE_RANGE_TYPE "org.apache.cassandra.db.marshal.DateRangeType"
 
 #define PHP_DRIVER_DSE_TYPES_MAP(XX) \
   XX(point, point, Point, DSE_POINT_TYPE) \
   XX(line_string, lineString, LineString, DSE_LINE_STRING_TYPE) \
-  XX(polygon, polygon, Polygon, DSE_POLYGON_TYPE)
+  XX(polygon, polygon, Polygon, DSE_POLYGON_TYPE) \
+  XX(date_range, dateRange, DateRange, DSE_DATE_RANGE_TYPE)
 
 #if PHP_MAJOR_VERSION >= 7
   #define PHP_DRIVER_GET_NUMERIC(obj) php_driver_numeric_object_fetch(Z_OBJ_P(obj))
@@ -115,6 +117,8 @@
   #define PHP_DRIVER_GET_POINT(obj) php_driver_point_object_fetch(Z_OBJ_P(obj))
   #define PHP_DRIVER_GET_LINE_STRING(obj) php_driver_line_string_object_fetch(Z_OBJ_P(obj))
   #define PHP_DRIVER_GET_POLYGON(obj) php_driver_polygon_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_DATE_RANGE(obj) php_driver_date_range_object_fetch(Z_OBJ_P(obj))
+  #define PHP_DRIVER_GET_DATE_RANGE_BOUND(obj) php_driver_date_range_bound_object_fetch(Z_OBJ_P(obj))
 #else
   #define PHP_DRIVER_GET_NUMERIC(obj) ((php_driver_numeric *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DRIVER_GET_BLOB(obj) ((php_driver_blob *)zend_object_store_get_object((obj) TSRMLS_CC))
@@ -168,6 +172,8 @@
   #define PHP_DRIVER_GET_POINT(obj) ((php_driver_point *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DRIVER_GET_LINE_STRING(obj) ((php_driver_line_string *)zend_object_store_get_object((obj) TSRMLS_CC))
   #define PHP_DRIVER_GET_POLYGON(obj) ((php_driver_polygon *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_DATE_RANGE(obj) ((php_driver_date_range *)zend_object_store_get_object((obj) TSRMLS_CC))
+  #define PHP_DRIVER_GET_DATE_RANGE_BOUND(obj) ((php_driver_date_range_bound *)zend_object_store_get_object((obj) TSRMLS_CC))
 #endif
 
 #define PHP_DRIVER_DECLARE_DSE_TYPE_HELPERS(type_name) \
@@ -718,6 +724,16 @@ PHP_DRIVER_BEGIN_OBJECT_TYPE(polygon)
   php5to7_zval rings; /* An array of LineString */
 PHP_DRIVER_END_OBJECT_TYPE(polygon)
 
+PHP_DRIVER_BEGIN_OBJECT_TYPE(date_range_bound)
+  long precision;
+  cass_int64_t time_ms;
+PHP_DRIVER_END_OBJECT_TYPE(date_range_bound)
+
+PHP_DRIVER_BEGIN_OBJECT_TYPE(date_range)
+  php5to7_zval lower_bound;
+  php5to7_zval upper_bound;
+PHP_DRIVER_END_OBJECT_TYPE(date_range)
+
 typedef unsigned (*php_driver_value_hash_t)(zval *obj TSRMLS_DC);
 
 typedef struct {
@@ -996,6 +1012,15 @@ extern PHP_DRIVER_API zend_class_entry *php_driver_polygon_ce;
 void php_driver_define_Point(TSRMLS_D);
 void php_driver_define_LineString(TSRMLS_D);
 void php_driver_define_Polygon(TSRMLS_D);
+
+/* Date Range */
+extern PHP_DRIVER_API zend_class_entry *php_driver_date_range_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_date_range_bound_ce;
+extern PHP_DRIVER_API zend_class_entry *php_driver_date_range_precision_ce;
+
+void php_driver_define_DateRange(TSRMLS_D);
+void php_driver_define_DateRangeBound(TSRMLS_D);
+void php_driver_define_DateRangePrecision(TSRMLS_D);
 
 extern int php_le_php_driver_cluster();
 extern int php_le_php_driver_session();

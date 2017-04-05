@@ -25,7 +25,7 @@ class BigintTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid integer value: ''
+     * @expectedExceptionMessage value: invalid integer value: ''
      */
     public function testThrowsWhenCreatingFromEmpty()
     {
@@ -34,7 +34,7 @@ class BigintTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid integer value: 'invalid'
+     * @expectedExceptionMessage value: invalid integer value: 'invalid'
      */
     public function testThrowsWhenCreatingFromInvalid()
     {
@@ -43,7 +43,7 @@ class BigintTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid characters were found in value: '123.123'
+     * @expectedExceptionMessage value: invalid characters found: '123.123'
      */
     public function testThrowsWhenCreatingFromInvalidTrailingChars()
     {

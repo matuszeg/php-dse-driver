@@ -1333,3 +1333,11 @@ php_driver_parse_column_type(const char   *validator,
 
   return SUCCESS;
 }
+
+void php_driver_int64_to_string(zval *result, cass_int64_t value)
+{
+  char *string;
+  spprintf(&string, 0, LL_FORMAT, value);
+  PHP5TO7_ZVAL_STRING(result, string);
+  efree(string);
+}

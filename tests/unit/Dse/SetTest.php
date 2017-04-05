@@ -105,7 +105,9 @@ class SetTest extends \PHPUnit_Framework_TestCase
                                    new Polygon(new LineString(new Point(3.14159, 3.14159),
                                                               new Point(1.0, 1.0),
                                                               new Point(3.14159, 2.0),
-                                                              new Point(3.14159, 3.14159))))
+                                                              new Point(3.14159, 3.14159)))),
+            array(Type::dateRange(), new DateRange(DateRange\Precision::YEAR, 1234, DateRange\Precision::DAY, 9876),
+                                     new DateRange(DateRange\Precision::YEAR, 1234, DateRange\Precision::DAY, 9876))
         );
     }
 

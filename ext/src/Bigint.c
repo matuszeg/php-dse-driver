@@ -83,7 +83,7 @@ php_driver_bigint_init(INTERNAL_FUNCTION_PARAMETERS)
 
     self->data.bigint.value = (cass_int64_t) Z_DVAL_P(value);
   } else if (Z_TYPE_P(value) == IS_STRING) {
-    if (!php_driver_parse_bigint(Z_STRVAL_P(value), Z_STRLEN_P(value),
+    if (!php_driver_parse_bigint(Z_STRVAL_P(value), Z_STRLEN_P(value), "value",
                                     &self->data.bigint.value TSRMLS_CC)) {
       return;
     }

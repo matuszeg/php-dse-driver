@@ -10,6 +10,11 @@ default:
             contexts:
                 - AuthenticationContext:
                     dse_version: 5.0.7
+        date_range:
+            paths: [ %paths.base%/features/date_range ]
+            contexts:
+                - FeatureContext:
+                    dse_version: 5.0.7
         geotypes:
             paths: [ %paths.base%/features/geotypes ]
             contexts:

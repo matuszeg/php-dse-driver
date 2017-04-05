@@ -22,6 +22,7 @@
 #include "LineString.h"
 #include "Point.h"
 #include "Polygon.h"
+#include "DateRange.h"
 
 #include <ext/standard/base64.h>
 
@@ -1825,7 +1826,7 @@ create_graph(php_driver_session *session,
       timestamp = Z_LVAL_P(PHP5TO7_ZVAL_MAYBE_DEREF(value));
     } else if (Z_TYPE_P(PHP5TO7_ZVAL_MAYBE_DEREF(value)) == IS_STRING) {
       if (!php_driver_parse_bigint(Z_STRVAL_P(PHP5TO7_ZVAL_MAYBE_DEREF(value)),
-                                      Z_STRLEN_P(PHP5TO7_ZVAL_MAYBE_DEREF(value)),
+                                      Z_STRLEN_P(PHP5TO7_ZVAL_MAYBE_DEREF(value)), "timestamp",
                                       &timestamp TSRMLS_CC)) {
         throw_invalid_argument(PHP5TO7_ZVAL_MAYBE_DEREF(value), "timestamp", "unable to convert string to integer" TSRMLS_CC);
         return NULL;

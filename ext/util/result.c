@@ -13,6 +13,7 @@
 #include "types.h"
 #include "src/Collection.h"
 #include "src/LineString.h"
+#include "src/DateRange.h"
 #include "src/Map.h"
 #include "src/Point.h"
 #include "src/Polygon.h"

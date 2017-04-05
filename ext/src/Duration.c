@@ -3,7 +3,7 @@
 #include "php_driver_types.h"
 
 #include "util/hash.h"
-#include "util/math.h"
+#include "util/params.h"
 #include "util/types.h"
 
 #include "Duration.h"
@@ -14,75 +14,6 @@
 #endif
 
 zend_class_entry *php_driver_duration_ce = NULL;
-
-static void to_string(zval *result, cass_int64_t value)
-{
-  char *string;
-  spprintf(&string, 0, LL_FORMAT, value);
-  PHP5TO7_ZVAL_STRING(result, string);
-  efree(string);
-}
-
-static int get_param(zval* value,
-                     const char* param_name,
-                     cass_int64_t min,
-                     cass_int64_t max,
-                     cass_int64_t *destination  TSRMLS_DC)
-{
-  if (Z_TYPE_P(value) == IS_LONG) {
-    php5to7_long long_value = Z_LVAL_P(value);
-
-    if (long_value > max || long_value < min) {
-      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 TSRMLS_CC,
-        "%s must be between " LL_FORMAT " and " LL_FORMAT ", " LL_FORMAT " given",
-        param_name, min, max, long_value);
-      return 0;
-    }
-
-    *destination = long_value;
-  } else if (Z_TYPE_P(value) == IS_DOUBLE) {
-    double double_value = Z_DVAL_P(value);
-
-    if (double_value > max || double_value < min) {
-      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 TSRMLS_CC,
-        "%s must be between " LL_FORMAT " and " LL_FORMAT ", %g given",
-        param_name, min, max, double_value);
-      return 0;
-    }
-    *destination = (cass_int64_t) double_value;
-  } else if (Z_TYPE_P(value) == IS_STRING) {
-    cass_int64_t parsed_big_int;
-    if (!php_driver_parse_bigint(Z_STRVAL_P(value), Z_STRLEN_P(value), &parsed_big_int TSRMLS_CC)) {
-      return 0;
-    }
-
-    if (parsed_big_int > max || parsed_big_int < min) {
-      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 TSRMLS_CC,
-        "%s must be between " LL_FORMAT " and " LL_FORMAT ", " LL_FORMAT " given",
-        param_name, min, max, parsed_big_int);
-      return 0;
-    }
-    *destination = parsed_big_int;
-  } else if (Z_TYPE_P(value) == IS_OBJECT &&
-             instanceof_function(Z_OBJCE_P(value), php_driver_bigint_ce TSRMLS_CC)) {
-    php_driver_numeric *bigint = PHP_DRIVER_GET_NUMERIC(value);
-    cass_int64_t bigint_value = bigint->data.bigint.value;
-
-    if (bigint_value > max || bigint_value < min) {
-      zend_throw_exception_ex(php_driver_invalid_argument_exception_ce, 0 TSRMLS_CC,
-        "%s must be between " LL_FORMAT " and " LL_FORMAT ", " LL_FORMAT " given",
-        param_name, min, max, bigint_value);
-      return 0;
-    }
-
-    *destination = bigint_value;
-  } else {
-    throw_invalid_argument(value, param_name, "a long, a double, a numeric string or a " \
-                            PHP_DRIVER_NAMESPACE "\\Bigint" TSRMLS_CC);
-    return 0;
-  }
-  return 1;
-}
 
 char *php_driver_duration_to_string(php_driver_duration *duration)
 {
@@ -121,17 +52,17 @@ php_driver_duration_init(INTERNAL_FUNCTION_PARAMETERS)
 
   self = PHP_DRIVER_GET_DURATION(getThis());
 
-  if (!get_param(months, "months", INT32_MIN, INT32_MAX, &param  TSRMLS_CC)) {
+  if (php_driver_get_int64_param(months, "months", INT32_MIN, INT32_MAX, NULL, &param  TSRMLS_CC) == FAILURE) {
     return;
   }
   self->months = (cass_int32_t)param;
 
-  if (!get_param(days, "days", INT32_MIN, INT32_MAX, &param TSRMLS_CC)) {
+  if (php_driver_get_int64_param(days, "days", INT32_MIN, INT32_MAX, NULL, &param TSRMLS_CC) == FAILURE) {
     return;
   }
   self->days = (cass_int32_t)param;
 
-  if (!get_param(nanos, "nanos", INT64_MIN, INT64_MAX, &self->nanos TSRMLS_CC)) {
+  if (php_driver_get_int64_param(nanos, "nanos", INT64_MIN, INT64_MAX, NULL, &self->nanos TSRMLS_CC) == FAILURE) {
     return;
   }
 
@@ -179,7 +110,7 @@ PHP_METHOD(Duration, months)
     return;
 
   self = PHP_DRIVER_GET_DURATION(getThis());
-  to_string(return_value, self->months);
+  RETURN_LONG(self->months);
 }
 
 PHP_METHOD(Duration, days)
@@ -190,7 +121,7 @@ PHP_METHOD(Duration, days)
     return;
 
   self = PHP_DRIVER_GET_DURATION(getThis());
-  to_string(return_value, self->days);
+  RETURN_LONG(self->days);
 }
 
 PHP_METHOD(Duration, nanos)
@@ -201,7 +132,7 @@ PHP_METHOD(Duration, nanos)
     return;
 
   self = PHP_DRIVER_GET_DURATION(getThis());
-  to_string(return_value, self->nanos);
+  php_driver_int64_to_string(return_value, self->nanos);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)

@@ -49,4 +49,6 @@ int php_driver_parse_column_type(const char   *validator,
 
 void php_driver_scalar_init(INTERNAL_FUNCTION_PARAMETERS);
 
+void php_driver_int64_to_string(zval *result, cass_int64_t value);
+
 #endif /* PHP_DRIVER_UTIL_TYPES_H */

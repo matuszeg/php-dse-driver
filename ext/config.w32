@@ -107,6 +107,7 @@ if (PHP_DSE != "no") {
                 "Core.c " +
                 "Custom.c " +
                 "Date.c " +
+                "DateRange.c " +
                 "Decimal.c " +
                 "DefaultAggregate.c " +
                 "DefaultCluster.c " +
@@ -163,6 +164,9 @@ if (PHP_DSE != "no") {
                 "Varint.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Cluster",
                 "Builder.c", "dse");
+            ADD_SOURCES(configure_module_dirname + "/src/DateRange",
+                "Bound.c " +
+                "Precision.c", "dse");
             ADD_SOURCES(configure_module_dirname + "/src/Exception",
                 "AlreadyExistsException.c " +
                 "AuthenticationException.c " +
@@ -236,6 +240,7 @@ if (PHP_DSE != "no") {
                 "hash.c " +
                 "inet.c " +
                 "math.c " +
+                "params.c " +
                 "ref.c " +
                 "result.c " +
                 "types.c " +

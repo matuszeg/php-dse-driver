@@ -46,7 +46,7 @@ php_driver_float_init(INTERNAL_FUNCTION_PARAMETERS)
   } else if (Z_TYPE_P(value) == IS_DOUBLE) {
     self->data.floating.value = (cass_float_t) Z_DVAL_P(value);
   } else if (Z_TYPE_P(value) == IS_STRING) {
-    if (!php_driver_parse_float(Z_STRVAL_P(value), Z_STRLEN_P(value),
+    if (!php_driver_parse_float(Z_STRVAL_P(value), Z_STRLEN_P(value), "value",
                                    &self->data.floating.value TSRMLS_CC)) {
       return;
     }

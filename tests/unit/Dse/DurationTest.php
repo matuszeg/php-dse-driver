@@ -14,7 +14,7 @@ class DurationTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage months must be a long, a double, a numeric string or a Dse\Bigint, 1 given
+     * @expectedExceptionMessage months must be a long, a double, a numeric string, or a Dse\Bigint, 1 given
      */
     public function testMonthsArgWrongType()
     {
@@ -23,7 +23,7 @@ class DurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage days must be a long, a double, a numeric string or a Dse\Bigint, 1 given
+     * @expectedExceptionMessage days must be a long, a double, a numeric string, or a Dse\Bigint, 1 given
      */
     public function testDaysArgWrongType()
     {
@@ -32,7 +32,7 @@ class DurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage nanos must be a long, a double, a numeric string or a Dse\Bigint, 1 given
+     * @expectedExceptionMessage nanos must be a long, a double, a numeric string, or a Dse\Bigint, 1 given
      */
     public function testNanosArgWrongType()
     {
@@ -41,7 +41,7 @@ class DurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid integer value: 'ab'
+     * @expectedExceptionMessage nanos: invalid integer value: 'ab'
      */
     public function testStringArgParseError()
     {
@@ -50,7 +50,7 @@ class DurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException RangeException
-     * @expectedExceptionMessage value must be between -9223372036854775808 and 9223372036854775807, 9223372036854775808 given
+     * @expectedExceptionMessage nanos must be between -9223372036854775808 and 9223372036854775807, 9223372036854775808 given
      */
     public function testString64BitArgOverflowError()
     {
@@ -59,7 +59,7 @@ class DurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException RangeException
-     * @expectedExceptionMessage value must be between -9223372036854775808 and 9223372036854775807, -9223372036854775809 given
+     * @expectedExceptionMessage nanos must be between -9223372036854775808 and 9223372036854775807, -9223372036854775809 given
      */
     public function testString64BitArgUnderflowError()
     {

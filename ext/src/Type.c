@@ -12,6 +12,7 @@
 #include "Point.h"
 #include "LineString.h"
 #include "Polygon.h"
+#include "DateRange.h"
 #include "src/Type/Tuple.h"
 #include "src/Type/UserType.h"
 

@@ -196,6 +196,12 @@ Graph\Result:
       return:
         comment: A geospatial polygon value.
         type: Polygon
+    asDateRange:
+      comment: |-
+        Converts a string result to the DateRange type.
+      return:
+        comment: A DateRange value.
+        type: DateRange
     value:
       comment: Gets the PHP value contained in the result.
       return:

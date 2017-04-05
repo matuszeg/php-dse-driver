@@ -25,7 +25,7 @@ class DecimalTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @expectedException         InvalidArgumentException
-     * @expectedExceptionMessage  Unrecognized character 'q' at position 0
+     * @expectedExceptionMessage  value: unrecognized character 'q' at position 0
      */
     public function testThrowsWhenCreatingNotAnInteger()
     {

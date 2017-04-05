@@ -1,0 +1,19 @@
+---
+DateRange\Precision:
+  comment: "Contains constants for the valid precisions; cannot be instantiated."
+  constants:
+    YEAR:
+      comment: ""
+    MONTH:
+      comment: ""
+    DAY:
+      comment: ""
+    HOUR:
+      comment: ""
+    MINUTE:
+      comment: ""
+    SECOND:
+      comment: ""
+    MILLISECOND:
+      comment: ""
+...

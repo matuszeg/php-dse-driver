@@ -82,7 +82,7 @@ php_driver_tinyint_init(INTERNAL_FUNCTION_PARAMETERS)
         return;
       }
     } else if (Z_TYPE_P(value) == IS_STRING) {
-      if (!php_driver_parse_int(Z_STRVAL_P(value), Z_STRLEN_P(value),
+      if (!php_driver_parse_int(Z_STRVAL_P(value), Z_STRLEN_P(value), "value",
                                         &number TSRMLS_CC)) {
         // If the parsing function fails, it would have set an exception. If it's
         // a range error, the error message would be wrong because the parsing

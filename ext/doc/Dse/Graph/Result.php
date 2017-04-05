@@ -247,4 +247,11 @@ final class Result implements \Iterator, \ArrayAccess {
      */
     public function asPolygon() { }
 
+    /**
+     * Converts a string result to the DateRange type.
+     *
+     * @return DateRange A DateRange value.
+     */
+    public function asDateRange() { }
+
 }

@@ -586,6 +586,10 @@ PHP_MINIT_FUNCTION(php_driver)
   PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_TYPE)
 #undef XX_DSE_TYPE
 
+  /* DateRange Support */
+  php_driver_define_DateRangeBound(TSRMLS_C);
+  php_driver_define_DateRangePrecision(TSRMLS_C);
+
   return SUCCESS;
 }
 
@@ -610,6 +614,7 @@ PHP_RINIT_FUNCTION(php_driver)
   PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_TYPE)
 #undef XX_DSE_TYPE
 
+  PHP5TO7_ZVAL_UNDEF(PHP_DRIVER_G(unbounded_bound));
 
   return SUCCESS;
 }
@@ -627,6 +632,8 @@ PHP_RSHUTDOWN_FUNCTION(php_driver)
 
   PHP_DRIVER_DSE_TYPES_MAP(XX_DSE_TYPE)
 #undef XX_DSE_TYPE
+
+  PHP5TO7_ZVAL_MAYBE_DESTROY(PHP_DRIVER_G(unbounded_bound));
 
   return SUCCESS;
 }

@@ -33,6 +33,9 @@ if test "$PHP_DSE" != "no"; then
     src/Core.c \
     src/Custom.c \
     src/Date.c \
+    src/DateRange.c \
+    src/DateRange/Bound.c \
+    src/DateRange/Precision.c \
     src/Decimal.c \
     src/DefaultAggregate.c \
     src/DefaultCluster.c \
@@ -163,6 +166,7 @@ if test "$PHP_DSE" != "no"; then
     util/hash.c \
     util/inet.c \
     util/math.c \
+    util/params.c \
     util/ref.c \
     util/result.c \
     util/types.c \
@@ -189,6 +193,7 @@ if test "$PHP_DSE" != "no"; then
     $ext_shared, , $DSE_CFLAGS)
   PHP_ADD_BUILD_DIR($ext_builddir/src)
   PHP_ADD_BUILD_DIR($ext_builddir/src/Cluster)
+  PHP_ADD_BUILD_DIR($ext_builddir/src/DateRange)
   PHP_ADD_BUILD_DIR($ext_builddir/src/Graph)
   PHP_ADD_BUILD_DIR($ext_builddir/src/Graph/Options)
   PHP_ADD_BUILD_DIR($ext_builddir/src/Exception)

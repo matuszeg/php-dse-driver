@@ -1,5 +1,5 @@
 @cassandra-version-3.10
-Feature: Duration
+Feature: Duration Collections
 
   PHP Driver supports the `Duration` datatype in collections
 
@@ -49,7 +49,7 @@ Feature: Duration
       $session->execute("INSERT INTO durations
           (k, duration_list, duration_tuple, duration_udt) VALUES
           (?, ?, ?, ?)", $options);
-      # Select collections from table and print as WKT
+      # Select collections from table and print
       $rows = $session->execute("SELECT * FROM durations WHERE k = 'key1'");
       $row = $rows->first();
 
@@ -59,9 +59,9 @@ Feature: Duration
 
       echo 'The list contains durations: [' . implode(', ', $row['duration_list']->values()) . ']' . PHP_EOL;
       echo 'The tuple contains durations: (' . implode(', ', $row['duration_tuple']->values()) . ')' . PHP_EOL;
-      $asWkt = array_map(function($k, $v) { return $k . ': ' . $v; },
+      $asString = array_map(function($k, $v) { return $k . ': ' . $v; },
           array_keys($row["duration_udt"]->values()), $row["duration_udt"]->values());
-      echo 'The udt contains durations: {' . implode(', ', $asWkt) . '}' . PHP_EOL;
+      echo 'The udt contains durations: {' . implode(', ', $asString) . '}' . PHP_EOL;
       """
     When it is executed
     Then its output should contain disregarding order:

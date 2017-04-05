@@ -119,7 +119,10 @@ typedef int pid_t;
   CPP_DSE_DRIVER_VERSION(DSE_VERSION_MAJOR, DSE_VERSION_MINOR, DSE_VERSION_PATCH)
 
 #if PHP_MAJOR_VERSION >= 7
-#define php5to7_zend_register_internal_class_ex(ce, parent_ce) zend_register_internal_class_ex((ce), (parent_ce) TSRMLS_CC);
+#define php5to7_zend_register_internal_class_ex(ce, parent_ce) \
+  zend_register_internal_class_ex((ce), (parent_ce) TSRMLS_CC)
+#define php5to7_zend_declare_class_constant_long(ce, name, name_length, value) \
+  zend_declare_class_constant_long(ce, name, name_length, value)
 
 typedef zval php5to7_zval;
 typedef zval *php5to7_zval_args;
@@ -426,7 +429,10 @@ php5to7_string_compare(php5to7_string s1, php5to7_string s2)
 #define PHP5TO7_ZEND_HASH_SORT(ht, compare_func, renumber) \
   zend_hash_sort(ht, zend_qsort, compare_func, renumber TSRMLS_CC);
 
-#define php5to7_zend_register_internal_class_ex(ce, parent_ce) zend_register_internal_class_ex((ce), (parent_ce), NULL TSRMLS_CC);
+#define php5to7_zend_register_internal_class_ex(ce, parent_ce) \
+  zend_register_internal_class_ex((ce), (parent_ce), NULL TSRMLS_CC)
+#define php5to7_zend_declare_class_constant_long(ce, name, name_length, value) \
+  zend_declare_class_constant_long(ce, name, name_length, value TSRMLS_CC)
 
 #define PHP5TO7_ZVAL_COPY(zv1, zv2) do { \
   zv1 = zv2;                             \

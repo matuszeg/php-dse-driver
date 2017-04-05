@@ -427,7 +427,7 @@ class NumberTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider numberClasses
      * @expectedException Dse\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Invalid integer value: ''
+     * @expectedExceptionMessage value: invalid integer value: ''
      */
     public function testEmptyString($class) {
         new $class("");
@@ -436,7 +436,7 @@ class NumberTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider numberClasses
      * @expectedException Dse\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Invalid integer value: 'invalid123'
+     * @expectedExceptionMessage value: invalid integer value: 'invalid123'
      */
     public function testInvalidString($class) {
         new $class("invalid123");
@@ -445,7 +445,7 @@ class NumberTest extends \PHPUnit_Framework_TestCase {
     /**
      * @dataProvider numberClasses
      * @expectedException Dse\Exception\InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Invalid characters were found in value: '123.123'|Invalid integer value: '123.123'/
+     * @expectedExceptionMessageRegExp /invalid characters found: '123.123'|invalid integer value: '123.123'/
      */
     public function testInvalidCharacters($class) {
         new $class("123.123");

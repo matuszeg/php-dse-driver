@@ -1,0 +1,29 @@
+---
+DateRange\Bound:
+  comment: "PHP class that encapsulates one end of a date-range"
+  methods:
+    __construct:
+      comment: ""
+      params:
+        precision:
+          comment: "desired precision of this Bound; one of the constants from the Precision class"
+          type: long
+        timeMs:
+          comment: "millisecond-precision time"
+          type: long|double|string|Bigint|DateTime
+    precision:
+      comment: ""
+      return:
+        comment: "precision attribute of this Bound"
+        type: long
+    timeMs:
+      comment: ""
+      return:
+        comment: "timeMs attribute of this Bound"
+        type: string
+    unbounded:
+      comment: ""
+      return:
+        comment: "a Bound instance that represents \"no bound\". It is used as the virtual end-point of an open-ended range."
+        type: Bound
+...

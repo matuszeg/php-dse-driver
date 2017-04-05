@@ -239,7 +239,7 @@ php_driver_decimal_init(INTERNAL_FUNCTION_PARAMETERS)
     }
     from_double(self, val);
   } else if (Z_TYPE_P(value) == IS_STRING) {
-    if (!php_driver_parse_decimal(Z_STRVAL_P(value), Z_STRLEN_P(value),
+    if (!php_driver_parse_decimal(Z_STRVAL_P(value), Z_STRLEN_P(value), "value",
                                      &self->data.decimal.value, &self->data.decimal.scale TSRMLS_CC)) {
       return;
     }

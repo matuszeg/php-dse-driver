@@ -1,0 +1,53 @@
+---
+DateRange:
+  comment: "A PHP representation of the DSE `DateRange` datatype"
+  methods:
+    __construct:
+      comment: |-
+        Create a DateRange object
+        @code{.php}
+        <?php
+        use Dse\DateRange;
+        use Dse\DateRange\Bound;
+        use Dse\DateRange\Precision;
+
+        // DateRange constructed with a single Bound object.
+        $bound = new Bound(Precision::YEAR, 1491252166000);
+        $dr = new DateRange($bound);
+
+        // A DateRange with lower and upper bounds, using a mix of Bound object and raw values
+        $dr = new DateRange($bound, Precision::DAY, 1491252266000);
+
+        // Range with no lower bound
+        $dr = new DateRange(Bound::unbounded(), $bound);
+        @endcode
+      params:
+        bounds:
+          comment: "A variadic list of args that denote a single-date bound or a lower and upper bound pair"
+          type: mixed
+    type:
+      comment: '{@inheritDoc}'
+      return:
+        comment: "the custom type for DateRange"
+        type: Type\Custom
+    lowerBound:
+      comment: ""
+      return:
+        comment: "the lower-bound or single-date-bound of this DateRange"
+        type: Bound
+    upperBound:
+      comment: ""
+      return:
+        comment: "the upper-bound of this DateRange; `null` if this is a single-date DateRange"
+        type: Bound
+    isSingleDate:
+      comment: ""
+      return:
+        comment: "whether or not this DateRange has a single date value"
+        type: boolean
+    __toString:
+      comment: ""
+      return:
+        comment: "string representation of this DateRange"
+        type: string
+...

@@ -196,6 +196,13 @@ abstract class Type {
     public static final function polygon() { }
 
     /**
+     * Get the DSE DateRange type
+     *
+     * @return Type DateRange type
+     */
+    public static final function dateRange() { }
+
+    /**
      * Initialize a Collection type
      * @code{.php}
      * <?php

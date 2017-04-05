@@ -230,4 +230,9 @@ Type:
       return:
         comment: polygon type
         type: Type
+    dateRange:
+      comment: Get the DSE DateRange type
+      return:
+        comment: DateRange type
+        type: Type
 ...

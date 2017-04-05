@@ -84,7 +84,7 @@ php_driver_varint_init(INTERNAL_FUNCTION_PARAMETERS)
   } else if (Z_TYPE_P(num) == IS_DOUBLE) {
     mpz_set_d(self->data.varint.value, Z_DVAL_P(num));
   } else if (Z_TYPE_P(num) == IS_STRING) {
-    php_driver_parse_varint(Z_STRVAL_P(num), Z_STRLEN_P(num), &self->data.varint.value TSRMLS_CC);
+    php_driver_parse_varint(Z_STRVAL_P(num), Z_STRLEN_P(num), "value", &self->data.varint.value TSRMLS_CC);
   } else if (Z_TYPE_P(num) == IS_OBJECT &&
              instanceof_function(Z_OBJCE_P(num), php_driver_varint_ce TSRMLS_CC)) {
     php_driver_numeric *varint = PHP_DRIVER_GET_NUMERIC(num);

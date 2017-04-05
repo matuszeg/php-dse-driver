@@ -123,7 +123,7 @@ static int build_from_array(php_driver_execution_options *self, zval *options, i
       self->timestamp = Z_LVAL_P(PHP5TO7_ZVAL_MAYBE_DEREF(timestamp));
     } else if (Z_TYPE_P(PHP5TO7_ZVAL_MAYBE_DEREF(timestamp)) == IS_STRING) {
       if (!php_driver_parse_bigint(Z_STRVAL_P(PHP5TO7_ZVAL_MAYBE_DEREF(timestamp)),
-                                   Z_STRLEN_P(PHP5TO7_ZVAL_MAYBE_DEREF(timestamp)),
+                                   Z_STRLEN_P(PHP5TO7_ZVAL_MAYBE_DEREF(timestamp)), "timestamp",
                                    &self->timestamp TSRMLS_CC)) {
         return FAILURE;
       }

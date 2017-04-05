@@ -381,7 +381,7 @@ final class Dse {
      * The version of the cpp-driver-dse library used to build the php-driver-dse
      * extension.
      */
-    const CPP_DRIVER_DSE_VERSION = '1.1.0';
+    const CPP_DRIVER_DSE_VERSION = '1.2.0';
 
     /**
      * Creates a new cluster builder for constructing a Cluster object.
