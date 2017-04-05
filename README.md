@@ -23,6 +23,6 @@ Documentation for the DSE driver is available [here](/api)
 The driver includes several examples in the [features](/features) directory.
 
 ## License
-Copyright &copy; 2016 DataStax, Inc.
+Copyright &copy; 2017 DataStax, Inc.
 
 http://www.datastax.com/terms/datastax-dse-driver-license-terms
