@@ -455,6 +455,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             "with data set",
             "#",
             "\"",
+            "\\",
             "'",
             "-",
             "<",
@@ -901,6 +902,12 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             $data_types = array_merge(
                 $data_types,
                 $this->scalar_data_types_2_2_3()
+            );
+        }
+        if (!$primary_keys && $version->compare("3.10") >= 0) {
+            $data_types = array_merge(
+                $data_types,
+                $this->scalar_data_types_3_10()
             );
         }
         return $data_types;
@@ -1461,6 +1468,35 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                     Cassandra\Tinyint::max(),
                     new Cassandra\Tinyint(0),
                     new Cassandra\Tinyint(37)
+                )
+            )
+        );
+    }
+
+/**
+     * Data types (scalar) - Cassandra v3.10
+     *
+     * @return array Scalar data type to use in a data provider
+     *     [
+     *         [0] => (Cassandra\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires Cassandra >= 3.10
+     */
+    protected function scalar_data_types_3_10() {
+        return array(
+            // Duration data type
+            array(
+                Cassandra\Type::duration(),
+                array(
+                    new Cassandra\Duration(1, 2, 3),
+                    new Cassandra\Duration(1, 0, Cassandra\Bigint::max()),
+                    new Cassandra\Duration(-1, 0, Cassandra\Bigint::min()),
+                    new Cassandra\Duration((2 ** 31) - 1, 1, 0),
+                    new Cassandra\Duration(-(2 ** 31), -1, 0),
+                    new Cassandra\Duration(0, (2 ** 31) - 1, 1),
+                    new Cassandra\Duration(0, -(2 ** 31), -1)
                 )
             )
         );

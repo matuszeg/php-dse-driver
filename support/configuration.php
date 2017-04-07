@@ -55,7 +55,7 @@ class Configuration {
     /**
      * Default DSE version to be used
      */
-    const DEFAULT_DSE_VERSION = "5.0.7";
+    const DEFAULT_DSE_VERSION = "5.1.0";
 
     /**
      * @var bool Flag to determine if DSE is being used

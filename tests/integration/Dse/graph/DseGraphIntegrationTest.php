@@ -198,11 +198,11 @@ abstract class DseGraphIntegrationTest extends DseIntegrationTest {
             $type = $data_type[0];
             if ($type != Dse\Type::ascii() &&
                 $type != Dse\Type::date() &&
+                $type != Dse\Type::duration() && // Duration is already defined
                 $type != Dse\Type::time() &&
                 $type != Dse\Type::timeuuid() &&
                 $type != Dse\Type::tinyint() &&
                 $type != Dse\Type::varchar() &&
-                $type != Dse\Type::tinyint() &&
                 !$this->is_composite_data_type($type)) {
                 $data_types[] = $data_type;
             }

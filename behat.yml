@@ -9,11 +9,39 @@ default:
             paths: [ %paths.base%/features/authentication ]
             contexts:
                 - AuthenticationContext:
-                    dse_version: 5.0.7
+                    dse_version: "5.1.0"
         date_range:
             paths: [ %paths.base%/features/date_range ]
             contexts:
                 - FeatureContext:
+                    dse_version: "5.1.0"
+        geotypes:
+            paths: [ %paths.base%/features/geotypes ]
+            contexts:
+                - FeatureContext:
+                    dse_version: "5.1.0"
+        graph:
+            paths: [ %paths.base%/features/graph ]
+            contexts:
+                - GraphContext:
+                    dse_version: "5.1.0"
+        core:
+            paths: [ %paths.base%/features/core, %paths.base%/features/sessions, %paths.base%/features/migration ]
+            contexts:
+                - FeatureContext:
+                    dse_version: "5.1.0"
+
+dse-5.0:
+    formatters:
+        pretty: true
+    gherkin:
+            filters:
+              tags: "~@dse-version-5.1&&~@cassandra-version-3.x&&~@cassandra-version-3.10&&~@cassandra-version-3.4&&~@cassandra-version-less-2.1&&~@cassandra-version-only-2.0"
+    suites:
+        authentication:
+            paths: [ %paths.base%/features/authentication ]
+            contexts:
+                - AuthenticationContext:
                     dse_version: 5.0.7
         geotypes:
             paths: [ %paths.base%/features/geotypes ]
@@ -34,7 +62,7 @@ default:
 dse-4.8:
     gherkin:
         filters:
-            tags: "~@dse-version-5.0&&~@cassandra-version-3.x&&~@cassandra-version-3.4&&~@cassandra-version-3.0.4&&~@cassandra-version-3.0&&~@cassandra-version-2.2&&~@cassandra-version-less-2.1&&~@cassandra-version-only-2.0"
+          tags: "~@dse-version-5.1&&~@dse-version-5.0&&~@cassandra-version-3.x&&~@cassandra-version-3.10&&~@cassandra-version-3.4&&~@cassandra-version-3.0.4&&~@cassandra-version-3.0&&~@cassandra-version-2.2&&~@cassandra-version-less-2.1&&~@cassandra-version-only-2.0"
     suites:
         authentication:
             contexts:
