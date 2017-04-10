@@ -280,6 +280,11 @@ class PolygonTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testTypeString() {
+        $this->assertEquals(Type::polygon(), "'org.apache.cassandra.db.marshal.PolygonType'");
+        $this->assertEquals(Type::set(Type::polygon()), "set<'org.apache.cassandra.db.marshal.PolygonType'>");
+    }
+
     /**
      * Spaceship (<=>) impl for testing our compare function. The operator exists in PHP7, but not
      * PHP 5, so we implement it ourselves as a function.

@@ -34,15 +34,20 @@ PHP_METHOD(TypeCustom, name)
 
 PHP_METHOD(TypeCustom, __toString)
 {
-  php_driver_type *custom;
+  php_driver_type *self;
+  smart_str string = PHP5TO7_SMART_STR_INIT;
 
   if (zend_parse_parameters_none() == FAILURE) {
     return;
   }
 
-  custom = PHP_DRIVER_GET_TYPE(getThis());
+  self = PHP_DRIVER_GET_TYPE(getThis());
 
-  PHP5TO7_RETVAL_STRING(custom->data.custom.class_name);
+  php_driver_type_string(self, &string TSRMLS_CC);
+  smart_str_0(&string);
+
+  PHP5TO7_RETVAL_STRING(PHP5TO7_SMART_STR_VAL(string));
+  smart_str_free(&string);
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_none, 0, ZEND_RETURN_VALUE, 0)

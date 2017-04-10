@@ -189,6 +189,11 @@ class LineStringTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array("points" => array()), get_object_vars(new LineString()));
     }
 
+    public function testTypeString() {
+        $this->assertEquals(Type::lineString(), "'org.apache.cassandra.db.marshal.LineStringType'");
+        $this->assertEquals(Type::set(Type::lineString()), "set<'org.apache.cassandra.db.marshal.LineStringType'>");
+    }
+
     /**
      * Make a LineString with the given point-specs.
      *

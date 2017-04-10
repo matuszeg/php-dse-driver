@@ -162,6 +162,11 @@ class PointTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array("x" => 3.5, "y" => 2.5), $props);
     }
 
+    public function testTypeString() {
+        $this->assertEquals(Type::point(), "'org.apache.cassandra.db.marshal.PointType'");
+        $this->assertEquals(Type::set(Type::point()), "set<'org.apache.cassandra.db.marshal.PointType'>");
+    }
+
     /**
      * Spaceship (<=>) impl for testing our compare function. The operator exists in PHP7, but not
      * PHP 5, so we implement it ourselves as a function.

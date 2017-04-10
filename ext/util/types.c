@@ -405,6 +405,14 @@ php_driver_type_compare(php_driver_type *type1, php_driver_type *type2 TSRMLS_DC
 }
 
 static inline void
+custom_string(php_driver_type *type, smart_str *string TSRMLS_DC)
+{
+  smart_str_appendl(string, "'", 1);
+  smart_str_appendl(string, type->data.custom.class_name, strlen(type->data.custom.class_name));
+  smart_str_appendl(string, "'", 1);
+}
+
+static inline void
 collection_string(php_driver_type *type, smart_str *string TSRMLS_DC)
 {
   smart_str_appendl(string, "list<", 5);
@@ -484,6 +492,11 @@ php_driver_type_string(php_driver_type *type, smart_str *string TSRMLS_DC)
     break;
   PHP_DRIVER_SCALAR_TYPES_MAP(XX_SCALAR)
 #undef XX_SCALAR
+
+
+  case CASS_VALUE_TYPE_CUSTOM:
+    custom_string(type, string TSRMLS_CC);
+    break;
 
   case CASS_VALUE_TYPE_LIST:
     collection_string(type, string TSRMLS_CC);

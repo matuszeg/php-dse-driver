@@ -262,6 +262,11 @@ class DateRangeTest extends \PHPUnit_Framework_TestCase
                             $props);
     }
 
+    public function testTypeString() {
+        $this->assertEquals(Type::dateRange(), "'org.apache.cassandra.db.marshal.DateRangeType'");
+        $this->assertEquals(Type::set(Type::dateRange()), "set<'org.apache.cassandra.db.marshal.DateRangeType'>");
+    }
+
     /**
      * Spaceship (<=>) impl for testing our compare function. The operator exists in PHP7, but not
      * PHP 5, so we implement it ourselves as a function.
