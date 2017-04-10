@@ -21,10 +21,10 @@ Feature: DSE DateRange Type
       $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
 
-      $session->execute(new Dse\SimpleStatement("INSERT INTO dr (k, v) VALUES " .
-        "('inline create', '[1971-01-02 TO 1972-01-03T06:00:00.234]')"));
+      $session->execute("INSERT INTO dr (k, v) VALUES " .
+        "('inline create', '[1971-01-02 TO 1972-01-03T06:00:00.234]')");
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM dr WHERE k = 'inline create'"))->first();
+      $row = $session->execute("SELECT * FROM dr WHERE k = 'inline create'")->first();
 
       $dr = $row['v'];
       echo "As string: " . $dr . PHP_EOL;
@@ -57,10 +57,10 @@ Feature: DSE DateRange Type
       $session = $cluster->connect("simplex");
 
       $bind_dr = new Dse\DateRange(Precision::DAY, new DateTime("1970-01-02Z"), Bound::unbounded());
-      $session->execute(new Dse\SimpleStatement("INSERT INTO dr (k, v) VALUES ('bind dr', ?)"),
+      $session->execute("INSERT INTO dr (k, v) VALUES ('bind dr', ?)",
                         array("arguments" => array($bind_dr)));
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM dr WHERE k = 'bind dr'"))->first();
+      $row = $session->execute("SELECT * FROM dr WHERE k = 'bind dr'")->first();
 
       $dr = $row['v'];
       echo "As string: " . $dr . PHP_EOL;
@@ -95,10 +95,10 @@ Feature: DSE DateRange Type
       $t = new Dse\Bigint("1483228800000");
 
       $bind_dr = new Dse\DateRange(Precision::DAY, $t);
-      $session->execute(new Dse\SimpleStatement("INSERT INTO dr (k, v) VALUES ('single date', ?)"),
+      $session->execute("INSERT INTO dr (k, v) VALUES ('single date', ?)",
                         array("arguments" => array($bind_dr)));
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM dr WHERE k = 'single date'"))->first();
+      $row = $session->execute("SELECT * FROM dr WHERE k = 'single date'")->first();
 
       $dr = $row['v'];
       echo "As string: " . $dr . PHP_EOL;
@@ -122,16 +122,17 @@ Feature: DSE DateRange Type
       """php
       use Dse\DateRange;
       use Dse\DateRange\Precision;
+      use Dse\DateRange\Bound;
 
       $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
 
       $bound = new Bound(Precision::DAY, new DateTime("1970-01-02Z"));
       $bind_dr = new Dse\DateRange($bound);
-      $session->execute(new Dse\SimpleStatement("INSERT INTO dr (k, v) VALUES ('single date in bound', ?)"),
+      $session->execute("INSERT INTO dr (k, v) VALUES ('single date in bound', ?)",
                         array("arguments" => array($bind_dr)));
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM dr WHERE k = 'single date in bound'"))->first();
+      $row = $session->execute("SELECT * FROM dr WHERE k = 'single date in bound'")->first();
 
       $dr = $row['v'];
       echo "As string: " . $dr . PHP_EOL;
