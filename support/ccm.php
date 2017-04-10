@@ -674,10 +674,14 @@ class Bridge {
      * @param int $node Node to execute CQL statement on
      * @param string $cql CQL statement to execute
      */
-    public function execute_cql_on_node($node, $cql) {
+    public function execute_cql_on_node($node, $cql, $is_admin = false) {
         $cqlsh_command = array();
         $cqlsh_command[] = "node{$node}";
         $cqlsh_command[] = "cqlsh";
+        if ($is_admin) {
+            $cqlsh_command[] = "-ucassandra";
+            $cqlsh_command[] = "-pcassandra";
+        }
         $cqlsh_command[] = "-x";
         $cqlsh_command[] = "{$cql};";
         call_user_func_array(array($this, "execute_ccm_command"), $cqlsh_command);

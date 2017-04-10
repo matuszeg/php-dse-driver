@@ -15,10 +15,15 @@ Feature: Kerberos Authentication
     $service = $_SERVER["SERVICE"];
     $principal = $_SERVER["PRINCIPAL"];
 
-    // Attempt to create the session using GSSAPI authentication
+    // Attempt to create the session using GSSAPI authentication. In some Kerberos
+    // configurations, hostname resolution must also be enabled for proper communication
+    // between the client, DSE, and Kerberos service. However, if the client uses
+    // libuv 0.10.x, hostname resolution is not supported. It is recommended that
+    // such deployments use a newer version of libuv.
     try {
         $cluster = Dse::cluster()
             ->withGssapiAuthenticator($service, $principal)
+            ->withHostnameResolution(true)
             ->build();
         $session = $cluster->connect();
 
@@ -41,7 +46,7 @@ Feature: Kerberos Authentication
       But it is executed with improper GSSAPI service provider, a Dse\Exception\AuthenticationException will occur
       Then its output should contain pattern:
       """
-      Server .* not found in Kerberos database
+      Server\s*.* not found in Kerberos database
       """
 
     Scenario: Authenticating with improper GSSAPI principal

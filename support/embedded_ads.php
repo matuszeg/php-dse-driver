@@ -44,6 +44,10 @@ class EmbeddedAds {
      */
     const DSEUSER_KEYTAB_FILENAME = "dseuser.keytab";
     /**
+     * 'bob' principal keytab filename
+     */
+    const BOB_KEYTAB_FILENAME = "bob.keytab";
+    /**
      * Unknown principal keytab filename
      */
     const UNKNOWN_KEYTAB_FILENAME = "unknown.keytab";
@@ -59,6 +63,10 @@ class EmbeddedAds {
      * DSEUSER service principal
      */
     const DSEUSER_SERVICE_PRINCIPAL = "dseuser@DATASTAX.COM";
+    /**
+     * 'bob' principal
+     */
+    const BOB_PRINCIPAL = "bob@DATASTAX.COM";
     /**
      * Service principal realm
      */
@@ -101,6 +109,11 @@ class EmbeddedAds {
      *                    (for clients; this may be the same as the server)
      */
     private $dseuser_keytab_file = array();
+    /**
+     * @var array(string) Absolute path to 'bob' user keytab file
+     *                    (for clients; this may be the same as the server)
+     */
+    private $bob_keytab_file = array();
     /**
      * @var array(string) Absolute path to unknown keytab file
      *                    (for clients; this may be the same as the server)
@@ -159,6 +172,8 @@ class EmbeddedAds {
             . self::DSE_KEYTAB_FILENAME;
         $this->dseuser_keytab_file["server"] = $configuration_directory
             . self::DSEUSER_KEYTAB_FILENAME;
+        $this->bob_keytab_file["server"] = $configuration_directory
+            . self::BOB_KEYTAB_FILENAME;
         $this->unknown_keytab_file["server"] = $configuration_directory
             . self::UNKNOWN_KEYTAB_FILENAME;
 
@@ -175,6 +190,8 @@ class EmbeddedAds {
                 . self::DSE_KEYTAB_FILENAME;
             $this->dseuser_keytab_file["client"] = $configuration_directory
                 . self::DSEUSER_KEYTAB_FILENAME;
+            $this->bob_keytab_file["client"] = $configuration_directory
+                . self::BOB_KEYTAB_FILENAME;
             $this->unknown_keytab_file["client"] = $configuration_directory
                 . self::UNKNOWN_KEYTAB_FILENAME;
         } else {
@@ -183,6 +200,7 @@ class EmbeddedAds {
             $this->cassandra_keytab_file["client"] = $this->cassandra_keytab_file["server"];
             $this->dse_keytab_file["client"] = $this->dse_keytab_file["server"];
             $this->dseuser_keytab_file["client"] = $this->dseuser_keytab_file["server"];
+            $this->bob_keytab_file["client"] = $this->bob_keytab_file["server"];
             $this->unknown_keytab_file["client"] = $this->unknown_keytab_file["server"];
         }
 
@@ -367,6 +385,7 @@ class EmbeddedAds {
                     $this->cassandra_keytab_file["client"] => $this->cassandra_keytab_file["server"],
                     $this->dse_keytab_file["client"] => $this->dse_keytab_file["server"],
                     $this->dseuser_keytab_file["client"] => $this->dseuser_keytab_file["server"],
+                    $this->bob_keytab_file["client"] => $this->bob_keytab_file["server"],
                     $this->unknown_keytab_file["client"] => $this->unknown_keytab_file["server"]
                 );
                 foreach ($kerberos_files as $client_file => $server_file) {

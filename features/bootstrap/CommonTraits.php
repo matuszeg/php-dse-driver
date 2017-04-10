@@ -300,11 +300,11 @@ trait CommonTraits {
         // Get the keyspace from the schema and drop the keyspace
         if (preg_match(self::$KEYSPACE_REGEX, (string) $schema, $matches)) {
             self::$ccm->execute_cql_on_node(1,
-                "DROP KEYSPACE IF EXISTS {$matches[1]}");
+                "DROP KEYSPACE IF EXISTS {$matches[1]}", true);
         }
 
         // Create the schema using CQLSH
-        self::$ccm->execute_cql_on_node(1, (string) $schema);
+        self::$ccm->execute_cql_on_node(1, (string) $schema, true);
     }
 
     /**

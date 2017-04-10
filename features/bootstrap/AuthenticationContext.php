@@ -65,12 +65,15 @@ class AuthenticationContext implements Context {
         // Create and update the configuration elements
         $configuration = array(
             "cassandra" => array(
-                "authenticator:com.datastax.bdp.cassandra.auth.DseAuthenticator"
+                "authenticator:com.datastax.bdp.cassandra.auth.DseAuthenticator",
+                "authorizer:com.datastax.bdp.cassandra.auth.DseAuthorizer"
             ),
             "dse" => array(
                 "authentication_options.enabled:true",
                 "authentication_options.default_scheme:internal",
-                "authentication_options.plain_text_without_ssl:allow"
+                "authentication_options.scheme_permissions:false",
+                "authentication_options.plain_text_without_ssl:allow",
+                "authorization_options.enabled:true"
             )
         );
 
@@ -91,11 +94,13 @@ class AuthenticationContext implements Context {
         $jvm = array();
         if (self::$configuration->version->compare("5.0.0") >= 0) {
             $cassandra[] = "authenticator:com.datastax.bdp.cassandra.auth.DseAuthenticator";
+            $cassandra[] = "authorizer:com.datastax.bdp.cassandra.auth.DseAuthorizer";
             $dse[] = "authentication_options.enabled:true";
             $dse[] = "authentication_options.default_scheme:kerberos";
             $dse[] = "authentication_options.scheme_permissions:true";
             $dse[] = "authentication_options.allow_digest_with_kerberos:true";
-            $dse[] = "authentication_options.transitional_mode:disabled";
+            $dse[] = "authentication_options.transitional_mode:normal";
+            $dse[] = "authorization_options.enabled:true";
         } else {
             $cassandra[] = "authenticator:com.datastax.bdp.cassandra.auth.KerberosAuthenticator";
         }
@@ -162,6 +167,23 @@ class AuthenticationContext implements Context {
             "KRB5_CONFIG" => self::$ads->configuration_file["client"],
             "SERVICE" => "dse",
             "PRINCIPAL" => EmbeddedAds::CASSANDRA_SERVICE_PRINCIPAL
+        )));
+    }
+
+    /**
+     * Execute the PHP example code with GSSAPI service and principal
+     * environment variables; S: dse, P: @see EmbeddedAds::BOB_SERVICE_PRINCIPAL
+     *
+     * @Given it is executed with the service user Bob's GSSAPI credentials
+     */
+    public function executed_with_bob_gssapi_credentials() {
+        self::$ads->acquire_ticket(EmbeddedAds::BOB_PRINCIPAL,
+            self::$ads->bob_keytab_file["client"]);
+
+        $this->when_executed(array("environment" => array(
+            "KRB5_CONFIG" => self::$ads->configuration_file["client"],
+            "SERVICE" => "dse",
+            "PRINCIPAL" => EmbeddedAds::BOB_PRINCIPAL
         )));
     }
 
