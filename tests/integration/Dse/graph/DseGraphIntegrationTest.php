@@ -192,6 +192,38 @@ abstract class DseGraphIntegrationTest extends DseIntegrationTest {
                 )
             )
         );
+        $version = IntegrationTestFixture::get_instance()->configuration->version;
+        if ($version instanceof Dse\Version) {
+            if ($version->compare("5.1.0") >= 0) {
+                // Date
+                $data_types[] = array(
+                    "date",
+                    array(
+                        date("Y-m-d"),
+                        date("Y-m-d", strtotime("2010-04-01"))
+                    )
+                );
+                // Time
+                $data_types[] = array(
+                    "time",
+                    array(
+                        "11:33:45.556",
+                        "11:33:45.556000037",
+                        "11:33:45"
+                    )
+                );
+                // Time (with expected results)
+                $data_types[] = array(
+                    "time",
+                    array(
+                        "00:00:00"
+                    ),
+                    array(
+                        "00:00"
+                    )
+                );
+            }
+        }
 
         // Add the Cassandra data types
         foreach (parent::data_types($primary_keys) as $data_type) {
