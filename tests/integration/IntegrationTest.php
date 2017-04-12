@@ -452,22 +452,12 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         // Generate the table name and filter out invalid characters
         $search = array(
             "test",
-            "with data set",
-            "#",
-            "\"",
-            "\\",
-            "'",
-            "-",
-            "<",
-            ">",
-            ":",
-            ",",
-            "."
+            "with data set"
         );
-        $this->table = str_replace($search, "",
-            strtolower($this->getName($this->using_data_provider)));
+        $this->table = preg_replace("/[^a-zA-Z0-9_]/", "_",
+            str_replace($search, "",
+                strtolower($this->getName($this->using_data_provider))));
         // Apply unique id if table is to long
-        $this->table = preg_replace("!\\s+!", "_", $this->table);
         if (strlen($this->table) > self::TABLE_MAXIMUM_LENGTH) {
             // Update the table name with a unique ID
             $unique_id = uniqid();

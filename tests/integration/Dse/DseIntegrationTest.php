@@ -66,10 +66,35 @@ abstract class DseIntegrationTest extends IntegrationTest {
     protected function data_types($primary_keys = false) {
         // Determine if the geometry data types should be added
         $version = IntegrationTestFixture::get_instance()->configuration->version;
-        if ($version instanceof Dse\Version && $version->compare("5.0.0") >= 0) {
-            return array_merge(parent::data_types($primary_keys), $this->geometry_data_types());
+
+        $types = parent::data_types($primary_keys);
+        if ($version instanceof Dse\Version) {
+            if ($version->compare("5.0.0") >= 0) {
+                array_push($types, ...$this->geometry_data_types());
+            }
+            if ($version->compare("5.1.0") >= 0) {
+                $date1 = new DateTime("2017-01-02T03:04:05.876");
+                $date2 = new DateTime("2017-11-02T03:04:05.876");
+                array_push($types,
+                    // DateRange data type
+                    array(
+                        "date_range",
+                        array(
+                            new Dse\DateRange(Dse\DateRange\Bound::unbounded()),
+                            new Dse\DateRange(Dse\DateRange\Precision::YEAR, $date1),
+                            new Dse\DateRange(Dse\DateRange\Precision::MONTH, $date1, Dse\DateRange\Precision::DAY, $date2),
+                            new Dse\DateRange(Dse\DateRange\Bound::unbounded(), Dse\DateRange\Precision::HOUR, $date2),
+                            new Dse\DateRange(Dse\DateRange\Precision::MINUTE, $date1, Dse\DateRange\Bound::unbounded()),
+                            new Dse\DateRange(Dse\DateRange\Bound::unbounded(), Dse\DateRange\Bound::unbounded()),
+                            new Dse\DateRange(Dse\DateRange\Precision::SECOND, $date1, Dse\DateRange\Precision::MILLISECOND, $date2),
+                            new Dse\DateRange(Dse\DateRange\Precision::SECOND, -9234123, Dse\DateRange\Precision::MILLISECOND, "1491935325000"),
+                        )
+                    )
+                );
+            }
         }
-        return parent::data_types($primary_keys);
+
+        return $types;
     }
 
     /**
@@ -86,6 +111,8 @@ abstract class DseIntegrationTest extends IntegrationTest {
             return "'PointType'";
         } else if (strcasecmp("polygon", $type) == 0) {
             return "'PolygonType'";
+        } else if (strcasecmp("date_range", $type) == 0) {
+            return "'DateRangeType'";
         }
 
         // Call the parent class to determine CQL data type
