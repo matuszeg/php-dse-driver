@@ -451,6 +451,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
         // Generate the table name and filter out invalid characters
         $search = array(
+            "org.apache.cassandra.db.marshal",
             "test",
             "with data set"
         );
@@ -839,6 +840,9 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             $keyspace,
             $this->generate_user_data_type_name($user_data_type),
             $udt_fields);
+        if (self::$configuration->verbose) {
+            echo "Executing Query: {$query}" . PHP_EOL;
+        }
         $this->session->execute(new Cassandra\SimpleStatement($query));
     }
 
@@ -999,7 +1003,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                         if ($this->is_composite_data_type($value)) {
                             return sprintf("frozen<%s>", (string) $value);
                         } else {
-                            return (string)$value;
+                            return (string) $value;
                         }
                     },
                     $types
@@ -1388,7 +1392,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                 array(
                     "The quick brown fox jumps over the lazy dog",
                     "Hello World",
-                    "DataStax PHP Driver Extension"
+                    "DataStax PHP DSE Driver Extension"
                 )
             ),
 
@@ -1511,6 +1515,9 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         // Create and execute the select query
         $query = sprintf(self::SELECT_FORMAT, $keyspace, $table);
         $statement = new Cassandra\SimpleStatement($query);
+        if (self::$configuration->verbose) {
+            echo "Executing Query: {$query}" . PHP_EOL;
+        }
         return $this->session->execute($statement);
     }
 
@@ -1590,13 +1597,10 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
     protected function generate_user_data_type_name($user_data_type) {
         $name = implode("_", array_map(
             function ($key, $data_type) {
-                $search = array(
-                    "<",
-                    ">",
-                    ",",
-                    " "
-                );
-                return $key . str_replace($search, "", $this->generate_cql_data_type($data_type));
+                $filter = preg_replace("/[^a-zA-Z0-9_]/", "",
+                    $this->generate_cql_data_type($data_type));
+                $filter = preg_replace("/(_)\\1+/", "_", $filter);
+                return $key . $filter;
             },
             array_keys($user_data_type->types()),
             $user_data_type->types())
@@ -1611,7 +1615,8 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
      */
     private function get_short_name() {
         $class = new \ReflectionClass($this);
-        return $class->name;
+        $search = array("org.apache.cassandra.db.marshal.");
+        return str_replace($search, "", $class->name);
     }
 
     /**

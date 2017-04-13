@@ -89,6 +89,9 @@ class DseDataTypeTest extends DseIntegrationTest {
 
         // Create the table
         $statement = new Dse\SimpleStatement($query);
+        if (self::$configuration->verbose) {
+            echo "Executing Query: {$query}" . PHP_EOL;
+        }
         $this->session->execute($statement);
     }
 

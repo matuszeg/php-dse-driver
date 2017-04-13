@@ -20,7 +20,7 @@ abstract class DseIntegrationTest extends IntegrationTest {
      * @return array Composite and scalar data type to use in a data provider
      *     [
      *         [
-     *             [0] => (Dse\Type|string) Data type
+     *             [0] => (Dse\Type) Data type
      *             [1] => (string) CQL data type
      *             [3] => (mixed) Data type value
      *         ]
@@ -38,7 +38,7 @@ abstract class DseIntegrationTest extends IntegrationTest {
      * @return array Composite and scalar data type to use in a data provider
      *     [
      *         [
-     *             [0] => (Dse\Type|string) Data type
+     *             [0] => (Dse\Type) Data type
      *             [1] => (string) CQL data type
      *             [3] => (mixed) Data type value
      *         ]
@@ -49,90 +49,65 @@ abstract class DseIntegrationTest extends IntegrationTest {
     }
 
     /**
-     * Data provider for DSE data types
+     * Data types (composite) - DSE v5.0.0
      *
-     * @see IntegrationTest::data_types()
-     * @see DseIntegrationTest::geometry_data_types() (if DSE >= 5.0.0)
-     *
-     * @param bool $primary_keys (Optional) True if data types will be used as
-     *                                      a primary key; false otherwise
-     *                                      (default: false)
-     * @return array Composite and scalar data type to use in a data provider
+     * @return array Composite data type to use in a data provider
      *     [
-     *         [0] => (Dse\Type|string) Data type
+     *         [0] => (Dse\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
+     *
+     * @requires DSE >= 5.0.0
      */
-    protected function data_types($primary_keys = false) {
-        // Determine if the geometry data types should be added
-        $version = IntegrationTestFixture::get_instance()->configuration->version;
-
-        $types = parent::data_types($primary_keys);
-        if ($version instanceof Dse\Version) {
-            if ($version->compare("5.0.0") >= 0) {
-                array_push($types, ...$this->geometry_data_types());
-            }
-            if ($version->compare("5.1.0") >= 0) {
-                $date1 = new DateTime("2017-01-02T03:04:05.876");
-                $date2 = new DateTime("2017-11-02T03:04:05.876");
-                array_push($types,
-                    // DateRange data type
-                    array(
-                        "date_range",
-                        array(
-                            new Dse\DateRange(Dse\DateRange\Bound::unbounded()),
-                            new Dse\DateRange(Dse\DateRange\Precision::YEAR, $date1),
-                            new Dse\DateRange(Dse\DateRange\Precision::MONTH, $date1, Dse\DateRange\Precision::DAY, $date2),
-                            new Dse\DateRange(Dse\DateRange\Bound::unbounded(), Dse\DateRange\Precision::HOUR, $date2),
-                            new Dse\DateRange(Dse\DateRange\Precision::MINUTE, $date1, Dse\DateRange\Bound::unbounded()),
-                            new Dse\DateRange(Dse\DateRange\Bound::unbounded(), Dse\DateRange\Bound::unbounded()),
-                            new Dse\DateRange(Dse\DateRange\Precision::SECOND, $date1, Dse\DateRange\Precision::MILLISECOND, $date2),
-                            new Dse\DateRange(Dse\DateRange\Precision::SECOND, -9234123, Dse\DateRange\Precision::MILLISECOND, "1491935325000"),
-                        )
-                    )
-                );
-            }
+    protected function composite_data_types_5_0() {
+        // Iterate over the available data types and create the composite types
+        $composite_types = array();
+        foreach ($this->custom_data_types_5_0() as $data_types) {
+            // Generate the composite type for the custom DSE data type
+            $composite_types = array_merge($composite_types,
+                $this->generate_composite_data_type($data_types[0], $data_types[1]));
         }
-
-        return $types;
+        return $composite_types;
     }
 
     /**
-     * Generate the CQL data type from the give data type
+     * Data types (composite) - DSE v5.1.0
      *
-     * @param Dse\Type|string $type Data type
-     * @return string String representation of the CQL data type
+     * @return array Composite data type to use in a data provider
+     *     [
+     *         [0] => (Dse\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires DSE >= 5.1.0
      */
-    protected function generate_cql_data_type($type) {
-        // Determine if the data type is a geospatial data type
-        if (strcasecmp("linestring", $type) == 0) {
-            return "'LineStringType'";
-        } else if (strcasecmp("point", $type) == 0) {
-            return "'PointType'";
-        } else if (strcasecmp("polygon", $type) == 0) {
-            return "'PolygonType'";
-        } else if (strcasecmp("date_range", $type) == 0) {
-            return "'DateRangeType'";
+    protected function composite_data_types_5_1() {
+        // Iterate over the available data types and create the composite types
+        $composite_types = array();
+        foreach ($this->custom_data_types_5_1() as $data_types) {
+            // Generate the composite type for the custom DSE data type
+            $composite_types = array_merge($composite_types,
+                $this->generate_composite_data_type($data_types[0], $data_types[1]));
         }
-
-        // Call the parent class to determine CQL data type
-        return parent::generate_cql_data_type($type);
+        return $composite_types;
     }
 
     /**
-     * DSE data types (Geometry)
+     * Data types (custom) - DSE v5.0.0
      *
-     * @return array Scalar data type to use in a data provider
+     * @return array Custom data type to use in a data provider
      *     [
-     *         [0] => (string) Geometry data type
+     *         [0] => (Dse\Type) Data type
      *         [1] => (array) Array of data type values
      *     ]
+     *
+     * @requires DSE >= 5.0.0
      */
-    protected function geometry_data_types() {
+    protected function custom_data_types_5_0() {
         return array(
             // Point data type
             array(
-                "point",
+                Dse\Type::point(),
                 array(
                     new Dse\Point(0, 0),
                     new Dse\Point(2, 4),
@@ -142,7 +117,7 @@ abstract class DseIntegrationTest extends IntegrationTest {
 
             // Line string data type
             array(
-                "linestring",
+                Dse\Type::lineString(),
                 array(
                     new Dse\LineString(
                         new Dse\Point(0, 0),
@@ -154,7 +129,7 @@ abstract class DseIntegrationTest extends IntegrationTest {
                         new Dse\Point(3, 9)
                     ),
                     new Dse\LineString(
-                        new Dse\Point(-1.2, -100),
+                        new Dse\Point(-1.2, -90),
                         new Dse\Point(0.99, 3)
                     )
                 )
@@ -162,7 +137,7 @@ abstract class DseIntegrationTest extends IntegrationTest {
 
             // Polygon data type
             array(
-                "polygon",
+                Dse\Type::polygon(),
                 array(
                     new Dse\Polygon(
                         new Dse\LineString(
@@ -185,6 +160,257 @@ abstract class DseIntegrationTest extends IntegrationTest {
                             new Dse\Point(9.0, 9.0),
                             new Dse\Point(6.0, 7.0)
                         )
+                    ),
+                    new Dse\Polygon(
+                        new Dse\LineString(
+                            new Dse\Point(0.0, 0.0),
+                            new Dse\Point(5.0, 0.0),
+                            new Dse\Point(5.0, 3.0),
+                            new Dse\Point(0.0, 3.0),
+                            new Dse\Point(0.0, 0.0)
+                        ),
+                        new Dse\LineString(
+                            new Dse\Point(1.0, 1.0),
+                            new Dse\Point(1.0, 2.0),
+                            new Dse\Point(2.0, 2.0),
+                            new Dse\Point(2.0, 1.0),
+                            new Dse\Point(1.0, 1.0)
+                        ),
+                        new Dse\LineString(
+                            new Dse\Point(3.0, 1.0),
+                            new Dse\Point(3.0, 2.0),
+                            new Dse\Point(4.0, 2.0),
+                            new Dse\Point(4.0, 1.0),
+                            new Dse\Point(3.0, 1.0)
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    /**
+     * Data types (custom) - DSE v5.1.0
+     *
+     * @return array Custom data type to use in a data provider
+     *     [
+     *         [0] => (Dse\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     *
+     * @requires DSE >= 5.1.0
+     */
+    protected function custom_data_types_5_1() {
+        // Create dates to be used by DateRange data types
+        $date_one = new DateTime("2017-01-02T03:04:05.876");
+        $date_two = new DateTime("2017-11-02T03:04:05.876");
+
+        return array(
+            // DateRange data type
+            array(
+                Dse\Type::dateRange(),
+                array(
+                    new Dse\DateRange(
+                        Dse\DateRange\Bound::unbounded()
+                    ),
+                    new Dse\DateRange(
+                        Dse\DateRange\Precision::YEAR, $date_one
+                    ),
+                    new Dse\DateRange(
+                        Dse\DateRange\Precision::MONTH, $date_one,
+                        Dse\DateRange\Precision::DAY, $date_two
+                    ),
+                    new Dse\DateRange(
+                        Dse\DateRange\Bound::unbounded(),
+                        Dse\DateRange\Precision::HOUR, $date_two
+                    ),
+                    new Dse\DateRange(
+                        Dse\DateRange\Precision::MINUTE, $date_one,
+                        Dse\DateRange\Bound::unbounded()
+                    ),
+                    new Dse\DateRange(
+                        Dse\DateRange\Bound::unbounded(),
+                        Dse\DateRange\Bound::unbounded()
+                    ),
+                    new Dse\DateRange(
+                        Dse\DateRange\Precision::SECOND, $date_one,
+                        Dse\DateRange\Precision::MILLISECOND, $date_two
+                    ),
+                    new Dse\DateRange(
+                        Dse\DateRange\Precision::SECOND, -9234123,
+                        Dse\DateRange\Precision::MILLISECOND, "1491935325000"
+                    )
+                )
+            )
+        );
+    }
+
+    /**
+     * DSE data types
+     *
+     * @see IntegrationTest::data_types()
+     * @see DseIntegrationTest::custom_data_types_5_0() (if DSE >= 5.0.0)
+     * @see DseIntegrationTest::composite_data_types_5_0() (if DSE >= 5.0.0)
+     * @see DseIntegrationTest::custom_data_types_5_1() (if DSE >= 5.1.0)
+     *
+     * @param bool $primary_keys (Optional) True if data types will be used as
+     *                                      a primary key; false otherwise
+     *                                      (default: false)
+     * @return array Composite and scalar data type to use in a data provider
+     *     [
+     *         [0] => (Dse\Type) Data type
+     *         [1] => (array) Array of data type values
+     *     ]
+     */
+    protected function data_types($primary_keys = false) {
+        // Get the data types from the parent class (Core data types)
+        $data_types = parent::data_types($primary_keys);
+
+        // Return all the valid composite and custom data types for DSE version
+        $version = IntegrationTestFixture::get_instance()->configuration->version;
+        if ($version instanceof Dse\Version) {
+            if ($version->compare("5.0.0") >= 0) {
+                $data_types = array_merge($data_types,
+                    $this->custom_data_types_5_0(),
+                    $this->composite_data_types_5_0());
+            }
+            if ($version->compare("5.1.0") >= 0 && !$primary_keys) {
+                $data_types = array_merge($data_types,
+                    $this->custom_data_types_5_1(),
+                    $this->composite_data_types_5_1());
+            }
+        }
+        return $data_types;
+    }
+
+    /**
+     * Generate the CQL data type from the give data type
+     *
+     * @param Dse\Type $type Data type
+     * @return string String representation of the CQL data type
+     */
+    protected function generate_cql_data_type($type) {
+        // Determine if the data type is a geospatial data type (shorten name)
+        if ($type === Dse\Type::lineString()) {
+            return "'LineStringType'";
+        } else if ($type === Dse\Type::point()) {
+            return "'PointType'";
+        } else if ($type === Dse\Type::polygon()) {
+            return "'PolygonType'";
+        } else if ($type === Dse\Type::dateRange()) {
+            return "'DateRangeType'";
+        }
+
+        // Ensure composites are frozen for backwards compatibility
+        if ($this->is_composite_data_type($type)) {
+            // Gather the value types from the composite type
+            $types = array();
+            if ($type instanceof Dse\Type\Collection ||
+                $type instanceof Dse\Type\Set
+            ) {
+                $types[] = $type->valueType();
+            } else if ($type instanceof Dse\Type\Map) {
+                $types[] = $type->keyType();
+                $types[] = $type->valueType();
+            } else if ($type instanceof Dse\Type\Tuple) {
+                $types = $type->types();
+            }
+
+            // Determine if the composite contains any DSE custom types
+            $custom_types = array(
+                Dse\Type::lineString(),
+                Dse\Type::point(),
+                Dse\Type::polygon(),
+                Dse\Type::dateRange()
+            );
+            foreach($custom_types as $custom_type) {
+                if (in_array($custom_type, $types)) {
+                    return sprintf("frozen<%s>", (string) $type);
+                }
+            }
+        }
+
+        // Call the parent class to determine CQL data type
+        return parent::generate_cql_data_type($type);
+    }
+
+    protected function generate_composite_data_type($data_type, $values) {
+        // Ensure there are at least three values available
+        if (count($values) < 3) {
+            throw new Exception("Invalid Number of Values: "
+                . "{$data_type} must have at least 3 values");
+        }
+
+        // Define the composite data types
+        $collection_type = Dse\Type::collection($data_type);
+        $map_type = Dse\Type::map(
+            Dse\Type::int(),
+            $data_type);
+        $set_type = Dse\Type::set($data_type);
+        $tuple_type = Dse\Type::tuple(
+            $data_type,
+            $data_type,
+            $data_type
+        );
+        $user_data_type_type = Dse\Type::userType(
+            "a", $data_type,
+            "b", $data_type,
+            "c", $data_type
+        );
+        $name = strtolower(
+            $this->generate_user_data_type_name($user_data_type_type)
+        );
+        $user_data_type_type = $user_data_type_type->withName($name);
+
+        // Construct the value of the composites
+        return array(
+            array(
+                $collection_type,
+                array(
+                    $collection_type->create(
+                        $values[0],
+                        $values[1],
+                        $values[2]
+                    )
+                )
+            ),
+            array(
+                $map_type,
+                array(
+                    $map_type->create(
+                        0, $values[0],
+                        1, $values[1],
+                        2, $values[2]
+                    )
+                )
+            ),
+            array(
+                $set_type,
+                array(
+                    $set_type->create(
+                        $values[0],
+                        $values[1],
+                        $values[2]
+                    )
+                )
+            ),
+            array(
+                $tuple_type,
+                array(
+                    $tuple_type->create(
+                        $values[0],
+                        $values[1],
+                        $values[2]
+                    )
+                )
+            ),
+            array(
+                $user_data_type_type,
+                array(
+                    $user_data_type_type->create(
+                        "a", $values[0],
+                        "b", $values[1],
+                        "c", $values[2]
                     )
                 )
             )
@@ -201,7 +427,7 @@ abstract class DseIntegrationTest extends IntegrationTest {
      * @return array Composite and scalar data type to use in a data provider
      *     [
      *         [
-     *             [0] => (Dse\Type|string) Data type
+     *             [0] => (Dse\Type) Data type
      *             [1] => (string) CQL data type
      *             [3] => (mixed) Data type value
      *         ]

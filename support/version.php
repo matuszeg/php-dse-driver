@@ -329,6 +329,13 @@ class Version extends \Version {
             return new \Cassandra\Version("3.0.11.1564");
         } else if ($this->equal("5.0.7")) {
             return new \Cassandra\Version("3.0.12.1586");
+        } else if (($compare = $this->compare("5.0.8")) >= 0
+            && $this->compare("5.1.0") < 0) {
+            if ($compare > 0) {
+                fwrite(STDERR, "Cassandra Version is not Defined: "
+                    . "Add Cassandra version for DSE v{$this}" . PHP_EOL);
+            }
+            return new \Cassandra\Version("3.0.12.1656");
         } else if (($compare = $this->compare("5.1.0")) >= 0) {
             if ($compare > 0) {
                 fwrite(STDERR, "Cassandra Version is not Defined: "

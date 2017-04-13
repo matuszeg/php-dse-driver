@@ -10,6 +10,8 @@
 /**
  * Base class to provide common integration test functionality for DSE graph
  * testing.
+ *
+ * @requires DSE >= 5.0.0
  */
 abstract class DseGraphIntegrationTest extends DseIntegrationTest {
     /**
@@ -196,13 +198,13 @@ abstract class DseGraphIntegrationTest extends DseIntegrationTest {
             // Ensure the data types that aren't applicable for graph are removed
             // https://docs.datastax.com/en/latest-dse/datastax_enterprise/graph/reference/refDSEGraphDataTypes.html
             $type = $data_type[0];
-            if ($type != Dse\Type::ascii() &&
-                $type != Dse\Type::date() &&
-                $type != Dse\Type::duration() && // Duration is already defined
-                $type != Dse\Type::time() &&
-                $type != Dse\Type::timeuuid() &&
-                $type != Dse\Type::tinyint() &&
-                $type != Dse\Type::varchar() &&
+            if ($type !== Dse\Type::ascii() &&
+                $type !== Dse\Type::date() &&
+                $type !== Dse\Type::duration() && // Duration is already defined
+                $type !== Dse\Type::time() &&
+                $type !== Dse\Type::timeuuid() &&
+                $type !== Dse\Type::tinyint() &&
+                $type !== Dse\Type::varchar() &&
                 !$this->is_composite_data_type($type)) {
                 $data_types[] = $data_type;
             }
@@ -210,7 +212,6 @@ abstract class DseGraphIntegrationTest extends DseIntegrationTest {
 
         // Add the geometry data types
         return $data_types;
-        return array_merge($data_types, $this->geometry_data_types());
     }
 
     /**

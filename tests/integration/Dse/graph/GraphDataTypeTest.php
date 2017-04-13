@@ -16,7 +16,7 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
     /**
      * Schema format for the data types
      */
-    const SCHEMA_FORMAT  = "schema.propertyKey(property_name).%s().create();"
+    const SCHEMA_FORMAT  = "schema.propertyKey(property_name).%s.create();"
         . "schema.vertexLabel(vertex_label).properties(property_name).create();"
         . "schema.vertexLabel(vertex_label).index(property_name + 'Index').secondary().by(property_name).add();";
     /**
@@ -73,16 +73,33 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
      */
     protected function generate_cql_data_type($type) {
         // Determine if the data type is a geospatial data type
-        if (strcasecmp("linestring", $type) == 0) {
-            return "Linestring";
-        } else if (strcasecmp("point", $type) == 0) {
-            return "Point";
-        } else if (strcasecmp("polygon", $type) == 0) {
-            return "Polygon";
+        $version = IntegrationTestFixture::get_instance()->configuration->version;
+        if (Dse\Type::lineString() === $type) {
+            if ($version instanceof Dse\Version) {
+                if ($version->compare("5.1.0") >= 0) {
+                    return "Linestring().withGeoBounds()";
+                }
+            }
+            return "Linestring()";
+        } else if (Dse\Type::point() === $type) {
+            if ($version instanceof Dse\Version) {
+                if ($version->compare("5.1.0") >= 0) {
+                    return "Point().withBounds(-100.0, -100.0, 100.0, 100.0)";
+                }
+            }
+            return "Point()";
+        } else if (Dse\Type::polygon() === $type) {
+            if ($version instanceof Dse\Version) {
+                if ($version->compare("5.1.0") >= 0) {
+                    return "Polygon().withGeoBounds()";
+                }
+            }
+            return "Polygon()";
         }
 
+        // Ensure first character is uppercase for graph
         // Call the main class to determine CQL data type
-        return ucfirst(IntegrationTest::generate_cql_data_type($type));
+        return ucfirst(IntegrationTest::generate_cql_data_type($type)) . "()";
     }
 
     /**
@@ -212,11 +229,11 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
                 $value = $member->asInt();
             }
         } else if ($member->isString()) {
-            if ($type == "linestring") {
+            if ($type === Dse\Type::lineString()) {
                 $value = $member->asLineString();
-            } else if ($type == "point") {
+            } else if ($type === Dse\Type::point()) {
                 $value = $member->asPoint();
-            } else if ($type == "polygon") {
+            } else if ($type === Dse\Type::polygon()) {
                 $value = $member->asPolygon();
             } else {
                 $value = $member->asString();
@@ -233,9 +250,14 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
         }
 
         // Validate the value (apply coercion if necessary)
-        if ($type instanceof Dse\Type) {
-            $value = $type->create($value);
+        if ($type !== Dse\Type::lineString() &&
+            $type !== Dse\Type::point() &&
+            $type !== Dse\Type::polygon()) {
+            if ($type instanceof Dse\Type) {
+                $value = $type->create($value);
+            }
         }
+
         $this->assertEquals($expected, $value);
     }
 
