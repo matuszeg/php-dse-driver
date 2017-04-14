@@ -91,16 +91,29 @@ class AuthenticationContext implements Context {
         // Create and update the configuration elements
         $cassandra = array();
         $dse = array();
+        $dse_yaml = array();
         $jvm = array();
         if (self::$configuration->version->compare("5.0.0") >= 0) {
             $cassandra[] = "authenticator:com.datastax.bdp.cassandra.auth.DseAuthenticator";
             $cassandra[] = "authorizer:com.datastax.bdp.cassandra.auth.DseAuthorizer";
+            $dse[] = "authorization_options.enabled:true";
+        }
+        if (self::$configuration->version->compare("5.0.0") >= 0 &&
+            self::$configuration->version->compare("5.1.0") < 0) {
             $dse[] = "authentication_options.enabled:true";
             $dse[] = "authentication_options.default_scheme:kerberos";
             $dse[] = "authentication_options.scheme_permissions:true";
             $dse[] = "authentication_options.allow_digest_with_kerberos:true";
             $dse[] = "authentication_options.transitional_mode:normal";
-            $dse[] = "authorization_options.enabled:true";
+        } else if (self::$configuration->version->compare("5.1.0") >= 0) {
+            $dse_yaml[] = "authentication_options:\n"
+                . "  allow_digest_with_kerberos: true\n"
+                . "  default_scheme: kerberos\n"
+                . "  enabled: true\n"
+                . "  other_schemes:\n"
+                . "    - internal\n"
+                . "  scheme_permissions: true\n"
+                . "  transitional_mode: normal";
         } else {
             $cassandra[] = "authenticator:com.datastax.bdp.cassandra.auth.KerberosAuthenticator";
         }
@@ -112,11 +125,15 @@ class AuthenticationContext implements Context {
         $jvm[] = "-Djava.security.krb5.conf=" . self::$ads->configuration_file["server"];
 
         // Start the DSE cluster
-        $this->a_running_cluster_with_nodes("DSE", 1, array(
+        $configuration = array(
             "cassandra" => $cassandra,
             "dse" => $dse,
             "jvm" => $jvm
-        ));
+        );
+        if (count($dse_yaml) > 0) {
+            $configuration["dse_yaml"] = $dse_yaml;
+        }
+        $this->a_running_cluster_with_nodes("DSE", 1, $configuration);
     }
 
     /**

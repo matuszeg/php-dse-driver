@@ -226,8 +226,16 @@ trait CommonTraits {
             if (array_key_exists("cassandra", $configuration)) {
                 self::$ccm->update_cluster_configuration($configuration["cassandra"]);
             }
+            if (array_key_exists("cassandra_yaml", $configuration)) {
+                self::$ccm->update_cluster_configuration($configuration["cassandra_yaml"],
+                    null, false, true);
+            }
             if (array_key_exists("dse", $configuration)) {
                 self::$ccm->update_dse_cluster_configuration($configuration["dse"]);
+            }
+            if (array_key_exists("dse_yaml", $configuration)) {
+                self::$ccm->update_dse_cluster_configuration($configuration["dse_yaml"],
+                    null, true);
             }
 
             // Start the cluster and assert that the cluster is ready
@@ -299,8 +307,8 @@ trait CommonTraits {
     public function given_schema($schema) {
         // Get the keyspace from the schema and drop the keyspace
         if (preg_match(self::$KEYSPACE_REGEX, (string) $schema, $matches)) {
-            self::$ccm->execute_cql_on_node(1,
-                "DROP KEYSPACE IF EXISTS {$matches[1]}", true);
+            $drop_keyspace = "DROP KEYSPACE IF EXISTS {$matches[1]}";
+            self::$ccm->execute_cql_on_node(1, $drop_keyspace, true);
         }
 
         // Create the schema using CQLSH
@@ -678,12 +686,16 @@ trait CommonTraits {
     /**
      * Display the current configuration settings
      *
-     * NOTE: This will only be displayed once and only if verbosity is enabled
+     * NOTE: This will only be displayed once
      */
     private static function print_settings() {
-        if (self::$display_configuration && self::$configuration->verbose) {
+        if (self::$display_configuration) {
             // Display information about the current setup for the tests being run
-            echo "Starting DataStax PHP Driver Feature Test" . PHP_EOL
+            $driver_type = " ";
+            if (class_exists("Dse")) {
+                $driver_type = " DSE ";
+            }
+            echo "Starting DataStax PHP{$driver_type}Driver Feature Test" . PHP_EOL
                 . "  PHP v" . phpversion() . PHP_EOL;
             self::$configuration->print_settings();
 

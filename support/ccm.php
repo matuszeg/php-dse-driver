@@ -678,6 +678,7 @@ class Bridge {
         $cqlsh_command = array();
         $cqlsh_command[] = "node{$node}";
         $cqlsh_command[] = "cqlsh";
+        $cqlsh_command[] = "--debug";
         if ($is_admin) {
             $cqlsh_command[] = "-ucassandra";
             $cqlsh_command[] = "-pcassandra";
@@ -1133,11 +1134,18 @@ class Bridge {
      *                                     (default: use key/value pair(s))
      * @param bool $is_dse (Optional) True if DSE configuration should be
      *                                updated; false otherwise (default: false)
+     * @param bool $is_yaml (Optional) True if update configuration is a
+     *                                 literal YAML; false otherwise
+     *                                 (default: false)
      * @throws \Exception If value is null when using key:value pair
      */
-    public function update_cluster_configuration($key_or_key_value_pairs, $value = null, $is_dse = false) {
+    public function update_cluster_configuration($key_or_key_value_pairs, $value = null,
+                                                 $is_dse = false, $is_yaml = false) {
         $updateconf_command = array();
         $updateconf_command[] = $is_dse ? "updatedseconf" : "updateconf";
+        if ($is_yaml) {
+            $updateconf_command[] = "-y";
+        }
         if (is_array($key_or_key_value_pairs)) {
             $updateconf_command = array_merge($updateconf_command, $key_or_key_value_pairs);
         } else {
@@ -1155,11 +1163,16 @@ class Bridge {
      * @param mixed $key_or_key_value_pairs Key or key:value pair(s) to update
      * @param mixed|null $value (Optional) Value to apply with key
      *                                     (default: use key/value pair(s))
+     * @param bool $is_yaml (Optional) True if update configuration is a
+     *                                 literal YAML; false otherwise
+     *                                 (default: false)
      *
      * @see Bridge::update_cluster_configuration()
      */
-    public function update_dse_cluster_configuration($key_or_key_value_pairs, $value = null) {
-        $this->update_cluster_configuration($key_or_key_value_pairs, $value, true);
+    public function update_dse_cluster_configuration($key_or_key_value_pairs,
+                                                     $value = null, $is_yaml = false) {
+        $this->update_cluster_configuration($key_or_key_value_pairs, $value,
+            true, $is_yaml);
     }
 
     /**

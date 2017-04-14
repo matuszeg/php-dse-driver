@@ -807,8 +807,16 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
             if (array_key_exists("cassandra", $server_configuration)) {
                 self::$ccm->update_cluster_configuration($server_configuration["cassandra"]);
             }
+            if (array_key_exists("cassandra_yaml", $server_configuration)) {
+                self::$ccm->update_cluster_configuration($server_configuration["cassandra_yaml"],
+                    null, false, true);
+            }
             if (array_key_exists("dse", $server_configuration)) {
                 self::$ccm->update_dse_cluster_configuration($server_configuration["dse"]);
+            }
+            if (array_key_exists("dse_yaml", $server_configuration)) {
+                self::$ccm->update_dse_cluster_configuration($server_configuration["dse_yaml"],
+                    null,true);
             }
         }
         return $created_switched;
@@ -1392,7 +1400,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
                 array(
                     "The quick brown fox jumps over the lazy dog",
                     "Hello World",
-                    "DataStax PHP DSE Driver Extension"
+                    "DataStax PHP Driver Extension"
                 )
             ),
 
