@@ -277,7 +277,7 @@ class GraphDataTypeTest extends DseGraphIntegrationTest {
      * @param string $schema Schema to create for data type
      * @param mixed $type Data type under test
      * @param mixed $value Value under test
-     * @param mixed $value Expected result (validate test)
+     * @param mixed $expected Expected result (validate test)
      *
      * @dataProvider data_type_provider
      * @test

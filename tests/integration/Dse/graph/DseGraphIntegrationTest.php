@@ -232,6 +232,7 @@ abstract class DseGraphIntegrationTest extends DseIntegrationTest {
             $type = $data_type[0];
             if ($type !== Dse\Type::ascii() &&
                 $type !== Dse\Type::date() &&
+                $type !== Dse\Type::dateRange() &&
                 $type !== Dse\Type::duration() && // Duration is already defined
                 $type !== Dse\Type::time() &&
                 $type !== Dse\Type::timeuuid() &&
