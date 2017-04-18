@@ -1,3 +1,12 @@
+# 1.1.0
+
+Features:
+
+* Added support for DSE proxy authentication
+* Added support for DSE `DateRangeType`
+* Added support for `DurationType`
+* Added support for adding DSE geospatial types as elements of collections
+
 # 1.0.0
 
 Features:

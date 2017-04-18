@@ -13,11 +13,11 @@ extensions for DataStax Enterprise.
     <email>michael.penick@datastax.com</email>
     <active>yes</active>
   </lead>
-  <date>2017-03-20</date>
-  <time>09:39:21</time>
+  <date>2017-04-18</date>
+  <time>15:29:00</time>
   <version>
-    <release>1.0.0</release>
-    <api>1.0.0</api>
+    <release>1.1.0</release>
+    <api>1.1.0</api>
   </version>
   <stability>
     <release>stable</release>
@@ -25,23 +25,14 @@ extensions for DataStax Enterprise.
   </stability>
   <license uri="http://www.datastax.com/terms/datastax-dse-driver-license-terms">Proprietary</license>
   <notes>
-# 1.0.0
+# 1.1.0
 
 Features:
 
-* Added support to pass a query string  directly to `Session::execute()` and
-  `Session::executeAsync()`
-* `ExecutionOptions` has been deprecated in favor of using an array
-
-Bug Fixes:
-
-* [PHP-86] Decimal __toString method
-* [PHP-109] Cassandra solr_query not working after upgrading to DSE 5
-* [PHP-114] pecl install compiler output is dominated by C90 warnings
-* [PHP-119] Driver crashes upon getting type of column
-* [PHP-143] Memory leak in `FutureSession`
-* [PHP-144] Fix persistent sessions reference counting issue
-* [PHP-147] Unable to create Bigint with PHP_INT_MIN
+* Added support for DSE proxy authentication
+* Added support for DSE `DateRangeType`
+* Added support for `DurationType`
+* Added support for adding DSE geospatial types as elements of collections
   </notes>
   <contents>
     <dir name="/">
@@ -66,6 +57,11 @@ Bug Fixes:
       <file role="src" name="src/Custom.c" />
       <file role="src" name="src/Date.c" />
       <file role="src" name="src/Date.h" />
+      <file role="src" name="src/DateRange.c" />
+      <file role="src" name="src/DateRange.h" />
+      <file role="src" name="src/DateRange/Bound.c" />
+      <file role="src" name="src/DateRange/Bound.h" />
+      <file role="src" name="src/DateRange/Precision.c" />
       <file role="src" name="src/Decimal.c" />
       <file role="src" name="src/Decimal.h" />
       <file role="src" name="src/DefaultAggregate.c" />
@@ -83,6 +79,8 @@ Bug Fixes:
       <file role="src" name="src/DefaultSession.c" />
       <file role="src" name="src/DefaultTable.c" />
       <file role="src" name="src/DefaultTable.h" />
+      <file role="src" name="src/Duration.c" />
+      <file role="src" name="src/Duration.h" />
       <file role="src" name="src/Exception.c" />
       <file role="src" name="src/Exception/AlreadyExistsException.c" />
       <file role="src" name="src/Exception/AuthenticationException.c" />
@@ -225,6 +223,8 @@ Bug Fixes:
       <file role="src" name="util/inet.h" />
       <file role="src" name="util/math.c" />
       <file role="src" name="util/math.h" />
+      <file role="src" name="util/params.c" />
+      <file role="src" name="util/params.h" />
       <file role="src" name="util/ref.c" />
       <file role="src" name="util/ref.h" />
       <file role="src" name="util/result.c" />
@@ -248,6 +248,9 @@ Bug Fixes:
       <file role="doc" name="doc/Dse/Column.php" />
       <file role="doc" name="doc/Dse/Custom.php" />
       <file role="doc" name="doc/Dse/Date.php" />
+      <file role="doc" name="doc/Dse/DateRange.php" />
+      <file role="doc" name="doc/Dse/DateRange/Bound.php" />
+      <file role="doc" name="doc/Dse/DateRange/Precision.php" />
       <file role="doc" name="doc/Dse/Decimal.php" />
       <file role="doc" name="doc/Dse/DefaultAggregate.php" />
       <file role="doc" name="doc/Dse/DefaultCluster.php" />
@@ -259,6 +262,7 @@ Bug Fixes:
       <file role="doc" name="doc/Dse/DefaultSchema.php" />
       <file role="doc" name="doc/Dse/DefaultSession.php" />
       <file role="doc" name="doc/Dse/DefaultTable.php" />
+      <file role="doc" name="doc/Dse/Duration.php" />
       <file role="doc" name="doc/Dse/Exception.php" />
       <file role="doc" name="doc/Dse/Exception/AlreadyExistsException.php" />
       <file role="doc" name="doc/Dse/Exception/AuthenticationException.php" />
