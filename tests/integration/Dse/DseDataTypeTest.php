@@ -180,17 +180,18 @@ class DseDataTypeTest extends DseIntegrationTest {
      * @param mixed $type Data type under test (not used)
      * @param string $cql_type CQL data type under test
      * @param mixed $value Value under test
+     * @param mixed $expected Expected result (validate test)
      *
      * @dataProvider data_type_provider
      * @test
      */
-    public function testSimpleStatement($type, $cql_type, $value) {
+    public function testSimpleStatement($type, $cql_type, $value, $expected) {
         // Create the table and insert the data type
         $this->create_table($cql_type);
         $this->insert($this->id, $value);
 
         // Validate the data type
-        $this->validate($this->select_all_rows(), $this->id, $value);
+        $this->validate($this->select_all_rows(), $this->id, $expected);
     }
 
     /**
@@ -208,17 +209,18 @@ class DseDataTypeTest extends DseIntegrationTest {
      * @param mixed $type Data type under test (not used)
      * @param string $cql_type CQL data type under test
      * @param mixed $value Value under test
+     * @param mixed $expected Expected result (validate test)
      *
      * @dataProvider primary_key_data_type_provider
      * @test
      */
-    public function testPrimaryKeySimpleStatement($type, $cql_type, $value) {
+    public function testPrimaryKeySimpleStatement($type, $cql_type, $value, $expected) {
         // Create the table and insert the data type
         $this->create_table($cql_type, true);
         $this->insert($value, $this->id);
 
         // Validate the data type
-        $this->validate($this->select_all_rows(), $value, $this->id);
+        $this->validate($this->select_all_rows(), $expected, $this->id);
     }
 
     /**
@@ -236,11 +238,12 @@ class DseDataTypeTest extends DseIntegrationTest {
      * @param mixed $type Data type under test (not used)
      * @param string $cql_type CQL data type under test
      * @param mixed $value Value under test
+     * @param mixed $expected Expected result (validate test)
      *
      * @dataProvider data_type_provider
      * @test
      */
-    public function testPreparedStatement($type, $cql_type, $value) {
+    public function testPreparedStatement($type, $cql_type, $value, $expected) {
         // Create the table and prepare the statement for the data type
         $this->create_table($cql_type);
         $statement = $this->create_and_prepare_statement();
@@ -249,7 +252,7 @@ class DseDataTypeTest extends DseIntegrationTest {
         $this->insert($this->id, $value, $statement);
 
         // Validate the data type
-        $this->validate($this->select_all_rows(), $this->id, $value);
+        $this->validate($this->select_all_rows(), $this->id, $expected);
     }
 
     /**
@@ -267,11 +270,12 @@ class DseDataTypeTest extends DseIntegrationTest {
      * @param mixed $type Data type under test (not used)
      * @param string $cql_type CQL data type under test
      * @param mixed $value Value under test
+     * @param mixed $expected Expected result (validate test)
      *
      * @dataProvider primary_key_data_type_provider
      * @test
      */
-    public function testPrimaryKeyPreparedStatement($type, $cql_type, $value) {
+    public function testPrimaryKeyPreparedStatement($type, $cql_type, $value, $expected) {
         // Create the table and prepare the statement for the data type
         $this->create_table($cql_type, true);
         $statement = $this->create_and_prepare_statement();
@@ -280,7 +284,7 @@ class DseDataTypeTest extends DseIntegrationTest {
         $this->insert($value, $this->id, $statement);
 
         // Validate the data type
-        $this->validate($this->select_all_rows(), $value, $this->id);
+        $this->validate($this->select_all_rows(), $expected, $this->id);
     }
 
     /**
@@ -297,17 +301,18 @@ class DseDataTypeTest extends DseIntegrationTest {
      * @param mixed $type Data type under test (not used)
      * @param string $cql_type CQL data type under test
      * @param mixed $value Value under test
+     * @param mixed $expected Expected result (validate test)
      *
      * @dataProvider data_type_provider
      * @test
      */
-    public function testBatchStatement($type, $cql_type, $value) {
+    public function testBatchStatement($type, $cql_type, $value, $expected) {
         // Create the table and insert the data type
         $this->create_table($cql_type);
         $this->insert_batch($this->id, $value);
 
         // Validate the data type
-        $this->validate($this->select_all_rows(), $this->id, $value);
+        $this->validate($this->select_all_rows(), $this->id, $expected);
     }
 
     /**
@@ -324,17 +329,18 @@ class DseDataTypeTest extends DseIntegrationTest {
      * @param mixed $type Data type under test (not used)
      * @param string $cql_type CQL data type under test
      * @param mixed $value Value under test
+     * @param mixed $expected Expected result (validate test)
      *
      * @dataProvider data_type_provider
      * @test
      */
-    public function testBatchStatementWithPreparedStatement($type, $cql_type, $value) {
+    public function testBatchStatementWithPreparedStatement($type, $cql_type, $value, $expected) {
         // Create the table and insert the data type
         $this->create_table($cql_type);
         $this->insert_batch($this->id, $value, false);
 
         // Validate the data type
-        $this->validate($this->select_all_rows(), $this->id, $value);
+        $this->validate($this->select_all_rows(), $this->id, $expected);
     }
 
     /**
@@ -356,17 +362,18 @@ class DseDataTypeTest extends DseIntegrationTest {
      * @param mixed $type Data type under test (not used)
      * @param string $cql_type CQL data type under test
      * @param mixed $value Value under test
+     * @param mixed $expected Expected result (validate test)
      *
      * @dataProvider primary_key_data_type_provider
      * @test
      */
-    public function testPrimaryKeyBatchStatement($type, $cql_type, $value) {
+    public function testPrimaryKeyBatchStatement($type, $cql_type, $value, $expected) {
         // Create the table and insert the data type
         $this->create_table($cql_type, true);
         $this->insert_batch($value, $this->id);
 
         // Validate the data type
-        $this->validate($this->select_all_rows(), $value, $this->id);
+        $this->validate($this->select_all_rows(), $expected, $this->id);
     }
 
     /**
@@ -388,16 +395,17 @@ class DseDataTypeTest extends DseIntegrationTest {
      * @param mixed $type Data type under test (not used)
      * @param string $cql_type CQL data type under test
      * @param mixed $value Value under test
+     * @param mixed $expected Expected result (validate test)
      *
      * @dataProvider primary_key_data_type_provider
      * @test
      */
-    public function testPrimaryKeyBatchStatementWithPreparedStatement($type, $cql_type, $value) {
+    public function testPrimaryKeyBatchStatementWithPreparedStatement($type, $cql_type, $value, $expected) {
         // Create the table and insert the data type
         $this->create_table($cql_type, true);
         $this->insert_batch($value, $this->id, false);
 
         // Validate the data type
-        $this->validate($this->select_all_rows(), $value, $this->id);
+        $this->validate($this->select_all_rows(), $expected, $this->id);
     }
 }
