@@ -59,7 +59,7 @@ class DateTest extends \PHPUnit_Framework_TestCase
 
         // Epoch - 1 (should work if cpp-driver >= 2.4.2, otherwise it's broken)
         if (version_compare(\Dse::CPP_DRIVER_VERSION, "2.4.2") >= 0) {
-          $date = Date::fromDateTime(new \DateTime("1969-12-31T00:00:00"));
+          $date = Date::fromDateTime(new \DateTime("1969-12-31T00:00:00+0000"));
           $this->assertEquals($date->seconds(), -1 * self::SECONDS_PER_DAY);
         }
     }
