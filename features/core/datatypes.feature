@@ -60,8 +60,7 @@ Feature: Datatypes
       """php
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
-      $statement = new Dse\SimpleStatement("SELECT * FROM values");
-      $result    = $session->execute($statement);
+      $result    = $session->execute("SELECT * FROM values");
       $row       = $result->first();
 
       foreach ($row as $name => $value) {
@@ -108,14 +107,12 @@ Feature: Datatypes
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
 
-      $statement = new Dse\SimpleStatement("INSERT INTO values (id, tinyint_value, smallint_value) VALUES (?, ?, ?)");
       $options   = array('arguments' =>
         array(1, new Dse\Tinyint(127), new Dse\Smallint(32767))
       );
-      $session->execute($statement, $options);
+      $session->execute("INSERT INTO values (id, tinyint_value, smallint_value) VALUES (?, ?, ?)", $options);
 
-      $statement = new Dse\SimpleStatement("SELECT * FROM values");
-      $result    = $session->execute($statement);
+      $result    = $session->execute("SELECT * FROM values");
       $row       = $result->first();
 
       foreach ($row as $name => $value) {
@@ -151,12 +148,10 @@ Feature: Datatypes
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
 
-      $statement = new Dse\SimpleStatement("INSERT INTO date_values (id, date_value) VALUES (?, ?)");
       $options   = array('arguments' => array(1, new Dse\Date(0)));
-      $session->execute($statement, $options);
+      $session->execute("INSERT INTO date_values (id, date_value) VALUES (?, ?)", $options);
 
-      $statement = new Dse\SimpleStatement("SELECT * FROM date_values");
-      $result    = $session->execute($statement);
+      $result    = $session->execute("SELECT * FROM date_values");
       $row       = $result->first();
 
       echo "date_value => {$row['date_value']->toDateTime()->format('Y-m-d H:i:s')}" . PHP_EOL;
@@ -187,13 +182,11 @@ Feature: Datatypes
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
 
-      $statement = new Dse\SimpleStatement("INSERT INTO time_values (id, time_value) VALUES (?, ?)");
       $datetime = new \DateTime("1970-01-01T00:00:01+0000");
       $options   = array('arguments' => array(1, Dse\Time::fromDateTime($datetime)));
-      $session->execute($statement, $options);
+      $session->execute("INSERT INTO time_values (id, time_value) VALUES (?, ?)", $options);
 
-      $statement = new Dse\SimpleStatement("SELECT * FROM time_values");
-      $result    = $session->execute($statement);
+      $result    = $session->execute("SELECT * FROM time_values");
       $row       = $result->first();
 
       echo "time_value => {$row['time_value']}" . PHP_EOL;

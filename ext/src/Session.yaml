@@ -8,8 +8,20 @@ Session:
     @see Cluster::connectAsync()
   methods:
     execute:
-      comment: |
+      comment: |-
         Execute a query.
+
+        Available execution options:
+        | Option Name        | Option **Type** | Option Details                                                                                           |
+        |--------------------|-----------------|----------------------------------------------------------------------------------------------------------|
+        | arguments          | array           | An array or positional or named arguments                                                                |
+        | consistency        | int             | A consistency constant e.g Dse::CONSISTENCY_ONE, Dse::CONSISTENCY_QUORUM, etc.                           |
+        | timeout            | int             | A number of rows to include in result for paging                                                         |
+        | paging_state_token | string          | A string token use to resume from the state of a previous result set                                     |
+        | retry_policy       | RetryPolicy     | A retry policy that is used to handle server-side failures for this request                              |
+        | serial_consistency | int             | Either Dse::CONSISTENCY_SERIAL or Dse::CONSISTENCY_LOCAL_SERIAL                                          |
+        | timestamp          | int\|string     | Either an integer or integer string timestamp that represents the number of microseconds since the epoch |
+        | execute_as         | string          | User to execute statement as                                                                             |
 
         @throws Exception
       params:
@@ -17,7 +29,7 @@ Session:
           comment: string or statement to be executed.
           type: string|Statement
         options:
-          comment: execution options (optional)
+          comment: Options to control execution of the query.
           type: array|ExecutionOptions|null
       return:
         comment: A collection of rows.
@@ -26,12 +38,14 @@ Session:
       comment: |-
         Execute a query asynchronously. This method returns immediately, but
         the query continues execution in the background.
+
+        @see Session::execute() for valid execution options
       params:
         statement:
           comment: string or statement to be executed.
           type: string|Statement
         options:
-          comment: execution options (optional)
+          comment: Options to control execution of the query.
           type: array|ExecutionOptions|null
       return:
         comment: A future that can be used to retrieve the result.
@@ -41,26 +55,31 @@ Session:
         Prepare a query for execution.
 
         @throws Exception
+
+        @see Session::execute() for valid execution options
       params:
         cql:
           comment: The query to be prepared.
           type: string
         options:
-          comment: Options to control preparing the query.
-          type: ExecutionOptions
+          comment: |
+            Options to control preparing the query.
+          type: array|ExecutionOptions|null
       return:
-        comment: |
-          A prepared statement that can be bound with parameters and executed.
+        comment: A prepared statement that can be bound with parameters and executed.
         type: PreparedStatement
     prepareAsync:
-      comment: Asynchronously prepare a query for execution.
+      comment: |
+        Asynchronously prepare a query for execution.
+
+        @see Session::execute() for valid execution options
       params:
         cql:
           comment: The query to be prepared.
           type: string
         options:
           comment: Options to control preparing the query.
-          type: ExecutionOptions
+          type: array|ExecutionOptions|null
       return:
         comment: A future that can be used to retrieve the prepared statement.
         type: FuturePreparedStatement
@@ -90,35 +109,34 @@ Session:
     executeGraph:
       comment: |-
         Execute graph queries.
+
+        Available execution options:
+        | Option Name        | Option **Type** | Option Details                                                                                           |
+        |--------------------|-----------------|----------------------------------------------------------------------------------------------------------|
+        | graph_language     | string          | Graph language; default "gremlin-groovy"                                                                 |
+        | graph_source       | string          | Graph source; default "g". If running analytics (OLAP) query then it should use "a"                      |
+        | graph_name         | string          | Graph name                                                                                               |
+        | read_consistency   | consistency     | Read consistency of graph queries; default Dse::CONSISTENCY_ONE                                          |
+        | write_consistency  | consistency     | Write consistency of graph queries; default Dse::CONSISTENCY_QUORUM                                      |
+        | request_timeout    | double\|int     | Request time of graph queries in seconds; default `0` (no timeout)                                       |
+        | timestamp          | int\|string     | Either an integer or integer string timestamp that represents the number of microseconds since the epoch |
+
         @throws Exception
       params:
         statement:
           comment: A graph statement or query string to be executed.
           type: string|Graph\Statement
         options:
-          comment: |
-            Options to control execution of the graph query.
-
-            * array["graph_language"]     string       Graph language; default "gremlin-groovy"
-            * array["graph_source"]       string       Graph source; default "g". If running
-                                                       analytics (OLAP) query then it should
-                                                       use "a"
-            * array["graph_name"]         string       Graph name
-            * array["read_consistency"]   consistency  Read consistency of graph queries;
-                                                       default `Dse::CONSISTENCY_ONE`
-            * array["write_consistency"]  consistency  Write consistency of graph queries;
-                                                       default `Dse::CONSISTENCY_QUORUM`
-            * array["request_timeout"]    double|int   Request time of graph queries in
-                                                       seconds; default `0` (no timeout)
-            * array["timestamp"]          int|string   Either an integer or integer string
-                                                       timestamp that represents the number
-                                                       of microseconds since the epoch
+          comment: Options to control execution of the graph query.
           type: array
       return:
         comment: A result set.
         type: Graph\ResultSet
     executeGraphAsync:
-      comment: Asynchronously execute a graph query.
+      comment: |
+        Asynchronously execute a graph query.
+
+        @see Session::executeGraph() for valid execution options
       params:
         statement:
           comment: A graph statement or query string to be executed.
@@ -126,7 +144,6 @@ Session:
         options:
           comment: |
             Options to control execution of the graph query.
-            @see Session::executeGraph()
           type: array
       return:
         comment: A future that can be used to retrieve the result set.

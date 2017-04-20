@@ -10,7 +10,7 @@ Feature: Client-side timestamps
   * By providing a client-side timestamp generator such as
     `Dse\TimestampGenerator\Monotonic()`.
   * Explicitly assigning a 'timestamp' when executing a statement or batch
-    using `Dse\ExecutionOptions`.
+    using execution options.
 
   Background:
     Given a running Cassandra cluster
@@ -36,10 +36,6 @@ Feature: Client-side timestamps
       """php
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
-      $simple    = new Dse\SimpleStatement(
-                     "INSERT INTO playlists (id, song_id, artist, title, album) " .
-                     "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)"
-                   );
 
       $arguments = array(
           'song_id' => new Dse\Uuid('756716f7-2e54-4715-9f00-91dcbea6cf50'),
@@ -51,11 +47,13 @@ Feature: Client-side timestamps
           'arguments' => $arguments,
           'timestamp' => 1234
       );
-      $session->execute($simple, $options);
+      $session->execute(
+          "INSERT INTO playlists (id, song_id, artist, title, album) " .
+          "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)",
+          $options
+      );
 
-      $statement = new Dse\SimpleStatement(
-          "SELECT artist, title, album, WRITETIME(song_id) FROM simplex.playlists");
-      $result    = $session->execute($statement);
+      $result = $session->execute("SELECT artist, title, album, WRITETIME(song_id) FROM simplex.playlists");
 
       foreach ($result as $row) {
           echo "{$row['artist']}: {$row['title']} / {$row['album']} ({$row['writetime(song_id)']})" . PHP_EOL;
@@ -70,17 +68,12 @@ Feature: Client-side timestamps
   Scenario: Create a batch with a client-side timestamp
     Given the following example:
       """php
-      $cluster   = Dse::cluster()->build();
-      $session   = $cluster->connect("simplex");
-      $prepared  = $session->prepare(
-                     "INSERT INTO playlists (id, song_id, artist, title, album) " .
-                     "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)"
-                   );
-      $simple    = new Dse\SimpleStatement(
-                     "INSERT INTO playlists (id, song_id, artist, title, album) " .
-                     "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)"
-                   );
-      $batch     = new Dse\BatchStatement(Dse::BATCH_LOGGED);
+      $cluster     = Dse::cluster()->build();
+      $session     = $cluster->connect("simplex");
+      $insertQuery = "INSERT INTO playlists (id, song_id, artist, title, album) " .
+                     "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)";
+      $prepared    = $session->prepare($insertQuery);
+      $batch       = new Dse\BatchStatement(Dse::BATCH_LOGGED);
 
       $batch->add($prepared, array(
           'song_id' => new Dse\Uuid('756716f7-2e54-4715-9f00-91dcbea6cf50'),
@@ -89,7 +82,7 @@ Feature: Client-side timestamps
           'artist'  => 'Joséphine Baker'
       ));
 
-      $batch->add($simple, array(
+      $batch->add($insertQuery, array(
           new Dse\Uuid('f6071e72-48ec-4fcb-bf3e-379c8a696488'),
           'Willi Ostermann', 'Die Mösch', 'In Gold',
       ));
@@ -103,9 +96,7 @@ Feature: Client-side timestamps
 
       $session->execute($batch, $options);
 
-      $statement = new Dse\SimpleStatement(
-          "SELECT artist, title, album, WRITETIME(song_id) FROM simplex.playlists");
-      $result    = $session->execute($statement);
+      $result = $session->execute("SELECT artist, title, album, WRITETIME(song_id) FROM simplex.playlists");
 
       foreach ($result as $row) {
           echo "{$row['artist']}: {$row['title']} / {$row['album']} ({$row['writetime(song_id)']})" . PHP_EOL;
@@ -132,10 +123,6 @@ Feature: Client-side timestamps
                      ->withTimestampGenerator(new Dse\TimestampGenerator\Monotonic())
                      ->build();
       $session   = $cluster->connect("simplex");
-      $simple    = new Dse\SimpleStatement(
-                     "INSERT INTO playlists (id, song_id, artist, title, album) " .
-                     "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)"
-                   );
 
       for ($i = 0; $i < 10; $i++) {
           $arguments = array(
@@ -148,12 +135,14 @@ Feature: Client-side timestamps
               'arguments' => $arguments,
               'timestamp' => 1234
           );
-          $session->execute($simple, $options);
+          $session->execute(
+              "INSERT INTO playlists (id, song_id, artist, title, album) " .
+              "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)",
+              $options
+          );
       }
 
-      $statement = new Dse\SimpleStatement(
-          "SELECT artist, title, album, song_id FROM simplex.playlists");
-      $result    = $session->execute($statement);
+      $result = $session->execute("SELECT artist, title, album, song_id FROM simplex.playlists");
 
       foreach ($result as $row) {
           echo "{$row['artist']}: {$row['title']} / {$row['album']} ({$row['song_id']})" . PHP_EOL;

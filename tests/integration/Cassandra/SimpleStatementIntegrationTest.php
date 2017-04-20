@@ -36,11 +36,13 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
      */
     public function testByName() {
         // Create the table
-        $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key timeuuid, value_int int, value_boolean boolean, value_text text, PRIMARY KEY (value_int, key)) WITH CLUSTERING ORDER BY (key DESC)";
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute(
+            "CREATE TABLE {$this->keyspace}.{$this->table} " .
+            "(key timeuuid, value_int int, value_boolean boolean, " .
+            "value_text text, PRIMARY KEY (value_int, key)) WITH CLUSTERING ORDER BY (key DESC)"
+        );
 
         // Create the insert query and insert valid named parameters
-        $query = "INSERT INTO {$this->keyspace}.{$this->table} (key, value_int, value_boolean, value_text) VALUES (?, ?, ?, ?)";
         $values = array(
             // Reversed order from table and insert queries
             array(
@@ -66,16 +68,16 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
                 "value_text" => "This is row number three."
             )
         );
-        $statement = new Cassandra\SimpleStatement($query);
+        $statement = new Cassandra\SimpleStatement(
+            "INSERT INTO {$this->keyspace}.{$this->table} " .
+            "(key, value_int, value_boolean, value_text) VALUES (?, ?, ?, ?)"
+        );
         foreach ($values as $value) {
-            $options = array("arguments" => $value);
-            $this->session->execute($statement, $options);
+            $this->session->execute($statement, array("arguments" => $value));
         }
 
         // Select and assert the values
-        $query = "SELECT * FROM {$this->keyspace}.{$this->table}";
-        $statement = new Cassandra\SimpleStatement($query);
-        $rows = $this->session->execute($statement);
+        $rows = $this->session->execute("SELECT * FROM {$this->keyspace}.{$this->table}");
         $this->assertCount(count($values), $rows);
         foreach ($rows as $i => $row) {
             $value = $values[$i];
@@ -106,11 +108,13 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
      */
     public function testCaseSensitiveByName() {
         // Create the table
-        $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key timeuuid, value_int int, \"value_iNT\" int, value_boolean boolean, \"value_BooLeaN\" boolean, PRIMARY KEY (value_int, key)) WITH CLUSTERING ORDER BY (key DESC)";
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute(
+            "CREATE TABLE {$this->keyspace}.{$this->table} " .
+            "(key timeuuid, value_int int, \"value_iNT\" int, value_boolean boolean, " .
+            "\"value_BooLeaN\" boolean, PRIMARY KEY (value_int, key)) WITH CLUSTERING ORDER BY (key DESC)"
+        );
 
         // Create the insert query and insert valid named parameters
-        $query = "INSERT INTO {$this->keyspace}.{$this->table} (key, value_int, \"value_iNT\", value_boolean, \"value_BooLeaN\") VALUES (?, ?, ?, ?, ?)";
         $values = array(
             // Reversed order from table and insert queries
             array(
@@ -139,16 +143,16 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
                 "\"value_BooLeaN\"" => true
             )
         );
-        $statement = new Cassandra\SimpleStatement($query);
+        $statement = new Cassandra\SimpleStatement(
+            "INSERT INTO {$this->keyspace}.{$this->table} " .
+            "(key, value_int, \"value_iNT\", value_boolean, \"value_BooLeaN\") VALUES (?, ?, ?, ?, ?)"
+        );
         foreach ($values as $value) {
-            $options = array("arguments" => $value);
-            $this->session->execute($statement, $options);
+            $this->session->execute($statement, array("arguments" => $value));
         }
 
         // Select and assert the values
-        $query = "SELECT * FROM {$this->keyspace}.{$this->table}";
-        $statement = new Cassandra\SimpleStatement($query);
-        $rows = $this->session->execute($statement);
+        $rows = $this->session->execute("SELECT * FROM {$this->keyspace}.{$this->table}");
         $this->assertCount(count($values), $rows);
         foreach ($rows as $i => $row) {
             $expected = array();
@@ -175,18 +179,21 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
      */
     public function testByNameInvalidBindName() {
         // Create the table
-        $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key timeuuid PRIMARY KEY, value_int int)";
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute(new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table} (key timeuuid PRIMARY KEY, value_int int)"
+        ));
 
         // Create the insert query and attempt to insert invalid valid name
-        $query = "INSERT INTO {$this->keyspace}.{$this->table} (key, value_int) VALUES (?, ?)";
         $values = array(
             "key" => new Cassandra\Timeuuid(),
             "wrong_name" => 1
         );
-        $statement = new Cassandra\SimpleStatement($query);
-        $options = array("arguments" => $values);
-        $this->session->execute($statement, $options);
+        $this->session->execute(
+            new Cassandra\SimpleStatement(
+                "INSERT INTO {$this->keyspace}.{$this->table} (key, value_int) VALUES (?, ?)"
+            ),
+            array("arguments" => $values)
+        );
     }
 
     /**
@@ -206,19 +213,23 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
      */
     public function testCaseSensitiveByNameInvalidBindName() {
         // Create the table
-        $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key timeuuid PRIMARY KEY, \"value_iNT\" int, \"value_TeXT\" text)";
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute(new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table} " .
+            "(key timeuuid PRIMARY KEY, \"value_iNT\" int, \"value_TeXT\" text)"
+        ));
 
         // Create the insert query and attempt to insert invalid valid name
-        $query = "INSERT INTO {$this->keyspace}.{$this->table} (key, \"value_TeXT\", \"value_iNT\") VALUES (?, ?, ?)";
         $values = array(
             "key" => new Cassandra\Timeuuid(),
             "value_iNT" => 1,
             "value_text" => "Exception will be thrown; case-sensitive"
         );
-        $statement = new Cassandra\SimpleStatement($query);
-        $options = array("arguments" => $values);
-        $this->session->execute($statement, $options);
+        $this->session->execute(
+            new Cassandra\SimpleStatement(
+                "INSERT INTO {$this->keyspace}.{$this->table} (key, \"value_TeXT\", \"value_iNT\") VALUES (?, ?, ?)"
+            ),
+            array("arguments" => $values)
+        );
     }
 
     /**
@@ -234,24 +245,28 @@ class SimpleStatementIntegrationTest extends IntegrationTest {
      */
     public function testByNameNullValue() {
         // Create the table
-        $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key timeuuid PRIMARY KEY, value_int int, value_boolean boolean, value_text text)";
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute(new Cassandra\SimpleStatement(
+            "CREATE TABLE {$this->keyspace}.{$this->table} " .
+            "(key timeuuid PRIMARY KEY, value_int int, value_boolean boolean, value_text text)"
+        ));
 
         // Create the insert query and insert valid named parameters
-        $query = "INSERT INTO {$this->keyspace}.{$this->table} (key, value_int, value_boolean, value_text) VALUES (?, ?, ?, ?)";
         $values = array(
             "key" => new Cassandra\Timeuuid(),
             "value_int" => null,
             "value_boolean" => null,
             "value_text" => "Null values should exist for value_int and value_boolean"
         );
-        $statement = new Cassandra\SimpleStatement($query);
-        $options = array("arguments" => $values);
-        $this->session->execute($statement, $options);
+        $this->session->execute(
+            new Cassandra\SimpleStatement(
+                "INSERT INTO {$this->keyspace}.{$this->table} " .
+                "(key, value_int, value_boolean, value_text) VALUES (?, ?, ?, ?)"
+            ),
+            array("arguments" => $values)
+        );
 
         // Select and assert the values
-        $query = "SELECT * FROM {$this->keyspace}.{$this->table}";
-        $statement = new Cassandra\SimpleStatement($query);
+        $statement = new Cassandra\SimpleStatement("SELECT * FROM {$this->keyspace}.{$this->table}");
         $rows = $this->session->execute($statement);
         $this->assertCount(1, $rows);
         $row = $rows->first();

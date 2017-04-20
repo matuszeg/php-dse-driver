@@ -58,18 +58,17 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
         parent::setUp();
 
         // Ensure we are using the current keyspace
-        $query = "USE {$this->keyspace}";
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute("USE {$this->keyspace}");
 
         // Create the user types
-        $this->session->execute(new Cassandra\SimpleStatement(self::PHONE_USER_TYPE_CQL));
-        $this->session->execute(new Cassandra\SimpleStatement(self::ADDRESS_USER_TYPE_CQL));
+        $this->session->execute(self::PHONE_USER_TYPE_CQL);
+        $this->session->execute(self::ADDRESS_USER_TYPE_CQL);
 
         // Create the table
-        $query = "CREATE TABLE {$this->table}
-            (key timeuuid PRIMARY KEY, value
-            frozen<address>)";
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute(
+            "CREATE TABLE {$this->table} " .
+            "(key timeuuid PRIMARY KEY, value frozen<address>)"
+        );
     }
 
     /**
@@ -181,10 +180,10 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
         );
 
         // Insert the value into the table
-        $query = "INSERT INTO {$this->table}  (key, value) VALUES (?, ?)";
-        $statement = new Cassandra\SimpleStatement($query);
-        $options = array("arguments" => $values);
-        $this->session->execute($statement, $options);
+        $this->session->execute(
+            "INSERT INTO {$this->table} (key, value) VALUES (?, ?)",
+            array("arguments" => $values)
+        );
 
         // Return the key for asserting the user type
         return $key;
@@ -198,10 +197,10 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      */
     private function selectAddress($key) {
         // Select the user type
-        $query = "SELECT value FROM {$this->table}  WHERE key=?";
-        $statement = new Cassandra\SimpleStatement($query);
-        $options = array("arguments" => array($key));
-        $rows = $this->session->execute($statement, $options);
+        $rows = $this->session->execute(
+            "SELECT value FROM {$this->table} WHERE key=?",
+            array("arguments" => array($key))
+        );
 
         // Ensure the user type is valid
         $this->assertCount(1, $rows);
@@ -467,8 +466,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      * @requires Cassandra < 3.0.0
      */
     public function testFrozenRequired() {
-        $statement = new Cassandra\SimpleStatement("CREATE TYPE frozen_required (id uuid, address address)");
-        $this->session->execute($statement);
+        $this->session->execute("CREATE TYPE frozen_required (id uuid, address address)");
     }
 
     /**
@@ -483,14 +481,16 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      * @expectedExceptionMessageRegExp |Unknown type .*.user_type_unavailable|
      */
     public function testUnavailableUserType() {
-        $statement = new Cassandra\SimpleStatement("CREATE TABLE unavailable (id uuid PRIMARY KEY, unavailable frozen<user_type_unavailable>)");
-        $this->session->execute($statement);
+        $this->session->execute(
+            "CREATE TABLE unavailable " .
+            "(id uuid PRIMARY KEY, unavailable frozen<user_type_unavailable>)"
+        );
     }
 
     /**
-     * Invalid value assigned to user type .
+     * Invalid value assigned to user type.
      *
-     * This test will ensure that the PHP driver throws and exception when
+     * This test will ensure that the PHP driver throws an exception when
      * assigning a value to a user type that is not valid for that type.
      *
      * @test
@@ -505,9 +505,9 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
     }
 
     /**
-     * Invalid value assigned to user type .
+     * Invalid value assigned to user type.
      *
-     * This test will ensure that the PHP driver throws and exception when
+     * This test will ensure that the PHP driver throws an exception when
      * assigning a value to a user type that is not valid for that type.
      *
      * @test
@@ -516,7 +516,7 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
      */
     public function testInvalidPhoneUserTypeAssignedValue() {
         // Create a new table
-        $this->session->execute(new Cassandra\SimpleStatement("CREATE TABLE invalidphone (key int PRIMARY KEY, value frozen<phone>)"));
+        $this->session->execute("CREATE TABLE invalidphone (key int PRIMARY KEY, value frozen<phone>)");
         $invalidValue = $this->generateAddressValue();
 
         // Bind and insert the invalid phone value
@@ -524,9 +524,6 @@ class UserTypeIntegrationTest extends CollectionsIntegrationTest {
             1,
             $invalidValue
         );
-        $query = "INSERT INTO invalidphone (key, value) VALUES (?, ?)";
-        $statement = new Cassandra\SimpleStatement($query);
-        $options = array("arguments" => $values);
-        $this->session->execute($statement, $options);
+        $this->session->execute("INSERT INTO invalidphone (key, value) VALUES (?, ?)", array("arguments" => $values));
     }
 }

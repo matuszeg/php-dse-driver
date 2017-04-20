@@ -66,7 +66,7 @@ class RetryPolicyIntegrationTest extends IntegrationTest {
 
         // Create the table
         $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key int, value_int int, PRIMARY KEY(key, value_int))";
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute($query);
 
         // Create the insert query
         $this->insertQuery = "INSERT INTO {$this->keyspace}.{$this->table} (key, value_int) VALUES (?, ?)";
@@ -89,8 +89,6 @@ class RetryPolicyIntegrationTest extends IntegrationTest {
             // Create all statement types
             $batch = new Cassandra\BatchStatement(Cassandra::BATCH_UNLOGGED);
             $prepare = $this->session->prepare($this->insertQuery);
-            $simple = new Cassandra\SimpleStatement($this->insertQuery);
-
 
             // Create the default execution options
             $options = array(
@@ -108,13 +106,13 @@ class RetryPolicyIntegrationTest extends IntegrationTest {
                     if ($i % 2 == 0) {
                         $batch->add($prepare, $values);
                     } else {
-                        $batch->add($simple, $values);
+                        $batch->add($this->insertQuery, $values);
                     }
                 } else {
                     // Execute either the prepare or simple statment
                     $statement = $prepare;
                     if ($statementType == self::SIMPLE_STATEMENT) {
-                        $statement = $simple;
+                        $statement = $this->insertQuery;
                     }
                     $options["arguments"] = $values;
                     $this->session->execute($statement, $options);
@@ -152,13 +150,14 @@ class RetryPolicyIntegrationTest extends IntegrationTest {
     private function assert(Cassandra\RetryPolicy $policy, $key, $numberOfAsserts, $consistency, $retries = self::NUMBER_OF_TIMEOUT_EXCEPTIONS) {
         try {
             // Select the values
-            $query = "SELECT value_int FROM {$this->keyspace}.{$this->table} WHERE key = {$key}";
-            $statement = new Cassandra\SimpleStatement($query);
             $options = array(
                 "consistency" => $consistency,
                 "retry_policy" => $policy
             );
-            $rows = $this->session->execute($statement, $options);
+            $rows = $this->session->execute(
+                "SELECT value_int FROM {$this->keyspace}.{$this->table} WHERE key = {$key}",
+                $options
+            );
 
             // Assert the values
             $this->assertCount($numberOfAsserts, $rows);

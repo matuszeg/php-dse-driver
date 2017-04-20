@@ -31,8 +31,7 @@ Feature: Collections
       """php
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
-      $statement = new Dse\SimpleStatement("SELECT * FROM user");
-      $result    = $session->execute($statement);
+      $result    = $session->execute("SELECT * FROM user");
       $row       = $result->first();
 
       echo "Logins:" . PHP_EOL;
@@ -80,8 +79,6 @@ Feature: Collections
       """php
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
-      $statement = new Dse\SimpleStatement(
-                      "INSERT INTO users (id, name, addresses) VALUES (?, ?, ?)");
 
       $addressType = Dse\Type::map(Dse\Type::text(), Dse\Type::text());
       $addressesType = Dse\Type::map(Dse\Type::text(), $addressType);
@@ -119,11 +116,10 @@ Feature: Collections
 
       foreach ($users as $user) {
           $options = array('arguments' => $user);
-          $session->execute($statement, $options);
+          $session->execute("INSERT INTO users (id, name, addresses) VALUES (?, ?, ?)", $options);
       }
 
-      $statement = new Dse\SimpleStatement("SELECT * FROM users");
-      $result    = $session->execute($statement);
+      $result = $session->execute("SELECT * FROM users");
 
       foreach ($result as $row) {
           echo "ID: {$row['id']}" . PHP_EOL;

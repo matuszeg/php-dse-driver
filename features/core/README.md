@@ -205,7 +205,7 @@ You run CQL statements by passing them to [`Dse\Session::execute()`](/api/Dse/in
 ```php
 <?php
 
-$result = $session->execute(new Dse\SimpleStatement('SELECT keyspace_name, columnfamily_name FROM system.schema_columnfamilies'));
+$result = $session->execute('SELECT keyspace_name, columnfamily_name FROM system.schema_columnfamilies');
 
 foreach ($result as $row) {
     printf("The keyspace \"%s\" has a table \"%s\".\n", $row['keyspace_name'], $row['columnfamily_name']);
@@ -220,10 +220,8 @@ foreach ($result as $row) {
 <?php
 
 $session->execute(
-    new Dse\SimpleStatement("UPDATE users SET age = ? WHERE user_name = ?"),
-    new Dse\ExecutionOptions(array(
-        'arguments' => array(41, 'Sam')
-    ))
+    "UPDATE users SET age = ? WHERE user_name = ?",
+    array('arguments' => array(41, 'Sam'))
 );
 ```
 
@@ -238,9 +236,9 @@ The driver supports prepared statements. Use [`Dse\Session::prepare()`](/api/Dse
 
 $statement = $session->prepare('INSERT INTO users (username, email) VALUES (?, ?)');
 
-$session->execute($statement, new Dse\ExecutionOptions(array(
+$session->execute($statement, array(
     'arguments' => array('avalanche123', 'bulat.shakirzyanov@datastax.com')
-)));
+));
 ```
 
 A prepared statement can be run many times, but the CQL parsing will only be done once on each node. Use prepared statements for queries you run over and over again.
@@ -262,9 +260,9 @@ $futures   = array();
 
 // execute all statements in background
 foreach ($data as $arguments) {
-    $futures[]= $session->executeAsync($statement, new ExecutionOptions(array(
-                    'arguments' => $arguments
-                )));
+    $futures[] = $session->executeAsync($statement, array(
+                     'arguments' => $arguments
+                ));
 }
 
 // wait for all statements to complete
@@ -283,24 +281,22 @@ There is no special facility for creating keyspaces and tables, they are created
 ```php
 <?php
 
-$createKeyspace = new Dse\SimpleStatement(<<<EOD
+$createKeyspace = <<<EOD
 CREATE KEYSPACE measurements
 WITH replication = {
   'class': 'SimpleStrategy',
   'replication_factor': 1
 }
-EOD
-);
+EOD;
 
-$createTable = new Dse\SimpleStatement(<<<EOD
+$createTable = <<<EOD
 CREATE TABLE events (
   id INT,
   date DATE,
   comment VARCHAR,
   PRIMARY KEY (id)
 )
-EOD
-);
+EOD;
 
 $session->execute($createKeyspace);
 $session->execute('USE measurements');
@@ -323,11 +319,12 @@ $batch = new Dse\BatchStatement();
 $statement = $session->prepare("UPDATE users SET name = ? WHERE user_id = ?");
 $batch->add($statement, array('Sue', 'unicorn31'));
 
-$statement = new Dse\SimpleStatement("UPDATE users SET age = 19 WHERE user_id = 'unicorn31'");
-$batch->add($statement);
+$batch->add("UPDATE users SET age = 19 WHERE user_id = 'unicorn31'");
 
-$statement = new Dse\SimpleStatement("INSERT INTO activity (user_id, what, when) VALUES (?, 'login', NOW())");
-$batch->add($statement, array('unicorn31'));
+$batch->add(
+    "INSERT INTO activity (user_id, what, when) VALUES (?, 'login', NOW())",
+    array('unicorn31')
+);
 
 $session->execute($batch);
 ```
@@ -361,13 +358,14 @@ $cluster = Dse::cluster()
 $session = $cluster->connect();
 ```
 
-You can also override the page size on a per-execute basis by adding the `page_size` option to [`Dse\ExecutionOptions`](/api/Dse/class.ExecutionOptions/):
+You can also override the page size on a per-execute basis by adding the `page_size` execution option to a call to
+[`Dse\Session.executeAsync`](/api/Dse/interface.Session/#method-executeAsync) or [`Dse\Session.execute`](/api/Dse/interface.Session/#method-execute):
 
 ```php
 <?php
 
-$statement = new Dse\SimpleStatement("SELECT * FROM large_table WHERE id = 'partition_with_lots_of_data'");
-$result    = $session->execute($statement, new Dse\ExecutionOptions(array('page_size' => 100)));
+$statement = "SELECT * FROM large_table WHERE id = 'partition_with_lots_of_data'";
+$result    = $session->execute($statement, array('page_size' => 100));
 
 while ($result) {
     foreach ($result as $row) {
@@ -394,27 +392,27 @@ $session = $cluster->connect();
 
 [Read more `Dse\Cluster\Builder::withDefaultConsistency()`](/api/Dse/Cluster/class.Builder/#method.withDefaultConsistency)
 
-Consistency can also be passed via `Dse\ExecutionOptions`.
+Consistency can also be passed via execution options.
 
 ```php
 <?php
 
 $session->execute(
-    new Dse\SimpleStatement('SELECT * FROM users'),
-    new Dse\ExecutionOptions(array('consistency' => Dse::CONSISTENCY_LOCAL_QUORUM))
+    'SELECT * FROM users',
+    array('consistency' => Dse::CONSISTENCY_LOCAL_QUORUM)
 );
 
 $statement = $session->prepare('SELECT * FROM users');
-$session->execute($statement, new Dse\ExecutionOptions(array(
+$session->execute($statement, array(
     'consistency' => Dse::CONSISTENCY_LOCAL_QUORUM
-)));
+));
 
 $batch = new Dse\BatchStatement();
-$batch->add(new Dse\SimpleStatement("UPDATE users SET email = 'sue@foobar.com' WHERE id = 'sue'"));
-$batch->add(new Dse\SimpleStatement("UPDATE users SET email = 'tom@foobar.com' WHERE id = 'tom'"));
-$session->execute($batch, new Dse\ExecutionOptions(array(
+$batch->add("UPDATE users SET email = 'sue@foobar.com' WHERE id = 'sue'");
+$batch->add("UPDATE users SET email = 'tom@foobar.com' WHERE id = 'tom'");
+$session->execute($batch, array(
     'consistency' => Dse::CONSISTENCY_LOCAL_QUORUM
-)));
+));
 ```
 
 [Read more about `Dse\ExecutionOptions`](/api/Dse/class.ExecutionOptions/)
@@ -495,7 +493,7 @@ The example below defines and creates a [`Dse\Map`](/api/Dse/class.Map/) using [
 <?php
 
 $map = Dse\Type::map(Dse\Type::varchar(), Dse\Type::int())
-                     ->create('a', 1, 'b', 2, 'c', 3, 'd', 4);
+           ->create('a', 1, 'b', 2, 'c', 3, 'd', 4);
 
 var_dump(array_combine($map->keys(), $map->values()));
 ```

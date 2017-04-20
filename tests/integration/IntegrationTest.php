@@ -509,8 +509,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         if (!is_null($this->session)) {
             try {
                 $query = sprintf(self::DROP_KEYSPACE_FORMAT, $this->keyspace);
-                $statement = new Cassandra\SimpleStatement($query);
-                $this->session->execute($statement);
+                $this->session->execute($query);
             } catch (\Exception $e) {
                 ; // no-op
             }
@@ -769,8 +768,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         if (self::$configuration->verbose) {
             echo "Executing Query: {$query}" . PHP_EOL;
         }
-        $statement = new Cassandra\SimpleStatement($query);
-        $rows = $session->execute($statement);
+        $rows = $session->execute($query);
 
         // Return the result, session and version
         return array(
@@ -851,7 +849,7 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
         if (self::$configuration->verbose) {
             echo "Executing Query: {$query}" . PHP_EOL;
         }
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute($query);
     }
 
     /**
@@ -1522,11 +1520,10 @@ abstract class IntegrationTest extends \PHPUnit_Framework_TestCase {
 
         // Create and execute the select query
         $query = sprintf(self::SELECT_FORMAT, $keyspace, $table);
-        $statement = new Cassandra\SimpleStatement($query);
         if (self::$configuration->verbose) {
             echo "Executing Query: {$query}" . PHP_EOL;
         }
-        return $this->session->execute($statement);
+        return $this->session->execute($query);
     }
 
     /**

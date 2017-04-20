@@ -28,9 +28,6 @@ Feature: User defined types
       $session   = $cluster->connect("simplex");
       $keyspace = $session->schema()->keyspace("simplex");
 
-      $statement = new Dse\SimpleStatement(
-                      "INSERT INTO users (id, name, addresses) VALUES (?, ?, ?)");
-
       $addressType = $keyspace->userType("address");
       $addressesType = $keyspace->userType("addresses");
 
@@ -62,11 +59,10 @@ Feature: User defined types
 
       foreach ($users as $user) {
           $options = array('arguments' => $user);
-          $session->execute($statement, $options);
+          $session->execute("INSERT INTO users (id, name, addresses) VALUES (?, ?, ?)", $options);
       }
 
-      $statement = new Dse\SimpleStatement("SELECT * FROM users");
-      $result    = $session->execute($statement);
+      $result    = $session->execute("SELECT * FROM users");
 
       foreach ($result as $row) {
           echo "ID: {$row['id']}" . PHP_EOL;
@@ -130,9 +126,6 @@ Feature: User defined types
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
 
-      $statement = new Dse\SimpleStatement(
-                      "INSERT INTO users (id, name, addresses) VALUES (?, ?, ?)");
-
       $addressType = Dse\Type::userType(
           'street', Dse\Type::text(),
           'city',   Dse\Type::text(),
@@ -172,11 +165,10 @@ Feature: User defined types
 
       foreach ($users as $user) {
           $options = array('arguments' => $user);
-          $session->execute($statement, $options);
+          $session->execute("INSERT INTO users (id, name, addresses) VALUES (?, ?, ?)", $options);
       }
 
-      $statement = new Dse\SimpleStatement("SELECT * FROM users");
-      $result    = $session->execute($statement);
+      $result    = $session->execute("SELECT * FROM users");
 
       foreach ($result as $row) {
           echo "ID: {$row['id']}" . PHP_EOL;

@@ -71,8 +71,7 @@ Feature: Session management
       """php
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
-      $statement = new Dse\SimpleStatement("SELECT * FROM simplex.playlists");
-      $future    = $session->executeAsync($statement);
+      $future    = $session->executeAsync("SELECT * FROM simplex.playlists");
       $session->close();
 
       echo "Result contains {$future->get()->count()} rows" . PHP_EOL;

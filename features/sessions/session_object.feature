@@ -76,7 +76,7 @@ Feature: Session Object
       $french_session   = $cluster->connect("french");
       $german_session   = $cluster->connect("german");
       $uk_session       = $cluster->connect("uk");
-      $statement = new Dse\SimpleStatement("SELECT * FROM playlists");
+      $statement = "SELECT * FROM playlists";
 
       $row = $french_session->execute($statement);
       echo "French session contains {$row->count()} rows" . PHP_EOL;

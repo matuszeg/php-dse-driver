@@ -73,8 +73,7 @@ Feature: Simple Statements
           $session->execute($statement, $options);
       }
 
-      $statement = new Dse\SimpleStatement("SELECT * FROM simplex.playlists");
-      $result    = $session->execute($statement);
+      $result = $session->execute("SELECT * FROM simplex.playlists");
 
       foreach ($result as $row) {
           echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
@@ -127,12 +126,10 @@ Feature: Simple Statements
       );
 
       foreach ($songs as $song) {
-          $options = array('arguments' => $song);
-          $session->execute($statement, $options);
+          $session->execute($statement, array('arguments' => $song));
       }
 
-      $statement = new Dse\SimpleStatement("SELECT * FROM simplex.playlists");
-      $result    = $session->execute($statement);
+      $result = $session->execute("SELECT * FROM simplex.playlists");
 
       foreach ($result as $row) {
           echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
@@ -158,10 +155,6 @@ Feature: Simple Statements
       """php
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
-      $statement = new Dse\SimpleStatement(
-          "INSERT INTO playlists (id, song_id, artist, title, album) " .
-          "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)"
-      );
 
       $songs = array(
           array(
@@ -174,7 +167,11 @@ Feature: Simple Statements
 
       foreach ($songs as $song) {
           $options = array('arguments' => $song);
-          $session->execute($statement, $options);
+          $session->execute(
+              "INSERT INTO playlists (id, song_id, artist, title, album) " .
+              "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)",
+              $options
+          );
       }
 
       $statement = new Dse\SimpleStatement(

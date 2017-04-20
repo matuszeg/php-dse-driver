@@ -105,7 +105,7 @@ abstract class DatatypeIntegrationTests extends IntegrationTest {
             return "$name " . self::typeString($type);
         }, array_keys($userType->types()), $userType->types()));
         $query = sprintf($query, $this->keyspace, $this->userTypeString($userType), $fieldsString);
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute($query);
     }
 
     /**
@@ -122,7 +122,7 @@ abstract class DatatypeIntegrationTests extends IntegrationTest {
 
         $query = sprintf($query, $this->keyspace, $tableName, $cqlType);
 
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute($query);
 
         return $tableName;
     }
@@ -150,9 +150,10 @@ abstract class DatatypeIntegrationTests extends IntegrationTest {
      * @param $options array
      */
     protected function insertValue($tableName, $options) {
-        $insertQuery = "INSERT INTO $this->keyspace.$tableName (key, value) VALUES (?, ?)";
-
-        $this->session->execute(new Cassandra\SimpleStatement($insertQuery), $options);
+        $this->session->execute(
+            "INSERT INTO $this->keyspace.$tableName (key, value) VALUES (?, ?)",
+            $options
+        );
     }
 
     /**
@@ -164,11 +165,10 @@ abstract class DatatypeIntegrationTests extends IntegrationTest {
      * @param $value mixed
      */
     protected function verifyValue($tableName, $type, $key, $value) {
-        $selectQuery = "SELECT * FROM $this->keyspace.$tableName WHERE key = ?";
-
-        $options = array('arguments' => array($key));
-
-        $result = $this->session->execute(new Cassandra\SimpleStatement($selectQuery), $options);
+        $result = $this->session->execute(
+            "SELECT * FROM $this->keyspace.$tableName WHERE key = ?",
+            array('arguments' => array($key))
+        );
 
         $this->assertEquals(count($result), 1);
 

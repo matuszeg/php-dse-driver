@@ -65,8 +65,10 @@ class DatatypeIntegrationTest extends DatatypeIntegrationTests {
      */
     public function testByteBoundaryDecimalVarint() {
         // Create the table
-        $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key timeuuid PRIMARY KEY, value_decimal decimal, value_varint varint)";
-        $this->session->execute(new Cassandra\SimpleStatement($query));
+        $this->session->execute(
+            "CREATE TABLE {$this->keyspace}.{$this->table} " .
+            "(key timeuuid PRIMARY KEY, value_decimal decimal, value_varint varint)"
+        );
 
         // Iterate through a few byte boundary positive values
         foreach (range(1, 20) as $i) {
@@ -81,16 +83,16 @@ class DatatypeIntegrationTest extends DatatypeIntegrationTests {
             );
 
             // Insert the value into the table
-            $query = "INSERT INTO {$this->keyspace}.{$this->table} (key, value_decimal, value_varint) VALUES (?, ?, ?)";
-            $statement = new Cassandra\SimpleStatement($query);
-            $options = array("arguments" => $values);
-            $this->session->execute($statement, $options);
+            $this->session->execute(
+                "INSERT INTO {$this->keyspace}.{$this->table} (key, value_decimal, value_varint) VALUES (?, ?, ?)",
+                array("arguments" => $values)
+            );
 
             // Select the decimal and varint
-            $query = "SELECT value_decimal, value_varint FROM {$this->keyspace}.{$this->table} WHERE key=?";
-            $statement = new Cassandra\SimpleStatement($query);
-            $options = array("arguments" => array($key));
-            $rows = $this->session->execute($statement, $options);
+            $rows = $this->session->execute(
+                "SELECT value_decimal, value_varint FROM {$this->keyspace}.{$this->table} WHERE key=?",
+                array("arguments" => array($key))
+            );
 
             // Ensure the decimal and varint are valid
             $this->assertCount(1, $rows);

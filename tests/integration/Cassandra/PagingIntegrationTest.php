@@ -23,20 +23,13 @@ class PagingIntegrationTest extends IntegrationTest {
     public function setUp() {
         parent::setUp();
 
-        $statement = new Cassandra\SimpleStatement(
-            "CREATE TABLE {$this->keyspace}.{$this->table} (key int PRIMARY KEY, value int)"
-        );
-        $this->session->execute($statement);
-
-        $statement = new Cassandra\SimpleStatement(
-            "INSERT INTO {$this->keyspace}.{$this->table} (key, value) VALUES (?, ?)"
-        );
+        $this->session->execute("CREATE TABLE {$this->keyspace}.{$this->table} (key int PRIMARY KEY, value int)");
 
         for ($i = 0; $i < 10; $i++) {
-            $options = array(
-                "arguments" => array($i, $i)
+            $this->session->execute(
+                "INSERT INTO {$this->keyspace}.{$this->table} (key, value) VALUES (?, ?)",
+                array("arguments" => array($i, $i))
             );
-            $this->session->execute($statement, $options);
         }
     }
 
@@ -128,16 +121,12 @@ class PagingIntegrationTest extends IntegrationTest {
     public function testPagingToken() {
         $results = array();
 
-        $statement = new Cassandra\SimpleStatement(
-            "SELECT * FROM {$this->keyspace}.{$this->table}"
-        );
-
         for ($i = 0; $i < 10; $i++) {
             $options = array("page_size" => 1);
             if (isset($result)) {
                 $options["paging_state_token"] = $result->pagingStateToken();
             }
-            $result = $this->session->execute($statement, $options);
+            $result = $this->session->execute("SELECT * FROM {$this->keyspace}.{$this->table}", $options);
             $this->assertEquals(1, count($result));
 
             $row = $result->first();
@@ -161,15 +150,10 @@ class PagingIntegrationTest extends IntegrationTest {
      * @expectedExceptionMessage Invalid value for the paging state
      */
     public function testInvalidToken() {
-        $statement = new Cassandra\SimpleStatement(
-            "SELECT * FROM {$this->keyspace}.{$this->table}"
+        $this->session->execute(
+            "SELECT * FROM {$this->keyspace}.{$this->table}",
+            array("paging_state_token" => "invalid")
         );
-
-        $options = array(
-            "paging_state_token" => "invalid"
-        );
-
-        $result = $this->session->execute($statement, $options);
     }
 
     /**
@@ -185,15 +169,10 @@ class PagingIntegrationTest extends IntegrationTest {
      * @expectedExceptionMessageRegExp |paging_state_token must be a string.*|
      */
     public function testNullToken() {
-        $statement = new Cassandra\SimpleStatement(
-            "SELECT * FROM {$this->keyspace}.{$this->table}"
+        $this->session->execute(
+            "SELECT * FROM {$this->keyspace}.{$this->table}",
+            array("paging_state_token" => null)
         );
-
-        $options = array(
-            "paging_state_token" => null
-        );
-
-        $result = $this->session->execute($statement, $options);
     }
 
     /**
@@ -206,13 +185,11 @@ class PagingIntegrationTest extends IntegrationTest {
         $results = array();
         $pageSize = 2;
 
-        $options = array("page_size" => $pageSize);
-        $statement = new Cassandra\SimpleStatement(
-            "SELECT * FROM {$this->keyspace}.{$this->table}"
-        );
-
         // Get first page
-        $rows = $this->session->execute($statement, $options);
+        $rows = $this->session->execute(
+            "SELECT * FROM {$this->keyspace}.{$this->table}",
+            array("page_size" => $pageSize)
+        );
         $this->assertEquals($rows->count(), $pageSize);
         $values = self::convertRowsToArray($rows, "value");
 
@@ -251,13 +228,11 @@ class PagingIntegrationTest extends IntegrationTest {
         $results = array();
         $pageSize = 2;
 
-        $options = array("page_size" => $pageSize);
-        $statement = new Cassandra\SimpleStatement(
-            "SELECT * FROM {$this->keyspace}.{$this->table}"
-        );
-
         // Get first page
-        $rows = $this->session->execute($statement, $options);
+        $rows = $this->session->execute(
+            "SELECT * FROM {$this->keyspace}.{$this->table}",
+            array("page_size" => $pageSize)
+        );
         $this->assertEquals($rows->count(), $pageSize);
         $values = self::convertRowsToArray($rows, "value");
 
@@ -297,26 +272,20 @@ class PagingIntegrationTest extends IntegrationTest {
      */
     public function testNoPagingMemoryLeak() {
         // Create the user types and table for the test
-        $this->session->execute(new Cassandra\SimpleStatement(
-            "DROP TABLE {$this->keyspace}.{$this->table}"
-        ));
-        $this->session->execute(new Cassandra\SimpleStatement(
-            "CREATE TYPE {$this->keyspace}.price_history (time timestamp, price float)"
-        ));
+        $this->session->execute("DROP TABLE {$this->keyspace}.{$this->table}");
+        $this->session->execute("CREATE TYPE {$this->keyspace}.price_history (time timestamp, price float)");
         $priceHistory = Cassandra\Type::userType(
             "time", Cassandra\Type::timestamp(),
             "price", Cassandra\Type::float());
-        $this->session->execute(new Cassandra\SimpleStatement(
-            "CREATE TYPE {$this->keyspace}.purchase_stats (day_of_week int, total_purchases int)"
-        ));
+        $this->session->execute("CREATE TYPE {$this->keyspace}.purchase_stats (day_of_week int, total_purchases int)");
         $purchaseStats = Cassandra\Type::userType(
             "day_of_week", Cassandra\Type::int(),
             "total_purchases", Cassandra\Type::int());
-        $this->session->execute(new Cassandra\SimpleStatement(
-            "CREATE TABLE {$this->keyspace}.{$this->table} (id uuid PRIMARY KEY,
-                history frozen<price_history>, stats frozen<purchase_stats>,
-                comments text)"
-        ));
+        $this->session->execute(
+            "CREATE TABLE {$this->keyspace}.{$this->table} " .
+            "(id uuid PRIMARY KEY, history frozen<price_history>, stats frozen<purchase_stats>, " .
+            " comments text)"
+        );
 
         // Populate the table with some random data
         $totalInserts = 500;
@@ -339,15 +308,11 @@ class PagingIntegrationTest extends IntegrationTest {
                 $this->randomString()
             );
 
-            $options = array("arguments" => $values);
-            $this->session->execute($statement, $options);
+            $this->session->execute($statement, array("arguments" => $values));
         }
 
         // Select all the rows in the table using paging
-        $statement = new Cassandra\SimpleStatement("SELECT * FROM {$this->keyspace}.{$this->table}");
-        $options = array("page_size" => 2);
-        $rows = $this->session->execute($statement, $options);
-
+        $rows = $this->session->execute("SELECT * FROM {$this->keyspace}.{$this->table}", array("page_size" => 2));
 
         // Validate paging and ensure all the rows were read
         $count = $this->validatePageResults($rows);

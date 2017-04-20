@@ -268,7 +268,7 @@ class GraphTest extends DseGraphIntegrationTest {
         $query = "SELECT WRITETIME(\"~~vertex_exists\") "
             . "FROM {$this->table}.person_p "
             . "WHERE community_id={$community_id}";
-        $rows = $this->session->execute(new Dse\SimpleStatement($query));
+        $rows = $this->session->execute($query);
         $expected_timestamp = $timestamp->add(new Dse\Bigint(1));
         $this->assertEquals($expected_timestamp, $rows[0]["writetime(~~vertex_exists)"]);
     }

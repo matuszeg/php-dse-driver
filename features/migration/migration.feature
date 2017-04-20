@@ -19,7 +19,7 @@ Feature: Migrating from the DataStax Driver for Apache Cassandra to the
 
       $session = $cluster->connect();
 
-      $row = $session->execute(new Cassandra\SimpleStatement("SELECT release_version FROM system.local"))->first();
+      $row = $session->execute("SELECT release_version FROM system.local")->first();
 
       echo "Release version: {$row["release_version"]}" . PHP_EOL;
       """

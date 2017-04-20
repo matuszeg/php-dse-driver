@@ -120,7 +120,6 @@ namespace Cassandra {
 // Create an alias for DSE extension to share core test framework
 use \Dse as Cassandra;
 use \Dse\DefaultSession as DefaultSession;
-use \Dse\SimpleStatement as SimpleStatement;
 
 /**
  * This class is for representing Cassandra versions.
@@ -150,8 +149,7 @@ class Version extends \Version {
      * @return Version Cassandra version from the server
      */
     public static function from_server(DefaultSession $session) {
-        $result = $session->execute(new SimpleStatement(
-            self::CQL_SELECT_CASSANDRA_RELEASE_VERSION));
+        $result = $session->execute(self::CQL_SELECT_CASSANDRA_RELEASE_VERSION);
         return new Version($result[0]["release_version"]);
     }
 } // Version class
@@ -205,8 +203,7 @@ class Version extends \Version {
      * @return Version DSE version from the server
      */
     public static function from_server(DefaultSession $session) {
-        $result = $session->execute(new SimpleStatement(
-            self::CQL_SELECT_DSE_RELEASE_VERSION));
+        $result = $session->execute(self::CQL_SELECT_DSE_RELEASE_VERSION);
         $version = new Version($result[0]["dse_version"]);
         $version->cassandra_version = \Cassandra\Version::from_server($session);
         return $version;

@@ -24,9 +24,9 @@ Feature: DSE Geospatial Types
       $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
 
-      $session->execute(new Dse\SimpleStatement("INSERT INTO points (k, v) VALUES ('point0', 'POINT (1.0 2.0)')"));
+      $session->execute("INSERT INTO points (k, v) VALUES ('point0', 'POINT (1.0 2.0)')");
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM points WHERE k = 'point0'"))->first();
+      $row = $session->execute("SELECT * FROM points WHERE k = 'point0'")->first();
 
       $point = $row['v'];
       echo "X coord: {$point->x()}" . PHP_EOL;
@@ -50,10 +50,10 @@ Feature: DSE Geospatial Types
       $session = $cluster->connect("simplex");
 
       $point = new Dse\Point(1.0, 2.0);
-      $session->execute(new Dse\SimpleStatement("INSERT INTO points (k, v) VALUES ('point1', ?)"),
-                        new Dse\ExecutionOptions(array("arguments" => array($point))));
+      $session->execute("INSERT INTO points (k, v) VALUES ('point1', ?)",
+                        array("arguments" => array($point)));
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM points WHERE k = 'point1'"))->first();
+      $row = $session->execute("SELECT * FROM points WHERE k = 'point1'")->first();
 
       $point = $row['v'];
       echo "X coord: {$point->x()}" . PHP_EOL;
@@ -76,9 +76,9 @@ Feature: DSE Geospatial Types
       $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
 
-      $session->execute(new Dse\SimpleStatement("INSERT INTO linestrings (k, v) VALUES ('linestring0', 'LINESTRING (0.0 1.0, 2.0 3.0, 4.0 5.0)')"));
+      $session->execute("INSERT INTO linestrings (k, v) VALUES ('linestring0', 'LINESTRING (0.0 1.0, 2.0 3.0, 4.0 5.0)')");
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM linestrings WHERE k = 'linestring0'"))->first();
+      $row = $session->execute("SELECT * FROM linestrings WHERE k = 'linestring0'")->first();
 
       $linestring = $row['v'];
       echo "First point: {$linestring->point(0)}" . PHP_EOL;
@@ -107,10 +107,12 @@ Feature: DSE Geospatial Types
                                        new Dse\Point(2.0, 3.0),
                                        new Dse\Point(4.0, 5.0));
 
-      $session->execute(new Dse\SimpleStatement("INSERT INTO linestrings (k, v) VALUES ('linestring1', ?)"),
-                        new Dse\ExecutionOptions(array("arguments" => array($linestring))));
+      $session->execute(
+          "INSERT INTO linestrings (k, v) VALUES ('linestring1', ?)",
+          array("arguments" => array($linestring))
+      );
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM linestrings WHERE k = 'linestring1'"))->first();
+      $row = $session->execute("SELECT * FROM linestrings WHERE k = 'linestring1'")->first();
 
       $linestring = $row['v'];
       echo "First point: {$linestring->point(0)}" . PHP_EOL;
@@ -136,10 +138,12 @@ Feature: DSE Geospatial Types
       $session = $cluster->connect("simplex");
 
       $linestring = new Dse\LineString();
-      $session->execute(new Dse\SimpleStatement("INSERT INTO linestrings (k, v) VALUES ('linestring_empty', ?)"),
-                        new Dse\ExecutionOptions(array("arguments" => array($linestring))));
+      $session->execute(
+          "INSERT INTO linestrings (k, v) VALUES ('linestring_empty', ?)",
+          array("arguments" => array($linestring))
+      );
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM linestrings WHERE k = 'linestring_empty'"))->first();
+      $row = $session->execute("SELECT * FROM linestrings WHERE k = 'linestring_empty'")->first();
 
       $linestring = $row['v'];
       echo "LineString as WKT: {$linestring->wkt()}" . PHP_EOL;
@@ -156,12 +160,12 @@ Feature: DSE Geospatial Types
       $cluster = Dse::cluster()->build();
       $session = $cluster->connect("simplex");
 
-      $session->execute(new Dse\SimpleStatement("INSERT INTO polygons (k, v)
-                                                VALUES ('polygon0',
-                                                'POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10),
-                                                          (20 30, 35 35, 30 20, 20 30))')"));
+      $session->execute(
+          "INSERT INTO polygons (k, v) " .
+          "VALUES ('polygon0', 'POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30))')"
+      );
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM polygons WHERE k = 'polygon0'"))->first();
+      $row = $session->execute("SELECT * FROM polygons WHERE k = 'polygon0'")->first();
 
       $polygon = $row['v'];
       echo "Exterior ring: {$polygon->exteriorRing()}" . PHP_EOL;
@@ -201,10 +205,46 @@ Feature: DSE Geospatial Types
 
       $polygon = new Dse\Polygon($linestring0, $linestring1);
 
-      $session->execute(new Dse\SimpleStatement("INSERT INTO polygons (k, v) VALUES ('polygon1', ?)"),
-                        new Dse\ExecutionOptions(array("arguments" => array($polygon))));
+      $session->execute(
+          "INSERT INTO polygons (k, v) VALUES ('polygon1', ?)",
+          array("arguments" => array($polygon))
+      );
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM polygons WHERE k = 'polygon1'"))->first();
+      $row = $session->execute("SELECT * FROM polygons WHERE k = 'polygon1'")->first();
+
+      $polygon = $row['v'];
+      echo "Exterior ring: {$polygon->exteriorRing()}" . PHP_EOL;
+      echo "Interior ring: {$polygon->interiorRings()[0]}" . PHP_EOL;
+      echo "Polygon as a string: " . PHP_EOL;
+      echo $polygon . PHP_EOL;
+      echo "Polygon as wkt {$polygon->wkt()}" . PHP_EOL;
+      """
+    When it is executed
+    Then its output should contain:
+      """
+      Exterior ring: 35,10 to 45,45 to 15,40 to 10,20 to 35,10
+      Interior ring: 20,30 to 35,35 to 30,20 to 20,30
+      Polygon as a string:
+      Exterior ring: 35,10 to 45,45 to 15,40 to 10,20 to 35,10
+      Interior rings:
+          20,30 to 35,35 to 30,20 to 20,30
+      Polygon as wkt POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30))
+      """
+
+  Scenario: Create a polygon by binding a `Polygon` object that was created with a well-known-text string
+    Given the following example:
+      """php
+      $cluster = Dse::cluster()->build();
+      $session = $cluster->connect("simplex");
+
+      $polygon = new Dse\Polygon("POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30))");
+
+      $session->execute(
+          "INSERT INTO polygons (k, v) VALUES ('polygon1', ?)",
+          array("arguments" => array($polygon))
+      );
+
+      $row = $session->execute("SELECT * FROM polygons WHERE k = 'polygon1'")->first();
 
       $polygon = $row['v'];
       echo "Exterior ring: {$polygon->exteriorRing()}" . PHP_EOL;
@@ -232,10 +272,12 @@ Feature: DSE Geospatial Types
       $session = $cluster->connect("simplex");
 
       $polygon = new Dse\Polygon();
-      $session->execute(new Dse\SimpleStatement("INSERT INTO polygons (k, v) VALUES ('polygon_empty', ?)"),
-                        new Dse\ExecutionOptions(array("arguments" => array($polygon))));
+      $session->execute(
+          "INSERT INTO polygons (k, v) VALUES ('polygon_empty', ?)",
+          array("arguments" => array($polygon))
+      );
 
-      $row = $session->execute(new Dse\SimpleStatement("SELECT * FROM polygons WHERE k = 'polygon_empty'"))->first();
+      $row = $session->execute("SELECT * FROM polygons WHERE k = 'polygon_empty'")->first();
 
       $polygon = $row['v'];
       echo "Polygon as WKT: {$polygon->wkt()}" . PHP_EOL;

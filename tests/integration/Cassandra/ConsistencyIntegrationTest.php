@@ -39,22 +39,17 @@ class ConsistencyIntegrationTest extends IntegrationTest {
      */
     public function testDefaultConsistencyLevel() {
         // Create a new table
-        $query = "CREATE TABLE {$this->keyspace}.{$this->table} (key int PRIMARY KEY)";
-        $statement = new Cassandra\SimpleStatement($query);
-        $this->session->execute($statement);
+        $this->session->execute("CREATE TABLE {$this->keyspace}.{$this->table} (key int PRIMARY KEY)");
 
         // Enable tracing
         self::$ccm->node_trace(1);
 
         // Insert a value into the table
         $insertQuery = "INSERT INTO {$this->keyspace}.{$this->table} (key) VALUES (1)";
-        $statement = new Cassandra\SimpleStatement($insertQuery);
-        $this->session->execute($statement);
+        $this->session->execute($insertQuery);
 
         // Check the trace logs to determine the consistency level used
-        $query = "SELECT parameters FROM system_traces.sessions";
-        $statement = new Cassandra\SimpleStatement($query);
-        $rows = $this->session->execute($statement);
+        $rows = $this->session->execute("SELECT parameters FROM system_traces.sessions");
         $isAsserted = false;
         foreach ($rows as $row) {
             // Find the parameters that contains the insert query

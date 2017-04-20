@@ -5,8 +5,7 @@ Feature: Result paging
   paging through query results is allowed.
 
   Page size can be specified by setting the `$pageSize` attribute of
-  `Dse\ExecutionOptions` or cluster-wide, using
-  `Dse\Cluster\Buidler::withDefaultPageSize()`.
+  execution-options or cluster-wide, using `Dse\Cluster\Builder::withDefaultPageSize()`.
 
   Once a `Dse\Rows` object has been received, next page can be retrieved
   using `Dse\Rows::nextPage()` or `Dse\Rows::nextPageAsync()`
@@ -44,9 +43,8 @@ Feature: Result paging
       """php
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
-      $statement = new Dse\SimpleStatement("SELECT * FROM paging_entries");
       $options   = array('page_size' => 5);
-      $rows      = $session->execute($statement, $options);
+      $rows      = $session->execute("SELECT * FROM paging_entries", $options);
 
       while (true) {
           echo "Entries in Page: {$rows->count()}" . PHP_EOL;
@@ -86,11 +84,8 @@ Feature: Result paging
       """php
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
-      $statement = new Dse\SimpleStatement("SELECT * FROM paging_entries");
-      $options   = array('page_size' => 10);
-      $rows      = $session->execute($statement, $options);
 
-      $firstPageRows = $session->execute($statement, $options);
+      $firstPageRows = $session->execute("SELECT * FROM paging_entries", array('page_size' => 10));
       echo "Page 1: " . ($firstPageRows->isLastPage() ? "last" : "not last") . PHP_EOL;
 
       $secondPageRows = $firstPageRows->nextPage();
@@ -116,9 +111,9 @@ Feature: Result paging
       """php
       $cluster   = Dse::cluster()->build();
       $session   = $cluster->connect("simplex");
-      $statement = new Dse\SimpleStatement("SELECT * FROM paging_entries");
+      $query     = "SELECT * FROM paging_entries";
       $options = array('page_size' => 2);
-      $result = $session->execute($statement, $options);
+      $result = $session->execute($query, $options);
 
       foreach ($result as $row) {
           echo "key: {$row['key']}, value: {$row['value']}" . PHP_EOL;
@@ -130,7 +125,7 @@ Feature: Result paging
               'paging_state_token' => $result->pagingStateToken()
           );
 
-          $result = $session->execute($statement, $options);
+          $result = $session->execute($query, $options);
 
           foreach ($result as $row) {
             echo "key: {$row['key']}, value: {$row['value']}" . PHP_EOL;

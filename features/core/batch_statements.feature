@@ -35,17 +35,12 @@ Feature: Batch statements
   Scenario: Batch statements can contain simple and prepared statements
     Given the following example:
       """php
-      $cluster   = Dse::cluster()->build();
-      $session   = $cluster->connect("simplex");
-      $prepared  = $session->prepare(
-                     "INSERT INTO playlists (id, song_id, artist, title, album) " .
-                     "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)"
-                   );
-      $simple    = new Dse\SimpleStatement(
-                     "INSERT INTO playlists (id, song_id, artist, title, album) " .
-                     "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)"
-                   );
-      $batch     = new Dse\BatchStatement(Dse::BATCH_LOGGED);
+      $cluster     = Dse::cluster()->build();
+      $session     = $cluster->connect("simplex");
+      $insertQuery = "INSERT INTO playlists (id, song_id, artist, title, album) " .
+                     "VALUES (62c36092-82a1-3a00-93d1-46196ee77204, ?, ?, ?, ?)";
+      $prepared    = $session->prepare($insertQuery);
+      $batch       = new Dse\BatchStatement(Dse::BATCH_LOGGED);
 
       $batch->add($prepared, array(
           'song_id' => new Dse\Uuid('756716f7-2e54-4715-9f00-91dcbea6cf50'),
@@ -54,9 +49,9 @@ Feature: Batch statements
           'artist'  => 'Joséphine Baker'
       ));
 
-      $batch->add($simple, array(
+      $batch->add($insertQuery, array(
           new Dse\Uuid('f6071e72-48ec-4fcb-bf3e-379c8a696488'),
-          'Willi Ostermann', 'Die Mösch', 'In Gold',
+          'Willi Ostermann', 'Die Mösch', 'In Gold'
       ));
 
       $batch->add($prepared, array(
@@ -66,8 +61,7 @@ Feature: Batch statements
 
       $session->execute($batch);
 
-      $statement = new Dse\SimpleStatement("SELECT * FROM simplex.playlists");
-      $result    = $session->execute($statement);
+      $result = $session->execute("SELECT * FROM simplex.playlists");
 
       foreach ($result as $row) {
           echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;

@@ -58,8 +58,7 @@ Feature: Prepared Statements
           $session->execute($insert, $options);
       }
 
-      $statement = new Dse\SimpleStatement("SELECT * FROM simplex.playlists");
-      $result    = $session->execute($statement);
+      $result = $session->execute("SELECT * FROM simplex.playlists");
 
       foreach ($result as $row) {
         echo "{$row['artist']}: {$row['title']} / {$row['album']}" . PHP_EOL;
