@@ -294,7 +294,7 @@ class PagingIntegrationTest extends IntegrationTest {
         foreach (range(1, $totalInserts) as $i) {
             // Create the values for the insert
             $history = $priceHistory->create(
-                "time", new Cassandra\Timestamp(mt_rand(1270094400000, 1459483200000)), // 04-01-2010 - 04-01-2016
+                "time", new Cassandra\Timestamp(mt_rand(1270094400, 1459483200), 0), // 04-01-2010 - 04-01-2016
                 "price", new Cassandra\Float((mt_rand(1, 1000) / 100))
             );
             $stats = $purchaseStats->create(

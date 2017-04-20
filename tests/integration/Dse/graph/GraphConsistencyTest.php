@@ -246,7 +246,6 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      * cluster.
      *
      * Consistency levels options applied:
-     *   - CONSISTENCY_ANY
      *   - CONSISTENCY_ONE
      *   - CONSISTENCY_TWO
      *   - CONSISTENCY_THREE
@@ -282,7 +281,6 @@ class GraphConsistencyTest extends DseGraphIntegrationTest {
      * three node cluster.
      *
      * Consistency levels options applied:
-     *   - CONSISTENCY_ANY
      *   - CONSISTENCY_ONE
      *   - CONSISTENCY_TWO
      *   - CONSISTENCY_QUORUM
