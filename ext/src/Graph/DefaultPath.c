@@ -264,7 +264,7 @@ void php_driver_define_GraphDefaultPath(TSRMLS_D)
   zend_class_entry ce;
 
   INIT_CLASS_ENTRY(ce, PHP_DRIVER_NAMESPACE "\\Graph\\DefaultPath", php_driver_graph_default_path_methods);
-  php_driver_graph_default_path_ce = zend_register_internal_class(&ce TSRMLS_CC);
+  php_driver_graph_default_path_ce = php5to7_zend_register_internal_class_ex(&ce, php_driver_graph_path_ce);
   php_driver_graph_default_path_ce->ce_flags     |= PHP5TO7_ZEND_ACC_FINAL;
   php_driver_graph_default_path_ce->create_object = php_driver_graph_default_path_new;
 

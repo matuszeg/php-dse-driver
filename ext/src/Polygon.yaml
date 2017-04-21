@@ -31,7 +31,7 @@ Polygon:
           comment: varargs-style array of LineStrings
           type: array
     type:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
         comment: the custom type for Polygon
         type: Type\Custom

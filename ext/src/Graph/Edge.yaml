@@ -39,7 +39,7 @@ Graph\Edge:
     properties:
       comment: Gets the edge's properties as an array of graph results.
       return:
-        comment: An array of graph results.
+        comment: ""
         type: array
     property:
       comment: Gets an edge's property for a specific key.

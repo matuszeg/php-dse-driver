@@ -1,22 +1,22 @@
 ---
 Graph\DefaultProperty:
-  comment: '{@inheritDoc}'
+  comment: ""
   methods:
     __construct:
-      comment: '{@inheritDoc}'
+      comment: ""
     name:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: string
     value:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: Graph\Result
     parent:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: Graph\Result
 ...

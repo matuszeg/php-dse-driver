@@ -30,7 +30,7 @@ LineString:
           comment: varargs-style array of Point's
           type: array
     type:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
         comment: the custom type for LineString
         type: Type\Custom

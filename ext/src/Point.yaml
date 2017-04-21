@@ -13,7 +13,7 @@ Point:
           comment: Either x, y pair or a WKT string
           type: double|string
     type:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
         comment: the custom type for Point
         type: Type\Custom

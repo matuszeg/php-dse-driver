@@ -17,7 +17,7 @@ Graph\Vertex:
     properties:
       comment: Gets the vertex's properties as an array of graph results.
       return:
-        comment: An array of graph results.
+        comment: ""
         type: array
     property:
       comment: Gets an vertex's property for a specific key.

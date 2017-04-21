@@ -1,31 +1,31 @@
 ---
 Graph\DefaultPath:
-  comment: '{@inheritDoc}'
+  comment: ""
   methods:
     __construct:
-      comment: '{@inheritDoc}'
+      comment: ""
     labels:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
-        type: mixed
+        comment: ""
+        type: array
     objects:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
-        type: mixed
+        comment: ""
+        type: array
     hasLabel:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: mixed
     object:
-      comment: '{@inheritDoc}'
+      comment: ""
       params:
         key:
-          comment: '{@inheritDoc}'
-          type: mixed
+          comment: ""
+          type: string
       return:
-        comment: '{@inheritDoc}'
-        type: mixed
+        comment: ""
+        type: Graph\Result|false
 ...

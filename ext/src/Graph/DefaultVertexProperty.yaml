@@ -1,46 +1,46 @@
 ---
 Graph\DefaultVertexProperty:
-  comment: '{@inheritDoc}'
+  comment: ""
   methods:
     __construct:
-      comment: '{@inheritDoc}'
+      comment: ""
     name:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: string
     value:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: Graph\Result
     parent:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: Graph\Result
     id:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: Graph\Result
     label:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: string
     properties:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: array
     property:
-      comment: '{@inheritDoc}'
+      comment: ""
       params:
         key:
-          comment: '{@inheritDoc}'
+          comment: ""
           type: string
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: Graph\Result
 ...

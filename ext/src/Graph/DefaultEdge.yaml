@@ -1,51 +1,51 @@
 ---
 Graph\DefaultEdge:
-  comment: '{@inheritDoc}'
+  comment: ""
   methods:
     __construct:
-      comment: '{@inheritDoc}'
+      comment: ""
     id:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: Graph\Result
     label:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: string
     properties:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: array
     property:
-      comment: '{@inheritDoc}'
+      comment: ""
       params:
         key:
-          comment: '{@inheritDoc}'
+          comment: ""
           type: string
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: Graph\Result
     inV:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: Graph\Result
     inVLabel:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: string
     outV:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: Graph\Result
     outVLabel:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: '{@inheritDoc}'
+        comment: ""
         type: string
 ...

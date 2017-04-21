@@ -197,8 +197,7 @@ Graph\Result:
         comment: A geospatial polygon value.
         type: Polygon
     asDateRange:
-      comment: |-
-        Converts a string result to the DateRange type.
+      comment: Converts a string result to the DateRange type.
       return:
         comment: A DateRange value.
         type: DateRange

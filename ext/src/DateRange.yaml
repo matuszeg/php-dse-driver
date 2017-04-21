@@ -1,6 +1,6 @@
 ---
 DateRange:
-  comment: "A PHP representation of the DSE `DateRange` datatype"
+  comment: A PHP representation of the DSE `DateRange` datatype
   methods:
     __construct:
       comment: |-
@@ -23,31 +23,33 @@ DateRange:
         @endcode
       params:
         bounds:
-          comment: "A variadic list of args that denote a single-date bound or a lower and upper bound pair"
+          comment: A variadic list of args that denote a single-date bound or a lower
+            and upper bound pair
           type: mixed
     type:
-      comment: '{@inheritDoc}'
+      comment: ""
       return:
-        comment: "the custom type for DateRange"
+        comment: the custom type for DateRange
         type: Type\Custom
     lowerBound:
       comment: ""
       return:
-        comment: "the lower-bound or single-date-bound of this DateRange"
+        comment: the lower-bound or single-date-bound of this DateRange
         type: Bound
     upperBound:
       comment: ""
       return:
-        comment: "the upper-bound of this DateRange; `null` if this is a single-date DateRange"
+        comment: the upper-bound of this DateRange; `null` if this is a single-date
+          DateRange
         type: Bound
     isSingleDate:
       comment: ""
       return:
-        comment: "whether or not this DateRange has a single date value"
+        comment: whether or not this DateRange has a single date value
         type: boolean
     __toString:
       comment: ""
       return:
-        comment: "string representation of this DateRange"
+        comment: string representation of this DateRange
         type: string
 ...
