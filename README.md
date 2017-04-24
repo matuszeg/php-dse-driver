@@ -16,7 +16,7 @@ section](#licence) below.
 
 ## Documentation
 
-Documentation for the DSE driver is available [here](/api)
+Documentation for the DSE driver is available [here](http://docs.datastax.com/en/developer/php-driver-dse/)
 
 ## Examples
 
