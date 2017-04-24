@@ -22,7 +22,7 @@ final class Point extends Custom  {
     public function __construct($pointData) { }
 
     /**
-     * {@inheritDoc}
+     * The type of this value.
      *
      * @return Type\Custom the custom type for Point
      */

@@ -9,39 +9,39 @@
 namespace Dse\Graph;
 
 /**
- * {@inheritDoc}
+ * A representation of a graph element
  */
 final class DefaultElement implements Element {
 
     private final function __construct() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the element's unique identifier.
      *
-     * @return Graph\Result {@inheritDoc}
+     * @return Graph\Result The element's identifier as a graph result.
      */
     public function id() { }
 
     /**
-     * {@inheritDoc}
+     * Get's the element's label.
      *
-     * @return string {@inheritDoc}
+     * @return string The element's label.
      */
     public function label() { }
 
     /**
-     * {@inheritDoc}
+     * Gets an array of the element's properties.
      *
-     * @return array {@inheritDoc}
+     * @return array An array of graph results.
      */
     public function properties() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the element's property at the specified key.
      *
-     * @param string $key {@inheritDoc}
+     * @param string $key The name of the element's property.
      *
-     * @return Graph\Result {@inheritDoc}
+     * @return Graph\Result The element's property as a graph result.
      */
     public function property($key) { }
 

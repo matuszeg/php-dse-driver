@@ -21,6 +21,8 @@ final class Duration implements Value {
     public function __construct($months, $days, $nanos) { }
 
     /**
+     * The type of represented by the value.
+     *
      * @return Type the type for Duration
      */
     public function type() { }

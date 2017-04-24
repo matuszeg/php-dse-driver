@@ -14,7 +14,7 @@ namespace Dse;
 final class FutureValue implements Future {
 
     /**
-     * {@inheritDoc}
+     * Waits for a given future resource to resolve and throws errors if any.
      *
      * @param int|double|null $timeout A timeout in seconds
      *

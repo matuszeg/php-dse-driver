@@ -44,7 +44,7 @@ abstract class Path {
      * @param string $key A string label of an object.
      *
      * @return Graph\Result|false The graph element as a graph result or `false` if the label is not in
-the path.
+     *                            the path.
      */
     public abstract function object($key);
 

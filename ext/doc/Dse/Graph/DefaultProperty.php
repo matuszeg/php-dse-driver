@@ -9,30 +9,30 @@
 namespace Dse\Graph;
 
 /**
- * {@inheritDoc}
+ * A property or sub-property of a graph element.
  */
 final class DefaultProperty implements Property {
 
     private final function __construct() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the name of the property.
      *
-     * @return string {@inheritDoc}
+     * @return string The string name of a property.
      */
     public function name() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the value of the property.
      *
-     * @return Graph\Result {@inheritDoc}
+     * @return Graph\Result The value of the property.
      */
     public function value() { }
 
     /**
-     * {@inheritDoc}
+     * Gets The graph element that contains this property.
      *
-     * @return Graph\Result {@inheritDoc}
+     * @return Graph\Result The parent graph element of this property.
      */
     public function parent() { }
 

@@ -41,7 +41,7 @@ final class Polygon extends Custom  {
     public function __construct($rings) { }
 
     /**
-     * {@inheritDoc}
+     * The type of this value.
      *
      * @return Type\Custom the custom type for Polygon
      */

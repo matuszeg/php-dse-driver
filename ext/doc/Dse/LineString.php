@@ -40,7 +40,7 @@ final class LineString extends Custom  {
     public function __construct($points) { }
 
     /**
-     * {@inheritDoc}
+     * The type of this value.
      *
      * @return Type\Custom the custom type for LineString
      */

@@ -9,60 +9,61 @@
 namespace Dse\Graph;
 
 /**
- * {@inheritDoc}
+ * A property of a graph vertex. A vertex property can contain its own
+ * properties.
  */
 final class DefaultVertexProperty extends VertexProperty  {
 
     private final function __construct() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the name of the property.
      *
-     * @return string {@inheritDoc}
+     * @return string The string name of a property.
      */
     public function name() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the value of the property.
      *
-     * @return Graph\Result {@inheritDoc}
+     * @return Graph\Result The value of the property.
      */
     public function value() { }
 
     /**
-     * {@inheritDoc}
+     * Gets The graph element that contains this property.
      *
-     * @return Graph\Result {@inheritDoc}
+     * @return Graph\Result The parent graph element of this property.
      */
     public function parent() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the vertex property's unique identifier.
      *
-     * @return Graph\Result {@inheritDoc}
+     * @return Graph\Result The vertex property's identifier as a graph result.
      */
     public function id() { }
 
     /**
-     * {@inheritDoc}
+     * Get's the vertex property's label.
      *
-     * @return string {@inheritDoc}
+     * @return string The vertex property's label.
      */
     public function label() { }
 
     /**
-     * {@inheritDoc}
+     * Gets an array of the vertex property's properties.
      *
-     * @return array {@inheritDoc}
+     * @return array An array of graph results.
      */
     public function properties() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the vertex property's property at the specified key.
      *
-     * @param string $key {@inheritDoc}
+     * @param string $key The name of the vertex property's property.
      *
-     * @return Graph\Result {@inheritDoc}
+     * @return Graph\Result The vertex property's property as a graph result.
      */
     public function property($key) { }
 

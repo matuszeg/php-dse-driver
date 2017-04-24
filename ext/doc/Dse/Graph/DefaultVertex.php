@@ -9,39 +9,40 @@
 namespace Dse\Graph;
 
 /**
- * {@inheritDoc}
+ * A graph element that is the basis of the graph and can be connected to other
+ * vertices using graph edges.
  */
 final class DefaultVertex extends Vertex  {
 
     private final function __construct() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the vertex's unique identifier.
      *
-     * @return Graph\Result {@inheritDoc}
+     * @return Graph\Result The vertex's identifier as a graph result.
      */
     public function id() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the vertex's label.
      *
-     * @return string {@inheritDoc}
+     * @return string The vertex's label.
      */
     public function label() { }
 
     /**
-     * {@inheritDoc}
+     * Gets the vertex's properties as an array of graph results.
      *
-     * @return array {@inheritDoc}
+     * @return array An array of graph results.
      */
     public function properties() { }
 
     /**
-     * {@inheritDoc}
+     * Gets an vertex's property for a specific key.
      *
-     * @param string $key {@inheritDoc}
+     * @param string $key A property's name
      *
-     * @return Graph\Result {@inheritDoc}
+     * @return Graph\Result An vertex's property as a graph result.
      */
     public function property($key) { }
 

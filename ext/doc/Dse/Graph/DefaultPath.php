@@ -9,39 +9,44 @@
 namespace Dse\Graph;
 
 /**
- * {@inheritDoc}
+ * A sequence of graph elements that represents a path between two vertices.
+ *
+ * @see Graph\Edge
+ * @see Graph\Vertex
  */
-final class DefaultPath {
+final class DefaultPath extends Path {
 
     private final function __construct() { }
 
     /**
-     * {@inheritDoc}
+     * A sequence of string labels representing the path of graph elements
+     * between two vertices.
      *
-     * @return mixed {@inheritDoc}
+     * @return array An array of arrays of string labels.
      */
     public function labels() { }
 
     /**
-     * {@inheritDoc}
+     * Gets an array of graph elements between the two vertices.
      *
-     * @return mixed {@inheritDoc}
+     * @return array An array of graph results between the two vertices.
      */
     public function objects() { }
 
     /**
-     * {@inheritDoc}
+     * Determines if the following path contains a label.
      *
-     * @return mixed {@inheritDoc}
+     * @return mixed
      */
     public function hasLabel() { }
 
     /**
-     * {@inheritDoc}
+     * Get an object in the path with a particular label.
      *
-     * @param mixed $key {@inheritDoc}
+     * @param string $key A string label of an object.
      *
-     * @return mixed {@inheritDoc}
+     * @return Graph\Result|false The graph element as a graph result or `false` if the label is not in
+     *                            the path.
      */
     public function object($key) { }
 
