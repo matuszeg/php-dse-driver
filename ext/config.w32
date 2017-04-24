@@ -4,7 +4,7 @@ ARG_ENABLE("dse", "Enable DataStax PHP DSE extension", "no");
 
 // Establish the minimum DSE C/C++ driver version
 var minimum_major = 1;
-var minimum_minor = 1;
+var minimum_minor = 2;
 var minimum_patch = 0;
 var minimum_version = minimum_major + "." + minimum_minor + "." + minimum_patch;
 
